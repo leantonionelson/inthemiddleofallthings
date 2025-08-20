@@ -236,7 +236,7 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 space-y-8 pt-20 pb-24">
+      <div className="flex-1 flex flex-col items-center justify-center p-10 space-y-8 pt-20 pb-24">
         {/* Living Axis Symbol */}
         <motion.div 
           className="w-32 h-32 flex items-center justify-center"

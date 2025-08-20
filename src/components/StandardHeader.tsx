@@ -34,7 +34,7 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
     navigate(AppRoute.SETTINGS);
   };
 
-  const baseClasses = "bg-paper-light dark:bg-paper-dark shadow-sm border-b border-gray-100 dark:border-gray-800 backdrop-blur-sm paper-texture";
+  const baseClasses = "bg-paper-light dark:bg-paper-dark border-b border-gray-100 dark:border-gray-800 paper-texture";
   const headerClasses = `${baseClasses} ${className}`;
 
   return (

@@ -22,7 +22,7 @@ const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
   showShadow = true
 }) => {
   return (
-    <div className={`fixed bottom-16 left-0 right-0 z-40 bg-paper-light dark:bg-paper-dark backdrop-blur-sm paper-texture ${showShadow ? 'shadow-lg' : ''}`}>
+    <div className={`bg-paper-light dark:bg-paper-dark backdrop-blur-sm paper-texture ${showShadow ? 'shadow-lg' : ''}`}>
       <div className="flex items-center justify-center px-4 py-3 mb-4">
         {/* Left side: Listen button */}
         <div className="flex items-center space-x-3 mr-4">
