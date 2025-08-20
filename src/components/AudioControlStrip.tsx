@@ -136,6 +136,9 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
   const setupBrowserSpeech = () => {
     console.log('Setting up browser speech synthesis');
     
+    // Cancel any existing speech synthesis
+    speechSynthesis.cancel();
+    
     // Check if speech synthesis is supported
     if (!window.speechSynthesis) {
       console.error('Speech synthesis not supported in this browser');
@@ -163,12 +166,23 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
       
       // Try to find a natural voice
       const voices = speechSynthesis.getVoices();
-      const preferredVoice = voices.find(voice => 
+      let preferredVoice = voices.find(voice => 
         voice.lang.startsWith('en') && 
         (voice.name.includes('Natural') || voice.name.includes('Premium') || !voice.name.includes('Google'))
       ) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
       
-      if (preferredVoice) {
+      // If no voices are available yet, wait for them to load
+      if (!preferredVoice && voices.length === 0) {
+        console.log('Waiting for voices to load...');
+        speechSynthesis.onvoiceschanged = () => {
+          const loadedVoices = speechSynthesis.getVoices();
+          preferredVoice = loadedVoices.find(voice => voice.lang.startsWith('en')) || loadedVoices[0];
+          if (preferredVoice) {
+            utterance.voice = preferredVoice;
+            console.log('Using voice:', preferredVoice.name);
+          }
+        };
+      } else if (preferredVoice) {
         utterance.voice = preferredVoice;
         console.log('Using voice:', preferredVoice.name);
       }
@@ -200,7 +214,12 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
       utterance.onerror = (error) => {
         console.error('Speech synthesis error:', error);
         setIsPlaying(false);
-        alert('Speech synthesis failed. Please try again.');
+        setIsUsingBrowserSpeech(false);
+        
+        // Don't show alert for interrupted errors (user likely stopped it)
+        if (error.error !== 'interrupted') {
+          console.warn('Speech synthesis failed, but continuing with text highlighting');
+        }
       };
 
       speechUtteranceRef.current = utterance;

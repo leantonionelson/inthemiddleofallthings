@@ -42,13 +42,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
     direction: 'up' // Header moves up when scrolling down
   });
 
-  // ChapterInfo moves up but stays at top of page - same speed as header
-  const chapterInfoScrollTransition = useScrollTransition({
-    threshold: 5,
-    sensitivity: 0.433, // Proportional to header (65/120 * 0.8)
-    maxOffset: 65,
-    direction: 'up' // Moves up when scrolling down but stays visible
-  });
+
 
   // Reader navigation moves with bottom menu but stays at bottom of screen
   const readerNavScrollTransition = useScrollTransition({
@@ -377,7 +371,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       isReading={true}
       onOpenAI={onOpenAI}
     >
-      {/* Header with scroll transition */}
+      {/* Header and ChapterInfo as one unified component */}
       <div 
         className="fixed top-0 left-0 right-0 z-40"
         style={headerScrollTransition.style}
@@ -387,13 +381,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
           showBackButton={true}
           onBackClick={() => navigate(AppRoute.HOME)}
         />
-      </div>
-
-      {/* ChapterInfo - moves up but stays at top */}
-      <div 
-        className="fixed top-16 left-0 right-0 z-40"
-        style={chapterInfoScrollTransition.style}
-      >
+        
         <ChapterInfo
           currentChapterIndex={currentChapterIndex}
           totalChapters={chapters.length}
@@ -419,7 +407,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       {/* Main Content Area */}
       <main 
         ref={contentRef}
-        className="pt-40 pb-32 px-10 max-w-2xl mx-auto relative"
+        className="pt-28 pb-32 px-10 max-w-2xl mx-auto relative"
         style={{ userSelect: 'text' }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -427,7 +415,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       >
 
 
-        <div className="py-12">
+        <div>
           {/* Chapter Header */}
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-ink-primary dark:text-paper-light mb-4 leading-tight">
