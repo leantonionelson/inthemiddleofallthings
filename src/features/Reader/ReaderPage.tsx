@@ -42,11 +42,12 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
     direction: 'up' // Header moves up when scrolling down
   });
 
+  // Reader navigation moves with bottom menu but stays at bottom of screen
   const readerNavScrollTransition = useScrollTransition({
     threshold: 5,
     sensitivity: 0.8,
-    maxOffset: 60,
-    direction: 'up' // Reader nav moves up when scrolling down
+    maxOffset: 80,
+    direction: 'down' // Moves down when scrolling down (stays at bottom)
   });
 
   // Load chapters from MDX files
@@ -385,7 +386,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
         />
       </div>
 
-      {/* Reader Navigation with scroll transition */}
+      {/* Reader Navigation - positioned above bottom menu */}
       <div 
         className="fixed bottom-20 left-0 right-0 z-40"
         style={readerNavScrollTransition.style}
