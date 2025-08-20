@@ -377,7 +377,6 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
           title={currentChapter.title}
           showBackButton={true}
           onBackClick={() => navigate(AppRoute.HOME)}
-          isFixed={true}
         />
 
         <ChapterInfo
@@ -388,7 +387,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
 
       {/* Reader Navigation with scroll transition */}
       <div 
-        className="fixed top-20 left-0 right-0 z-40"
+        className="fixed top-16 left-0 right-0 z-40"
         style={readerNavScrollTransition.style}
       >
         <ReaderNavigation
@@ -405,7 +404,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       {/* Main Content Area */}
       <main 
         ref={contentRef}
-        className="pt-32 pb-36 px-6 max-w-2xl mx-auto relative"
+        className="pt-28 pb-36 px-6 max-w-2xl mx-auto relative"
         style={{ userSelect: 'text' }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}

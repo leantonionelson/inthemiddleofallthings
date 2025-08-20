@@ -9,7 +9,6 @@ interface StandardHeaderProps {
   showBackButton?: boolean;
   showSettingsButton?: boolean;
   onBackClick?: () => void;
-  isFixed?: boolean;
   className?: string;
 }
 
@@ -19,7 +18,6 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
   showBackButton = false,
   showSettingsButton = false,
   onBackClick,
-  isFixed = true,
   className = ''
 }) => {
   const navigate = useNavigate();
@@ -46,8 +44,8 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
     >
-      <div className="px-4 py-4">
-        <div className="flex items-center justify-between max-w-4xl mx-auto">
+      <div className="">
+        <div className="flex items-center justify-between max-w-4xl mx-auto px-4 py-4">
           {/* Left side - Back button or spacer */}
           <div className="flex items-center w-12">
             {showBackButton ? (
