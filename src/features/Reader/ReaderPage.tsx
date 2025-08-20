@@ -7,6 +7,7 @@ import CleanLayout from '../../components/CleanLayout';
 import StandardHeader from '../../components/StandardHeader';
 import ReaderNavigation from '../../components/ReaderNavigation';
 import ChapterInfo from '../../components/ChapterInfo';
+import { useScrollTransition } from '../../hooks/useScrollTransition';
 
 import AudioControlStrip from '../../components/AudioControlStrip';
 
@@ -32,6 +33,19 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
   const [isListening, setIsListening] = useState(false);
 
   const [highlightedRange, setHighlightedRange] = useState<{ start: number; end: number } | null>(null);
+
+  // Scroll transition hooks for header and navigation
+  const headerScrollTransition = useScrollTransition({
+    threshold: 5,
+    sensitivity: 0.8,
+    transitionDuration: 250
+  });
+
+  const readerNavScrollTransition = useScrollTransition({
+    threshold: 5,
+    sensitivity: 0.8,
+    transitionDuration: 250
+  });
 
   // Load chapters from MDX files
   useEffect(() => {
@@ -352,32 +366,44 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       isReading={true}
       onOpenAI={onOpenAI}
     >
-      <StandardHeader
-        title={currentChapter.title}
-        showBackButton={true}
-        onBackClick={() => navigate(AppRoute.HOME)}
-        isFixed={true}
-      />
+      {/* Header with scroll transition */}
+      <div 
+        className="fixed top-0 left-0 right-0 z-40"
+        style={headerScrollTransition.style}
+      >
+        <StandardHeader
+          title={currentChapter.title}
+          showBackButton={true}
+          onBackClick={() => navigate(AppRoute.HOME)}
+          isFixed={true}
+        />
 
-      <ChapterInfo
-        currentChapterIndex={currentChapterIndex}
-        totalChapters={chapters.length}
-      />
+        <ChapterInfo
+          currentChapterIndex={currentChapterIndex}
+          totalChapters={chapters.length}
+        />
+      </div>
 
-      <ReaderNavigation
-        currentChapterIndex={currentChapterIndex}
-        totalChapters={chapters.length}
-        isListening={isListening}
-        onPreviousChapter={handlePreviousChapter}
-        onNextChapter={handleNextChapter}
-        onToggleListen={handleListen}
-        showShadow={!isAudioPlayerOpen}
-      />
+      {/* Reader Navigation with scroll transition */}
+      <div 
+        className="fixed top-20 left-0 right-0 z-40"
+        style={readerNavScrollTransition.style}
+      >
+        <ReaderNavigation
+          currentChapterIndex={currentChapterIndex}
+          totalChapters={chapters.length}
+          isListening={isListening}
+          onPreviousChapter={handlePreviousChapter}
+          onNextChapter={handleNextChapter}
+          onToggleListen={handleListen}
+          showShadow={!isAudioPlayerOpen}
+        />
+      </div>
 
       {/* Main Content Area */}
       <main 
         ref={contentRef}
-        className="pt-24 pb-36 px-6 max-w-2xl mx-auto relative"
+        className="pt-32 pb-36 px-6 max-w-2xl mx-auto relative"
         style={{ userSelect: 'text' }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}

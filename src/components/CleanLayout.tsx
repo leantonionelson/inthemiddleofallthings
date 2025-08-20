@@ -1,5 +1,6 @@
 import React from 'react';
 import StandardNavigation from './StandardNavigation';
+import { useScrollTransition } from '../hooks/useScrollTransition';
 
 interface CleanLayoutProps {
   children: React.ReactNode;
@@ -16,6 +17,12 @@ const CleanLayout: React.FC<CleanLayoutProps> = ({
   isReading = false,
   onOpenAI
 }) => {
+  const scrollTransition = useScrollTransition({
+    threshold: 5,
+    sensitivity: 0.8,
+    transitionDuration: 250
+  });
+
   return (
     <div className="bg-paper-light dark:bg-paper-dark relative">
       {/* Main Content */}
@@ -23,15 +30,18 @@ const CleanLayout: React.FC<CleanLayoutProps> = ({
         {children}
       </div>
 
-      {/* Standardized Navigation */}
-      <StandardNavigation
-        currentPage={currentPage}
-        onRead={onRead}
-        isReading={isReading}
-        onOpenAI={onOpenAI}
-      />
-
-
+      {/* Standardized Navigation with scroll transition */}
+      <div 
+        className="fixed bottom-0 left-0 right-0 z-50"
+        style={scrollTransition.style}
+      >
+        <StandardNavigation
+          currentPage={currentPage}
+          onRead={onRead}
+          isReading={isReading}
+          onOpenAI={onOpenAI}
+        />
+      </div>
     </div>
   );
 };

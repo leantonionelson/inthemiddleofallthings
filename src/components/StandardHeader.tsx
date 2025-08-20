@@ -37,8 +37,7 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
   };
 
   const baseClasses = "bg-paper-light dark:bg-paper-dark shadow-sm border-b border-gray-100 dark:border-gray-800 backdrop-blur-sm paper-texture";
-  const fixedClasses = isFixed ? "fixed top-0 left-0 right-0 z-50" : "";
-  const headerClasses = `${baseClasses} ${fixedClasses} ${className}`;
+  const headerClasses = `${baseClasses} ${className}`;
 
   return (
     <motion.header 
