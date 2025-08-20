@@ -42,6 +42,14 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
     direction: 'up' // Header moves up when scrolling down
   });
 
+  // ChapterInfo moves up but stays at top of page
+  const chapterInfoScrollTransition = useScrollTransition({
+    threshold: 5,
+    sensitivity: 0.8,
+    maxOffset: 40,
+    direction: 'up' // Moves up when scrolling down but stays visible
+  });
+
   // Reader navigation moves with bottom menu but stays at bottom of screen
   const readerNavScrollTransition = useScrollTransition({
     threshold: 5,
@@ -381,8 +389,11 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
         />
       </div>
 
-      {/* ChapterInfo - fixed at top below header */}
-      <div className="fixed top-16 left-0 right-0 z-40">
+      {/* ChapterInfo - moves up but stays at top */}
+      <div 
+        className="fixed top-16 left-0 right-0 z-40"
+        style={chapterInfoScrollTransition.style}
+      >
         <ChapterInfo
           currentChapterIndex={currentChapterIndex}
           totalChapters={chapters.length}
