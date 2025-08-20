@@ -4,6 +4,7 @@ interface ScrollTransitionOptions {
   threshold?: number; // Minimum scroll amount to trigger transition
   sensitivity?: number; // How much the UI moves per scroll pixel
   maxOffset?: number; // Maximum offset in pixels
+  direction?: 'up' | 'down'; // Direction the UI should move when scrolling down
 }
 
 interface ScrollTransitionState {
@@ -16,7 +17,8 @@ export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
   const {
     threshold = 5,
     sensitivity = 0.5,
-    maxOffset = 100
+    maxOffset = 100,
+    direction = 'up' // Default: move up when scrolling down
   } = options;
 
   const [state, setState] = useState<ScrollTransitionState>({
@@ -36,20 +38,32 @@ export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
     let newOffset: number;
     
     if (scrollDelta > 0) {
-      // Scrolling down - move UI up (negative offset)
-      newOffset = Math.max(-maxOffset, currentOffset - (scrollDelta * sensitivity));
+      // Scrolling down
+      if (direction === 'up') {
+        // Move UI up (negative offset)
+        newOffset = Math.max(-maxOffset, currentOffset - (scrollDelta * sensitivity));
+      } else {
+        // Move UI down (positive offset)
+        newOffset = Math.min(maxOffset, currentOffset + (scrollDelta * sensitivity));
+      }
     } else {
-      // Scrolling up - move UI down (positive offset, back to 0)
-      newOffset = Math.min(0, currentOffset - (scrollDelta * sensitivity));
+      // Scrolling up - return to original position
+      if (direction === 'up') {
+        // Move UI down (back to 0)
+        newOffset = Math.min(0, currentOffset - (scrollDelta * sensitivity));
+      } else {
+        // Move UI up (back to 0)
+        newOffset = Math.max(0, currentOffset + (scrollDelta * sensitivity));
+      }
     }
     
     // Update state with new position
     setState({
-      isVisible: newOffset > -maxOffset * 0.9, // Consider hidden when 90% moved out
+      isVisible: Math.abs(newOffset) < maxOffset * 0.9, // Consider hidden when 90% moved out
       opacity: 1, // Keep opacity at 1 for movement-only effect
       transform: `translateY(${newOffset}px)`
     });
-  }, [state.transform, sensitivity, maxOffset]);
+  }, [state.transform, sensitivity, maxOffset, direction]);
 
   useEffect(() => {
     const handleScroll = () => {

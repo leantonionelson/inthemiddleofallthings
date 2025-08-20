@@ -20,7 +20,8 @@ const CleanLayout: React.FC<CleanLayoutProps> = ({
   const scrollTransition = useScrollTransition({
     threshold: 5,
     sensitivity: 0.8,
-    maxOffset: 80
+    maxOffset: 80,
+    direction: 'down' // Bottom menu moves down when scrolling down
   });
 
   return (

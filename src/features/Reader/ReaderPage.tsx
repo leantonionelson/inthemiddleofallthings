@@ -38,13 +38,15 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
   const headerScrollTransition = useScrollTransition({
     threshold: 5,
     sensitivity: 0.8,
-    maxOffset: 60
+    maxOffset: 60,
+    direction: 'up' // Header moves up when scrolling down
   });
 
   const readerNavScrollTransition = useScrollTransition({
     threshold: 5,
     sensitivity: 0.8,
-    maxOffset: 60
+    maxOffset: 60,
+    direction: 'up' // Reader nav moves up when scrolling down
   });
 
   // Load chapters from MDX files
