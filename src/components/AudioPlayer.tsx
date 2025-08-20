@@ -45,8 +45,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       setIsGenerating(true);
       
       // Check if audio is already cached
-      if (geminiTTSService.isAudioCached(chapter)) {
-        const cachedUrl = geminiTTSService.getCachedAudio(chapter);
+      const isCached = await geminiTTSService.isAudioCached(chapter);
+      if (isCached) {
+        const cachedUrl = await geminiTTSService.getCachedAudio(chapter);
         if (cachedUrl) {
           setupAudioElement(cachedUrl);
           return;
