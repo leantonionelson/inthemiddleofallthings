@@ -38,7 +38,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
   const headerScrollTransition = useScrollTransition({
     threshold: 5,
     sensitivity: 0.8,
-    maxOffset: 60,
+    maxOffset: 120,
     direction: 'up' // Header moves up when scrolling down
   });
 
