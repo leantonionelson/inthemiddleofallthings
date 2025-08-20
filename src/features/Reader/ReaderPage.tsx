@@ -407,7 +407,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       {/* Main Content Area */}
       <main 
         ref={contentRef}
-        className="pt-28 pb-32 px-10 max-w-2xl mx-auto relative"
+        className="pt-40 pb-32 px-10 max-w-2xl mx-auto relative"
         style={{ userSelect: 'text' }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
