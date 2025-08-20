@@ -46,7 +46,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
   const chapterInfoScrollTransition = useScrollTransition({
     threshold: 5,
     sensitivity: 0.8,
-    maxOffset: 40,
+    maxOffset: 65,
     direction: 'up' // Moves up when scrolling down but stays visible
   });
 
