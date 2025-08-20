@@ -379,7 +379,10 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
           showBackButton={true}
           onBackClick={() => navigate(AppRoute.HOME)}
         />
+      </div>
 
+      {/* ChapterInfo - fixed at top below header */}
+      <div className="fixed top-16 left-0 right-0 z-40">
         <ChapterInfo
           currentChapterIndex={currentChapterIndex}
           totalChapters={chapters.length}
@@ -405,7 +408,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       {/* Main Content Area */}
       <main 
         ref={contentRef}
-        className="pt-28 pb-32 px-10 max-w-2xl mx-auto relative"
+        className="pt-40 pb-32 px-10 max-w-2xl mx-auto relative"
         style={{ userSelect: 'text' }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
