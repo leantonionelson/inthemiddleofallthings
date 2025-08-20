@@ -2,8 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface ScrollTransitionOptions {
   threshold?: number; // Minimum scroll amount to trigger transition
-  sensitivity?: number; // How sensitive the transition is to scroll speed
-  transitionDuration?: number; // Duration of the transition animation
+  sensitivity?: number; // How much the UI moves per scroll pixel
+  maxOffset?: number; // Maximum offset in pixels
 }
 
 interface ScrollTransitionState {
@@ -14,9 +14,9 @@ interface ScrollTransitionState {
 
 export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
   const {
-    threshold = 10,
+    threshold = 5,
     sensitivity = 0.5,
-    transitionDuration = 300
+    maxOffset = 100
   } = options;
 
   const [state, setState] = useState<ScrollTransitionState>({
@@ -27,91 +27,46 @@ export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
 
   const lastScrollY = useRef(0);
   const scrollDirection = useRef<'up' | 'down' | null>(null);
-  const scrollSpeed = useRef(0);
-  const lastScrollTime = useRef(Date.now());
   const animationFrameId = useRef<number>();
 
-  const updateVisibility = useCallback((scrollY: number, direction: 'up' | 'down', speed: number) => {
-    const currentTime = Date.now();
-    const timeDelta = currentTime - lastScrollTime.current;
+  const updatePosition = useCallback((scrollY: number, scrollDelta: number) => {
+    // Calculate the offset based on scroll direction and amount
+    const currentOffset = parseFloat(state.transform.replace('translateY(', '').replace('px)', '') || '0');
     
-    if (timeDelta < 16) return; // Throttle to ~60fps
+    let newOffset: number;
     
-    lastScrollTime.current = currentTime;
-    
-    // Calculate transition progress based on scroll speed and direction
-    const speedFactor = Math.min(speed * sensitivity, 1);
-    const directionFactor = direction === 'down' ? -1 : 1;
-    
-    // Update state based on scroll direction and speed
-    if (direction === 'down' && state.isVisible) {
-      // Scrolling down - hide UI
-      const newOpacity = Math.max(0, 1 - speedFactor);
-      const newTransform = `translateY(${-20 * speedFactor}px)`;
-      
-      setState({
-        isVisible: newOpacity > 0.1,
-        opacity: newOpacity,
-        transform: newTransform
-      });
-    } else if (direction === 'up' && !state.isVisible) {
-      // Scrolling up - show UI
-      const newOpacity = Math.min(1, speedFactor);
-      const newTransform = `translateY(${-20 + (20 * speedFactor)}px)`;
-      
-      setState({
-        isVisible: newOpacity > 0.1,
-        opacity: newOpacity,
-        transform: newTransform
-      });
-    } else if (direction === 'up' && state.isVisible && state.opacity < 1) {
-      // Continue showing UI when scrolling up
-      const newOpacity = Math.min(1, state.opacity + speedFactor * 0.1);
-      const newTransform = `translateY(${-20 + (20 * newOpacity)}px)`;
-      
-      setState({
-        isVisible: true,
-        opacity: newOpacity,
-        transform: newTransform
-      });
-    } else if (direction === 'down' && !state.isVisible && state.opacity > 0) {
-      // Continue hiding UI when scrolling down
-      const newOpacity = Math.max(0, state.opacity - speedFactor * 0.1);
-      const newTransform = `translateY(${-20 * (1 - newOpacity)}px)`;
-      
-      setState({
-        isVisible: newOpacity > 0.1,
-        opacity: newOpacity,
-        transform: newTransform
-      });
+    if (scrollDelta > 0) {
+      // Scrolling down - move UI up (negative offset)
+      newOffset = Math.max(-maxOffset, currentOffset - (scrollDelta * sensitivity));
+    } else {
+      // Scrolling up - move UI down (positive offset, back to 0)
+      newOffset = Math.min(0, currentOffset - (scrollDelta * sensitivity));
     }
-  }, [state.isVisible, state.opacity, sensitivity]);
+    
+    // Update state with new position
+    setState({
+      isVisible: newOffset > -maxOffset * 0.9, // Consider hidden when 90% moved out
+      opacity: 1, // Keep opacity at 1 for movement-only effect
+      transform: `translateY(${newOffset}px)`
+    });
+  }, [state.transform, sensitivity, maxOffset]);
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       const scrollDelta = currentScrollY - lastScrollY.current;
-      const currentTime = Date.now();
-      const timeDelta = currentTime - lastScrollTime.current;
       
-      // Calculate scroll speed (pixels per millisecond)
-      scrollSpeed.current = timeDelta > 0 ? Math.abs(scrollDelta) / timeDelta : 0;
-      
-      // Determine scroll direction
+      // Only update if scroll amount exceeds threshold
       if (Math.abs(scrollDelta) > threshold) {
-        scrollDirection.current = scrollDelta > 0 ? 'down' : 'up';
-      }
-      
-      // Update visibility with smooth animation
-      if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-      }
-      
-      animationFrameId.current = requestAnimationFrame(() => {
-        if (scrollDirection.current) {
-          updateVisibility(currentScrollY, scrollDirection.current, scrollSpeed.current);
+        // Update visibility with smooth animation
+        if (animationFrameId.current) {
+          cancelAnimationFrame(animationFrameId.current);
         }
-      });
+        
+        animationFrameId.current = requestAnimationFrame(() => {
+          updatePosition(currentScrollY, scrollDelta);
+        });
+      }
       
       lastScrollY.current = currentScrollY;
     };
@@ -136,12 +91,12 @@ export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [updateVisibility, threshold]);
+  }, [updatePosition, threshold]);
 
-  // Reset visibility when scroll position is at top
+  // Reset position when scroll position is at top
   useEffect(() => {
     const handleScrollReset = () => {
-      if (window.scrollY === 0 && !state.isVisible) {
+      if (window.scrollY === 0) {
         setState({
           isVisible: true,
           opacity: 1,
@@ -152,15 +107,15 @@ export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
 
     window.addEventListener('scroll', handleScrollReset, { passive: true });
     return () => window.removeEventListener('scroll', handleScrollReset);
-  }, [state.isVisible]);
+  }, []);
 
   return {
     ...state,
     style: {
       opacity: state.opacity,
       transform: state.transform,
-      transition: `opacity ${transitionDuration}ms ease-out, transform ${transitionDuration}ms ease-out`,
-      willChange: 'opacity, transform'
+      transition: 'transform 0.1s ease-out',
+      willChange: 'transform'
     }
   };
 };

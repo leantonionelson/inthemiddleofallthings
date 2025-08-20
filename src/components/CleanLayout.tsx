@@ -20,7 +20,7 @@ const CleanLayout: React.FC<CleanLayoutProps> = ({
   const scrollTransition = useScrollTransition({
     threshold: 5,
     sensitivity: 0.8,
-    transitionDuration: 250
+    maxOffset: 80
   });
 
   return (
