@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  body {
+    @apply bg-paper-light dark:bg-paper-dark text-ink-primary dark:text-paper-light;
+    @apply transition-colors duration-300;
+    min-height: 100vh;
+  }
+
+  /* Paper grain texture */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.1;
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(0,0,0,0.25) 1px, transparent 0),
+      radial-gradient(circle at 3px 3px, rgba(0,0,0,0.12) 1px, transparent 0),
+      radial-gradient(circle at 5px 5px, rgba(0,0,0,0.08) 1px, transparent 0);
+    background-size: 20px 20px, 40px 40px, 60px 60px;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Dark mode grain */
+  .dark body::before {
+    opacity: 0.15;
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,0.18) 1px, transparent 0),
+      radial-gradient(circle at 3px 3px, rgba(255,255,255,0.1) 1px, transparent 0),
+      radial-gradient(circle at 5px 5px, rgba(255,255,255,0.06) 1px, transparent 0);
+  }
+}
+
+@layer components {
+  .paper-texture {
+    position: relative;
+  }
+  
+  .paper-texture::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(0,0,0,0.03) 1px, transparent 0),
+      radial-gradient(circle at 2px 2px, rgba(0,0,0,0.015) 1px, transparent 0);
+    background-size: 15px 15px, 30px 30px;
+    pointer-events: none;
+  }
+
+  .dark .paper-texture::before {
+    background-image: 
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,0.04) 1px, transparent 0),
+      radial-gradient(circle at 2px 2px, rgba(255,255,255,0.02) 1px, transparent 0);
+  }
+
+  .ink-shadow {
+    box-shadow: 
+      0 2px 8px rgba(15, 15, 15, 0.1),
+      0 1px 3px rgba(15, 15, 15, 0.06);
+  }
+
+  .dark .ink-shadow {
+    box-shadow: 
+      0 2px 8px rgba(255, 255, 255, 0.08),
+      0 1px 3px rgba(255, 255, 255, 0.04);
+  }
+
+  .symbol-glow {
+    filter: drop-shadow(0 0 12px rgba(15, 15, 15, 0.15));
+  }
+
+  .dark .symbol-glow {
+    filter: drop-shadow(0 0 12px rgba(250, 250, 250, 0.2));
+  }
+
+  .breathing-orb {
+    animation: breathing 3s ease-in-out infinite;
+    background: radial-gradient(circle, rgba(15, 15, 15, 0.8) 0%, rgba(15, 15, 15, 0.4) 70%, transparent 100%);
+  }
+
+  .dark .breathing-orb {
+    background: radial-gradient(circle, rgba(250, 250, 250, 0.8) 0%, rgba(250, 250, 250, 0.4) 70%, transparent 100%);
+  }
+
+  .ai-ripple {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ai-ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(227, 65, 65, 0.4) 0%, transparent 70%);
+    transform: translate(-50%, -50%);
+    animation: ripple 1.5s ease-out;
+  }
+
+  .text-highlight {
+    background: linear-gradient(120deg, rgba(255, 193, 7, 0.2) 0%, rgba(255, 193, 7, 0.4) 100%);
+    padding: 0.1em 0.2em;
+    border-radius: 0.2em;
+    box-decoration-break: clone;
+  }
+
+  .drawer-backdrop {
+    backdrop-filter: blur(8px);
+    background: rgba(15, 15, 15, 0.3);
+  }
+
+  .dark .drawer-backdrop {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+@layer utilities {
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(160, 174, 192, 0.5) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgba(160, 174, 192, 0.5);
+    border-radius: 2px;
+  }
+}
+
+/* Animation keyframes */
+@keyframes ripple {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+  }
+}
