@@ -29,11 +29,12 @@ export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
 
   const lastScrollY = useRef(0);
   const scrollDirection = useRef<'up' | 'down' | null>(null);
-  const animationFrameId = useRef<number>();
+  const animationFrameId = useRef<number | undefined>(undefined);
 
   const updatePosition = useCallback((scrollY: number, scrollDelta: number) => {
     // Calculate the offset based on scroll direction and amount
-    const currentOffset = parseFloat(state.transform.replace('translateY(', '').replace('px)', '') || '0');
+    const transformMatch = state.transform.match(/translateY\(([^)]+)\)/);
+    const currentOffset = transformMatch ? parseFloat(transformMatch[1]) : 0;
     
     let newOffset: number;
     
