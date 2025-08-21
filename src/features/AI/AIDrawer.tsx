@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Mic, MessageCircle } from 'lucide-react';
-import { User, BookChapter, ChatMessage, ConversationTone } from '../../types';
+import { User, BookChapter, ChatMessage, ConversationTone, ReflectionEntry } from '../../types';
 import { geminiService } from '../../services/gemini';
 import { LiveAudioService } from '../../services/liveAudio';
 
@@ -56,15 +56,31 @@ const AIDrawer: React.FC<AIDrawerProps> = ({ isOpen, onClose, user, currentChapt
         liveAudioService.current.initSession();
       }
 
-      // Add initial AI greeting
-      const greeting: ChatMessage = {
-        id: '1',
-        role: 'assistant',
-        content: currentChapter 
-          ? `I sense you're exploring "${currentChapter.title}". What draws your attention in this passage?`
-          : 'What would you like to explore together?',
-        timestamp: new Date()
-      };
+      // Check if there's selected text from the reader
+      const selectedText = localStorage.getItem('selectedTextForAI');
+      let greeting: ChatMessage;
+
+      if (selectedText) {
+        // If there's selected text, start with that
+        greeting = {
+          id: '1',
+          role: 'assistant',
+          content: `I see you've selected this passage: "${selectedText.substring(0, 100)}${selectedText.length > 100 ? '...' : ''}"\n\nWhat would you like to explore about this text?`,
+          timestamp: new Date()
+        };
+        // Clear the selected text from storage
+        localStorage.removeItem('selectedTextForAI');
+      } else {
+        // Regular greeting
+        greeting = {
+          id: '1',
+          role: 'assistant',
+          content: currentChapter 
+            ? `I sense you're exploring "${currentChapter.title}". What draws your attention in this passage?`
+            : 'What would you like to explore together?',
+          timestamp: new Date()
+        };
+      }
       setMessages([greeting]);
     }
   }, [isOpen, currentChapter, messages.length]);
@@ -112,6 +128,28 @@ const AIDrawer: React.FC<AIDrawerProps> = ({ isOpen, onClose, user, currentChapt
       };
 
       setMessages(prev => [...prev, aiMessage]);
+
+      // Save this conversation as a reflection
+      const selectedText = localStorage.getItem('selectedTextForAI');
+      const reflection: ReflectionEntry = {
+        id: Date.now().toString(),
+        title: `Reflection on "${inputValue.substring(0, 50)}${inputValue.length > 50 ? '...' : ''}"`,
+        content: selectedText 
+          ? `Selected Text: "${selectedText}"\n\nQ: ${inputValue}\n\nA: ${response}`
+          : `Q: ${inputValue}\n\nA: ${response}`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        userId: user?.id || 'anonymous',
+        chapterContext: currentChapter?.title,
+        highlightText: selectedText || undefined
+      };
+
+      // Load existing reflections and add new one
+      const existingReflections = localStorage.getItem('reflections');
+      const reflections = existingReflections ? JSON.parse(existingReflections) : [];
+      reflections.push(reflection);
+      localStorage.setItem('reflections', JSON.stringify(reflections));
+
     } catch (error) {
       console.error('Error generating AI response:', error);
       const errorMessage: ChatMessage = {

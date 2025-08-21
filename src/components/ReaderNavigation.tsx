@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, X } from 'lucide-react';
 
 interface ReaderNavigationProps {
   currentChapterIndex: number;
@@ -10,6 +10,7 @@ interface ReaderNavigationProps {
   onNextChapter: () => void;
   onToggleListen: () => void;
   showShadow?: boolean;
+  progress?: number; // Progress from 0 to 1
 }
 
 const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
@@ -19,10 +20,21 @@ const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
   onPreviousChapter,
   onNextChapter,
   onToggleListen,
-  showShadow = true
+  showShadow = true,
+  progress = 0
 }) => {
   return (
     <div className={`bg-paper-light dark:bg-paper-dark backdrop-blur-sm paper-texture ${showShadow ? 'shadow-lg' : ''}`}>
+      {/* Progress bar at the top - only show when listening */}
+      {isListening && (
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
+          <div 
+            className="bg-blue-600 h-1 rounded-full transition-all duration-100"
+            style={{ width: `${(progress || 0) * 100}%` }}
+          />
+        </div>
+      )}
+      
       <div className="flex items-center justify-center px-4 py-3">
         {/* Left side: Listen button */}
         <div className="flex items-center space-x-3 mr-4">
@@ -31,7 +43,7 @@ const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
             onClick={onToggleListen}
             className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
               isListening
-                ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+                ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800'
                 : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
             }`}
             whileHover={{ scale: 1.05 }}
@@ -39,16 +51,9 @@ const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
           >
             <div className="relative">
               {isListening ? (
-                <Pause className="w-5 h-5" />
+                <X className="w-5 h-5" />
               ) : (
                 <Play className="w-5 h-5" />
-              )}
-              {isListening && (
-                <motion.div
-                  className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 1, repeat: Infinity }}
-                />
               )}
             </div>
           </motion.button>

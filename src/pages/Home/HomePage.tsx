@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { AppRoute, BookChapter } from '../../types';
-import { bookContent, loadBookChapters, fallbackChapters } from '../../data/bookContent';
+import { loadBookChapters, fallbackChapters } from '../../data/bookContent';
 import { Symbol } from '../../components/Symbol';
 import { generateSymbol, GeneratedSymbol } from '../../services/symbolGenerator';
 import CleanLayout from '../../components/CleanLayout';
@@ -28,10 +28,7 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
   const [userProgress, setUserProgress] = useState({ currentPart: 0, currentChapter: 1, hasStarted: false });
   const [chapters, setChapters] = useState<BookChapter[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAudioPlayerOpen, setIsAudioPlayerOpen] = useState(false);
-  const [isLiveAudioOpen, setIsLiveAudioOpen] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [isAsking, setIsAsking] = useState(false);
+
   const navigate = useNavigate();
 
   // Load chapters from MDX files
@@ -41,8 +38,8 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
         setIsLoading(true);
         const loadedChapters = await loadBookChapters();
         setChapters(loadedChapters);
-      } catch (error) {
-        console.error('Error loading chapters:', error);
+      } catch {
+        console.error('Error loading chapters');
         // Fallback to hardcoded chapters if loading fails
         setChapters(fallbackChapters);
       } finally {
@@ -53,7 +50,7 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
     loadChapters();
   }, []);
 
-  // Organize chapters by parts
+  // Organize chapters by parts and load progress
   useEffect(() => {
     if (chapters.length === 0) return;
 
@@ -71,29 +68,73 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
         bookParts[3].chapters.push(chapter);
       } else if (chapter.part?.includes('Part IV')) {
         bookParts[4].chapters.push(chapter);
+      } else if (chapter.part === 'Outro') {
+        bookParts[5].chapters.push(chapter);
       }
     });
 
-    // Load user progress from localStorage
-    const savedProgress = localStorage.getItem('userProgress');
-    if (savedProgress) {
-      try {
-        const progressData = JSON.parse(savedProgress);
-        setUserProgress(progressData);
-        setCurrentPartIndex(progressData.currentPart);
-      } catch (error) {
-        console.error('Error loading user progress:', error);
+    // Load current chapter index from reader
+    const savedChapterIndex = localStorage.getItem('currentChapterIndex');
+    if (savedChapterIndex) {
+      const currentIndex = parseInt(savedChapterIndex, 10);
+      if (currentIndex >= 0 && currentIndex < chapters.length) {
+        const currentChapter = chapters[currentIndex];
+        
+        // Find which part this chapter belongs to
+        let partIndex = 0;
+        if (currentChapter.part === 'Introduction') {
+          partIndex = 0;
+        } else if (currentChapter.part?.includes('Part I')) {
+          partIndex = 1;
+        } else if (currentChapter.part?.includes('Part II')) {
+          partIndex = 2;
+        } else if (currentChapter.part?.includes('Part III')) {
+          partIndex = 3;
+        } else if (currentChapter.part?.includes('Part IV')) {
+          partIndex = 4;
+        } else if (currentChapter.part === 'Outro') {
+          partIndex = 5;
+        }
+        
+        // Update progress state
+        const newProgress = {
+          currentPart: partIndex,
+          currentChapter: currentChapter.chapterNumber || 1,
+          hasStarted: true
+        };
+        setUserProgress(newProgress);
+        setCurrentPartIndex(partIndex);
+      }
+    } else {
+      // Load user progress from localStorage as fallback
+      const savedProgress = localStorage.getItem('userProgress');
+      if (savedProgress) {
+        try {
+          const progressData = JSON.parse(savedProgress);
+          setUserProgress(progressData);
+          setCurrentPartIndex(progressData.currentPart);
+        } catch {
+          console.error('Error loading user progress');
+        }
       }
     }
   }, [chapters]);
 
   const currentPart = bookParts[currentPartIndex];
-  const currentChapter = currentPart.chapters.find(ch => ch.chapterNumber === userProgress.currentChapter) || currentPart.chapters[0];
   
-  // Calculate progress based on parts and chapters within parts
+  // Get the actual current chapter from the reader's saved index
+  const savedChapterIndex = localStorage.getItem('currentChapterIndex');
+  const actualCurrentChapter = savedChapterIndex && chapters.length > 0 
+    ? chapters[parseInt(savedChapterIndex, 10)] 
+    : null;
+  
+  const currentChapter = actualCurrentChapter || currentPart.chapters.find(ch => ch.chapterNumber === userProgress.currentChapter) || currentPart.chapters[0];
+  
+  // Calculate progress based on actual current chapter index from reader
   const totalChapters = chapters.length;
-  const completedChapters = userProgress.currentPart * 6 + (userProgress.currentChapter - 1); // Assuming roughly 6 chapters per part
-  const progress = Math.min((completedChapters / totalChapters) * 100, 100);
+  const currentChapterIndex = savedChapterIndex ? parseInt(savedChapterIndex, 10) : 0;
+  const completedChapters = Math.max(0, currentChapterIndex);
+  const progress = totalChapters > 0 ? Math.min((completedChapters / totalChapters) * 100, 100) : 0;
 
   useEffect(() => {
     // Load user's symbol from localStorage
@@ -102,7 +143,7 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
       try {
         const symbolData = JSON.parse(savedSymbol);
         setUserSymbol(symbolData);
-      } catch (error) {
+      } catch {
         // If parsing fails, generate a new symbol
         const newSymbol = generateSymbol('home');
         setUserSymbol(newSymbol);
@@ -132,40 +173,18 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
     }
     
     // User is ready to read - update progress and navigate
-    const newProgress = { ...userProgress, hasStarted: true };
+    const newProgress = { 
+      ...userProgress, 
+      hasStarted: true,
+      currentPart: currentPartIndex,
+      currentChapter: currentChapter?.chapterNumber || 1
+    };
     setUserProgress(newProgress);
     localStorage.setItem('userProgress', JSON.stringify(newProgress));
     navigate(AppRoute.READER);
   };
 
-  const handleListen = () => {
-    setIsAudioPlayerOpen(true);
-    setIsListening(true);
-  };
 
-  const handleAsk = () => {
-    setIsAsking(true);
-    onOpenAI();
-  };
-
-  const handleLiveAudio = () => {
-    setIsLiveAudioOpen(true);
-  };
-
-  const handleLiveAudioMessage = (message: string) => {
-    console.log('Live audio message:', message);
-    setIsLiveAudioOpen(false);
-    onOpenAI();
-  };
-
-  const handleAudioPlayerClose = () => {
-    setIsAudioPlayerOpen(false);
-    setIsListening(false);
-  };
-
-  const handleLiveAudioClose = () => {
-    setIsLiveAudioOpen(false);
-  };
 
   const handleNextPart = () => {
     if (currentPartIndex < bookParts.length - 1) {
@@ -194,11 +213,10 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
   const getChapterDisplayText = () => {
     if (currentPartIndex === 0 || currentPartIndex === 5) {
       return currentPart.title;
-    } else {
-      const partNumber = currentPartIndex;
-      const chapterCount = currentPart.chapters.length;
-      return `${currentPart.title}, Chapter ${userProgress.currentChapter} of ${chapterCount}`;
-    }
+          } else {
+        const chapterCount = currentPart.chapters.length;
+        return `${currentPart.title}, Chapter ${userProgress.currentChapter} of ${chapterCount}`;
+      }
   };
 
   const getCurrentDescription = () => {

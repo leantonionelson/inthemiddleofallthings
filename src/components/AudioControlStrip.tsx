@@ -4,11 +4,22 @@ import { Play, Pause, Volume2, VolumeX, X } from 'lucide-react';
 import { BookChapter } from '../types';
 import { geminiTTSService, TTSConfig } from '../services/geminiTTS';
 
+// Utility function for consistent text cleaning
+const cleanTextForSpeech = (text: string): string => {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold markdown
+    .replace(/\*(.*?)\*/g, '$1') // Remove italic markdown
+    .replace(/#{1,6}\s+/g, '') // Remove headers
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links
+    .replace(/\n{3,}/g, '\n\n') // Normalize line breaks
+    .trim();
+};
+
 interface AudioControlStripProps {
   chapter: BookChapter;
   isOpen: boolean;
   onClose: () => void;
-  onHighlightText?: (startIndex: number, endIndex: number) => void;
+  onHighlightProgress?: (progress: number) => void;
   onScrollToPosition?: (position: number) => void;
   onNextChapter?: () => void;
   hasNextChapter?: boolean;
@@ -19,15 +30,15 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
   chapter,
   isOpen,
   onClose,
-  onHighlightText,
+  onHighlightProgress,
   onScrollToPosition,
   onNextChapter,
   hasNextChapter = false,
   autoPlay = false
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+
   const [isMuted, setIsMuted] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -40,9 +51,16 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
   const wordsRef = useRef<string[]>([]);
   const wordTimingsRef = useRef<number[]>([]);
   const browserSpeechIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const errorHandlerRef = useRef<((e: Event) => void) | null>(null);
+
+
 
   useEffect(() => {
     if (isOpen) {
+      // Clean up any existing audio before initializing new one
+      if (audioRef.current) {
+        stopAudio();
+      }
       initializeAudio();
     } else {
       stopAudio();
@@ -63,39 +81,36 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
     return () => clearInterval(interval);
   }, []);
 
+  // Cleanup effect to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      // Clean up when component unmounts
+      if (audioRef.current) {
+        stopAudio();
+      }
+      if (browserSpeechIntervalRef.current) {
+        clearInterval(browserSpeechIntervalRef.current);
+      }
+    };
+  }, []);
+
   const initializeAudio = async () => {
     try {
       setIsGenerating(true);
       
-      // Clean text for processing
-      const cleanText = chapter.content
-        .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
-        .replace(/\*(.*?)\*/g, '$1') // Remove italic
-        .replace(/#{1,6}\s+/g, '') // Remove headers
-        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links
-        .replace(/\n{3,}/g, '\n\n') // Normalize line breaks
-        .trim();
+      // Clean text for processing using the utility function
+      const cleanText = cleanTextForSpeech(chapter.content);
       
       // Split content into words for highlighting
       const words = cleanText.split(/\s+/);
       wordsRef.current = words;
       
-      // Check if audio is already cached
-      const isCached = await geminiTTSService.isAudioCached(chapter);
-      if (isCached) {
-        const cachedUrl = await geminiTTSService.getCachedAudio(chapter);
-        if (cachedUrl) {
-          setupAudioElement(cachedUrl);
-          return;
-        }
-      }
-
-      // Generate new audio with Gemini TTS
+      console.log('🎯 Initializing audio...');
+      
+      // Generate audio with Gemini TTS (handles caching internally)
       const ttsConfig: TTSConfig = {
-        voiceName: 'Kore',
-        pace: 'quick', // Use faster pace
-        tone: 'warm',
-        style: 'neutral'
+        voiceName: 'Zephyr',
+        speakingRate: 1.15, // Faster, more lecturer-like pace
       };
 
       const audioData = await geminiTTSService.generateChapterAudio(chapter, ttsConfig);
@@ -103,8 +118,10 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
       setupAudioElement(audioData.audioUrl);
       setDuration(audioData.duration);
       
+      console.log('✅ Audio initialization complete');
+      
     } catch (error) {
-      console.error('Failed to initialize audio:', error);
+      console.error('❌ Failed to initialize audio:', error);
       
       // Handle specific error types
       if (error instanceof Error) {
@@ -198,7 +215,6 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
       utterance.onend = () => {
         console.log('Browser speech ended');
         setIsPlaying(false);
-        setCurrentTime(0);
         setCurrentWordIndex(0);
         clearHighlight();
         stopBrowserSpeechHighlighting();
@@ -252,14 +268,18 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
     
     audio.addEventListener('loadedmetadata', () => {
       setDuration(audio.duration);
-      // Create evenly distributed word timings based on actual audio duration
-      const totalWords = wordsRef.current.length;
-      const totalDuration = audio.duration * 1000; // Convert to milliseconds
       
-      // Create evenly spaced word timings
-      wordTimingsRef.current = Array.from({ length: totalWords }, (_, i) => {
-        return (i / totalWords) * totalDuration;
-      });
+      // Use the accurate word timings from the TTS service if available
+      // Only create evenly spaced timings as a fallback if no accurate timings exist
+      if (wordTimingsRef.current.length === 0) {
+        const totalWords = wordsRef.current.length;
+        const totalDuration = audio.duration * 1000; // Convert to milliseconds
+        
+        // Create evenly spaced word timings as fallback
+        wordTimingsRef.current = Array.from({ length: totalWords }, (_, i) => {
+          return (i / totalWords) * totalDuration;
+        });
+      }
       
       // Auto-play if enabled
       if (autoPlayEnabled && !isGenerating) {
@@ -274,136 +294,121 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
     });
 
     audio.addEventListener('timeupdate', () => {
-      setCurrentTime(audio.currentTime);
-      updateCurrentWordIndex(audio.currentTime * 1000);
+      if (audioRef.current === audio) {
+        const currentTime = audio.currentTime;
+        
+        // Update progress-based highlighting for smooth motion
+        updateHighlightProgress(currentTime, audio.duration || 1);
+        
+
+      }
     });
+    
+    // Add a very frequent update for ultra-smooth highlighting
+    const smoothUpdateInterval = setInterval(() => {
+      if (audioRef.current === audio && isPlaying) {
+        const currentTime = audio.currentTime;
+        const duration = audio.duration || 1;
+        
+        // Update progress-based highlighting for smooth motion
+        updateHighlightProgress(currentTime, duration);
+      }
+    }, 16); // Update every 16ms (~60fps) for ultra-smooth motion
+    
+    // Clean up interval when audio element is removed
+    audio.addEventListener('ended', () => clearInterval(smoothUpdateInterval));
+    audio.addEventListener('pause', () => clearInterval(smoothUpdateInterval));
 
     audio.addEventListener('ended', () => {
-      setIsPlaying(false);
-      setCurrentTime(0);
-      setCurrentWordIndex(0);
-      clearHighlight();
-      
-      // Auto-advance to next chapter if available
-      if (hasNextChapter && onNextChapter) {
-        setTimeout(() => {
-          onNextChapter();
-        }, 1000); // Wait 1 second before advancing
-      } else if (!hasNextChapter) {
-        // Show completion message if this is the last chapter
-        console.log('🎉 Congratulations! You have completed all chapters.');
+      // Only handle ended event if this is the current audio element
+      if (audioRef.current === audio) {
+        console.log('Audio playback completed');
+        setIsPlaying(false);
+        setCurrentWordIndex(0);
+        clearHighlight();
+        
+        // Auto-advance to next chapter if available
+        if (hasNextChapter && onNextChapter) {
+          setTimeout(() => {
+            onNextChapter();
+          }, 1000); // Wait 1 second before advancing
+        } else if (!hasNextChapter) {
+          // Show completion message if this is the last chapter
+          console.log('🎉 Congratulations! You have completed all chapters.');
+        }
+      } else {
+        console.log('Ignoring ended event from old audio element');
       }
     });
 
-    audio.addEventListener('error', async (e) => {
-      console.error('Audio playback error:', e);
-      console.log('Audio URL may be invalid, attempting to regenerate audio');
-      
-      // Try to regenerate the audio completely
-      try {
-        setIsGenerating(true);
-        await initializeAudio();
-      } catch (error) {
-        console.error('Failed to regenerate audio:', error);
-        // Show user-friendly error message
-        console.log('Audio generation failed. Please try again.');
-      } finally {
-        setIsGenerating(false);
+    const errorHandler = async (e: Event) => {
+      // Only handle errors if this is the current audio element and component is still mounted
+      if (audioRef.current === audio && isOpen) {
+        console.error('Audio playback error:', e);
+        console.log('Audio URL may be invalid, attempting to regenerate audio');
+        
+        // Try to regenerate the audio completely
+        try {
+          setIsGenerating(true);
+          await initializeAudio();
+        } catch (error) {
+          console.error('Failed to regenerate audio:', error);
+          // Show user-friendly error message
+          console.log('Audio generation failed. Please try again.');
+        } finally {
+          setIsGenerating(false);
+        }
+      } else {
+        // Silently ignore errors from old audio elements or when component is closed
+        console.log('Ignoring error from old audio element or closed component');
       }
-    });
+    };
+    
+    errorHandlerRef.current = errorHandler;
+    audio.addEventListener('error', errorHandler);
 
     audioRef.current = audio;
   };
 
 
 
-  const updateCurrentWordIndex = (currentMs: number) => {
-    // Find the current word based on timing
-    let wordIndex = -1;
-    for (let i = 0; i < wordTimingsRef.current.length; i++) {
-      if (currentMs >= wordTimingsRef.current[i]) {
-        wordIndex = i;
-      } else {
-        break;
-      }
-    }
-    
-    if (wordIndex >= 0 && wordIndex !== currentWordIndex) {
-      setCurrentWordIndex(wordIndex);
-      highlightCurrentWord(wordIndex);
-    }
-  };
 
-  const highlightCurrentWord = (wordIndex: number) => {
-    if (onHighlightText && wordsRef.current[wordIndex]) {
-      // Calculate cumulative highlighting - highlight from start to current word
-      const words = wordsRef.current;
-      let totalChars = 0;
+
+  const updateHighlightProgress = (currentTime: number, duration: number) => {
+    if (onHighlightProgress && duration > 0) {
+      // Calculate progress as a value between 0 and 1
+      const progress = Math.min(1, Math.max(0, currentTime / duration));
+      onHighlightProgress(progress);
       
-      // Calculate total characters from start to current word (inclusive)
-      for (let i = 0; i <= wordIndex; i++) {
-        totalChars += words[i].length;
-        if (i < wordIndex) {
-          totalChars += 1; // Add space between words
-        }
-      }
-      
-      // Find the corresponding position in the original content
-      const originalContent = chapter.content;
-      const cleanContent = originalContent
-        .replace(/\*\*(.*?)\*\*/g, '$1')
-        .replace(/\*(.*?)\*/g, '$1')
-        .replace(/#{1,6}\s+/g, '')
-        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-        .replace(/\n{3,}/g, '\n\n')
-        .trim();
-      
-      // Map clean content position to original content position
-      let originalPos = 0;
-      let cleanPos = 0;
-      
-      while (cleanPos < totalChars && originalPos < originalContent.length) {
-        if (originalContent[originalPos] === cleanContent[cleanPos]) {
-          cleanPos++;
-        }
-        originalPos++;
-      }
-      
-      // Highlight from beginning to current position (cumulative highlighting)
-      onHighlightText(0, originalPos);
-      
-      // Scroll to the current word smoothly
+      // Scroll to the current position smoothly
       if (onScrollToPosition) {
-        onScrollToPosition(originalPos - words[wordIndex].length);
+        const cleanContent = cleanTextForSpeech(chapter.content);
+        const totalChars = cleanContent.length;
+        const currentCharPosition = Math.floor(progress * totalChars);
+        onScrollToPosition(currentCharPosition);
       }
     }
   };
 
   const clearHighlight = () => {
-    if (onHighlightText) {
-      onHighlightText(-1, -1); // Clear highlight
+    if (onHighlightProgress) {
+      onHighlightProgress(0); // Clear highlight
     }
   };
 
   const startBrowserSpeechHighlighting = () => {
-    if (!onHighlightText) return;
+    if (!onHighlightProgress) return;
     
     // Clear any existing interval
     if (browserSpeechIntervalRef.current) {
       clearInterval(browserSpeechIntervalRef.current);
     }
 
-    // Use the same text cleaning logic as the speech synthesis and the original highlighting
-    const cleanText = chapter.content
-      .replace(/\*\*(.*?)\*\*/g, '$1')
-      .replace(/\*(.*?)\*/g, '$1')
-      .replace(/#{1,6}\s+/g, '')
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
+    // Use the same text cleaning logic as the speech synthesis
+    const cleanText = cleanTextForSpeech(chapter.content);
 
     const totalDuration = cleanText.length * 0.08; // Estimated duration in seconds
-    const updateInterval = 100; // Update every 100ms for smooth highlighting
+    const updateInterval = 16; // Update every 16ms for ultra-smooth highlighting
     
     let elapsedTime = 0;
     
@@ -411,9 +416,9 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
       elapsedTime += updateInterval / 1000; // Convert to seconds
       
       if (elapsedTime >= totalDuration) {
-        // Highlight complete text at the end - map back to original content length
-        if (onHighlightText) {
-          onHighlightText(0, chapter.content.length);
+        // Highlight complete text at the end
+        if (onHighlightProgress) {
+          onHighlightProgress(1.0);
         }
         stopBrowserSpeechHighlighting();
         return;
@@ -421,56 +426,18 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
       
       // Calculate progress percentage based on clean text
       const progress = elapsedTime / totalDuration;
-      const targetCleanPos = Math.floor(cleanText.length * progress);
       
-      // Map the clean text position back to the original content position
-      // This ensures highlighting works correctly with the original content that gets formatted
-      const originalPos = mapCleanToOriginalPosition(cleanText, chapter.content, targetCleanPos);
-      
-      if (onHighlightText) {
-        onHighlightText(0, originalPos);
+      // Update highlighting progress for smooth motion
+      if (onHighlightProgress) {
+        onHighlightProgress(progress);
       }
       
-      // Update current time for progress bar
-      setCurrentTime(elapsedTime);
+
       
     }, updateInterval);
   };
 
-  const mapCleanToOriginalPosition = (cleanText: string, originalContent: string, cleanPos: number): number => {
-    // Map clean text position to original content position
-    let originalIndex = 0;
-    let cleanIndex = 0;
-    
-    while (cleanIndex < cleanPos && originalIndex < originalContent.length) {
-      // Skip markdown formatting in original content
-      if (originalContent.substring(originalIndex, originalIndex + 2) === '**') {
-        // Skip bold markdown
-        originalIndex += 2;
-        continue;
-      }
-      if (originalContent[originalIndex] === '*' && originalContent.substring(originalIndex, originalIndex + 2) !== '**') {
-        // Skip italic markdown
-        originalIndex += 1;
-        continue;
-      }
-      if (originalContent[originalIndex] === '#' && originalIndex < originalContent.length - 1 && originalContent[originalIndex + 1] === ' ') {
-        // Skip header markdown
-        while (originalIndex < originalContent.length && originalContent[originalIndex] !== '\n') {
-          originalIndex++;
-        }
-        continue;
-      }
-      
-      // Match characters between clean and original
-      if (cleanIndex < cleanText.length && originalContent[originalIndex] === cleanText[cleanIndex]) {
-        cleanIndex++;
-      }
-      originalIndex++;
-    }
-    
-    return originalIndex;
-  };
+
 
   const stopBrowserSpeechHighlighting = () => {
     if (browserSpeechIntervalRef.current) {
@@ -564,9 +531,14 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
     } else if (audioRef.current && audioRef.current instanceof HTMLAudioElement) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      // Remove all event listeners to prevent memory leaks
+      audioRef.current.onended = null;
+      audioRef.current.onerror = null;
+      audioRef.current.ontimeupdate = null;
+      audioRef.current.onloadedmetadata = null;
+      audioRef.current.oncanplaythrough = null;
     }
     setIsPlaying(false);
-    setCurrentTime(0);
     setCurrentWordIndex(0);
     clearHighlight();
   };
@@ -574,31 +546,66 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
   // Update current word highlighting - only needed if not using HTML audio timeupdate
   useEffect(() => {
     // The timeupdate event on the audio element handles this automatically
-    // This is only needed as a fallback
-    if (isPlaying && !(audioRef.current instanceof HTMLAudioElement) && wordTimingsRef.current.length > 0) {
-      const interval = setInterval(() => {
-        const currentMs = currentTime * 1000;
-        updateCurrentWordIndex(currentMs);
-      }, 100);
 
-      return () => clearInterval(interval);
-    }
   }, [isPlaying, currentWordIndex, duration]);
 
-  // Cleanup on unmount
+  // Cleanup on unmount or when isOpen changes
   useEffect(() => {
     return () => {
+      // Stop all audio playback
       if (isUsingBrowserSpeech) {
         speechSynthesis.cancel();
+        setIsUsingBrowserSpeech(false);
         stopBrowserSpeechHighlighting();
       } else if (audioRef.current && audioRef.current instanceof HTMLAudioElement) {
+        // Pause and clear the audio
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current.src = '';
+        
+        // Remove all event listeners by setting them to null
+        audioRef.current.onended = null;
+        audioRef.current.onerror = null;
+        audioRef.current.ontimeupdate = null;
+        audioRef.current.onloadedmetadata = null;
+        audioRef.current.oncanplaythrough = null;
+        
+        // Remove the error event listener if it exists
+        if (errorHandlerRef.current) {
+          audioRef.current.removeEventListener('error', errorHandlerRef.current);
+          errorHandlerRef.current = null;
+        }
+      }
+      
+      // Clear all state
+      setIsPlaying(false);
+      setCurrentWordIndex(0);
+      clearHighlight();
+      
+      // Clear the audio reference
+      audioRef.current = null;
+    };
+  }, [isOpen, isUsingBrowserSpeech]);
+
+  // Additional cleanup on component unmount
+  useEffect(() => {
+    return () => {
+      // Ensure audio is completely stopped when component unmounts
+      if (isUsingBrowserSpeech) {
+        speechSynthesis.cancel();
+      }
+      if (audioRef.current && audioRef.current instanceof HTMLAudioElement) {
         audioRef.current.pause();
         audioRef.current.src = '';
+        audioRef.current = null;
       }
-      // Note: We don't revoke blob URLs here as they're managed by the TTS service
-      // The service will handle cleanup when needed
+      // Clear any remaining intervals
+      if (browserSpeechIntervalRef.current) {
+        clearInterval(browserSpeechIntervalRef.current);
+        browserSpeechIntervalRef.current = null;
+      }
     };
-  }, [isUsingBrowserSpeech]);
+  }, []);
 
   if (!isOpen) return null;
 
@@ -608,10 +615,10 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="fixed bottom-28 left-4 right-4 z-30 flex justify-center"
+        className="flex justify-center"
       >
         {/* Main pill container */}
-        <div className="bg-paper-light dark:bg-paper-dark rounded-full shadow-xl border border-gray-200 dark:border-gray-700 px-3 py-2 flex items-center space-x-3 backdrop-blur-sm paper-texture mb-14">
+        <div className="bg-paper-light dark:bg-paper-dark rounded-full shadow-xl border border-gray-200 dark:border-gray-700 px-3 py-2 flex items-center space-x-3 backdrop-blur-sm paper-texture mb-1">
           {/* Volume control */}
           <button
             onClick={toggleMute}
@@ -684,19 +691,11 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
           >
             <X className="w-3 h-3" />
           </button>
+
+
         </div>
 
-        {/* Progress bar - positioned below the pill */}
-        <div className="absolute -bottom-2 left-6 right-6">
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
-            <motion.div
-              className="bg-blue-600 h-1 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${(currentTime / duration) * 100}%` }}
-              transition={{ duration: 0.1 }}
-            />
-          </div>
-        </div>
+
       </motion.div>
     </AnimatePresence>
   );

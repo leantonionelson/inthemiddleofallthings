@@ -32,29 +32,26 @@ export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
   const animationFrameId = useRef<number | undefined>(undefined);
 
   const updatePosition = useCallback((scrollY: number, scrollDelta: number) => {
-    // Calculate the offset based on scroll direction and amount
-    const transformMatch = state.transform.match(/translateY\(([^)]+)\)/);
-    const currentOffset = transformMatch ? parseFloat(transformMatch[1]) : 0;
-    
+    // For automatic transitions, any scroll movement triggers full transition
     let newOffset: number;
     
     if (scrollDelta > 0) {
-      // Scrolling down
+      // Scrolling down - trigger full transition
       if (direction === 'up') {
-        // Move UI up (negative offset)
-        newOffset = Math.max(-maxOffset, currentOffset - (scrollDelta * sensitivity));
+        // Move UI up (negative offset) - full transition
+        newOffset = -maxOffset;
       } else {
-        // Move UI down (positive offset)
-        newOffset = Math.min(maxOffset, currentOffset + (scrollDelta * sensitivity));
+        // Move UI down (positive offset) - full transition
+        newOffset = maxOffset;
       }
     } else {
       // Scrolling up - return to original position
       if (direction === 'up') {
         // Move UI down (back to 0)
-        newOffset = Math.min(0, currentOffset - (scrollDelta * sensitivity));
+        newOffset = 0;
       } else {
         // Move UI up (back to 0)
-        newOffset = Math.max(0, currentOffset + (scrollDelta * sensitivity));
+        newOffset = 0;
       }
     }
     
@@ -64,15 +61,15 @@ export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
       opacity: 1, // Keep opacity at 1 for movement-only effect
       transform: `translateY(${newOffset}px)`
     });
-  }, [state.transform, sensitivity, maxOffset, direction]);
+  }, [maxOffset, direction]);
 
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       const scrollDelta = currentScrollY - lastScrollY.current;
       
-      // Only update if scroll amount exceeds threshold
-      if (Math.abs(scrollDelta) > threshold) {
+      // Any scroll movement triggers the transition (automatic mode)
+      if (Math.abs(scrollDelta) > 0) {
         // Update visibility with smooth animation
         if (animationFrameId.current) {
           cancelAnimationFrame(animationFrameId.current);
@@ -106,7 +103,7 @@ export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [updatePosition, threshold]);
+  }, [updatePosition]);
 
   // Reset position when scroll position is at top
   useEffect(() => {
@@ -129,7 +126,7 @@ export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
     style: {
       opacity: state.opacity,
       transform: state.transform,
-      transition: 'transform 0.1s ease-out',
+      transition: 'transform 0.3s ease-out',
       willChange: 'transform'
     }
   };

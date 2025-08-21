@@ -55,17 +55,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       }
 
       // Generate new audio with Gemini TTS
-      const stylePresets = geminiTTSService.getVoiceStylePresets();
-      const selectedPreset = stylePresets.find(preset => preset.name === selectedStyle);
-      
-      const ttsConfig: TTSConfig = selectedPreset ? {
-        ...selectedPreset.config,
-        voiceName: selectedVoice // Allow voice override
-      } : {
+      const ttsConfig: TTSConfig = {
         voiceName: selectedVoice,
-        pace: 'quick', // Use faster pace
-        tone: 'warm',
-        style: 'neutral'
+        speakingRate: 1.15 // Use faster pace
       };
 
       const audioData = await geminiTTSService.generateChapterAudio(chapter, ttsConfig);
@@ -344,14 +336,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                   disabled={isGenerating || isPlaying}
                   className="w-full px-3 py-2 bg-ink-muted bg-opacity-10 border border-ink-muted border-opacity-20 rounded-lg text-ink-primary dark:text-paper-light focus:outline-none focus:ring-2 focus:ring-ink-primary dark:focus:ring-paper-light"
                 >
-                  {geminiTTSService.getVoiceStylePresets().map(preset => (
-                    <option key={preset.name} value={preset.name}>
-                      {preset.name}
-                    </option>
-                  ))}
+                  <option value="neutral">Neutral</option>
+                  <option value="warm">Warm</option>
+                  <option value="formal">Formal</option>
                 </select>
                 <p className="text-xs text-ink-muted mt-1">
-                  {geminiTTSService.getVoiceStylePresets().find(p => p.name === selectedStyle)?.description}
+                  Choose the speaking style for the audio
                 </p>
               </div>
 
@@ -366,14 +356,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
                   disabled={isGenerating || isPlaying}
                   className="w-full px-3 py-2 bg-ink-muted bg-opacity-10 border border-ink-muted border-opacity-20 rounded-lg text-ink-primary dark:text-paper-light focus:outline-none focus:ring-2 focus:ring-ink-primary dark:focus:ring-paper-light"
                 >
-                  {geminiTTSService.getAvailableVoices().map(voice => (
-                    <option key={voice.name} value={voice.name}>
-                      {voice.name} {voice.recommended ? '⭐' : ''}
-                    </option>
-                  ))}
+                  <option value="Zephyr">Zephyr ⭐</option>
+                  <option value="Nova">Nova</option>
+                  <option value="Echo">Echo</option>
                 </select>
                 <p className="text-xs text-ink-muted mt-1">
-                  {geminiTTSService.getAvailableVoices().find(v => v.name === selectedVoice)?.description}
+                  Choose the voice for the audio narration
                 </p>
               </div>
 
@@ -444,11 +432,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
               <div className="flex items-center justify-between">
                 {/* Download Button */}
                 <motion.button
-                  onClick={() => geminiTTSService.downloadAudioFile(chapter)}
+                  onClick={() => console.log('Download functionality not implemented')}
                   className="p-3 rounded-full bg-ink-muted bg-opacity-10 text-ink-secondary dark:text-ink-muted hover:bg-opacity-20 transition-colors"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  title="Download audio file"
+                  title="Download audio file (not implemented)"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

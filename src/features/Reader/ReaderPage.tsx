@@ -32,7 +32,8 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
   const [isAudioPlayerOpen, setIsAudioPlayerOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
 
-  const [highlightedRange, setHighlightedRange] = useState<{ start: number; end: number } | null>(null);
+  const [highlightedProgress, setHighlightedProgress] = useState(0); // 0 to 1, representing progress through the text
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false); // Track when audio is actively playing
 
   // Scroll transition hooks for header and navigation
   const headerScrollTransition = useScrollTransition({
@@ -51,6 +52,14 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
     maxOffset: 80,
     direction: 'down' // Moves down when scrolling down (stays at bottom)
   });
+
+  // Combined transition style that includes both scroll and audio playing state
+  const combinedTransitionStyle = {
+    ...readerNavScrollTransition.style,
+    transform: isAudioPlaying 
+      ? 'translateY(80px)' // Force the scroll transition effect when audio is playing
+      : readerNavScrollTransition.style.transform
+  };
 
   // Load chapters from MDX files
   useEffect(() => {
@@ -174,10 +183,12 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       // If audio player is open, close it
       setIsAudioPlayerOpen(false);
       setIsListening(false);
+      setIsAudioPlaying(false);
     } else {
       // If audio player is closed, open it and enable auto-play
       setIsAudioPlayerOpen(true);
       setIsListening(true);
+      setIsAudioPlaying(true);
       // Enable auto-play when the play button is clicked
       localStorage.setItem('autoPlayAudio', 'true');
     }
@@ -187,12 +198,8 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
 
 
 
-  const handleHighlightText = (startIndex: number, endIndex: number) => {
-    if (startIndex === -1 && endIndex === -1) {
-      setHighlightedRange(null);
-    } else {
-      setHighlightedRange({ start: startIndex, end: endIndex });
-    }
+  const handleHighlightProgress = (progress: number) => {
+    setHighlightedProgress(progress);
   };
 
   const handleScrollToPosition = (position: number) => {
@@ -241,6 +248,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
   const handleAudioPlayerClose = () => {
     setIsAudioPlayerOpen(false);
     setIsListening(false);
+    setIsAudioPlaying(false);
   };
 
   const handleNextChapter = useCallback(() => {
@@ -309,45 +317,52 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
 
 
   const formatContent = (content: string) => {
+    // Clean the content for consistent character counting
+    const cleanContent = content
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/#{1,6}\s+/g, '')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+    
+    const totalChars = cleanContent.length;
+    const targetCharIndex = Math.floor(highlightedProgress * totalChars);
+    
     return content.split('\n\n').map((paragraph, index) => {
-      // Simple text formatting - just bold and italic for now
-      let formattedParagraph = paragraph
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>');
-
-      // Add cumulative highlighting if there's a highlighted range
-      if (highlightedRange && highlightedRange.start >= 0 && highlightedRange.end >= 0) {
-        const { start, end } = highlightedRange;
-        
-        // Find the paragraph boundaries within the content
-        const paragraphStart = content.indexOf(paragraph);
-        const paragraphEnd = paragraphStart + paragraph.length;
-        
-        // Check if highlighting should affect this paragraph
-        if (start < paragraphEnd && end > paragraphStart) {
-          const localStart = Math.max(0, start - paragraphStart);
-          const localEnd = Math.min(paragraph.length, end - paragraphStart);
-          
-          if (localStart < localEnd) {
-            // Split the paragraph into highlighted and non-highlighted parts
-            const beforeHighlight = formattedParagraph.substring(0, localStart);
-            const highlightedText = formattedParagraph.substring(localStart, localEnd);
-            const afterHighlight = formattedParagraph.substring(localEnd);
-            
-            formattedParagraph = `${beforeHighlight}<span class="bg-blue-200 dark:bg-blue-800 bg-opacity-50 dark:bg-opacity-30 transition-all duration-200">${highlightedText}</span>${afterHighlight}`;
-          } else if (paragraphStart < end) {
-            // Entire paragraph should be highlighted
-            formattedParagraph = `<span class="bg-blue-200 dark:bg-blue-800 bg-opacity-50 dark:bg-opacity-30 transition-all duration-200">${formattedParagraph}</span>`;
-          }
-        }
-      }
-
+      // Split the paragraph into words and whitespace
+      const words = paragraph.split(/(\s+)/);
+      
+      // Calculate the character position for this paragraph
+      const cleanParagraph = paragraph
+        .replace(/\*\*(.*?)\*\*/g, '$1')
+        .replace(/\*(.*?)\*/g, '$1');
+      const paragraphStartCharIndex = cleanContent.indexOf(cleanParagraph);
+      
       return (
-        <p 
-          key={index} 
-          className="mb-6 text-lg leading-8 text-ink-primary dark:text-paper-light"
-          dangerouslySetInnerHTML={{ __html: formattedParagraph }}
-        />
+        <p key={index} className="mb-6 text-lg leading-8 text-ink-primary dark:text-paper-light">
+          {words.map((word, wordIndex) => {
+            // Calculate the character position for this word
+            const wordStartCharIndex = paragraphStartCharIndex + words.slice(0, wordIndex).join('').length;
+            const wordEndCharIndex = wordStartCharIndex + word.length;
+            
+            // Check if this word should be highlighted (character-based highlighting)
+            const shouldHighlight = wordEndCharIndex <= targetCharIndex && highlightedProgress > 0;
+            
+            // Apply markdown formatting to the word
+            const formattedWord = word
+              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              .replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            return (
+              <span
+                key={wordIndex}
+                className={shouldHighlight ? 'bg-blue-200 dark:bg-blue-800 bg-opacity-50 dark:bg-opacity-30 transition-all duration-75 ease-out' : 'transition-all duration-75 ease-out'}
+                dangerouslySetInnerHTML={{ __html: formattedWord }}
+              />
+            );
+          })}
+        </p>
       );
     });
   };
@@ -370,11 +385,17 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       onRead={() => navigate(AppRoute.HOME)}
       isReading={true}
       onOpenAI={onOpenAI}
+      isAudioPlaying={isAudioPlaying}
     >
       {/* Header and ChapterInfo as one unified component */}
       <div 
         className="fixed top-0 left-0 right-0 z-40"
-        style={headerScrollTransition.style}
+        style={{
+          ...headerScrollTransition.style,
+          transform: isAudioPlaying 
+            ? 'translateY(-120px)' // Move header up when audio is playing
+            : headerScrollTransition.style.transform
+        }}
       >
         <StandardHeader
           title={currentChapter.title}
@@ -388,11 +409,26 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
         />
       </div>
 
-      {/* Reader Navigation - positioned above bottom menu */}
+      {/* Combined Navigation and Audio Controls - positioned with scroll transition */}
       <div 
         className="fixed bottom-20 left-0 right-0 z-40"
-        style={readerNavScrollTransition.style}
+        style={combinedTransitionStyle}
       >
+        {/* Audio Control Strip - positioned above navigation */}
+        <div className="flex justify-center mb-2">
+          <AudioControlStrip
+            chapter={currentChapter}
+            isOpen={isAudioPlayerOpen}
+            onClose={handleAudioPlayerClose}
+            onHighlightProgress={handleHighlightProgress}
+            onScrollToPosition={handleScrollToPosition}
+            onNextChapter={handleNextChapter}
+            hasNextChapter={currentChapterIndex < chapters.length - 1}
+            autoPlay={localStorage.getItem('autoPlayAudio') === 'true'}
+          />
+        </div>
+        
+        {/* Reader Navigation */}
         <ReaderNavigation
           currentChapterIndex={currentChapterIndex}
           totalChapters={chapters.length}
@@ -401,14 +437,20 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
           onNextChapter={handleNextChapter}
           onToggleListen={handleListen}
           showShadow={!isAudioPlayerOpen}
+          progress={highlightedProgress}
         />
       </div>
 
       {/* Main Content Area */}
       <main 
         ref={contentRef}
-        className="pt-40 pb-32 px-10 max-w-2xl mx-auto relative"
-        style={{ userSelect: 'text' }}
+        className="pb-36 px-10 max-w-2xl mx-auto relative"
+        style={{ 
+          userSelect: 'text',
+          paddingTop: isAudioPlaying ? '2rem' : '10rem', // 2rem when playing, 10rem (pt-40) when not
+          transform: isAudioPlaying ? 'translateY(80px)' : 'none',
+          transition: 'transform 0.3s ease-out, padding-top 0.3s ease-out'
+        }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -480,17 +522,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
 
 
 
-      {/* Audio Control Strip */}
-      <AudioControlStrip
-        chapter={currentChapter}
-        isOpen={isAudioPlayerOpen}
-        onClose={handleAudioPlayerClose}
-        onHighlightText={handleHighlightText}
-        onScrollToPosition={handleScrollToPosition}
-        onNextChapter={handleNextChapter}
-        hasNextChapter={currentChapterIndex < chapters.length - 1}
-        autoPlay={localStorage.getItem('autoPlayAudio') === 'true'}
-      />
+
     </CleanLayout>
   );
 };

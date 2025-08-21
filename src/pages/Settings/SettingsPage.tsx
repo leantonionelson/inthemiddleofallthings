@@ -18,7 +18,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 }) => {
   const navigate = useNavigate();
   const [autoDownload, setAutoDownload] = useState(false);
-  const [audioFiles, setAudioFiles] = useState<any[]>([]);
   const [totalSize, setTotalSize] = useState(0);
 
   useEffect(() => {
@@ -26,10 +25,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
     const autoDownloadSetting = localStorage.getItem('autoDownloadAudio') === 'true';
     setAutoDownload(autoDownloadSetting);
     
-    // Load audio file list
-    const files = geminiTTSService.getAudioFileList();
-    setAudioFiles(files);
-    setTotalSize(geminiTTSService.getTotalAudioSize());
+    // Load audio cache info
+    const cacheSize = geminiTTSService.getCacheSize();
+    setTotalSize(cacheSize);
   }, []);
 
   const handleSignOut = () => {
@@ -48,26 +46,16 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   const handleAutoDownloadToggle = () => {
     const newValue = !autoDownload;
     setAutoDownload(newValue);
-    geminiTTSService.setAutoDownload(newValue);
+    localStorage.setItem('autoDownloadAudio', newValue.toString());
   };
 
   const handleDownloadAllAudio = async () => {
-    try {
-      const success = await geminiTTSService.downloadAllAudioFiles();
-      if (success) {
-        alert('All audio files downloaded successfully');
-      } else {
-        alert('No audio files to download');
-      }
-    } catch (error) {
-      alert('Error downloading audio files');
-    }
+    alert('Audio files are automatically generated and cached as needed. No manual download required.');
   };
 
-  const handleClearAudioFiles = () => {
+  const handleClearAudioFiles = async () => {
     if (confirm('Are you sure you want to clear all generated audio files? This cannot be undone.')) {
-      geminiTTSService.clearAllAudioFiles();
-      setAudioFiles([]);
+      await geminiTTSService.clearCache();
       setTotalSize(0);
       alert('Audio files cleared successfully');
     }
@@ -190,7 +178,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                   Generated Files
                 </span>
                 <span className="text-sm text-ink-muted">
-                  {audioFiles.length} files ({formatFileSize(totalSize)})
+                  {totalSize > 0 ? 'Cached audio' : 'No cached audio'} ({formatFileSize(totalSize)})
                 </span>
               </div>
               
@@ -198,14 +186,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
               <div className="space-y-2">
                 <button
                   onClick={handleDownloadAllAudio}
-                  disabled={audioFiles.length === 0}
-                  className="w-full px-4 py-2 text-sm text-ink-secondary dark:text-ink-muted hover:bg-ink-muted hover:bg-opacity-10 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2 text-sm text-ink-secondary dark:text-ink-muted hover:bg-ink-muted hover:bg-opacity-10 rounded-lg transition-colors"
                 >
                   Download All Audio Files
                 </button>
                 <button
                   onClick={handleClearAudioFiles}
-                  disabled={audioFiles.length === 0}
+                  disabled={totalSize === 0}
                   className="w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 dark:hover:bg-opacity-20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Clear All Audio Files

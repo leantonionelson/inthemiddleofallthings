@@ -14,7 +14,7 @@ export const liveAudioConfig = {
     speechConfig: {
       voiceConfig: {
         prebuiltVoiceConfig: {
-          voiceName: "Orus"
+          voiceName: "Zephyr"
         }
       }
     }

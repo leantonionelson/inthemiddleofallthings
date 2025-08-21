@@ -8,6 +8,7 @@ interface CleanLayoutProps {
   onRead: () => void;
   isReading?: boolean;
   onOpenAI?: () => void;
+  isAudioPlaying?: boolean;
 }
 
 const CleanLayout: React.FC<CleanLayoutProps> = ({
@@ -15,7 +16,8 @@ const CleanLayout: React.FC<CleanLayoutProps> = ({
   currentPage,
   onRead,
   isReading = false,
-  onOpenAI
+  onOpenAI,
+  isAudioPlaying = false
 }) => {
   const scrollTransition = useScrollTransition({
     threshold: 5,
@@ -34,7 +36,12 @@ const CleanLayout: React.FC<CleanLayoutProps> = ({
       {/* Standardized Navigation with scroll transition */}
       <div 
         className="fixed bottom-0 left-0 right-0 z-50"
-        style={scrollTransition.style}
+        style={{
+          ...scrollTransition.style,
+          transform: isAudioPlaying 
+            ? 'translateY(80px)' // Move bottom menu down when audio is playing
+            : scrollTransition.style.transform
+        }}
       >
         <StandardNavigation
           currentPage={currentPage}
