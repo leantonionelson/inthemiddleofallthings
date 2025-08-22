@@ -24,7 +24,7 @@ const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
   progress = 0
 }) => {
   return (
-    <div className={`bg-paper-light dark:bg-paper-dark backdrop-blur-sm paper-texture ${showShadow ? 'shadow-lg' : ''}`}>
+    <div className={`bg-paper-light dark:bg-paper-dark backdrop-blur-sm paper-texture ${showShadow ? 'shadow-md' : ''}`}>
       {/* Progress bar at the top - only show when listening */}
       {isListening && (
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">

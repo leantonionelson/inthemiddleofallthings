@@ -33,7 +33,7 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
   const activePage = getActivePage();
 
   return (
-    <div className={`fixed bottom-0 left-0 right-0 z-50 bg-paper-light dark:bg-paper-dark backdrop-blur-sm paper-texture ${showShadow ? 'shadow-lg' : ''}`}>
+    <div className={`fixed bottom-0 left-0 right-0 z-50 bg-paper-light dark:bg-paper-dark backdrop-blur-sm paper-texture ${showShadow ? 'shadow-md' : ''}`}>
       <div className="flex items-center justify-around px-4 py-3">
         {/* Home Navigation */}
         <motion.button
