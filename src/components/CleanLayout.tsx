@@ -51,6 +51,7 @@ const CleanLayout: React.FC<CleanLayoutProps> = ({
           onRead={onRead}
           isReading={isReading}
           onOpenAI={onOpenAI}
+          showShadow={true}
         />
       </div>
     </div>
