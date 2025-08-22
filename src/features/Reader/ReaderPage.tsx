@@ -34,6 +34,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
   const [highlightedProgress, setHighlightedProgress] = useState(0); // 0 to 1, representing progress through the text
   const [isAudioPlaying, setIsAudioPlaying] = useState(false); // Track when audio is actively playing
   const [fontSize, setFontSize] = useState('base');
+  const [isAtBottom, setIsAtBottom] = useState(false);
 
   // Scroll transition hooks for header and navigation
   const headerScrollTransition = useScrollTransition({
@@ -58,7 +59,9 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
     ...readerNavScrollTransition.style,
     transform: isAudioPlaying 
       ? 'translateY(80px)' // Force the scroll transition effect when audio is playing
-      : readerNavScrollTransition.style.transform
+      : isAtBottom
+        ? 'translateY(0)' // Show navigation when at bottom
+        : readerNavScrollTransition.style.transform
   };
 
   // Load chapters from MDX files
@@ -111,6 +114,23 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
   useEffect(() => {
     const savedFontSize = localStorage.getItem('fontSize') || 'base';
     setFontSize(savedFontSize);
+  }, []);
+
+  // Handle scroll to detect when at bottom
+  useEffect(() => {
+    const handleScroll = () => {
+      if (contentRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
+        const isBottom = scrollTop + clientHeight >= scrollHeight - 50; // 50px threshold
+        setIsAtBottom(isBottom);
+      }
+    };
+
+    const contentElement = contentRef.current;
+    if (contentElement) {
+      contentElement.addEventListener('scroll', handleScroll);
+      return () => contentElement.removeEventListener('scroll', handleScroll);
+    }
   }, []);
 
   // Handle text selection
@@ -405,7 +425,9 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
           ...headerScrollTransition.style,
           transform: isAudioPlaying 
             ? 'translateY(-120px)' // Move chapter info up when audio is playing
-            : headerScrollTransition.style.transform
+            : isAtBottom
+              ? 'translateY(0)' // Show chapter info when at bottom
+              : headerScrollTransition.style.transform
         }}
       >
         <ChapterInfo
@@ -452,7 +474,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
         className="pb-36 px-10 max-w-2xl mx-auto relative"
         style={{ 
           userSelect: 'text',
-          paddingTop: isAudioPlaying ? '2rem' : '10rem', // 2rem when playing, 10rem (pt-40) when not
+          paddingTop: isAudioPlaying ? '2rem' : '6rem', // 2rem when playing, 10rem (pt-40) when not
           transform: isAudioPlaying ? 'translateY(80px)' : 'none',
           transition: 'transform 0.3s ease-out, padding-top 0.3s ease-out'
         }}
