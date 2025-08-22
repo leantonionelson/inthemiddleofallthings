@@ -230,6 +230,13 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
     return preview.length > 200 ? preview.substring(0, 200) + '...' : preview;
   };
 
+  const renderMarkdown = (text: string) => {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/`(.*?)`/g, '<code class="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm">$1</code>');
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-paper-light dark:bg-paper-dark paper-texture flex items-center justify-center">
@@ -350,9 +357,10 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
           <h2 className="text-2xl font-serif text-ink-primary dark:text-paper-light mb-4">
             {currentChapter?.title || currentPart.title}
           </h2>
-          <p className="text-ink-secondary dark:text-ink-muted font-body leading-relaxed">
-            {getCurrentDescription()}
-          </p>
+          <p 
+            className="text-ink-secondary dark:text-ink-muted font-body leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(getCurrentDescription()) }}
+          />
         </motion.div>
 
         {/* Progress */}
