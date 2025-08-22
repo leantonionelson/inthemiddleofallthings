@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { AppRoute, BookChapter, TextHighlight } from '../../types';
 import { loadBookChapters, fallbackChapters } from '../../data/bookContent';
 import CleanLayout from '../../components/CleanLayout';
-import StandardHeader from '../../components/StandardHeader';
 import ReaderNavigation from '../../components/ReaderNavigation';
 import ChapterInfo from '../../components/ChapterInfo';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
@@ -399,22 +398,16 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       onOpenAI={onOpenAI}
       isAudioPlaying={isAudioPlaying}
     >
-      {/* Header and ChapterInfo as one unified component */}
+      {/* ChapterInfo only - no header */}
       <div 
         className="fixed top-0 left-0 right-0 z-40"
         style={{
           ...headerScrollTransition.style,
           transform: isAudioPlaying 
-            ? 'translateY(-120px)' // Move header up when audio is playing
+            ? 'translateY(-120px)' // Move chapter info up when audio is playing
             : headerScrollTransition.style.transform
         }}
       >
-        <StandardHeader
-          title={currentChapter.title}
-          showBackButton={true}
-          onBackClick={() => navigate(AppRoute.HOME)}
-        />
-        
         <ChapterInfo
           currentChapterIndex={currentChapterIndex}
           totalChapters={chapters.length}
