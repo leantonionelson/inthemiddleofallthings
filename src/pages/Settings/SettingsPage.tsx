@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppRoute } from '../../types';
 import StandardHeader from '../../components/StandardHeader';
 import { geminiTTSService } from '../../services/geminiTTS';
+import { useFontSize } from '../../contexts/FontSizeContext';
 
 interface SettingsPageProps {
   isDarkMode: boolean;
@@ -19,6 +20,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   const navigate = useNavigate();
   const [autoDownload, setAutoDownload] = useState(false);
   const [totalSize, setTotalSize] = useState(0);
+  const { fontSize, setFontSize } = useFontSize();
 
   useEffect(() => {
     // Load audio settings
@@ -132,6 +134,50 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                   }`}
                 />
               </button>
+            </div>
+            
+            {/* Font Size */}
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-ink-secondary dark:text-ink-muted">
+                  Font Size
+                </span>
+                <p className="text-xs text-ink-muted">
+                  Adjust text size for reading
+                </p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setFontSize('small')}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    fontSize === 'small'
+                      ? 'bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary'
+                      : 'bg-ink-muted bg-opacity-10 text-ink-secondary dark:text-ink-muted hover:bg-opacity-20'
+                  }`}
+                >
+                  S
+                </button>
+                <button
+                  onClick={() => setFontSize('medium')}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    fontSize === 'medium'
+                      ? 'bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary'
+                      : 'bg-ink-muted bg-opacity-10 text-ink-secondary dark:text-ink-muted hover:bg-opacity-20'
+                  }`}
+                >
+                  M
+                </button>
+                <button
+                  onClick={() => setFontSize('large')}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                    fontSize === 'large'
+                      ? 'bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary'
+                      : 'bg-ink-muted bg-opacity-10 text-ink-secondary dark:text-ink-muted hover:bg-opacity-20'
+                  }`}
+                >
+                  L
+                </button>
+              </div>
             </div>
           </div>
         </motion.div>

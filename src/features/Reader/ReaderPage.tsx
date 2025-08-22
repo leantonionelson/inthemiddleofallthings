@@ -8,6 +8,7 @@ import StandardHeader from '../../components/StandardHeader';
 import ReaderNavigation from '../../components/ReaderNavigation';
 import ChapterInfo from '../../components/ChapterInfo';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
+import { useFontSize } from '../../contexts/FontSizeContext';
 
 import AudioControlStrip from '../../components/AudioControlStrip';
 
@@ -34,6 +35,8 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
 
   const [highlightedProgress, setHighlightedProgress] = useState(0); // 0 to 1, representing progress through the text
   const [isAudioPlaying, setIsAudioPlaying] = useState(false); // Track when audio is actively playing
+  
+  const { getFontSizeClass } = useFontSize();
 
   // Scroll transition hooks for header and navigation
   const headerScrollTransition = useScrollTransition({
@@ -444,7 +447,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       {/* Main Content Area */}
       <main 
         ref={contentRef}
-        className="pb-36 px-10 max-w-2xl mx-auto relative"
+        className={`pb-36 px-10 max-w-2xl mx-auto relative ${getFontSizeClass()}`}
         style={{ 
           userSelect: 'text',
           paddingTop: isAudioPlaying ? '2rem' : '10rem', // 2rem when playing, 10rem (pt-40) when not
