@@ -33,14 +33,17 @@ const CleanLayout: React.FC<CleanLayoutProps> = ({
         {children}
       </div>
 
-      {/* Standardized Navigation with scroll transition */}
+      {/* Standardized Navigation - scroll transition only on read page */}
       <div 
         className="fixed bottom-0 left-0 right-0 z-50"
-        style={{
+        style={isReading ? {
           ...scrollTransition.style,
           transform: isAudioPlaying 
             ? 'translateY(80px)' // Move bottom menu down when audio is playing
             : scrollTransition.style.transform
+        } : {
+          // No scroll transition on other pages
+          transform: 'none'
         }}
       >
         <StandardNavigation
