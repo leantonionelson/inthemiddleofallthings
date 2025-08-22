@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AppRoute } from './types';
 import './App.css';
-import { FontSizeProvider } from './contexts/FontSizeContext';
 
 // Pages
 import HomePage from './pages/Home/HomePage';
@@ -105,9 +104,8 @@ const App: React.FC = () => {
 
   return (
     <ErrorBoundary>
-      <FontSizeProvider>
-        <Router>
-          <div className={`app ${isDarkMode ? 'dark' : ''}`}>
+      <Router>
+        <div className={`app ${isDarkMode ? 'dark' : ''}`}>
           <Routes>
             {/* Auth route */}
             <Route
@@ -223,8 +221,7 @@ const App: React.FC = () => {
             user={null}
           />
         </div>
-        </Router>
-      </FontSizeProvider>
+      </Router>
     </ErrorBoundary>
   );
 };

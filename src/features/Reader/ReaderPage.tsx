@@ -8,7 +8,6 @@ import StandardHeader from '../../components/StandardHeader';
 import ReaderNavigation from '../../components/ReaderNavigation';
 import ChapterInfo from '../../components/ChapterInfo';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
-import { useFontSize } from '../../contexts/FontSizeContext';
 
 import AudioControlStrip from '../../components/AudioControlStrip';
 
@@ -35,8 +34,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
 
   const [highlightedProgress, setHighlightedProgress] = useState(0); // 0 to 1, representing progress through the text
   const [isAudioPlaying, setIsAudioPlaying] = useState(false); // Track when audio is actively playing
-  
-  const { getFontSizeClass } = useFontSize();
+  const [fontSize, setFontSize] = useState('base');
 
   // Scroll transition hooks for header and navigation
   const headerScrollTransition = useScrollTransition({
@@ -108,6 +106,12 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
         console.error('Error loading highlights:', error);
       }
     }
+  }, []);
+
+  // Load font size setting
+  useEffect(() => {
+    const savedFontSize = localStorage.getItem('fontSize') || 'base';
+    setFontSize(savedFontSize);
   }, []);
 
   // Handle text selection
@@ -343,7 +347,12 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       const paragraphStartCharIndex = cleanContent.indexOf(cleanParagraph);
       
       return (
-        <p key={index} className="mb-6 text-lg leading-8 text-ink-primary dark:text-paper-light">
+        <p key={index} className={`mb-6 leading-8 text-ink-primary dark:text-paper-light ${
+          fontSize === 'sm' ? 'text-sm' : 
+          fontSize === 'base' ? 'text-base' : 
+          fontSize === 'lg' ? 'text-lg' : 
+          'text-xl'
+        }`}>
           {words.map((word, wordIndex) => {
             // Calculate the character position for this word
             const wordStartCharIndex = paragraphStartCharIndex + words.slice(0, wordIndex).join('').length;
@@ -447,7 +456,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       {/* Main Content Area */}
       <main 
         ref={contentRef}
-        className={`pb-36 px-10 max-w-2xl mx-auto relative ${getFontSizeClass()}`}
+        className="pb-36 px-10 max-w-2xl mx-auto relative"
         style={{ 
           userSelect: 'text',
           paddingTop: isAudioPlaying ? '2rem' : '10rem', // 2rem when playing, 10rem (pt-40) when not
@@ -463,11 +472,21 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
         <div>
           {/* Chapter Header */}
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-ink-primary dark:text-paper-light mb-4 leading-tight">
+            <h2 className={`font-bold text-ink-primary dark:text-paper-light mb-4 leading-tight ${
+              fontSize === 'sm' ? 'text-2xl' : 
+              fontSize === 'base' ? 'text-2xl' : 
+              fontSize === 'lg' ? 'text-3xl' : 
+              'text-4xl'
+            }`}>
               {currentChapter.title}
             </h2>
             {currentChapter.subtitle && (
-              <p className="text-xl text-ink-secondary dark:text-ink-muted mb-6 leading-relaxed">
+              <p className={`text-ink-secondary dark:text-ink-muted mb-6 leading-relaxed ${
+                fontSize === 'sm' ? 'text-lg' : 
+                fontSize === 'base' ? 'text-lg' : 
+                fontSize === 'lg' ? 'text-xl' : 
+                'text-2xl'
+              }`}>
                 {currentChapter.subtitle}
               </p>
             )}

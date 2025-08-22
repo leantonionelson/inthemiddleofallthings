@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { AppRoute } from '../../types';
 import StandardHeader from '../../components/StandardHeader';
 import { geminiTTSService } from '../../services/geminiTTS';
-import { useFontSize } from '../../contexts/FontSizeContext';
 
 interface SettingsPageProps {
   isDarkMode: boolean;
@@ -20,12 +19,16 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   const navigate = useNavigate();
   const [autoDownload, setAutoDownload] = useState(false);
   const [totalSize, setTotalSize] = useState(0);
-  const { fontSize, setFontSize } = useFontSize();
+  const [fontSize, setFontSize] = useState('base');
 
   useEffect(() => {
     // Load audio settings
     const autoDownloadSetting = localStorage.getItem('autoDownloadAudio') === 'true';
     setAutoDownload(autoDownloadSetting);
+    
+    // Load font size setting
+    const savedFontSize = localStorage.getItem('fontSize') || 'base';
+    setFontSize(savedFontSize);
     
     // Load audio cache info
     const cacheSize = geminiTTSService.getCacheSize();
@@ -49,6 +52,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
     const newValue = !autoDownload;
     setAutoDownload(newValue);
     localStorage.setItem('autoDownloadAudio', newValue.toString());
+  };
+
+  const handleFontSizeChange = (newSize: string) => {
+    setFontSize(newSize);
+    localStorage.setItem('fontSize', newSize);
   };
 
   const handleDownloadAllAudio = async () => {
@@ -137,46 +145,32 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
             </div>
             
             {/* Font Size */}
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-ink-secondary dark:text-ink-muted">
-                  Font Size
-                </span>
-                <p className="text-xs text-ink-muted">
-                  Adjust text size for reading
-                </p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setFontSize('small')}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                    fontSize === 'small'
-                      ? 'bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary'
-                      : 'bg-ink-muted bg-opacity-10 text-ink-secondary dark:text-ink-muted hover:bg-opacity-20'
-                  }`}
-                >
-                  S
-                </button>
-                <button
-                  onClick={() => setFontSize('medium')}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                    fontSize === 'medium'
-                      ? 'bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary'
-                      : 'bg-ink-muted bg-opacity-10 text-ink-secondary dark:text-ink-muted hover:bg-opacity-20'
-                  }`}
-                >
-                  M
-                </button>
-                <button
-                  onClick={() => setFontSize('large')}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                    fontSize === 'large'
-                      ? 'bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary'
-                      : 'bg-ink-muted bg-opacity-10 text-ink-secondary dark:text-ink-muted hover:bg-opacity-20'
-                  }`}
-                >
-                  L
-                </button>
+            <div className="space-y-3">
+              <span className="text-ink-secondary dark:text-ink-muted">
+                Font Size
+              </span>
+              <div className="flex space-x-2">
+                {[
+                  { value: 'sm', label: 'Small', preview: 'Aa' },
+                  { value: 'base', label: 'Medium', preview: 'Aa' },
+                  { value: 'lg', label: 'Large', preview: 'Aa' },
+                  { value: 'xl', label: 'Extra Large', preview: 'Aa' }
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleFontSizeChange(option.value)}
+                    className={`flex-1 py-2 px-3 rounded-lg border transition-colors ${
+                      fontSize === option.value
+                        ? 'border-ink-primary dark:border-paper-light bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary'
+                        : 'border-ink-muted border-opacity-30 text-ink-secondary dark:text-ink-muted hover:border-opacity-50'
+                    }`}
+                  >
+                    <div className={`text-center ${option.value === 'sm' ? 'text-sm' : option.value === 'base' ? 'text-base' : option.value === 'lg' ? 'text-lg' : 'text-xl'}`}>
+                      {option.preview}
+                    </div>
+                    <div className="text-xs mt-1">{option.label}</div>
+                  </button>
+                ))}
               </div>
             </div>
           </div>
