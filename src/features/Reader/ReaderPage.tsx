@@ -134,18 +134,29 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
           });
           setIsTextSelected(isManual);
           
-          // Apply native-like selection styling
+          // Apply native-like selection styling with proper dark/light mode colors
           if (isManual) {
             const style = document.createElement('style');
             style.id = 'native-selection-style';
             style.textContent = `
+              /* Light mode selection - black text on white highlight */
               ::selection {
-                background-color: rgba(0, 123, 255, 0.3) !important;
-                color: inherit !important;
+                background-color: rgba(255, 255, 255, 0.9) !important;
+                color: #0F0F0F !important;
               }
               ::-moz-selection {
-                background-color: rgba(0, 123, 255, 0.3) !important;
-                color: inherit !important;
+                background-color: rgba(255, 255, 255, 0.9) !important;
+                color: #0F0F0F !important;
+              }
+              
+              /* Dark mode selection - white text on black highlight */
+              .dark ::selection {
+                background-color: rgba(15, 15, 15, 0.9) !important;
+                color: #FAFAFA !important;
+              }
+              .dark ::-moz-selection {
+                background-color: rgba(15, 15, 15, 0.9) !important;
+                color: #FAFAFA !important;
               }
             `;
             document.head.appendChild(style);
@@ -488,9 +499,8 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       {/* Main Content Area */}
       <main 
         ref={contentRef}
-        className="pb-36 px-10 max-w-2xl mx-auto relative"
+        className="reader-content pb-36 px-10 max-w-2xl mx-auto relative"
         style={{ 
-          userSelect: 'text',
           paddingTop: isAudioPlaying ? '2rem' : '6rem', // 2rem when playing, 10rem (pt-40) when not
           transform: isAudioPlaying ? 'translateY(80px)' : 'none',
           transition: 'transform 0.3s ease-out, padding-top 0.3s ease-out'
@@ -533,50 +543,60 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
         </div>
       </main>
 
-      {/* Text Selection Menu */}
+      {/* Native-like Text Selection Menu */}
       <AnimatePresence>
         {selectedText && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            initial={{ opacity: 0, scale: 0.9, y: 5 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="selection-menu fixed z-50 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 px-1 py-1"
+            exit={{ opacity: 0, scale: 0.9, y: 5 }}
+            transition={{ duration: 0.12, ease: "easeOut" }}
+            className="selection-menu fixed z-50 bg-paper-light/95 dark:bg-paper-dark/95 backdrop-blur-md rounded-2xl shadow-2xl border border-ink-muted/20 dark:border-paper-light/20 px-2 py-2"
             style={{
-              left: Math.max(16, Math.min(window.innerWidth - 160, selectedText.rect.left + selectedText.rect.width / 2 - 80)),
-              top: Math.max(16, selectedText.rect.top - 60),
-              backdropFilter: 'blur(10px)',
-              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+              left: Math.max(16, Math.min(window.innerWidth - 180, selectedText.rect.left + selectedText.rect.width / 2 - 90)),
+              top: Math.max(16, selectedText.rect.top - 70),
+              boxShadow: '0 8px 32px rgba(15, 15, 15, 0.15), 0 2px 8px rgba(15, 15, 15, 0.1)',
             }}
           >
-            <div className="flex space-x-0">
+            <div className="flex items-center space-x-1">
               <button
                 onClick={handleSaveHighlight}
-                className="px-4 py-3 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors flex items-center space-x-2 min-w-0"
+                className="group px-5 py-3 text-sm font-medium text-ink-primary dark:text-paper-light hover:bg-ink-primary/5 dark:hover:bg-paper-light/5 active:bg-ink-primary/10 dark:active:bg-paper-light/10 rounded-xl transition-all duration-150 flex items-center space-x-2.5 min-w-0"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <svg className="w-4 h-4 transition-transform group-active:scale-95" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>Save</span>
+                <span className="font-medium">Save</span>
               </button>
+              <div className="w-px h-6 bg-ink-muted/20 dark:bg-paper-light/20"></div>
               <button
                 onClick={handleAskAI}
-                className="px-4 py-3 text-sm font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg transition-colors flex items-center space-x-2 min-w-0"
+                className="group px-5 py-3 text-sm font-medium text-ink-primary dark:text-paper-light hover:bg-ink-primary/5 dark:hover:bg-paper-light/5 active:bg-ink-primary/10 dark:active:bg-paper-light/10 rounded-xl transition-all duration-150 flex items-center space-x-2.5 min-w-0"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg className="w-4 h-4 transition-transform group-active:scale-95" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
-                <span>Ask AI</span>
+                <span className="font-medium">Ask AI</span>
               </button>
             </div>
-            {/* Triangle pointer */}
+            {/* Native-style triangle pointer */}
             <div 
               className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0"
               style={{
-                borderLeft: '6px solid transparent',
-                borderRight: '6px solid transparent',
-                borderTop: '6px solid rgba(255, 255, 255, 0.95)',
-                filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))'
+                borderLeft: '8px solid transparent',
+                borderRight: '8px solid transparent',
+                borderTop: '8px solid rgba(250, 250, 250, 0.95)',
+                filter: 'drop-shadow(0 2px 4px rgba(15, 15, 15, 0.1))'
+              }}
+            ></div>
+            {/* Dark mode triangle pointer */}
+            <div 
+              className="dark:block hidden absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0"
+              style={{
+                borderLeft: '8px solid transparent',
+                borderRight: '8px solid transparent',
+                borderTop: '8px solid rgba(15, 15, 15, 0.95)',
+                filter: 'drop-shadow(0 2px 4px rgba(255, 255, 255, 0.1))'
               }}
             ></div>
           </motion.div>

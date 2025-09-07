@@ -117,10 +117,52 @@
   }
 
   .text-highlight {
-    background: linear-gradient(120deg, rgba(255, 193, 7, 0.2) 0%, rgba(255, 193, 7, 0.4) 100%);
+    background: linear-gradient(120deg, rgba(15, 15, 15, 0.08) 0%, rgba(15, 15, 15, 0.12) 100%);
+    color: #0F0F0F;
     padding: 0.1em 0.2em;
-    border-radius: 0.2em;
+    border-radius: 0.25em;
     box-decoration-break: clone;
+    border: 1px solid rgba(15, 15, 15, 0.05);
+    transition: all 0.2s ease;
+  }
+
+  .dark .text-highlight {
+    background: linear-gradient(120deg, rgba(250, 250, 250, 0.08) 0%, rgba(250, 250, 250, 0.12) 100%);
+    color: #FAFAFA;
+    border: 1px solid rgba(250, 250, 250, 0.05);
+  }
+
+  .text-highlight:hover {
+    background: linear-gradient(120deg, rgba(15, 15, 15, 0.12) 0%, rgba(15, 15, 15, 0.16) 100%);
+    border: 1px solid rgba(15, 15, 15, 0.1);
+  }
+
+  .dark .text-highlight:hover {
+    background: linear-gradient(120deg, rgba(250, 250, 250, 0.12) 0%, rgba(250, 250, 250, 0.16) 100%);
+    border: 1px solid rgba(250, 250, 250, 0.1);
+  }
+
+  /* Enhanced text selection precision */
+  .reader-content {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .reader-content p {
+    line-height: 1.8;
+    letter-spacing: 0.01em;
+  }
+
+  /* Improve selection handles on mobile */
+  @media (pointer: coarse) {
+    .reader-content {
+      -webkit-user-select: text;
+      -webkit-touch-callout: default;
+    }
   }
 
   .drawer-backdrop {
