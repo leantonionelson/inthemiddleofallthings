@@ -18,6 +18,7 @@ interface TextSelection {
   text: string;
   range: Range;
   rect: DOMRect;
+  isManualSelection?: boolean;
 }
 
 const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
@@ -26,6 +27,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
   const [selectedText, setSelectedText] = useState<TextSelection | null>(null);
+  const [isTextSelected, setIsTextSelected] = useState(false);
   const [savedHighlights, setSavedHighlights] = useState<TextHighlight[]>([]);
   const [chapters, setChapters] = useState<BookChapter[]>([]);
   const [isAudioPlayerOpen, setIsAudioPlayerOpen] = useState(false);
@@ -123,19 +125,53 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
         
         // Only show menu if selection is within our content area
         if (contentRef.current?.contains(range.commonAncestorContainer)) {
+          const isManual = selection.toString().trim().length > 0;
           setSelectedText({
             text: selection.toString().trim(),
             range: range.cloneRange(),
-            rect
+            rect,
+            isManualSelection: isManual
           });
+          setIsTextSelected(isManual);
+          
+          // Apply native-like selection styling
+          if (isManual) {
+            const style = document.createElement('style');
+            style.id = 'native-selection-style';
+            style.textContent = `
+              ::selection {
+                background-color: rgba(0, 123, 255, 0.3) !important;
+                color: inherit !important;
+              }
+              ::-moz-selection {
+                background-color: rgba(0, 123, 255, 0.3) !important;
+                color: inherit !important;
+              }
+            `;
+            document.head.appendChild(style);
+          }
         }
       } else {
         setSelectedText(null);
+        setIsTextSelected(false);
+        
+        // Remove custom selection styling
+        const existingStyle = document.getElementById('native-selection-style');
+        if (existingStyle) {
+          existingStyle.remove();
+        }
       }
     };
 
     document.addEventListener('selectionchange', handleSelection);
-    return () => document.removeEventListener('selectionchange', handleSelection);
+    return () => {
+      document.removeEventListener('selectionchange', handleSelection);
+      // Cleanup on unmount
+      const existingStyle = document.getElementById('native-selection-style');
+      if (existingStyle) {
+        existingStyle.remove();
+      }
+    };
   }, []);
 
   // Clear selection when clicking elsewhere
@@ -308,6 +344,9 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
 
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
+    
+    // Disable swipe navigation when text is manually selected
+    if (isTextSelected) return;
     
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > 50;
@@ -498,31 +537,48 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       <AnimatePresence>
         {selectedText && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="selection-menu fixed z-50 bg-paper-light dark:bg-paper-dark rounded-lg shadow-lg border border-ink-muted border-opacity-20 px-2 py-1"
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="selection-menu fixed z-50 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 px-1 py-1"
             style={{
-              left: Math.max(16, Math.min(window.innerWidth - 150, selectedText.rect.left + selectedText.rect.width / 2 - 75)),
-              top: selectedText.rect.top - 50,
+              left: Math.max(16, Math.min(window.innerWidth - 160, selectedText.rect.left + selectedText.rect.width / 2 - 80)),
+              top: Math.max(16, selectedText.rect.top - 60),
+              backdropFilter: 'blur(10px)',
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
             }}
           >
-            <div className="flex space-x-1">
+            <div className="flex space-x-0">
               <button
                 onClick={handleSaveHighlight}
-                className="px-3 py-2 text-sm font-medium text-ink-secondary dark:text-ink-muted hover:bg-ink-muted hover:bg-opacity-10 rounded transition-colors"
+                className="px-4 py-3 text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg transition-colors flex items-center space-x-2 min-w-0"
               >
-                Save
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Save</span>
               </button>
               <button
                 onClick={handleAskAI}
-                className="px-3 py-2 text-sm font-medium text-ink-primary dark:text-paper-light hover:bg-ink-primary hover:bg-opacity-10 rounded transition-colors"
+                className="px-4 py-3 text-sm font-medium text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-lg transition-colors flex items-center space-x-2 min-w-0"
               >
-                Ask AI
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Ask AI</span>
               </button>
             </div>
             {/* Triangle pointer */}
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-ink-muted"></div>
+            <div 
+              className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0"
+              style={{
+                borderLeft: '6px solid transparent',
+                borderRight: '6px solid transparent',
+                borderTop: '6px solid rgba(255, 255, 255, 0.95)',
+                filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))'
+              }}
+            ></div>
           </motion.div>
         )}
       </AnimatePresence>
