@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { AppRoute } from '../types';
-import { BookOpen, Home, Star, Sparkles } from 'lucide-react';
+import { BookOpen, Home, Star, Scale, Bookmark } from 'lucide-react';
+import { authService } from '../services/firebaseAuth';
 
 interface StandardNavigationProps {
   currentPage: string;
@@ -20,12 +21,22 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
   onOpenAI
 }) => {
   const navigate = useNavigate();
+  const [userCapabilities, setUserCapabilities] = useState(authService.getUserCapabilities());
+
+  // Update capabilities when auth state changes
+  useEffect(() => {
+    const unsubscribe = authService.onAuthStateChanged(() => {
+      setUserCapabilities(authService.getUserCapabilities());
+    });
+    return unsubscribe;
+  }, []);
 
   const getActivePage = () => {
     switch (currentPage) {
       case 'home': return 'home';
       case 'reader': return 'read';
-      case 'garden': return 'garden';
+      case 'meditations': return 'meditations';
+      case 'saved': return 'saved';
       default: return 'home';
     }
   };
@@ -54,7 +65,7 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
         <motion.button
           onClick={onRead}
           className={`flex flex-col items-center justify-center py-2 px-3 transition-all ${
-            isReading
+            activePage === 'read'
               ? 'text-blue-600 dark:text-blue-400'
               : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
           }`}
@@ -62,36 +73,38 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
           whileTap={{ scale: 0.95 }}
         >
           <BookOpen className="w-6 h-6 mb-1" />
-          <span className="text-xs font-medium">Read</span>
+          <span className="text-xs font-medium">Book</span>
         </motion.button>
 
-        {/* Garden Navigation */}
+        {/* Meditations Navigation */}
         <motion.button
-          onClick={() => navigate(AppRoute.GARDEN)}
+          onClick={() => navigate(AppRoute.MEDITATIONS)}
           className={`flex flex-col items-center justify-center py-2 px-3 transition-all ${
-            activePage === 'garden'
+            activePage === 'meditations'
               ? 'text-blue-600 dark:text-blue-400'
               : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
           }`}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <Star className="w-6 h-6 mb-1" />
-          <span className="text-xs font-medium">Garden</span>
+          <Scale className="w-6 h-6 mb-1" />
+          <span className="text-xs font-medium">Meditations</span>
         </motion.button>
 
-        {/* AI Chat Button */}
-        {onOpenAI && (
-          <motion.button
-            onClick={onOpenAI}
-            className="flex flex-col items-center justify-center py-2 px-3 transition-all text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Sparkles className="w-6 h-6 mb-1" />
-            <span className="text-xs font-medium">AI</span>
-          </motion.button>
-        )}
+        {/* Saved Button */}
+        <motion.button
+          onClick={() => navigate(AppRoute.SAVED)}
+          className={`flex flex-col items-center justify-center py-2 px-3 transition-all ${
+            activePage === 'saved'
+              ? 'text-blue-600 dark:text-blue-400'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+          }`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Bookmark className="w-6 h-6 mb-1" />
+          <span className="text-xs font-medium">Saved</span>
+        </motion.button>
       </div>
     </div>
   );

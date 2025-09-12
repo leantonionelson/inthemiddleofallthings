@@ -600,11 +600,11 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
       const paragraphStartCharIndex = cleanContent.indexOf(cleanParagraph);
       
       return (
-        <p key={index} className={`mb-6 leading-8 text-ink-primary dark:text-paper-light ${
-          fontSize === 'sm' ? 'text-sm' : 
-          fontSize === 'base' ? 'text-base' : 
-          fontSize === 'lg' ? 'text-lg' : 
-          'text-xl'
+        <p key={index} className={`mb-6 leading-8 lg:leading-10 text-ink-primary dark:text-paper-light ${
+          fontSize === 'sm' ? 'text-sm lg:text-base' : 
+          fontSize === 'base' ? 'text-base lg:text-lg' : 
+          fontSize === 'lg' ? 'text-lg lg:text-xl' : 
+          'text-xl lg:text-2xl'
         }`}>
           {words.map((word, wordIndex) => {
             // Calculate the character position for this word
@@ -652,9 +652,9 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
       onOpenAI={onOpenAI}
       isAudioPlaying={isAudioPlaying}
     >
-      {/* ChapterInfo only - no header */}
+      {/* ChapterInfo only on mobile - hidden on desktop */}
       <div 
-        className="fixed top-0 left-0 right-0 z-40"
+        className="lg:hidden fixed top-0 left-0 right-0 z-40"
         style={{
           ...headerScrollTransition.style,
           transform: isAudioPlaying 
@@ -703,9 +703,22 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
       {/* Main Content Area */}
       <main 
         ref={contentRef}
-        className="reader-content pb-36 px-10 max-w-2xl mx-auto relative"
+        className={`reader-content relative ${
+          // Mobile styles
+          'pb-36 px-6 max-w-2xl mx-auto'
+        } ${
+          // Desktop styles
+          'lg:pb-20 lg:px-8 lg:max-w-4xl'
+        }`}
         style={{ 
-          paddingTop: isAudioPlaying ? '2rem' : '6rem', // 2rem when playing, 10rem (pt-40) when not
+          // Mobile padding top
+          paddingTop: isAudioPlaying ? '2rem' : '6rem',
+          // Desktop has different padding due to top nav
+          ...{
+            '@media (min-width: 1024px)': {
+              paddingTop: '2rem' // Desktop always has consistent padding due to fixed top nav
+            }
+          },
           transform: isAudioPlaying ? 'translateY(80px)' : 'none',
           transition: 'transform 0.3s ease-out, padding-top 0.3s ease-out'
         }}
@@ -716,22 +729,61 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
 
 
         <div>
-          {/* Chapter Header */}
+          {/* Desktop Chapter Header with Navigation */}
           <div className="mb-8">
+            {/* Desktop Chapter Info */}
+            <div className="hidden lg:flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-ink-secondary dark:text-ink-muted">
+                  Chapter {currentChapterIndex + 1} of {chapters.length}
+                </span>
+                <div className="w-px h-4 bg-ink-muted/20 dark:bg-paper-light/20" />
+                <div className="flex items-center gap-2">
+                  <div className="w-32 bg-ink-muted/10 dark:bg-paper-light/10 rounded-full h-1">
+                    <div 
+                      className="h-1 bg-blue-500 rounded-full transition-all duration-300"
+                      style={{ width: `${((currentChapterIndex + 1) / chapters.length) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-ink-secondary dark:text-ink-muted">
+                    {Math.round(((currentChapterIndex + 1) / chapters.length) * 100)}%
+                  </span>
+                </div>
+              </div>
+              
+              {/* Desktop Navigation Controls */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handlePreviousChapter}
+                  disabled={currentChapterIndex === 0}
+                  className="p-2 rounded-lg bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  ←
+                </button>
+                <button
+                  onClick={handleNextChapter}
+                  disabled={currentChapterIndex === chapters.length - 1}
+                  className="p-2 rounded-lg bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  →
+                </button>
+              </div>
+            </div>
+
             <h2 className={`font-bold text-ink-primary dark:text-paper-light mb-4 leading-tight ${
-              fontSize === 'sm' ? 'text-2xl' : 
-              fontSize === 'base' ? 'text-2xl' : 
-              fontSize === 'lg' ? 'text-3xl' : 
-              'text-4xl'
+              fontSize === 'sm' ? 'text-2xl lg:text-3xl' : 
+              fontSize === 'base' ? 'text-2xl lg:text-3xl' : 
+              fontSize === 'lg' ? 'text-3xl lg:text-4xl' : 
+              'text-4xl lg:text-5xl'
             }`}>
               {currentChapter.title}
             </h2>
             {currentChapter.subtitle && (
               <p className={`text-ink-secondary dark:text-ink-muted mb-6 leading-relaxed ${
-                fontSize === 'sm' ? 'text-lg' : 
-                fontSize === 'base' ? 'text-lg' : 
-                fontSize === 'lg' ? 'text-xl' : 
-                'text-2xl'
+                fontSize === 'sm' ? 'text-lg lg:text-xl' : 
+                fontSize === 'base' ? 'text-lg lg:text-xl' : 
+                fontSize === 'lg' ? 'text-xl lg:text-2xl' : 
+                'text-2xl lg:text-3xl'
               }`}>
                 {currentChapter.subtitle}
               </p>

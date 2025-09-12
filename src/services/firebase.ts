@@ -1,54 +1,31 @@
-// Offline Firebase Service (Demo Mode)
-// This service provides dummy implementations of Firebase functionality
-// for demo purposes when Firebase is not available or configured
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-console.log('🔧 Firebase service running in offline demo mode');
-
-// Dummy Firebase Auth implementation
-export const auth = {
-  currentUser: null,
-  signInWithEmailAndPassword: () => Promise.reject(new Error('Firebase not configured')),
-  createUserWithEmailAndPassword: () => Promise.reject(new Error('Firebase not configured')),
-  signInAnonymously: () => Promise.reject(new Error('Firebase not configured')),
-  signOut: () => Promise.resolve(),
-  onAuthStateChanged: () => () => {} // Return unsubscribe function
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAW4vyYLQjBGEJDwemF2gz26yLWkj5n2j8",
+  authDomain: "inthemiddleofallthings.firebaseapp.com",
+  projectId: "inthemiddleofallthings",
+  storageBucket: "inthemiddleofallthings.firebasestorage.app",
+  messagingSenderId: "422207850692",
+  appId: "1:422207850692:web:0aa277232f98b4429da191",
+  measurementId: "G-MMXLYHMTEZ"
 };
 
-// Dummy Firestore implementation
-export const db = {
-  collection: () => ({
-    doc: () => ({
-      set: () => Promise.resolve(),
-      get: () => Promise.resolve({ exists: false, data: () => null }),
-      update: () => Promise.resolve(),
-      delete: () => Promise.resolve()
-    }),
-    add: () => Promise.resolve({ id: 'demo-id' }),
-    where: () => ({
-      get: () => Promise.resolve({ docs: [] })
-    })
-  })
-};
-
-// Dummy storage implementation
-export const storage = {
-  ref: () => ({
-    put: () => Promise.resolve({ ref: { getDownloadURL: () => Promise.resolve('demo-url') } })
-  })
-};
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 // Helper function to check if Firebase is available
-export const isFirebaseAvailable = () => false;
+export const isFirebaseAvailable = () => true;
 
-// Demo user for offline mode
-export const createDemoUser = () => ({
-  uid: 'demo-user',
-  name: 'Demo User',
-  email: 'demo@example.com',
-  onboardingResponses: [],
-  selectedAIPersona: 'sage' as const,
-  createdAt: new Date(),
-  lastActive: new Date()
-});
-
-export default { auth, db, storage, isFirebaseAvailable, createDemoUser }; 
+export { app, analytics, auth, db };
+export default { app, analytics, auth, db, isFirebaseAvailable };

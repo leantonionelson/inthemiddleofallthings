@@ -8,7 +8,8 @@ import HomePage from './pages/Home/HomePage';
 import AuthPage from './features/Auth/AuthPage';
 import OnboardingPage from './pages/Onboarding/OnboardingPage';
 import ReaderPage from './features/Reader/ReaderPage';
-import GardenPage from './features/Reflections/GardenPage';
+import MeditationsPage from './features/Meditations/MeditationsPage';
+import SavedPage from './features/Saved/SavedPage';
 import SettingsPage from './pages/Settings/SettingsPage';
 
 // Components
@@ -160,10 +161,21 @@ const App: React.FC = () => {
             />
 
             <Route
-              path={AppRoute.GARDEN}
+              path={AppRoute.MEDITATIONS}
               element={
                 isAuthenticated && hasCompletedOnboarding ? (
-                  <GardenPage user={null} />
+                  <MeditationsPage onOpenAI={() => setIsAIDrawerOpen(true)} />
+                ) : (
+                  <Navigate to={AppRoute.AUTH} replace />
+                )
+              }
+            />
+
+            <Route
+              path={AppRoute.SAVED}
+              element={
+                isAuthenticated && hasCompletedOnboarding ? (
+                  <SavedPage onOpenAI={() => setIsAIDrawerOpen(true)} />
                 ) : (
                   <Navigate to={AppRoute.AUTH} replace />
                 )
