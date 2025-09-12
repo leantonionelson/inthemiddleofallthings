@@ -124,12 +124,17 @@ class FirebaseAuthService {
 
   // Update last active timestamp
   async updateLastActive(uid: string): Promise<void> {
+    if (!this.isUserAuthenticated()) {
+      return; // Skip for anonymous users
+    }
+    
     try {
       await updateDoc(doc(db, 'users', uid), {
         lastActive: new Date()
       });
     } catch (error) {
       console.error('Error updating last active:', error);
+      // Don't throw error to prevent authentication from failing
     }
   }
 

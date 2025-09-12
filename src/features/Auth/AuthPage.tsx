@@ -95,11 +95,18 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthenticate }) => {
       } else if (error.code === 'auth/wrong-password') {
         errorMessage = 'Incorrect password';
       } else if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'An account with this email already exists';
+        errorMessage = 'An account with this email already exists. Try signing in instead.';
+        // Automatically switch to login mode
+        setTimeout(() => {
+          setMode('login');
+          setErrors({});
+        }, 2000);
       } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'Password is too weak';
+        errorMessage = 'Password must be at least 6 characters long';
       } else if (error.code === 'auth/invalid-email') {
         errorMessage = 'Invalid email address';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Network error. Please check your connection and try again.';
       }
       
       setErrors({ general: errorMessage });
