@@ -45,27 +45,41 @@ const App: React.FC = () => {
     const unsubscribe = authService.onAuthStateChanged(async (user) => {
       try {
         if (user) {
+          console.log('Firebase user found:', user.uid, 'isAnonymous:', user.isAnonymous);
           setIsAuthenticated(true);
           
           // Check onboarding status for authenticated users
           try {
             const userProfile = await authService.getUserProfile(user.uid);
-            setHasCompletedOnboarding(userProfile?.onboardingCompleted || false);
+            console.log('User profile:', userProfile);
+            const onboardingCompleted = userProfile?.onboardingCompleted || false;
+            console.log('Onboarding completed from Firebase:', onboardingCompleted);
+            
+            // If Firebase shows incomplete but localStorage shows complete, trust localStorage
+            const localOnboardingState = localStorage.getItem('demoOnboarding') === 'true';
+            const finalOnboardingState = onboardingCompleted || localOnboardingState;
+            console.log('Final onboarding state (Firebase || localStorage):', finalOnboardingState);
+            
+            setHasCompletedOnboarding(finalOnboardingState);
           } catch (error) {
             console.error('Error checking onboarding status:', error);
-            // Fallback to localStorage for demo mode
+            // Fallback to localStorage for all users when Firebase fails
             const demoOnboardingState = localStorage.getItem('demoOnboarding');
+            console.log('Falling back to localStorage onboarding:', demoOnboardingState);
             setHasCompletedOnboarding(demoOnboardingState === 'true');
           }
         } else {
+          console.log('No Firebase user, checking demo mode');
           // Check for demo mode fallback
           const demoAuthState = localStorage.getItem('demoAuth');
           const demoOnboardingState = localStorage.getItem('demoOnboarding');
           
           if (demoAuthState === 'true') {
+            console.log('Demo mode authenticated, onboarding:', demoOnboardingState);
             setIsAuthenticated(true);
             setHasCompletedOnboarding(demoOnboardingState === 'true');
           } else {
+            console.log('No authentication found');
             setIsAuthenticated(false);
             setHasCompletedOnboarding(false);
           }
@@ -98,22 +112,43 @@ const App: React.FC = () => {
 
   // Handle onboarding completion
   const handleOnboardingComplete = async () => {
+    console.log('Onboarding completion started');
     setHasCompletedOnboarding(true);
     
     // Save to Firebase for authenticated users
     try {
       const currentUser = authService.getCurrentUser();
+      console.log('Current user for onboarding completion:', currentUser?.uid, 'isAnonymous:', currentUser?.isAnonymous);
+      
       if (currentUser && !currentUser.isAnonymous) {
+        console.log('Saving onboarding completion to Firebase');
         await authService.completeOnboarding(currentUser.uid, {
           completedAt: new Date(),
           responses: {} // Could store onboarding responses here
         });
+        console.log('Onboarding completion saved to Firebase successfully');
+        
+        // Verify the save by refetching the profile
+        const updatedProfile = await authService.getUserProfile(currentUser.uid);
+        console.log('Updated profile after onboarding completion:', updatedProfile);
+        
+        if (updatedProfile?.onboardingCompleted) {
+          console.log('Onboarding completion verified in Firebase');
+        } else {
+          console.warn('Onboarding completion not reflected in Firebase, using localStorage fallback');
+          localStorage.setItem('demoOnboarding', 'true');
+        }
+        
+        // Always save to localStorage as backup for authenticated users too
+        localStorage.setItem('demoOnboarding', 'true');
       } else {
+        console.log('Saving onboarding completion to localStorage (demo/anonymous user)');
         // Fallback to localStorage for demo/anonymous users
         localStorage.setItem('demoOnboarding', 'true');
       }
     } catch (error) {
       console.error('Error saving onboarding completion:', error);
+      console.log('Falling back to localStorage due to error');
       // Fallback to localStorage
       localStorage.setItem('demoOnboarding', 'true');
     }
