@@ -97,9 +97,26 @@ const App: React.FC = () => {
   }, []);
 
   // Handle onboarding completion
-  const handleOnboardingComplete = () => {
+  const handleOnboardingComplete = async () => {
     setHasCompletedOnboarding(true);
-    localStorage.setItem('demoOnboarding', 'true');
+    
+    // Save to Firebase for authenticated users
+    try {
+      const currentUser = authService.getCurrentUser();
+      if (currentUser && !currentUser.isAnonymous) {
+        await authService.completeOnboarding(currentUser.uid, {
+          completedAt: new Date(),
+          responses: {} // Could store onboarding responses here
+        });
+      } else {
+        // Fallback to localStorage for demo/anonymous users
+        localStorage.setItem('demoOnboarding', 'true');
+      }
+    } catch (error) {
+      console.error('Error saving onboarding completion:', error);
+      // Fallback to localStorage
+      localStorage.setItem('demoOnboarding', 'true');
+    }
   };
 
   // Toggle theme

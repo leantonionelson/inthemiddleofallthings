@@ -156,23 +156,8 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
   }, []);
 
   const handleReadChapter = () => {
-    // Check if user has completed onboarding
-    const hasCompletedOnboarding = localStorage.getItem('demoOnboarding') === 'true';
-    const isAuthenticated = localStorage.getItem('demoAuth') === 'true';
-    
-    if (!isAuthenticated) {
-      // User needs to authenticate first
-      navigate(AppRoute.AUTH);
-      return;
-    }
-    
-    if (!hasCompletedOnboarding) {
-      // User needs to complete onboarding first
-      navigate(AppRoute.ONBOARDING);
-      return;
-    }
-    
-    // User is ready to read - update progress and navigate
+    // Since this component only renders when user is authenticated and onboarded,
+    // we can directly navigate to the reader
     const newProgress = { 
       ...userProgress, 
       hasStarted: true,

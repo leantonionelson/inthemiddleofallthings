@@ -7,7 +7,7 @@ import { authService } from '../services/firebaseAuth';
 
 interface StandardNavigationProps {
   currentPage: string;
-  onRead: () => void;
+  onRead?: () => void; // Made optional since it's no longer used
   isReading?: boolean;
   showShadow?: boolean;
   onOpenAI?: () => void;
@@ -63,7 +63,7 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
 
         {/* Read Button */}
         <motion.button
-          onClick={onRead}
+          onClick={() => navigate(AppRoute.READER)}
           className={`flex flex-col items-center justify-center py-2 px-3 transition-all ${
             activePage === 'read'
               ? 'text-blue-600 dark:text-blue-400'

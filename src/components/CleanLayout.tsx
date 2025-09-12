@@ -4,7 +4,7 @@ import ResponsiveLayout from './ResponsiveLayout';
 interface CleanLayoutProps {
   children: React.ReactNode;
   currentPage: string;
-  onRead: () => void;
+  onRead?: () => void; // Made optional
   isReading?: boolean;
   onOpenAI?: () => void;
   isAudioPlaying?: boolean;

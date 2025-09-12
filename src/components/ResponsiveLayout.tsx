@@ -63,7 +63,7 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
         >
           <StandardNavigation
             currentPage={currentPage}
-            onRead={onRead || (() => {})}
+            onRead={onRead}
             isReading={isReading}
             showShadow={showShadow}
             onOpenAI={onOpenAI}
