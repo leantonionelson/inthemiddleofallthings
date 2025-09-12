@@ -434,9 +434,10 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
         e.preventDefault();
         handleNextMeditation();
       } else if (e.key === 'Escape') {
-        setShowBurgerMenu(false);
         setSelectedText(null);
         setIsTextSelected(false);
+        setSearchQuery('');
+        setIsSearchFocused(false);
       }
     };
 
@@ -802,15 +803,12 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
           // Mobile styles
           'pb-36 px-6 max-w-2xl mx-auto'
         } ${
-          // Desktop styles
-          'lg:pb-20 lg:px-8 lg:max-w-4xl'
+          // Desktop styles - override padding with fixed value
+          'lg:pb-20 lg:px-8 lg:max-w-4xl lg:pt-8'
         }`}
         style={{ 
-          // Mobile: Adjusted for search bar, Desktop: consistent padding
+          // Mobile: Adjusted for search bar, desktop uses responsive classes
           paddingTop: isAudioPlaying ? '7rem' : '8rem',
-          '@media (min-width: 1024px)': {
-            paddingTop: '2rem' // Desktop has consistent padding
-          },
           transform: isAudioPlaying ? 'translateY(80px)' : 'none',
           transition: 'transform 0.3s ease-out, padding-top 0.3s ease-out'
         }}

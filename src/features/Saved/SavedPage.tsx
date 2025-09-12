@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, BookOpen, Brain, Calendar } from 'lucide-react';
+import { Search, BookOpen, Brain, Calendar, Bookmark } from 'lucide-react';
 import { AppRoute, TextHighlight } from '../../types';
 import CleanLayout from '../../components/CleanLayout';
 import { highlightsService } from '../../services/firebaseHighlights';

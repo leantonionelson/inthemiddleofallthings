@@ -3,6 +3,7 @@ import {
   setDoc, 
   getDoc, 
   updateDoc, 
+  addDoc,
   collection,
   query,
   where,
@@ -203,7 +204,7 @@ class FirebaseProgressService {
         completed: false
       };
 
-      const sessionRef = await setDoc(doc(collection(db, this.SESSIONS_COLLECTION)), {
+      const sessionRef = await addDoc(collection(db, this.SESSIONS_COLLECTION), {
         ...session,
         startTime: Timestamp.fromDate(session.startTime)
       });
