@@ -163,6 +163,20 @@
       -webkit-user-select: text;
       -webkit-touch-callout: default;
     }
+    
+    /* Better mobile text selection */
+    .reader-content p {
+      -webkit-user-select: text;
+      -webkit-touch-callout: default;
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Prevent text selection on pins */
+    .highlight-pin {
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      user-select: none;
+    }
   }
 
   /* Highlight pins styling */
@@ -180,6 +194,22 @@
     transform: scale(1.15);
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
     z-index: 50;
+  }
+
+  /* Mobile-specific pin improvements */
+  @media (pointer: coarse) {
+    .highlight-pin {
+      min-width: 32px;
+      min-height: 32px;
+    }
+    
+    .highlight-pin:hover {
+      transform: scale(1.05);
+    }
+    
+    .highlight-pin.dragging {
+      transform: scale(1.2);
+    }
   }
 
   .highlight-pin-start {

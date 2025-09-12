@@ -1,5 +1,6 @@
 import { GoogleGenAI } from '@google/genai';
 import { BookChapter } from '../types';
+import { getPreGeneratedAudioService } from './preGeneratedAudio';
 
 interface TTSConfig {
   voiceName: string;
@@ -31,6 +32,7 @@ class GeminiTTSService {
   private readonly DB_NAME = 'AudioCacheDB';
   private readonly DB_VERSION = 1;
   private readonly STORE_NAME = 'audioFiles';
+  private preGeneratedService = getPreGeneratedAudioService();
 
   constructor() {
     this.client = null;
@@ -434,7 +436,22 @@ class GeminiTTSService {
   }> {
     const chapterId = this.getChapterId(chapter);
 
-    // Check memory cache first (fastest)
+    // 1. Check for pre-generated audio first (most efficient)
+    try {
+      const preGeneratedAudio = await this.preGeneratedService.getPreGeneratedAudio(chapter);
+      if (preGeneratedAudio) {
+        console.log(`🎵 Using pre-generated audio for chapter: ${chapter.title}`);
+        return {
+          audioUrl: preGeneratedAudio.audioUrl,
+          duration: preGeneratedAudio.duration,
+          wordTimings: preGeneratedAudio.wordTimings
+        };
+      }
+    } catch (error) {
+      console.warn(`⚠️ Could not load pre-generated audio for ${chapter.title}, falling back to cache/TTS`);
+    }
+
+    // 2. Check memory cache (fast)
     if (this.memoryCache.has(chapterId)) {
       const cached = this.memoryCache.get(chapterId);
       if (cached) {
@@ -443,7 +460,7 @@ class GeminiTTSService {
       }
     }
 
-    // Check persistent storage (IndexedDB)
+    // 3. Check persistent storage (IndexedDB)
     const persistentUrl = await this.loadFromIndexedDB(chapterId);
     if (persistentUrl) {
       console.log(`🎯 Using persistent cache for chapter: ${chapter.title}`);
@@ -454,7 +471,7 @@ class GeminiTTSService {
     }
 
     console.log('🎯 Generating new audio for chapter:', chapter.title);
-    console.log('🔧 No cache found - calling API (this will be saved permanently)');
+    console.log('🔧 No pre-generated or cached audio found - calling Gemini TTS API (this will be saved permanently)');
 
     try {
       const cleanText = this.prepareTextForTTS(chapter.content);

@@ -12,6 +12,7 @@ import AudioControlStrip from '../../components/AudioControlStrip';
 
 interface ReaderPageProps {
   onOpenAI?: () => void;
+  onCloseAI?: () => void;
 }
 
 interface TextSelection {
@@ -29,7 +30,7 @@ interface HighlightPin {
   highlightId: string;
 }
 
-const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
+const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
   const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
@@ -123,7 +124,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       try {
         const pins = JSON.parse(savedPins);
         // Recreate the ranges and rects for the pins
-        const recreatedPins = pins.map((pin: any) => ({
+        const recreatedPins = pins.map((pin: Omit<HighlightPin, 'range'> & { rect: { x: number; y: number; width: number; height: number } }) => ({
           ...pin,
           range: document.createRange(),
           rect: new DOMRect(pin.rect.x, pin.rect.y, pin.rect.width, pin.rect.height)
@@ -293,72 +294,36 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
     if (selectedText) {
       // Store selected text in context for AI
       localStorage.setItem('selectedTextForAI', selectedText.text);
-      setSelectedText(null);
-      window.getSelection()?.removeAllRanges();
+      // Don't clear selection immediately - let the AI drawer handle it
+      // This allows for better UX when switching between selections
     }
     if (onOpenAI) {
       onOpenAI();
     }
   };
 
-  const handlePinDragStart = (pinId: string) => {
-    setIsDraggingPin(pinId);
-  };
-
-  const handlePinDrag = useCallback((event: MouseEvent, pinId: string) => {
-    if (!isDraggingPin || isDraggingPin !== pinId) return;
+  // Function to clear selection when AI drawer is closed
+  const clearSelection = useCallback(() => {
+    setSelectedText(null);
+    setIsTextSelected(false);
+    window.getSelection()?.removeAllRanges();
     
-    event.preventDefault();
-    
-    // Update pin position based on mouse position
-    const pin = highlightPins.find(p => p.id === pinId);
-    if (!pin || !contentRef.current) return;
+    // Remove custom selection styling
+    const existingStyle = document.getElementById('native-selection-style');
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+  }, []);
 
-    // Get the text node at the current mouse position
-    const range = document.caretRangeFromPoint?.(event.clientX, event.clientY) || 
-                  document.createRange();
-    
-    if (!range || !contentRef.current.contains(range.startContainer)) return;
-
-    // Update the pin's range and position
-    const newRect = range.getBoundingClientRect();
-    const updatedPins = highlightPins.map(p => 
-      p.id === pinId 
-        ? { ...p, rect: newRect, range: range.cloneRange() }
-        : p
-    );
-    setHighlightPins(updatedPins);
-
-    // Update the corresponding highlight
-    updateHighlightFromPins(pin.highlightId);
-  }, [isDraggingPin, highlightPins, contentRef]);
-
-  const handlePinDragEnd = () => {
-    setIsDraggingPin(null);
-  };
-
-  // Add global mouse event listeners for pin dragging
+  // Expose clearSelection to parent component
   useEffect(() => {
-    if (!isDraggingPin) return;
+    if (onCloseAI) {
+      // Store the clearSelection function so parent can call it
+      (window as typeof window & { clearReaderSelection?: () => void }).clearReaderSelection = clearSelection;
+    }
+  }, [onCloseAI, clearSelection]);
 
-    const handleMouseMove = (event: MouseEvent) => {
-      handlePinDrag(event, isDraggingPin);
-    };
-
-    const handleMouseUp = () => {
-      handlePinDragEnd();
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDraggingPin, handlePinDrag]);
-
-  const updateHighlightFromPins = (highlightId: string) => {
+  const updateHighlightFromPins = useCallback((highlightId: string) => {
     const startPin = highlightPins.find(p => p.highlightId === highlightId && p.side === 'start');
     const endPin = highlightPins.find(p => p.highlightId === highlightId && p.side === 'end');
     
@@ -393,7 +358,82 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
       range: null
     }));
     localStorage.setItem('highlightPins', JSON.stringify(serializedPins));
+  }, [highlightPins, savedHighlights]);
+
+  const handlePinDragStart = (pinId: string, event?: React.MouseEvent | React.TouchEvent) => {
+    event?.preventDefault();
+    setIsDraggingPin(pinId);
   };
+
+  const handlePinDrag = useCallback((event: MouseEvent | TouchEvent, pinId: string) => {
+    if (!isDraggingPin || isDraggingPin !== pinId) return;
+    
+    event.preventDefault();
+    
+    // Update pin position based on mouse/touch position
+    const pin = highlightPins.find(p => p.id === pinId);
+    if (!pin || !contentRef.current) return;
+
+    // Get coordinates from mouse or touch event
+    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+    const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
+
+    // Get the text node at the current position
+    const range = document.caretRangeFromPoint?.(clientX, clientY) || 
+                  document.createRange();
+    
+    if (!range || !contentRef.current.contains(range.startContainer)) return;
+
+    // Update the pin's range and position
+    const newRect = range.getBoundingClientRect();
+    const updatedPins = highlightPins.map(p => 
+      p.id === pinId 
+        ? { ...p, rect: newRect, range: range.cloneRange() }
+        : p
+    );
+    setHighlightPins(updatedPins);
+
+    // Update the corresponding highlight
+    updateHighlightFromPins(pin.highlightId);
+  }, [isDraggingPin, highlightPins, contentRef, updateHighlightFromPins]);
+
+  const handlePinDragEnd = () => {
+    setIsDraggingPin(null);
+  };
+
+  // Add global mouse and touch event listeners for pin dragging
+  useEffect(() => {
+    if (!isDraggingPin) return;
+
+    const handleMouseMove = (event: MouseEvent) => {
+      handlePinDrag(event, isDraggingPin);
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      handlePinDrag(event, isDraggingPin);
+    };
+
+    const handleMouseUp = () => {
+      handlePinDragEnd();
+    };
+
+    const handleTouchEnd = () => {
+      handlePinDragEnd();
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [isDraggingPin, handlePinDrag]);
+
 
   const handleListen = () => {
     if (isAudioPlayerOpen) {
@@ -776,7 +816,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className={`highlight-pin fixed z-40 w-7 h-7 rounded-full border-2 cursor-grab ${
+            className={`highlight-pin fixed z-40 w-8 h-8 md:w-7 md:h-7 rounded-full border-2 cursor-grab touch-none ${
               isDraggingPin === pin.id ? 'dragging cursor-grabbing' : ''
             } ${
               pin.side === 'start' 
@@ -784,23 +824,27 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI }) => {
                 : 'highlight-pin-end'
             }`}
             style={{
-              left: pin.rect.left + (pin.side === 'start' ? -14 : pin.rect.width - 14),
-              top: pin.rect.top + (pin.rect.height / 2) - 14,
+              left: pin.rect.left + (pin.side === 'start' ? -16 : pin.rect.width - 16),
+              top: pin.rect.top + (pin.rect.height / 2) - 16,
             }}
-            onMouseDown={() => handlePinDragStart(pin.id)}
+            onMouseDown={(e) => handlePinDragStart(pin.id, e)}
+            onTouchStart={(e) => handlePinDragStart(pin.id, e)}
           >
             {/* Pin center dot */}
             <div className="absolute inset-2 bg-white/90 dark:bg-gray-900/90 rounded-full shadow-inner"></div>
             
             {/* Pin direction indicator */}
-            <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white drop-shadow-sm">
+            <div className="absolute inset-0 flex items-center justify-center text-sm md:text-xs font-bold text-white drop-shadow-sm">
               {pin.side === 'start' ? '‹' : '›'}
             </div>
 
-            {/* Pin tooltip */}
-            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+            {/* Pin tooltip - only show on desktop */}
+            <div className="hidden md:block absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
               {pin.side === 'start' ? 'Start' : 'End'} • Drag to extend
             </div>
+
+            {/* Mobile touch feedback */}
+            <div className="md:hidden absolute inset-0 rounded-full bg-white/20 dark:bg-gray-900/20 scale-0 transition-transform duration-150 active:scale-110"></div>
           </motion.div>
         ))}
       </AnimatePresence>

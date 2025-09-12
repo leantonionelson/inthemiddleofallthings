@@ -7,7 +7,13 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate-audio": "node scripts/generateAudio.js generate",
+    "generate-audio-male": "node scripts/generateAudio.js generate male",
+    "generate-audio-female": "node scripts/generateAudio.js generate female",
+    "test-audio-api": "node scripts/generateAudio.js test",
+    "test-audio-male": "node scripts/generateAudio.js test male",
+    "test-audio-female": "node scripts/generateAudio.js test female"
   },
   "dependencies": {
     "@google/genai": "^1.15.0",
