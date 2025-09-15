@@ -6,6 +6,7 @@
 
 import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
 import { authService } from './firebaseAuth';
+import { regionalPricingService } from './regionalPricing';
 
 // Stripe configuration
 const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
@@ -103,27 +104,20 @@ class StripeService {
   }
 
   /**
-   * Create a subscription checkout session
+   * Create a subscription checkout session using Stripe's hosted checkout
    */
   public async createCheckoutSession(priceId?: string): Promise<string> {
-    const user = authService.getCurrentUser();
-    if (!user) {
-      throw new Error('User must be authenticated to create checkout session');
-    }
-
     try {
-      const idToken = await user.getIdToken();
       const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
       
-      const response = await fetch(`${backendUrl}/api/stripe/create-checkout-session`, {
+      const response = await fetch(`${backendUrl}/create-checkout-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`
         },
         body: JSON.stringify({
           priceId: priceId || STRIPE_MONTHLY_PRICE_ID,
-          successUrl: `${window.location.origin}/payment-success`,
+          successUrl: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${window.location.origin}/payment-canceled`
         })
       });
@@ -325,8 +319,6 @@ class StripeService {
    * Get subscription plan details
    */
   public getPlanDetails(currency?: string, billing: 'monthly' | 'yearly' = 'monthly') {
-    // Import regional pricing service dynamically to avoid circular imports
-    const { regionalPricingService } = require('./regionalPricing');
     const detectedCurrency = currency || regionalPricingService.detectUserRegion();
     
     const planDetails = regionalPricingService.getPlanDetails(detectedCurrency, billing);

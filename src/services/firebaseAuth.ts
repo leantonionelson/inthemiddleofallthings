@@ -204,6 +204,20 @@ class FirebaseAuthService {
   // Get user capabilities based on auth status and subscription
   async getUserCapabilities() {
     const user = auth.currentUser;
+    const demoAuth = localStorage.getItem('demoAuth') === 'true';
+    const userType = localStorage.getItem('userType');
+    
+    // Handle demo mode (guest users)
+    if (demoAuth && !user) {
+      return {
+        canSaveProgress: true, // Local storage only
+        canSaveHighlights: true, // Local storage only
+        canUseAI: false, // No AI for demo users
+        canSync: false, // No cloud sync
+        userType: 'guest',
+        hasActiveSubscription: false
+      };
+    }
     
     if (!user) {
       return {
@@ -218,8 +232,8 @@ class FirebaseAuthService {
 
     if (user.isAnonymous) {
       return {
-        canSaveProgress: false, // Only local storage
-        canSaveHighlights: false, // Only local storage
+        canSaveProgress: true, // Local storage only
+        canSaveHighlights: true, // Local storage only
         canUseAI: false,
         canSync: false,
         userType: 'anonymous',
@@ -230,14 +244,17 @@ class FirebaseAuthService {
     // For authenticated users, check subscription status
     const userProfile = await this.getUserProfile(user.uid);
     const hasActiveSubscription = userProfile?.subscriptionStatus?.isActive || false;
+    
+    // Check if user completed payment during onboarding
+    const completedPayment = userProfile?.onboardingData?.paymentCompleted || false;
 
     return {
-      canSaveProgress: hasActiveSubscription,
-      canSaveHighlights: hasActiveSubscription,
-      canUseAI: hasActiveSubscription,
-      canSync: hasActiveSubscription,
+      canSaveProgress: true, // Authenticated users can save progress
+      canSaveHighlights: true, // Authenticated users can save highlights
+      canUseAI: hasActiveSubscription || completedPayment,
+      canSync: true, // Authenticated users can sync
       userType: 'authenticated',
-      hasActiveSubscription
+      hasActiveSubscription: hasActiveSubscription || completedPayment
     };
   }
 }

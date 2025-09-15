@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, SkipForward } from 'lucide-react';
 import { Symbol } from '../../components/Symbol';
 import { generateSymbol } from '../../services/symbolGenerator';
 import PaymentStep from '../../components/PaymentStep';
+import { authService } from '../../services/firebaseAuth';
 
 interface OnboardingPageProps {
   onComplete: () => void;
@@ -66,19 +67,44 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
   const [generatedSymbol, setGeneratedSymbol] = useState<any | null>(null);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [skippedQuestions, setSkippedQuestions] = useState<Set<number>>(new Set());
+  const [isDemoUser, setIsDemoUser] = useState(false);
+  const [filteredQuestions, setFilteredQuestions] = useState<Question[]>(questions);
 
-  const currentQuestion = questions[currentStep];
-  const isLastQuestion = currentStep === questions.length - 1;
+  // Check if user is in demo mode (guest user)
+  useEffect(() => {
+    const checkAuthState = () => {
+      const demoAuth = localStorage.getItem('demoAuth') === 'true';
+      const currentUser = authService.getCurrentUser();
+      
+      // User is in demo mode if they have demoAuth or if they're an anonymous Firebase user
+      const isDemo = demoAuth || (currentUser?.isAnonymous === true);
+      setIsDemoUser(isDemo);
+      
+      // Filter questions based on authentication state
+      const filtered = isDemo 
+        ? questions.filter(q => q.id !== 'payment') // Remove payment question for demo users
+        : questions; // Keep all questions for authenticated users
+      
+      setFilteredQuestions(filtered);
+      
+      console.log('Auth state check - Demo user:', isDemo, 'Questions:', filtered.length);
+    };
+
+    checkAuthState();
+  }, []);
+
+  const currentQuestion = filteredQuestions[currentStep];
+  const isLastQuestion = currentStep === filteredQuestions.length - 1;
 
   // Initialize scale questions with default value
   React.useEffect(() => {
-    if (currentQuestion.type === 'scale' && responses[currentQuestion.id] === undefined) {
+    if (currentQuestion && currentQuestion.type === 'scale' && responses[currentQuestion.id] === undefined) {
       setResponses(prev => ({
         ...prev,
         [currentQuestion.id]: 3
       }));
     }
-  }, [currentQuestion.id, currentQuestion.type, responses]);
+  }, [currentQuestion?.id, currentQuestion?.type, responses]);
 
   const handleResponse = (value: any) => {
     setResponses(prev => ({
@@ -113,6 +139,15 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
           localStorage.setItem('audioVoicePreference', voicePreference);
         }
         
+        // For demo users, set a flag to indicate they have paywall restrictions
+        if (isDemoUser) {
+          localStorage.setItem('userType', 'demo');
+          console.log('Demo user onboarding completed - paywall restrictions apply');
+        } else {
+          localStorage.setItem('userType', 'authenticated');
+          console.log('Authenticated user onboarding completed');
+        }
+        
         // Wait a moment to show the symbol, then complete onboarding
         setTimeout(() => {
           onComplete();
@@ -125,6 +160,13 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
         if (responses.voice_preference) {
           const voicePreference = responses.voice_preference === 'Male voice' ? 'male' : 'female';
           localStorage.setItem('audioVoicePreference', voicePreference);
+        }
+        
+        // Set user type even if symbol generation fails
+        if (isDemoUser) {
+          localStorage.setItem('userType', 'demo');
+        } else {
+          localStorage.setItem('userType', 'authenticated');
         }
         
         // Continue anyway
@@ -367,9 +409,23 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
     );
   }
 
-  const canProceed = currentQuestion.type === 'payment' 
-    ? responses[currentQuestion.id] !== undefined 
-    : responses[currentQuestion.id] !== undefined;
+  const canProceed = currentQuestion 
+    ? (currentQuestion.type === 'payment' 
+        ? responses[currentQuestion.id] !== undefined 
+        : responses[currentQuestion.id] !== undefined)
+    : false;
+
+  // Don't render until we have questions loaded and currentQuestion is available
+  if (!currentQuestion || filteredQuestions.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-6">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-6">
@@ -396,14 +452,14 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
         {/* Progress */}
         <div className="mb-8">
           <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-2">
-            <span>Question {currentStep + 1} of {questions.length}</span>
-            <span>{Math.round(((currentStep + 1) / questions.length) * 100)}%</span>
+            <span>Question {currentStep + 1} of {filteredQuestions.length}</span>
+            <span>{Math.round(((currentStep + 1) / filteredQuestions.length) * 100)}%</span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <motion.div
               className="bg-gray-900 dark:bg-gray-100 h-2 rounded-full"
               initial={{ width: 0 }}
-              animate={{ width: `${((currentStep + 1) / questions.length) * 100}%` }}
+              animate={{ width: `${((currentStep + 1) / filteredQuestions.length) * 100}%` }}
               transition={{ duration: 0.5 }}
             />
           </div>
