@@ -171,6 +171,75 @@ After generation, verify everything works:
 3. **Test in app**: Open a chapter and check for instant audio playback
 4. **Check console**: Should see "🎵 Using pre-generated audio"
 
+## 🎯 Current Status (Updated)
+
+### Male Voice Generation (Charon)
+- ✅ **28 out of 29 files generated** successfully
+- ✅ **Introduction** - `introduction_male.wav`
+- ✅ **Part I: The Axis of Becoming** - `part-1-intro_male.wav` + chapters 1-6
+- ✅ **Part II: The Spiral Path** - `part-2-intro_male.wav` + chapters 7-12  
+- ✅ **Part III: The Living Axis** - `part-3-intro_male.wav` + chapters 13-17
+- ✅ **Part IV: The Horizon Beyond** - `part-4-intro_male.wav` + chapters 18-22
+- ❌ **Chapter 23** - "The Spiral Never Ends" (needs regeneration)
+- ❌ **Outro** - "Begin Again" (hit API quota limit)
+
+### Next Steps
+
+#### 1. Complete Male Voice Generation
+```bash
+# Wait for API quota reset (24 hours) or upgrade to paid plan
+export GEMINI_API_KEY="your_gemini_api_key_here"
+npm run generate-audio
+```
+
+#### 2. Generate Female Voice Versions
+```bash
+# Generate all female voice versions (Zephyr voice)
+export GEMINI_API_KEY="your_gemini_api_key_here"
+node scripts/generateAudio.js generate female
+```
+
+This will create files with `_female` suffix:
+- `introduction_female.wav`
+- `part-1-intro_female.wav`
+- `chapter-1_female.wav`
+- etc.
+
+### Voice Options Available
+- **Male**: Charon (deep, resonant) - `_male` suffix
+- **Female**: Zephyr (smooth, natural) - `_female` suffix
+
+### Complete Generation Workflow
+
+#### Step 1: Complete Male Voice (2 remaining files)
+```bash
+# After API quota resets (24 hours)
+export GEMINI_API_KEY="your_gemini_api_key_here"
+npm run generate-audio
+```
+
+#### Step 2: Generate All Female Voice Files
+```bash
+# Generate complete female voice set (29 files)
+export GEMINI_API_KEY="your_gemini_api_key_here"
+node scripts/generateAudio.js generate female
+```
+
+#### Step 3: Verify Both Voice Sets
+```bash
+# Check that you have both voice types
+ls -la public/media/audio/chapters/ | grep -E "_(male|female)\.wav"
+```
+
+Expected result: 58 total files (29 male + 29 female)
+
+### API Quota Management
+- **Free Tier**: 15 requests per day
+- **Current Usage**: 15/15 requests used (quota exhausted)
+- **Reset Time**: 24 hours from last request
+- **Alternative**: Upgrade to paid plan for unlimited requests
+- **Estimated Time**: 2-3 days to complete all files with free tier
+
 ## 🎉 Benefits Achieved
 
 - ✅ **Instant audio**: No more 5-15 second waits
@@ -179,5 +248,6 @@ After generation, verify everything works:
 - ✅ **Consistent quality**: All audio generated with same voice/settings
 - ✅ **Scalable**: New users don't trigger API calls
 - ✅ **Cost effective**: One-time generation vs per-user generation
+- ✅ **Multiple voices**: Male and female options for user preference
 
-Your app now provides a professional, instant audio experience! 🎵
+Your app now provides a professional, instant audio experience with voice options! 🎵

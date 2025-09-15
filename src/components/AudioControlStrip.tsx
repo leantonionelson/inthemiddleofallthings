@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Pause, Volume2, VolumeX, X } from 'lucide-react';
 import { BookChapter } from '../types';
 import { geminiTTSService, TTSConfig } from '../services/geminiTTS';
+import { mediaSessionService } from '../services/mediaSession';
 
 // Utility function for consistent text cleaning
 const cleanTextForSpeech = (text: string): string => {
@@ -265,6 +266,33 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
 
     const audio = new Audio(audioUrl);
     audio.preload = 'metadata';
+    
+    // Configure audio for background playback
+    audio.crossOrigin = 'anonymous';
+    
+    // Set up Media Session for native mobile controls
+    if (mediaSessionService.isSupported()) {
+      mediaSessionService.setAudioElement(audio);
+      mediaSessionService.setMetadata(chapter);
+      mediaSessionService.setActionHandlers({
+        onPlayPause: togglePlayPause,
+        onPrevious: () => {
+          // Previous chapter functionality
+          console.log('Previous chapter requested from media session');
+        },
+        onNext: () => {
+          // Next chapter functionality
+          if (hasNextChapter && onNextChapter) {
+            onNextChapter();
+          }
+        },
+        onSeek: (time: number) => {
+          if (audioRef.current) {
+            audioRef.current.currentTime = time;
+          }
+        }
+      });
+    }
     
     audio.addEventListener('loadedmetadata', () => {
       setDuration(audio.duration);
@@ -603,6 +631,11 @@ const AudioControlStrip: React.FC<AudioControlStripProps> = ({
       if (browserSpeechIntervalRef.current) {
         clearInterval(browserSpeechIntervalRef.current);
         browserSpeechIntervalRef.current = null;
+      }
+      
+      // Clear Media Session metadata
+      if (mediaSessionService.isSupported()) {
+        mediaSessionService.clearMetadata();
       }
     };
   }, []);

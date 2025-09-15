@@ -17,6 +17,7 @@ import SettingsPage from './pages/Settings/SettingsPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
 import AIDrawer from './features/AI/AIDrawer';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
 
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -301,6 +302,9 @@ const App: React.FC = () => {
             onClose={() => setIsAIDrawerOpen(false)}
             user={null}
           />
+
+          {/* PWA Install Prompt */}
+          <PWAInstallPrompt />
         </div>
       </Router>
     </ErrorBoundary>

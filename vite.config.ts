@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['favicon.ico', 'favicon-16x16.png', 'favicon-32x32.png', 'apple-touch-icon.png', 'logo.png'],
       manifest: {
         name: 'In the Middle of All Things',
         short_name: 'MiddleApp',
@@ -16,6 +16,7 @@ export default defineConfig({
         theme_color: '#0F0F0F',
         background_color: '#FAFAFA',
         display: 'standalone',
+        categories: ['books', 'education', 'lifestyle'],
         icons: [
           {
             src: 'pwa-192x192.png',
@@ -27,10 +28,15 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png'
           }
-        ]
+        ],
+        // Add audio-related capabilities
+        related_applications: [],
+        prefer_related_applications: false
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        globIgnores: ['**/media/audio/**/*.wav', '**/media/audio/**/*.mp3'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB limit
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -40,6 +46,17 @@ export default defineConfig({
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+              }
+            }
+          },
+          {
+            urlPattern: /\.(wav|mp3|ogg|m4a)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'audio-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // <== 30 days
               }
             }
           }

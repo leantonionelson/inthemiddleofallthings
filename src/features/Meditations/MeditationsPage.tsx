@@ -9,6 +9,8 @@ import { useScrollTransition } from '../../hooks/useScrollTransition';
 import { Search, X, ChevronRight, Heart, Leaf, Star, Moon, Sun, Waves, Mountain, Compass, Flower2 } from 'lucide-react';
 
 import AudioControlStrip from '../../components/AudioControlStrip';
+import { highlightsService } from '../../services/firebaseHighlights';
+import { authService } from '../../services/firebaseAuth';
 
 interface MeditationsPageProps {
   onOpenAI?: () => void;
@@ -38,8 +40,6 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
   const [selectedText, setSelectedText] = useState<TextSelection | null>(null);
   const [isTextSelected, setIsTextSelected] = useState(false);
   const [savedHighlights, setSavedHighlights] = useState<TextHighlight[]>([]);
-  const [highlightPins, setHighlightPins] = useState<HighlightPin[]>([]);
-  const [isDraggingPin, setIsDraggingPin] = useState<string | null>(null);
   const [meditations, setMeditations] = useState<Meditation[]>([]);
   const [filteredMeditations, setFilteredMeditations] = useState<Meditation[]>([]);
   const [isAudioPlayerOpen, setIsAudioPlayerOpen] = useState(false);
@@ -329,26 +329,68 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
   }, []);
 
   // Handle saving highlights
-  const handleSaveHighlight = () => {
+  const handleSaveHighlight = async () => {
     if (selectedText && currentMeditation) {
-      const highlight: TextHighlight = {
-        id: Date.now().toString(),
-        text: selectedText.text,
-        chapterId: currentMeditation.id,
-        chapterTitle: currentMeditation.title,
-        timestamp: new Date(),
-        position: {
-          start: selectedText.range.startOffset,
-          end: selectedText.range.endOffset
+      try {
+        const newHighlight: TextHighlight = {
+          id: Date.now().toString(),
+          text: selectedText.text,
+          chapterId: currentMeditation.id,
+          chapterTitle: currentMeditation.title,
+          timestamp: new Date(),
+          position: {
+            start: selectedText.range.startOffset,
+            end: selectedText.range.endOffset
+          }
+        };
+        
+        // Save to Firebase for authenticated users
+        const currentUser = authService.getCurrentUser();
+        if (currentUser && !currentUser.isAnonymous) {
+          await highlightsService.saveHighlight(currentUser.uid, newHighlight);
+          console.log('Meditation highlight saved to Firebase');
+        } else {
+          // Save to localStorage for anonymous/demo users
+          const existingHighlights = localStorage.getItem('savedHighlights');
+          const highlights = existingHighlights ? JSON.parse(existingHighlights) : [];
+          highlights.push(newHighlight);
+          localStorage.setItem('savedHighlights', JSON.stringify(highlights));
+          console.log('Meditation highlight saved to localStorage');
         }
-      };
-      
-      setSavedHighlights(prev => [...prev, highlight]);
-      setSelectedText(null);
-      setIsTextSelected(false);
-      
-      // Clear selection
-      window.getSelection()?.removeAllRanges();
+        
+        // Update local state
+        setSavedHighlights(prev => [...prev, newHighlight]);
+        
+        // Clear selection
+        setSelectedText(null);
+        setIsTextSelected(false);
+        window.getSelection()?.removeAllRanges();
+        
+        console.log('Meditation highlight saved successfully!');
+        
+      } catch (error) {
+        console.error('Error saving meditation highlight:', error);
+        // Fallback to localStorage
+        const existingHighlights = localStorage.getItem('savedHighlights');
+        const highlights = existingHighlights ? JSON.parse(existingHighlights) : [];
+        highlights.push({
+          id: Date.now().toString(),
+          text: selectedText.text,
+          chapterId: currentMeditation.id,
+          chapterTitle: currentMeditation.title,
+          timestamp: new Date(),
+          position: {
+            start: selectedText.range.startOffset,
+            end: selectedText.range.endOffset
+          }
+        });
+        localStorage.setItem('savedHighlights', JSON.stringify(highlights));
+        
+        setSelectedText(null);
+        setIsTextSelected(false);
+        window.getSelection()?.removeAllRanges();
+        console.log('Meditation highlight saved to localStorage as fallback');
+      }
     }
   };
 
@@ -420,7 +462,7 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
 
   // Pin drag handlers
   const handlePinDragStart = (pinId: string, e: React.MouseEvent | React.TouchEvent) => {
-    setIsDraggingPin(pinId);
+    setIsDragging(true);
     e.preventDefault();
   };
 
@@ -448,14 +490,14 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
   // Text selection listener
   useEffect(() => {
     const handleSelectionChange = () => {
-      if (!isDraggingPin) {
+      if (!isDragging) {
         handleTextSelection();
       }
     };
 
     document.addEventListener('selectionchange', handleSelectionChange);
     return () => document.removeEventListener('selectionchange', handleSelectionChange);
-  }, [handleTextSelection, isDraggingPin]);
+  }, [handleTextSelection, isDragging]);
 
   // Format content with word-level highlighting
   const formatContent = (content: string) => {
@@ -908,40 +950,6 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
         )}
       </AnimatePresence>
 
-      {/* Highlight Pins */}
-      <AnimatePresence>
-        {highlightPins.map((pin) => (
-          <motion.div
-            key={pin.id}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className={`highlight-pin fixed z-40 w-8 h-8 md:w-7 md:h-7 rounded-full border-2 cursor-grab touch-none ${
-              isDraggingPin === pin.id ? 'dragging cursor-grabbing' : ''
-            } ${
-              pin.side === 'start' 
-                ? 'highlight-pin-start' 
-                : 'highlight-pin-end'
-            }`}
-            style={{
-              left: pin.rect.left + (pin.side === 'start' ? -16 : pin.rect.width - 16),
-              top: pin.rect.top + (pin.rect.height / 2) - 16,
-            }}
-            onMouseDown={(e) => handlePinDragStart(pin.id, e)}
-            onTouchStart={(e) => handlePinDragStart(pin.id, e)}
-          >
-            <div className="absolute inset-2 bg-white/90 dark:bg-gray-900/90 rounded-full shadow-inner"></div>
-            <div className="absolute inset-0 flex items-center justify-center text-sm md:text-xs font-bold text-white drop-shadow-sm">
-              {pin.side === 'start' ? '‹' : '›'}
-            </div>
-            <div className="hidden md:block absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-              {pin.side === 'start' ? 'Start' : 'End'} • Drag to extend
-            </div>
-            <div className="md:hidden absolute inset-0 rounded-full bg-white/20 dark:bg-gray-900/20 scale-0 transition-transform duration-150 active:scale-110"></div>
-          </motion.div>
-        ))}
-      </AnimatePresence>
 
       {/* Click outside handler for overflow menu */}
       {showOverflowMenu && (

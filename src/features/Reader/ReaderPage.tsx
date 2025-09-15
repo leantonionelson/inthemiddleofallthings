@@ -9,6 +9,8 @@ import ChapterInfo from '../../components/ChapterInfo';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
 
 import AudioControlStrip from '../../components/AudioControlStrip';
+import { highlightsService } from '../../services/firebaseHighlights';
+import { authService } from '../../services/firebaseAuth';
 
 interface ReaderPageProps {
   onOpenAI?: () => void;
@@ -22,13 +24,6 @@ interface TextSelection {
   isManualSelection?: boolean;
 }
 
-interface HighlightPin {
-  id: string;
-  side: 'start' | 'end';
-  rect: DOMRect;
-  range: Range;
-  highlightId: string;
-}
 
 const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
   const navigate = useNavigate();
@@ -38,8 +33,6 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
   const [selectedText, setSelectedText] = useState<TextSelection | null>(null);
   const [isTextSelected, setIsTextSelected] = useState(false);
   const [savedHighlights, setSavedHighlights] = useState<TextHighlight[]>([]);
-  const [highlightPins, setHighlightPins] = useState<HighlightPin[]>([]);
-  const [isDraggingPin, setIsDraggingPin] = useState<string | null>(null);
   const [chapters, setChapters] = useState<BookChapter[]>([]);
   const [isAudioPlayerOpen, setIsAudioPlayerOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -119,21 +112,8 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
       }
     }
 
-    const savedPins = localStorage.getItem('highlightPins');
-    if (savedPins) {
-      try {
-        const pins = JSON.parse(savedPins);
-        // Recreate the ranges and rects for the pins
-        const recreatedPins = pins.map((pin: Omit<HighlightPin, 'range'> & { rect: { x: number; y: number; width: number; height: number } }) => ({
-          ...pin,
-          range: document.createRange(),
-          rect: new DOMRect(pin.rect.x, pin.rect.y, pin.rect.width, pin.rect.height)
-        }));
-        setHighlightPins(recreatedPins);
-      } catch (error) {
-        console.error('Error loading highlight pins:', error);
-      }
-    }
+    // Clear any old highlight pins data
+    localStorage.removeItem('highlightPins');
   }, []);
 
   // Load font size setting
@@ -225,68 +205,67 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [selectedText]);
 
-  const handleSaveHighlight = () => {
+  const handleSaveHighlight = async () => {
     if (selectedText) {
-      const highlightId = Date.now().toString();
-      const newHighlight: TextHighlight = {
-        id: highlightId,
-        text: selectedText.text,
-        chapterId: currentChapter.id,
-        chapterTitle: currentChapter.title,
-        timestamp: new Date(),
-        position: {
-          start: 0, // Would need to calculate actual position
-          end: selectedText.text.length
+      try {
+        const newHighlight: TextHighlight = {
+          id: Date.now().toString(),
+          text: selectedText.text,
+          chapterId: currentChapter.id,
+          chapterTitle: currentChapter.title,
+          timestamp: new Date(),
+          position: {
+            start: 0, // Would need to calculate actual position
+            end: selectedText.text.length
+          }
+        };
+        
+        // Save to Firebase for authenticated users
+        const currentUser = authService.getCurrentUser();
+        if (currentUser && !currentUser.isAnonymous) {
+          await highlightsService.saveHighlight(currentUser.uid, newHighlight);
+          console.log('Highlight saved to Firebase');
+        } else {
+          // Save to localStorage for anonymous/demo users
+          const existingHighlights = localStorage.getItem('savedHighlights');
+          const highlights = existingHighlights ? JSON.parse(existingHighlights) : [];
+          highlights.push(newHighlight);
+          localStorage.setItem('savedHighlights', JSON.stringify(highlights));
+          console.log('Highlight saved to localStorage');
         }
-      };
-      
-      // Create pins at the start and end of the highlight
-      const range = selectedText.range;
-      const startRange = range.cloneRange();
-      startRange.collapse(true); // Collapse to start
-      const endRange = range.cloneRange();
-      endRange.collapse(false); // Collapse to end
-      
-      const startRect = startRange.getBoundingClientRect();
-      const endRect = endRange.getBoundingClientRect();
-      
-      const newPins: HighlightPin[] = [
-        {
-          id: `${highlightId}-start`,
-          side: 'start',
-          rect: startRect,
-          range: startRange,
-          highlightId: highlightId
-        },
-        {
-          id: `${highlightId}-end`,
-          side: 'end',
-          rect: endRect,
-          range: endRange,
-          highlightId: highlightId
-        }
-      ];
-      
-      const newHighlights = [...savedHighlights, newHighlight];
-      const updatedPins = [...highlightPins, ...newPins];
-      setSavedHighlights(newHighlights);
-      setHighlightPins(updatedPins);
-      localStorage.setItem('highlights', JSON.stringify(newHighlights));
-      
-      // Save pins (serialize them without the range objects)
-      const serializedPins = updatedPins.map(pin => ({
-        ...pin,
-        rect: {
-          x: pin.rect.x,
-          y: pin.rect.y,
-          width: pin.rect.width,
-          height: pin.rect.height
-        },
-        range: null // Don't serialize the range object
-      }));
-      localStorage.setItem('highlightPins', JSON.stringify(serializedPins));
-      setSelectedText(null);
-      window.getSelection()?.removeAllRanges();
+        
+        // Update local state
+        setSavedHighlights(prev => [...prev, newHighlight]);
+        
+        // Clear selection
+        setSelectedText(null);
+        window.getSelection()?.removeAllRanges();
+        
+        // Show success feedback
+        console.log('Highlight saved successfully!');
+        
+      } catch (error) {
+        console.error('Error saving highlight:', error);
+        // Fallback to localStorage
+        const existingHighlights = localStorage.getItem('savedHighlights');
+        const highlights = existingHighlights ? JSON.parse(existingHighlights) : [];
+        highlights.push({
+          id: Date.now().toString(),
+          text: selectedText.text,
+          chapterId: currentChapter.id,
+          chapterTitle: currentChapter.title,
+          timestamp: new Date(),
+          position: {
+            start: 0,
+            end: selectedText.text.length
+          }
+        });
+        localStorage.setItem('savedHighlights', JSON.stringify(highlights));
+        
+        setSelectedText(null);
+        window.getSelection()?.removeAllRanges();
+        console.log('Highlight saved to localStorage as fallback');
+      }
     }
   };
 
@@ -323,116 +302,8 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
     }
   }, [onCloseAI, clearSelection]);
 
-  const updateHighlightFromPins = useCallback((highlightId: string) => {
-    const startPin = highlightPins.find(p => p.highlightId === highlightId && p.side === 'start');
-    const endPin = highlightPins.find(p => p.highlightId === highlightId && p.side === 'end');
-    
-    if (!startPin || !endPin) return;
 
-    // Create a new range spanning from start pin to end pin
-    const newRange = document.createRange();
-    newRange.setStart(startPin.range.startContainer, startPin.range.startOffset);
-    newRange.setEnd(endPin.range.endContainer, endPin.range.endOffset);
 
-    const newText = newRange.toString().trim();
-    
-    // Update the highlight in savedHighlights
-    const updatedHighlights = savedHighlights.map(h => 
-      h.id === highlightId 
-        ? { ...h, text: newText }
-        : h
-    );
-    
-    setSavedHighlights(updatedHighlights);
-    localStorage.setItem('highlights', JSON.stringify(updatedHighlights));
-    
-    // Also save updated pins
-    const serializedPins = highlightPins.map(pin => ({
-      ...pin,
-      rect: {
-        x: pin.rect.x,
-        y: pin.rect.y,
-        width: pin.rect.width,
-        height: pin.rect.height
-      },
-      range: null
-    }));
-    localStorage.setItem('highlightPins', JSON.stringify(serializedPins));
-  }, [highlightPins, savedHighlights]);
-
-  const handlePinDragStart = (pinId: string, event?: React.MouseEvent | React.TouchEvent) => {
-    event?.preventDefault();
-    setIsDraggingPin(pinId);
-  };
-
-  const handlePinDrag = useCallback((event: MouseEvent | TouchEvent, pinId: string) => {
-    if (!isDraggingPin || isDraggingPin !== pinId) return;
-    
-    event.preventDefault();
-    
-    // Update pin position based on mouse/touch position
-    const pin = highlightPins.find(p => p.id === pinId);
-    if (!pin || !contentRef.current) return;
-
-    // Get coordinates from mouse or touch event
-    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
-    const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
-
-    // Get the text node at the current position
-    const range = document.caretRangeFromPoint?.(clientX, clientY) || 
-                  document.createRange();
-    
-    if (!range || !contentRef.current.contains(range.startContainer)) return;
-
-    // Update the pin's range and position
-    const newRect = range.getBoundingClientRect();
-    const updatedPins = highlightPins.map(p => 
-      p.id === pinId 
-        ? { ...p, rect: newRect, range: range.cloneRange() }
-        : p
-    );
-    setHighlightPins(updatedPins);
-
-    // Update the corresponding highlight
-    updateHighlightFromPins(pin.highlightId);
-  }, [isDraggingPin, highlightPins, contentRef, updateHighlightFromPins]);
-
-  const handlePinDragEnd = () => {
-    setIsDraggingPin(null);
-  };
-
-  // Add global mouse and touch event listeners for pin dragging
-  useEffect(() => {
-    if (!isDraggingPin) return;
-
-    const handleMouseMove = (event: MouseEvent) => {
-      handlePinDrag(event, isDraggingPin);
-    };
-
-    const handleTouchMove = (event: TouchEvent) => {
-      handlePinDrag(event, isDraggingPin);
-    };
-
-    const handleMouseUp = () => {
-      handlePinDragEnd();
-    };
-
-    const handleTouchEnd = () => {
-      handlePinDragEnd();
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('touchend', handleTouchEnd);
-
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [isDraggingPin, handlePinDrag]);
 
 
   const handleListen = () => {
@@ -859,47 +730,6 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
         )}
       </AnimatePresence>
 
-      {/* Highlight Pins */}
-      <AnimatePresence>
-        {highlightPins.map((pin) => (
-          <motion.div
-            key={pin.id}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className={`highlight-pin fixed z-40 w-8 h-8 md:w-7 md:h-7 rounded-full border-2 cursor-grab touch-none ${
-              isDraggingPin === pin.id ? 'dragging cursor-grabbing' : ''
-            } ${
-              pin.side === 'start' 
-                ? 'highlight-pin-start' 
-                : 'highlight-pin-end'
-            }`}
-            style={{
-              left: pin.rect.left + (pin.side === 'start' ? -16 : pin.rect.width - 16),
-              top: pin.rect.top + (pin.rect.height / 2) - 16,
-            }}
-            onMouseDown={(e) => handlePinDragStart(pin.id, e)}
-            onTouchStart={(e) => handlePinDragStart(pin.id, e)}
-          >
-            {/* Pin center dot */}
-            <div className="absolute inset-2 bg-white/90 dark:bg-gray-900/90 rounded-full shadow-inner"></div>
-            
-            {/* Pin direction indicator */}
-            <div className="absolute inset-0 flex items-center justify-center text-sm md:text-xs font-bold text-white drop-shadow-sm">
-              {pin.side === 'start' ? '‹' : '›'}
-            </div>
-
-            {/* Pin tooltip - only show on desktop */}
-            <div className="hidden md:block absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs px-2 py-1 rounded opacity-0 hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-              {pin.side === 'start' ? 'Start' : 'End'} • Drag to extend
-            </div>
-
-            {/* Mobile touch feedback */}
-            <div className="md:hidden absolute inset-0 rounded-full bg-white/20 dark:bg-gray-900/20 scale-0 transition-transform duration-150 active:scale-110"></div>
-          </motion.div>
-        ))}
-      </AnimatePresence>
 
       {/* Click outside handler for overflow menu */}
       {showOverflowMenu && (

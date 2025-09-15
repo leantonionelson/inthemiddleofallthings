@@ -4,6 +4,7 @@ import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-rea
 import { Symbol } from './Symbol';
 import { BookChapter } from '../types';
 import { geminiTTSService, TTSConfig } from '../services/geminiTTS';
+import { mediaSessionService } from '../services/mediaSession';
 
 interface AudioPlayerProps {
   chapter: BookChapter;
@@ -81,6 +82,25 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
     const audio = new Audio(audioUrl);
     audio.preload = 'metadata';
+    
+    // Configure audio for background playback
+    audio.crossOrigin = 'anonymous';
+    
+    // Set up Media Session for native mobile controls
+    if (mediaSessionService.isSupported()) {
+      mediaSessionService.setAudioElement(audio);
+      mediaSessionService.setMetadata(chapter);
+      mediaSessionService.setActionHandlers({
+        onPlayPause: togglePlayPause,
+        onPrevious: onPreviousChapter,
+        onNext: onNextChapter,
+        onSeek: (time: number) => {
+          if (audioRef.current) {
+            audioRef.current.currentTime = time;
+          }
+        }
+      });
+    }
     
     audio.addEventListener('loadedmetadata', () => {
       setDuration(audio.duration);
@@ -229,6 +249,11 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         audioRef.current.src = '';
       }
       speechSynthesis.cancel();
+      
+      // Clear Media Session metadata
+      if (mediaSessionService.isSupported()) {
+        mediaSessionService.clearMetadata();
+      }
     };
   }, []);
 

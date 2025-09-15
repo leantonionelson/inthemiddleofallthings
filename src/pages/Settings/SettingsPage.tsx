@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppRoute } from '../../types';
 import StandardHeader from '../../components/StandardHeader';
 import { geminiTTSService } from '../../services/geminiTTS';
+import InstallButton from '../../components/InstallButton';
 
 interface SettingsPageProps {
   isDarkMode: boolean;
@@ -242,12 +243,37 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           </div>
         </motion.div>
 
+        {/* App */}
+        <motion.div
+          className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
+            App
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-ink-secondary dark:text-ink-muted font-medium">
+                  Install App
+                </p>
+                <p className="text-sm text-ink-muted">
+                  Get the full experience with offline access and background audio
+                </p>
+              </div>
+              <InstallButton size="sm" />
+            </div>
+          </div>
+        </motion.div>
+
         {/* Data */}
         <motion.div
           className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.5 }}
         >
           <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
             Data
