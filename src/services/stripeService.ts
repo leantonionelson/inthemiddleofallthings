@@ -112,19 +112,29 @@ class StripeService {
     }
 
     try {
-      // For now, we'll use Stripe's client-side approach
-      // In production, you should create a backend API endpoint
-      console.log('Creating checkout session for user:', user.uid);
+      const idToken = await user.getIdToken();
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
       
-      // Simulate successful session creation
-      // In a real implementation, you would call your backend API here
-      const mockSessionId = `cs_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      // Store the session info for demo purposes
-      localStorage.setItem('stripe_session_id', mockSessionId);
-      localStorage.setItem('stripe_user_id', user.uid);
-      
-      return mockSessionId;
+      const response = await fetch(`${backendUrl}/api/stripe/create-checkout-session`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({
+          priceId: priceId || STRIPE_MONTHLY_PRICE_ID,
+          successUrl: `${window.location.origin}/payment-success`,
+          cancelUrl: `${window.location.origin}/payment-canceled`
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create checkout session');
+      }
+
+      const data = await response.json();
+      return data.sessionId;
     } catch (error) {
       console.error('Error creating checkout session:', error);
       throw new Error('Failed to create checkout session. Please try again.');
@@ -135,22 +145,20 @@ class StripeService {
    * Redirect to Stripe Checkout
    */
   public async redirectToCheckout(priceId?: string): Promise<void> {
+    if (!this.stripe) {
+      throw new Error('Stripe not initialized');
+    }
+
     try {
       const sessionId = await this.createCheckoutSession(priceId);
       
-      // For demo purposes, simulate successful payment
-      // In production, you would redirect to actual Stripe Checkout
-      console.log('Redirecting to Stripe Checkout with session:', sessionId);
-      
-      // Simulate payment success after a short delay
-      setTimeout(() => {
-        // Update user's subscription status
-        this.simulatePaymentSuccess();
-      }, 2000);
-      
-      // Show a demo message instead of actual redirect
-      alert('Demo Mode: Payment would redirect to Stripe Checkout. For now, simulating successful payment.');
-      
+      const { error } = await this.stripe.redirectToCheckout({
+        sessionId
+      });
+
+      if (error) {
+        throw error;
+      }
     } catch (error) {
       console.error('Error redirecting to checkout:', error);
       throw error;
@@ -190,11 +198,13 @@ class StripeService {
     }
 
     try {
-      // In a real implementation, this would call your backend API
-      const response = await fetch('/api/subscription-status', {
+      const idToken = await user.getIdToken();
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      
+      const response = await fetch(`${backendUrl}/api/stripe/subscription-status`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${await user.getIdToken()}`
+          'Authorization': `Bearer ${idToken}`
         }
       });
 
@@ -204,7 +214,7 @@ class StripeService {
 
       const data = await response.json();
       return {
-        isActive: data.status === 'active' || data.status === 'trialing',
+        isActive: data.isActive,
         status: data.status,
         currentPeriodEnd: data.currentPeriodEnd ? new Date(data.currentPeriodEnd) : null,
         cancelAtPeriodEnd: data.cancelAtPeriodEnd || false,
@@ -212,7 +222,7 @@ class StripeService {
       };
     } catch (error) {
       console.error('Error getting subscription status:', error);
-      // For development, return a mock subscription status
+      // Fallback to local storage or default status
       return {
         isActive: false,
         status: 'incomplete',
@@ -263,20 +273,23 @@ class StripeService {
     }
 
     try {
-      const response = await fetch('/api/create-customer-portal-session', {
+      const idToken = await user.getIdToken();
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      
+      const response = await fetch(`${backendUrl}/api/stripe/create-customer-portal-session`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await user.getIdToken()}`
+          'Authorization': `Bearer ${idToken}`
         },
         body: JSON.stringify({
-          userId: user.uid,
           returnUrl: window.location.origin
         })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create customer portal session');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create customer portal session');
       }
 
       const data = await response.json();
