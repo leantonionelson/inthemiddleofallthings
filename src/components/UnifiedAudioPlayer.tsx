@@ -7,7 +7,6 @@ import {
   SkipBack, 
   Volume2, 
   VolumeX, 
-  Settings, 
   X,
   Loader2,
   AlertCircle
@@ -51,7 +50,6 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
   });
   const [isMuted, setIsMuted] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
-  const [showSettings, setShowSettings] = useState(false);
   const [autoPlayNext, setAutoPlayNext] = useState(localStorage.getItem('audioAutoPlayNext') !== 'false');
   const progressRef = useRef<HTMLDivElement>(null);
   const isInitialized = useRef(false);
@@ -217,12 +215,6 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
             
             <div className="flex items-center space-x-2">
               <button
-                onClick={() => setShowSettings(!showSettings)}
-                className="p-2 text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light transition-colors"
-              >
-                <Settings className="w-4 h-4" />
-              </button>
-              <button
                 onClick={onClose}
                 className="p-2 text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light transition-colors"
               >
@@ -344,39 +336,6 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
             </button>
           </div>
 
-          {/* Settings Panel */}
-          <AnimatePresence>
-            {showSettings && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.2 }}
-                className="mt-4 pt-4 border-t border-ink-muted/20 dark:border-paper-light/20"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Playback Speed
-                  </span>
-                  <div className="flex space-x-2">
-                    {[0.75, 1, 1.25, 1.5].map((rate) => (
-                      <button
-                        key={rate}
-                        onClick={() => setPlaybackRate(rate)}
-                        className={`px-3 py-1 text-xs rounded-full transition-colors ${
-                          playbackRate === rate
-                            ? 'bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary'
-                            : 'bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted hover:bg-ink-muted/20 dark:hover:bg-paper-light/20'
-                        }`}
-                      >
-                        {rate}x
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* Error Message */}
           {playbackState.error && (

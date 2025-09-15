@@ -349,8 +349,13 @@ class AudioManagerService {
       // Using audio element
       if (this.playbackState.isPlaying) {
         this.currentAudio.pause();
+        // Immediately update state - don't wait for event listener
+        this.updatePlaybackState({ isPlaying: false });
       } else {
-        this.currentAudio.play().catch(error => {
+        this.currentAudio.play().then(() => {
+          // Immediately update state on successful play
+          this.updatePlaybackState({ isPlaying: true });
+        }).catch(error => {
           console.error('Audio play error:', error);
           this.updatePlaybackState({ 
             isPlaying: false, 

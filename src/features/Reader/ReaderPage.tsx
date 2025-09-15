@@ -403,14 +403,14 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
       </div>
 
       {/* Main Content Area */}
-      <main 
+      <main
         ref={contentRef}
         className={`reader-content relative ${
-          // Mobile styles
-          'pb-36 px-6 max-w-2xl mx-auto'
+          // Mobile styles - increased bottom padding for audio player
+          'pb-48 px-6 max-w-2xl mx-auto'
         } ${
           // Desktop styles - consistent top padding
-          'lg:pb-20 lg:px-8 lg:max-w-4xl lg:pt-8'
+          'lg:pb-32 lg:px-8 lg:max-w-4xl lg:pt-8'
         }`}
         style={{ 
           // Mobile padding top (desktop handled by Tailwind classes)
