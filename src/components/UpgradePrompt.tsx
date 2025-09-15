@@ -147,7 +147,7 @@ const UpgradePrompt: React.FC<UpgradePromptProps> = ({ isOpen, onClose, feature 
 
               {/* Features */}
               <div className="space-y-3 mb-6">
-                {planDetails.features.map((feature, index) => (
+                {planDetails.features.map((feature: string, index: number) => (
                   <div key={index} className="flex items-center">
                     <div className="w-5 h-5 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                       <Check className="w-3 h-3 text-green-600 dark:text-green-400" />

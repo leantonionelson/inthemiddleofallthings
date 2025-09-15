@@ -104,63 +104,78 @@ class StripeService {
   /**
    * Create a subscription checkout session
    */
-  public async createCheckoutSession(): Promise<string> {
+  public async createCheckoutSession(priceId?: string): Promise<string> {
     const user = authService.getCurrentUser();
     if (!user) {
       throw new Error('User must be authenticated to create checkout session');
     }
 
     try {
-      // In a real implementation, this would call your backend API
-      const response = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await user.getIdToken()}`
-        },
-        body: JSON.stringify({
-          userId: user.uid,
-          email: user.email,
-          priceId: STRIPE_PRICE_ID,
-          successUrl: `${window.location.origin}/payment-success`,
-          cancelUrl: `${window.location.origin}/payment-canceled`
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create checkout session');
-      }
-
-      const data = await response.json();
-      return data.sessionId;
+      // For now, we'll use Stripe's client-side approach
+      // In production, you should create a backend API endpoint
+      console.log('Creating checkout session for user:', user.uid);
+      
+      // Simulate successful session creation
+      // In a real implementation, you would call your backend API here
+      const mockSessionId = `cs_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Store the session info for demo purposes
+      localStorage.setItem('stripe_session_id', mockSessionId);
+      localStorage.setItem('stripe_user_id', user.uid);
+      
+      return mockSessionId;
     } catch (error) {
       console.error('Error creating checkout session:', error);
-      // For development, return a mock session ID
-      return 'cs_mock_session_id';
+      throw new Error('Failed to create checkout session. Please try again.');
     }
   }
 
   /**
    * Redirect to Stripe Checkout
    */
-  public async redirectToCheckout(): Promise<void> {
-    if (!this.stripe) {
-      throw new Error('Stripe not initialized');
-    }
-
+  public async redirectToCheckout(priceId?: string): Promise<void> {
     try {
-      const sessionId = await this.createCheckoutSession();
+      const sessionId = await this.createCheckoutSession(priceId);
       
-      const { error } = await this.stripe.redirectToCheckout({
-        sessionId
-      });
-
-      if (error) {
-        throw error;
-      }
+      // For demo purposes, simulate successful payment
+      // In production, you would redirect to actual Stripe Checkout
+      console.log('Redirecting to Stripe Checkout with session:', sessionId);
+      
+      // Simulate payment success after a short delay
+      setTimeout(() => {
+        // Update user's subscription status
+        this.simulatePaymentSuccess();
+      }, 2000);
+      
+      // Show a demo message instead of actual redirect
+      alert('Demo Mode: Payment would redirect to Stripe Checkout. For now, simulating successful payment.');
+      
     } catch (error) {
       console.error('Error redirecting to checkout:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Simulate successful payment (for demo purposes)
+   */
+  private simulatePaymentSuccess(): void {
+    const user = authService.getCurrentUser();
+    if (user) {
+      // Update user profile with subscription status
+      authService.updateUserProfile(user.uid, {
+        subscriptionStatus: {
+          isActive: true,
+          status: 'active',
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+          cancelAtPeriodEnd: false,
+          planName: 'Premium Plan',
+          stripeCustomerId: `cus_${user.uid}`,
+          stripeSubscriptionId: `sub_${Date.now()}`
+        }
+      }).catch(console.error);
+      
+      console.log('✅ Payment simulation completed - user subscription activated');
     }
   }
 
@@ -295,20 +310,12 @@ class StripeService {
   /**
    * Get subscription plan details
    */
-  public getPlanDetails() {
-    return {
-      name: 'Premium Plan',
-      price: '$9.99',
-      priceId: STRIPE_PRICE_ID,
-      features: [
-        'Unlimited AI conversations',
-        'Save highlights and progress',
-        'Cross-device synchronization',
-        'Premium audio features',
-        'Advanced reading analytics'
-      ],
-      billing: 'monthly'
-    };
+  public getPlanDetails(currency?: string, billing: 'monthly' | 'yearly' = 'monthly') {
+    // Import regional pricing service dynamically to avoid circular imports
+    const { regionalPricingService } = require('./regionalPricing');
+    const detectedCurrency = currency || regionalPricingService.detectUserRegion();
+    
+    return regionalPricingService.getPlanDetails(detectedCurrency, billing);
   }
 }
 
