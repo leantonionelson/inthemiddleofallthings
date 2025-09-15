@@ -9,7 +9,8 @@ import { authService } from './firebaseAuth';
 
 // Stripe configuration
 const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
-const STRIPE_PRICE_ID = import.meta.env.VITE_STRIPE_PRICE_ID || 'price_1234567890'; // Replace with your actual price ID
+const STRIPE_MONTHLY_PRICE_ID = import.meta.env.VITE_STRIPE_MONTHLY_PRICE_ID || 'price_monthly';
+const STRIPE_YEARLY_PRICE_ID = import.meta.env.VITE_STRIPE_YEARLY_PRICE_ID || 'price_yearly';
 
 export interface SubscriptionStatus {
   isActive: boolean;
@@ -63,7 +64,7 @@ class StripeService {
   /**
    * Create a payment intent for subscription
    */
-  public async createPaymentIntent(): Promise<PaymentIntent> {
+  public async createPaymentIntent(priceId?: string): Promise<PaymentIntent> {
     const user = authService.getCurrentUser();
     if (!user) {
       throw new Error('User must be authenticated to create payment intent');
@@ -80,7 +81,7 @@ class StripeService {
         },
         body: JSON.stringify({
           userId: user.uid,
-          priceId: STRIPE_PRICE_ID
+          priceId: priceId || STRIPE_MONTHLY_PRICE_ID
         })
       });
 
@@ -315,7 +316,13 @@ class StripeService {
     const { regionalPricingService } = require('./regionalPricing');
     const detectedCurrency = currency || regionalPricingService.detectUserRegion();
     
-    return regionalPricingService.getPlanDetails(detectedCurrency, billing);
+    const planDetails = regionalPricingService.getPlanDetails(detectedCurrency, billing);
+    
+    // Add the correct Stripe price ID
+    return {
+      ...planDetails,
+      priceId: billing === 'yearly' ? STRIPE_YEARLY_PRICE_ID : STRIPE_MONTHLY_PRICE_ID
+    };
   }
 }
 

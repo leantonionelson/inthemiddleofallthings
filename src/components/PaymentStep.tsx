@@ -35,7 +35,12 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onComplete, onSkip }) => {
     setError(null);
 
     try {
-      await stripeService.redirectToCheckout();
+      // Get the correct price ID for the selected billing period
+      const priceId = selectedBilling === 'yearly' 
+        ? planDetails.priceId 
+        : stripeService.getPlanDetails(userCurrency, 'monthly').priceId;
+      
+      await stripeService.redirectToCheckout(priceId);
       // The user will be redirected to Stripe Checkout
       // onComplete will be called when they return from successful payment
     } catch (error) {
@@ -58,26 +63,26 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onComplete, onSkip }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="max-w-lg mx-auto px-6 py-8"
+      className="max-w-md mx-auto px-6 py-8"
     >
       {/* Header */}
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-serif text-ink-primary dark:text-paper-light mb-3">
-          Choose Your Journey
+      <div className="text-center mb-12">
+        <h2 className="text-3xl font-light text-ink-primary dark:text-paper-light mb-4">
+          Continue Your Journey
         </h2>
-        <p className="text-ink-secondary dark:text-ink-muted">
+        <p className="text-ink-secondary dark:text-ink-muted text-sm leading-relaxed">
           Unlock the full experience with premium features
         </p>
       </div>
 
       {/* Billing Toggle */}
-      <div className="flex items-center justify-center mb-8">
-        <div className="bg-ink-muted/10 dark:bg-paper-light/10 rounded-full p-1 flex">
+      <div className="flex items-center justify-center mb-10">
+        <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-1 flex">
           <button
             onClick={() => setSelectedBilling('monthly')}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+            className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
               selectedBilling === 'monthly'
-                ? 'bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary'
+                ? 'bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary shadow-sm'
                 : 'text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light'
             }`}
           >
@@ -85,9 +90,9 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onComplete, onSkip }) => {
           </button>
           <button
             onClick={() => setSelectedBilling('yearly')}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+            className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
               selectedBilling === 'yearly'
-                ? 'bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary'
+                ? 'bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary shadow-sm'
                 : 'text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light'
             }`}
           >
@@ -97,30 +102,30 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onComplete, onSkip }) => {
       </div>
 
       {/* Pricing Card */}
-      <div className="bg-paper-light/50 dark:bg-paper-dark/50 backdrop-blur-sm border border-ink-muted/20 dark:border-paper-light/20 rounded-2xl p-8 mb-6">
+      <div className="bg-paper-light/30 dark:bg-paper-dark/30 backdrop-blur-sm border border-ink-muted/10 dark:border-paper-light/10 rounded-xl p-8 mb-8">
         {/* Price */}
-        <div className="text-center mb-6">
-          <div className="text-4xl font-light text-ink-primary dark:text-paper-light mb-2">
+        <div className="text-center mb-8">
+          <div className="text-5xl font-thin text-ink-primary dark:text-paper-light mb-2">
             {selectedBilling === 'yearly' ? pricing.yearly.formatted : pricing.monthly.formatted}
           </div>
-          <div className="text-sm text-ink-secondary dark:text-ink-muted">
+          <div className="text-xs text-ink-secondary dark:text-ink-muted uppercase tracking-wider">
             per {selectedBilling === 'yearly' ? 'year' : 'month'}
           </div>
           {selectedBilling === 'yearly' && (
-            <div className="mt-2 text-sm text-green-600 dark:text-green-400">
+            <div className="mt-3 text-xs text-green-600 dark:text-green-400 font-medium">
               Save {pricing.savings.formatted} ({pricing.savings.percentage}%)
             </div>
           )}
         </div>
 
         {/* Features */}
-        <div className="space-y-3 mb-8">
+        <div className="space-y-4 mb-8">
           {planDetails.features.map((feature: string, index: number) => (
-            <div key={index} className="flex items-center">
-              <div className="w-5 h-5 rounded-full bg-ink-primary/10 dark:bg-paper-light/10 flex items-center justify-center mr-3 flex-shrink-0">
-                <Check className="w-3 h-3 text-ink-primary dark:text-paper-light" />
+            <div key={index} className="flex items-start">
+              <div className="w-4 h-4 rounded-full bg-ink-primary/20 dark:bg-paper-light/20 flex items-center justify-center mr-3 flex-shrink-0 mt-0.5">
+                <Check className="w-2.5 h-2.5 text-ink-primary dark:text-paper-light" />
               </div>
-              <span className="text-sm text-ink-primary dark:text-paper-light">{feature}</span>
+              <span className="text-sm text-ink-primary dark:text-paper-light leading-relaxed">{feature}</span>
             </div>
           ))}
         </div>
@@ -129,7 +134,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onComplete, onSkip }) => {
         <button
           onClick={handleSubscribe}
           disabled={isLoading}
-          className="w-full bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary font-medium py-3 px-6 rounded-xl transition-all duration-200 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          className="w-full bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary font-medium py-4 px-6 rounded-lg transition-all duration-200 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-sm"
         >
           {isLoading ? (
             <div className="flex items-center">
@@ -160,17 +165,17 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onComplete, onSkip }) => {
       </div>
 
       {/* Skip Option */}
-      <div className="text-center">
+      <div className="text-center mb-8">
         <button
           onClick={handleSkip}
-          className="text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light transition-colors text-sm"
+          className="text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light transition-colors text-xs"
         >
           Skip for now
         </button>
       </div>
 
       {/* Currency Info */}
-      <div className="text-center mt-6">
+      <div className="text-center">
         <div className="flex items-center justify-center text-xs text-ink-muted dark:text-ink-secondary">
           <Globe className="w-3 h-3 mr-1" />
           <span>Pricing in {userCurrency}</span>

@@ -138,9 +138,27 @@ class FirebaseAuthService {
     }
     
     try {
-      await updateDoc(doc(db, 'users', uid), {
-        lastActive: new Date()
-      });
+      // Check if document exists first
+      const userDoc = await getDoc(doc(db, 'users', uid));
+      if (userDoc.exists()) {
+        await updateDoc(doc(db, 'users', uid), {
+          lastActive: new Date()
+        });
+      } else {
+        // Document doesn't exist, create it with basic info
+        const user = auth.currentUser;
+        if (user) {
+          await setDoc(doc(db, 'users', uid), {
+            uid: uid,
+            email: user.email,
+            name: user.displayName,
+            isAnonymous: user.isAnonymous,
+            onboardingCompleted: false,
+            createdAt: new Date(),
+            lastActive: new Date()
+          });
+        }
+      }
     } catch (error) {
       console.error('Error updating last active:', error);
       // Don't throw error to prevent authentication from failing
