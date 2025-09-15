@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppRoute } from '../../types';
 import StandardHeader from '../../components/StandardHeader';
 import { geminiTTSService } from '../../services/geminiTTS';
+import { authService, UserProfile } from '../../services/firebaseAuth';
 import InstallButton from '../../components/InstallButton';
 
 interface SettingsPageProps {
@@ -21,8 +22,27 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   const [autoDownload, setAutoDownload] = useState(false);
   const [totalSize, setTotalSize] = useState(0);
   const [fontSize, setFontSize] = useState('base');
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
   useEffect(() => {
+    // Load user profile
+    const loadUserProfile = async () => {
+      try {
+        const currentUser = authService.getCurrentUser();
+        if (currentUser && !currentUser.isAnonymous) {
+          const profile = await authService.getUserProfile(currentUser.uid);
+          setUserProfile(profile);
+        }
+      } catch (error) {
+        console.error('Error loading user profile:', error);
+      } finally {
+        setIsLoadingProfile(false);
+      }
+    };
+
+    loadUserProfile();
+
     // Load audio settings
     const autoDownloadSetting = localStorage.getItem('autoDownloadAudio') === 'true';
     setAutoDownload(autoDownloadSetting);
@@ -102,26 +122,87 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-ink-primary dark:bg-paper-light rounded-full flex items-center justify-center">
               <span className="text-paper-light dark:text-ink-primary font-medium">
-                D
+                {isLoadingProfile ? (
+                  <div className="w-4 h-4 border-2 border-paper-light border-t-transparent rounded-full animate-spin" />
+                ) : userProfile ? (
+                  (userProfile.name || userProfile.email || 'U').charAt(0).toUpperCase()
+                ) : (
+                  'D'
+                )}
               </span>
             </div>
             <div>
-              <p className="text-ink-primary dark:text-paper-light font-medium">
-                Demo User
-              </p>
-              <p className="text-ink-muted text-sm">
-                demo@example.com
-              </p>
+              {isLoadingProfile ? (
+                <div className="space-y-2">
+                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-24"></div>
+                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-32"></div>
+                </div>
+              ) : userProfile ? (
+                <>
+                  <p className="text-ink-primary dark:text-paper-light font-medium">
+                    {userProfile.name || 'User'}
+                  </p>
+                  <p className="text-ink-muted text-sm">
+                    {userProfile.email || 'No email'}
+                  </p>
+                  <p className="text-ink-muted text-xs">
+                    {userProfile.isAnonymous ? 'Anonymous User' : 'Authenticated User'}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-ink-primary dark:text-paper-light font-medium">
+                    Demo User
+                  </p>
+                  <p className="text-ink-muted text-sm">
+                    demo@example.com
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </motion.div>
+
+        {/* Account Info */}
+        {userProfile && (
+          <motion.div
+            className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+          >
+            <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
+              Account
+            </h2>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-ink-secondary dark:text-ink-muted">Account Type</span>
+                <span className="text-ink-primary dark:text-paper-light font-medium">
+                  {userProfile.isAnonymous ? 'Anonymous' : 'Authenticated'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-ink-secondary dark:text-ink-muted">Cloud Sync</span>
+                <span className={`font-medium ${userProfile.isAnonymous ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'}`}>
+                  {userProfile.isAnonymous ? 'Disabled' : 'Enabled'}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-ink-secondary dark:text-ink-muted">Member Since</span>
+                <span className="text-ink-primary dark:text-paper-light font-medium">
+                  {userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString() : 'Unknown'}
+                </span>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Appearance */}
         <motion.div
           className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.25 }}
         >
           <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
             Appearance
@@ -182,7 +263,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
+          transition={{ delay: 0.35 }}
         >
           <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
             Audio Management
@@ -248,7 +329,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.45 }}
         >
           <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
             App
@@ -273,7 +354,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.55 }}
         >
           <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
             Data
