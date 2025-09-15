@@ -190,7 +190,16 @@ const App: React.FC = () => {
                   hasCompletedOnboarding ? (
                     <Navigate to={AppRoute.HOME} replace />
                   ) : (
-                    <OnboardingPage onComplete={handleOnboardingComplete} />
+                    <OnboardingPage 
+                      onComplete={handleOnboardingComplete} 
+                      onClose={() => {
+                        // Sign out and return to auth page
+                        authService.signOut().then(() => {
+                          setIsAuthenticated(false);
+                          setHasCompletedOnboarding(false);
+                        }).catch(console.error);
+                      }}
+                    />
                   )
                 ) : (
                   <Navigate to={AppRoute.AUTH} replace />

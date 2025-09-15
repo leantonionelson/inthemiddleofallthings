@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { X, SkipForward } from 'lucide-react';
 import { Symbol } from '../../components/Symbol';
 import { generateSymbol } from '../../services/symbolGenerator';
 import PaymentStep from '../../components/PaymentStep';
 
 interface OnboardingPageProps {
   onComplete: () => void;
+  onClose: () => void;
 }
 
 interface Question {
@@ -57,12 +59,13 @@ const questions: Question[] = [
   }
 ];
 
-const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete }) => {
+const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [isGeneratingSymbol, setIsGeneratingSymbol] = useState(false);
   const [generatedSymbol, setGeneratedSymbol] = useState<any | null>(null);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
+  const [skippedQuestions, setSkippedQuestions] = useState<Set<number>>(new Set());
 
   const currentQuestion = questions[currentStep];
   const isLastQuestion = currentStep === questions.length - 1;
@@ -156,6 +159,75 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete }) => {
   const handlePrevious = () => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
+    }
+  };
+
+  const handleSkip = () => {
+    // Mark current question as skipped
+    setSkippedQuestions(prev => new Set([...prev, currentStep]));
+    
+    if (isLastQuestion) {
+      // If this is the last question, complete onboarding with skipped responses
+      handleCompleteWithSkipped();
+    } else {
+      // Move to next question
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const handleCompleteWithSkipped = async () => {
+    setIsGeneratingSymbol(true);
+    
+    try {
+      // Generate symbol with available responses (or random if all skipped)
+      const availableResponses = Object.values(responses).filter(r => r !== undefined && r !== '');
+      
+      let userSymbol;
+      if (availableResponses.length > 0) {
+        // Use available responses
+        const userResponses = availableResponses.map(r => String(r));
+        userSymbol = generateSymbol('onboarding', userResponses);
+      } else {
+        // Generate random symbol if all questions were skipped
+        const randomResponses = ['random', 'skipped', 'default'];
+        userSymbol = generateSymbol('onboarding', randomResponses);
+      }
+      
+      // Store the symbol data
+      const symbolData = {
+        svgPath: userSymbol.svgPath,
+        metadata: userSymbol.metadata,
+        colorScheme: userSymbol.colorScheme,
+        createdAt: new Date().toISOString()
+      };
+
+      localStorage.setItem('userSymbol', JSON.stringify(symbolData));
+      setGeneratedSymbol(userSymbol);
+      
+      // Save voice preference if available
+      if (responses.voice_preference) {
+        const voicePreference = responses.voice_preference === 'Male voice' ? 'male' : 'female';
+        localStorage.setItem('audioVoicePreference', voicePreference);
+      } else {
+        // Set default voice preference
+        localStorage.setItem('audioVoicePreference', 'male');
+      }
+      
+      // Wait a moment to show the symbol, then complete onboarding
+      setTimeout(() => {
+        onComplete();
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Symbol generation failed:', error);
+      
+      // Set default voice preference
+      localStorage.setItem('audioVoicePreference', 'male');
+      
+      // Continue anyway
+      setTimeout(() => {
+        onComplete();
+      }, 1000);
     }
   };
 
@@ -302,6 +374,25 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete }) => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-6">
       <div className="w-full max-w-2xl">
+        {/* Header with Close and Skip buttons */}
+        <div className="flex justify-between items-center mb-8">
+          <button
+            onClick={onClose}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <X className="w-4 h-4" />
+            <span className="text-sm font-medium">Close</span>
+          </button>
+          
+          <button
+            onClick={handleSkip}
+            className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <SkipForward className="w-4 h-4" />
+            <span className="text-sm font-medium">Skip</span>
+          </button>
+        </div>
+
         {/* Progress */}
         <div className="mb-8">
           <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-2">
