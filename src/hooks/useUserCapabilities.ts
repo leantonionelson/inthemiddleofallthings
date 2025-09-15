@@ -29,6 +29,7 @@ export const useUserCapabilities = (): UserCapabilities => {
         const userCapabilities = await authService.getUserCapabilities();
         setCapabilities({
           ...userCapabilities,
+          userType: userCapabilities.userType as 'guest' | 'anonymous' | 'authenticated',
           isLoading: false
         });
       } catch (error) {

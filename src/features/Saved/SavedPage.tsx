@@ -18,12 +18,33 @@ const SavedPage: React.FC<SavedPageProps> = ({ onOpenAI }) => {
   const [filteredHighlights, setFilteredHighlights] = useState<TextHighlight[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
-  const [userCapabilities, setUserCapabilities] = useState(authService.getUserCapabilities());
+  const [userCapabilities, setUserCapabilities] = useState({
+    canSaveProgress: false,
+    canSaveHighlights: false,
+    canUseAI: false,
+    canSync: false,
+    userType: 'guest' as 'guest' | 'anonymous' | 'authenticated',
+    hasActiveSubscription: false
+  });
 
   // Update capabilities when auth state changes
   useEffect(() => {
-    const unsubscribe = authService.onAuthStateChanged(() => {
-      setUserCapabilities(authService.getUserCapabilities());
+    const checkCapabilities = async () => {
+      try {
+        const capabilities = await authService.getUserCapabilities();
+        setUserCapabilities({
+          ...capabilities,
+          userType: capabilities.userType as 'guest' | 'anonymous' | 'authenticated'
+        });
+      } catch (error) {
+        console.error('Error checking user capabilities:', error);
+      }
+    };
+
+    checkCapabilities();
+
+    const unsubscribe = authService.onAuthStateChanged(async () => {
+      await checkCapabilities();
     });
     return unsubscribe;
   }, []);

@@ -28,6 +28,8 @@ export interface AudioManagerCallbacks {
   onProgress?: (progress: number) => void;
   onError?: (error: string) => void;
   onComplete?: () => void;
+  onPrevious?: () => void;
+  onNext?: () => void;
 }
 
 class AudioManagerService {

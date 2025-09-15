@@ -12,15 +12,36 @@ interface DesktopNavigationProps {
 const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [userCapabilities, setUserCapabilities] = useState(authService.getUserCapabilities());
+  const [userCapabilities, setUserCapabilities] = useState({
+    canSaveProgress: false,
+    canSaveHighlights: false,
+    canUseAI: false,
+    canSync: false,
+    userType: 'guest' as 'guest' | 'anonymous' | 'authenticated',
+    hasActiveSubscription: false
+  });
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
 
   // Update capabilities and user when auth state changes
   useEffect(() => {
-    const unsubscribe = authService.onAuthStateChanged((user) => {
-      setUserCapabilities(authService.getUserCapabilities());
+    const checkCapabilities = async () => {
+      try {
+        const capabilities = await authService.getUserCapabilities();
+        setUserCapabilities({
+          ...capabilities,
+          userType: capabilities.userType as 'guest' | 'anonymous' | 'authenticated'
+        });
+      } catch (error) {
+        console.error('Error checking user capabilities:', error);
+      }
+    };
+
+    checkCapabilities();
+
+    const unsubscribe = authService.onAuthStateChanged(async (user) => {
       setCurrentUser(user);
+      await checkCapabilities();
     });
     return unsubscribe;
   }, []);
