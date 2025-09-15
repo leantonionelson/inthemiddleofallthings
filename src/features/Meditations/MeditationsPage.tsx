@@ -8,9 +8,11 @@ import ReaderNavigation from '../../components/ReaderNavigation';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
 import { Search, X, ChevronRight, Heart, Leaf, Star, Moon, Sun, Waves, Mountain, Compass, Flower2 } from 'lucide-react';
 
-import AudioControlStrip from '../../components/AudioControlStrip';
+import UnifiedAudioPlayer from '../../components/UnifiedAudioPlayer';
 import { highlightsService } from '../../services/firebaseHighlights';
 import { authService } from '../../services/firebaseAuth';
+import { useUserCapabilities } from '../../hooks/useUserCapabilities';
+import UpgradePrompt from '../../components/UpgradePrompt';
 
 interface MeditationsPageProps {
   onOpenAI?: () => void;
@@ -53,6 +55,11 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
   const [highlightedProgress, setHighlightedProgress] = useState(0);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [fontSize, setFontSize] = useState('base');
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState<'highlights' | 'progress' | 'ai' | 'sync'>('highlights');
+  
+  // Get user capabilities
+  const userCapabilities = useUserCapabilities();
 
   // Touch handling state
   const [touchStartX, setTouchStartX] = useState(0);
@@ -331,6 +338,13 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
   // Handle saving highlights
   const handleSaveHighlight = async () => {
     if (selectedText && currentMeditation) {
+      // Check if user can save highlights
+      if (!userCapabilities.canSaveHighlights) {
+        setUpgradeFeature('highlights');
+        setShowUpgradePrompt(true);
+        return;
+      }
+
       try {
         const newHighlight: TextHighlight = {
           id: Date.now().toString(),
@@ -396,6 +410,13 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
 
   // Handle Ask AI
   const handleAskAI = () => {
+    // Check if user can use AI
+    if (!userCapabilities.canUseAI) {
+      setUpgradeFeature('ai');
+      setShowUpgradePrompt(true);
+      return;
+    }
+
     if (onOpenAI) {
       onOpenAI();
     }
@@ -803,9 +824,9 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
         className="fixed bottom-20 left-0 right-0 z-40"
         style={combinedTransitionStyle}
       >
-        {/* Audio Control Strip - positioned above navigation */}
+        {/* Unified Audio Player - positioned above navigation */}
         <div className="flex justify-center mb-2">
-          <AudioControlStrip
+          <UnifiedAudioPlayer
             chapter={{
               id: currentMeditation.id,
               title: currentMeditation.title,
@@ -819,7 +840,9 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
             onHighlightProgress={handleHighlightProgress}
             onScrollToPosition={handleScrollToPosition}
             onNextChapter={handleNextMeditation}
+            onPreviousChapter={handlePreviousMeditation}
             hasNextChapter={currentMeditationIndex < meditations.length - 1}
+            hasPreviousChapter={currentMeditationIndex > 0}
             autoPlay={localStorage.getItem('autoPlayAudio') === 'true'}
           />
         </div>
@@ -958,6 +981,13 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
           onClick={() => setShowOverflowMenu(false)}
         />
       )}
+
+      {/* Upgrade Prompt */}
+      <UpgradePrompt
+        isOpen={showUpgradePrompt}
+        onClose={() => setShowUpgradePrompt(false)}
+        feature={upgradeFeature}
+      />
 
     </CleanLayout>
   );

@@ -22,6 +22,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   const [autoDownload, setAutoDownload] = useState(false);
   const [totalSize, setTotalSize] = useState(0);
   const [fontSize, setFontSize] = useState('base');
+  const [voicePreference, setVoicePreference] = useState<'male' | 'female'>('male');
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
@@ -51,6 +52,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
     const savedFontSize = localStorage.getItem('fontSize') || 'base';
     setFontSize(savedFontSize);
     
+    // Load voice preference setting
+    const savedVoicePreference = localStorage.getItem('audioVoicePreference') as 'male' | 'female' || 'male';
+    setVoicePreference(savedVoicePreference);
+    
     // Load audio cache info
     const cacheSize = geminiTTSService.getCacheSize();
     setTotalSize(cacheSize);
@@ -78,6 +83,15 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   const handleFontSizeChange = (newSize: string) => {
     setFontSize(newSize);
     localStorage.setItem('fontSize', newSize);
+  };
+
+  const handleVoicePreferenceChange = (newVoice: 'male' | 'female') => {
+    setVoicePreference(newVoice);
+    localStorage.setItem('audioVoicePreference', newVoice);
+    
+    // Update the pre-generated audio service with new voice preference
+    const { preGeneratedAudioService } = require('../../services/preGeneratedAudio');
+    preGeneratedAudioService.setVoicePreference(newVoice);
   };
 
   const handleDownloadAllAudio = async () => {
@@ -269,6 +283,32 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
             Audio Management
           </h2>
           <div className="space-y-4">
+            {/* Voice Preference */}
+            <div className="space-y-3">
+              <span className="text-ink-secondary dark:text-ink-muted">
+                Voice Preference
+              </span>
+              <div className="flex space-x-2">
+                {[
+                  { value: 'male', label: 'Male Voice', description: 'Deeper, resonant tone' },
+                  { value: 'female', label: 'Female Voice', description: 'Smooth, natural tone' }
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => handleVoicePreferenceChange(option.value as 'male' | 'female')}
+                    className={`flex-1 py-3 px-4 rounded-lg border transition-colors text-left ${
+                      voicePreference === option.value
+                        ? 'border-ink-primary dark:border-paper-light bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary'
+                        : 'border-ink-muted border-opacity-30 text-ink-secondary dark:text-ink-muted hover:border-opacity-50'
+                    }`}
+                  >
+                    <div className="font-medium">{option.label}</div>
+                    <div className="text-xs opacity-75">{option.description}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Auto Download Toggle */}
             <div className="flex items-center justify-between">
               <div>

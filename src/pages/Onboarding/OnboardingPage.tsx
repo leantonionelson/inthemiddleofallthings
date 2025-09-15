@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Symbol } from '../../components/Symbol';
 import { generateSymbol } from '../../services/symbolGenerator';
+import PaymentStep from '../../components/PaymentStep';
 
 interface OnboardingPageProps {
   onComplete: () => void;
@@ -10,7 +11,7 @@ interface OnboardingPageProps {
 interface Question {
   id: string;
   text: string;
-  type: 'multiple' | 'text' | 'scale' | 'persona';
+  type: 'multiple' | 'text' | 'scale' | 'persona' | 'payment';
   options?: string[];
 }
 
@@ -20,6 +21,12 @@ const questions: Question[] = [
     text: 'Which companion resonates with your journey?',
     type: 'persona',
     options: ['Sage', 'Mirror', 'Flame']
+  },
+  {
+    id: 'voice_preference',
+    text: 'Which voice would you prefer for audio content?',
+    type: 'multiple',
+    options: ['Male voice', 'Female voice']
   },
   {
     id: 'reading_style',
@@ -42,6 +49,11 @@ const questions: Question[] = [
     id: 'ai_comfort',
     text: 'How comfortable are you with AI as a conversation partner?',
     type: 'scale'
+  },
+  {
+    id: 'payment',
+    text: 'Choose your plan to unlock premium features',
+    type: 'payment'
   }
 ];
 
@@ -50,6 +62,7 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete }) => {
   const [responses, setResponses] = useState<Record<string, any>>({});
   const [isGeneratingSymbol, setIsGeneratingSymbol] = useState(false);
   const [generatedSymbol, setGeneratedSymbol] = useState<any | null>(null);
+  const [paymentCompleted, setPaymentCompleted] = useState(false);
 
   const currentQuestion = questions[currentStep];
   const isLastQuestion = currentStep === questions.length - 1;
@@ -91,6 +104,12 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete }) => {
         localStorage.setItem('userSymbol', JSON.stringify(symbolData));
         setGeneratedSymbol(userSymbol);
         
+        // Save voice preference
+        if (responses.voice_preference) {
+          const voicePreference = responses.voice_preference === 'Male voice' ? 'male' : 'female';
+          localStorage.setItem('audioVoicePreference', voicePreference);
+        }
+        
         // Wait a moment to show the symbol, then complete onboarding
         setTimeout(() => {
           onComplete();
@@ -98,6 +117,13 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete }) => {
         
       } catch (error) {
         console.error('Symbol generation failed:', error);
+        
+        // Save voice preference even if symbol generation fails
+        if (responses.voice_preference) {
+          const voicePreference = responses.voice_preference === 'Male voice' ? 'male' : 'female';
+          localStorage.setItem('audioVoicePreference', voicePreference);
+        }
+        
         // Continue anyway
         setTimeout(() => {
           onComplete();
@@ -106,6 +132,25 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete }) => {
     } else {
       setCurrentStep(prev => prev + 1);
     }
+  };
+
+  const handlePaymentComplete = () => {
+    setPaymentCompleted(true);
+    setResponses(prev => ({
+      ...prev,
+      payment: 'completed'
+    }));
+    // Move to next step (symbol generation)
+    handleNext();
+  };
+
+  const handlePaymentSkip = () => {
+    setResponses(prev => ({
+      ...prev,
+      payment: 'skipped'
+    }));
+    // Move to next step (symbol generation)
+    handleNext();
   };
 
   const handlePrevious = () => {
@@ -195,6 +240,14 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete }) => {
           </div>
         );
 
+      case 'payment':
+        return (
+          <PaymentStep
+            onComplete={handlePaymentComplete}
+            onSkip={handlePaymentSkip}
+          />
+        );
+
       default:
         return null;
     }
@@ -242,7 +295,9 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete }) => {
     );
   }
 
-  const canProceed = responses[currentQuestion.id] !== undefined;
+  const canProceed = currentQuestion.type === 'payment' 
+    ? responses[currentQuestion.id] !== undefined 
+    : responses[currentQuestion.id] !== undefined;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-6">

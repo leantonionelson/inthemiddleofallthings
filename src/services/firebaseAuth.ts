@@ -17,6 +17,15 @@ export interface UserProfile {
   isAnonymous: boolean;
   onboardingCompleted: boolean;
   selectedAIPersona?: string;
+  subscriptionStatus?: {
+    isActive: boolean;
+    status: 'active' | 'canceled' | 'past_due' | 'unpaid' | 'trialing' | 'incomplete';
+    currentPeriodEnd: Date | null;
+    cancelAtPeriodEnd: boolean;
+    planName: string;
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+  };
   createdAt: Date;
   lastActive: Date;
 }
@@ -174,8 +183,8 @@ class FirebaseAuthService {
     return user !== null && user.isAnonymous;
   }
 
-  // Get user capabilities based on auth status
-  getUserCapabilities() {
+  // Get user capabilities based on auth status and subscription
+  async getUserCapabilities() {
     const user = auth.currentUser;
     
     if (!user) {
@@ -184,7 +193,8 @@ class FirebaseAuthService {
         canSaveHighlights: false,
         canUseAI: false,
         canSync: false,
-        userType: 'guest'
+        userType: 'guest',
+        hasActiveSubscription: false
       };
     }
 
@@ -194,16 +204,22 @@ class FirebaseAuthService {
         canSaveHighlights: false, // Only local storage
         canUseAI: false,
         canSync: false,
-        userType: 'anonymous'
+        userType: 'anonymous',
+        hasActiveSubscription: false
       };
     }
 
+    // For authenticated users, check subscription status
+    const userProfile = await this.getUserProfile(user.uid);
+    const hasActiveSubscription = userProfile?.subscriptionStatus?.isActive || false;
+
     return {
-      canSaveProgress: true,
-      canSaveHighlights: true,
-      canUseAI: true,
-      canSync: true,
-      userType: 'authenticated'
+      canSaveProgress: hasActiveSubscription,
+      canSaveHighlights: hasActiveSubscription,
+      canUseAI: hasActiveSubscription,
+      canSync: hasActiveSubscription,
+      userType: 'authenticated',
+      hasActiveSubscription
     };
   }
 }

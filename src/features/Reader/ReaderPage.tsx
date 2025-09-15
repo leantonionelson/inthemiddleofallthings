@@ -8,9 +8,11 @@ import ReaderNavigation from '../../components/ReaderNavigation';
 import ChapterInfo from '../../components/ChapterInfo';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
 
-import AudioControlStrip from '../../components/AudioControlStrip';
+import UnifiedAudioPlayer from '../../components/UnifiedAudioPlayer';
 import { highlightsService } from '../../services/firebaseHighlights';
 import { authService } from '../../services/firebaseAuth';
+import { useUserCapabilities } from '../../hooks/useUserCapabilities';
+import UpgradePrompt from '../../components/UpgradePrompt';
 
 interface ReaderPageProps {
   onOpenAI?: () => void;
@@ -40,6 +42,11 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
   const [highlightedProgress, setHighlightedProgress] = useState(0); // 0 to 1, representing progress through the text
   const [isAudioPlaying, setIsAudioPlaying] = useState(false); // Track when audio is actively playing
   const [fontSize, setFontSize] = useState('base');
+  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState<'highlights' | 'progress' | 'ai' | 'sync'>('highlights');
+  
+  // Get user capabilities
+  const userCapabilities = useUserCapabilities();
 
   // Scroll transition hooks for header and navigation
   const headerScrollTransition = useScrollTransition({
@@ -207,6 +214,13 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
 
   const handleSaveHighlight = async () => {
     if (selectedText) {
+      // Check if user can save highlights
+      if (!userCapabilities.canSaveHighlights) {
+        setUpgradeFeature('highlights');
+        setShowUpgradePrompt(true);
+        return;
+      }
+
       try {
         const newHighlight: TextHighlight = {
           id: Date.now().toString(),
@@ -270,6 +284,13 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
   };
 
   const handleAskAI = () => {
+    // Check if user can use AI
+    if (!userCapabilities.canUseAI) {
+      setUpgradeFeature('ai');
+      setShowUpgradePrompt(true);
+      return;
+    }
+
     if (selectedText) {
       // Store selected text in context for AI
       localStorage.setItem('selectedTextForAI', selectedText.text);
@@ -544,16 +565,18 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
         className="fixed bottom-20 left-0 right-0 z-40"
         style={combinedTransitionStyle}
       >
-        {/* Audio Control Strip - positioned above navigation */}
+        {/* Unified Audio Player - positioned above navigation */}
         <div className="flex justify-center mb-2">
-          <AudioControlStrip
+          <UnifiedAudioPlayer
             chapter={currentChapter}
             isOpen={isAudioPlayerOpen}
             onClose={handleAudioPlayerClose}
             onHighlightProgress={handleHighlightProgress}
             onScrollToPosition={handleScrollToPosition}
             onNextChapter={handleNextChapter}
+            onPreviousChapter={handlePreviousChapter}
             hasNextChapter={currentChapterIndex < chapters.length - 1}
+            hasPreviousChapter={currentChapterIndex > 0}
             autoPlay={localStorage.getItem('autoPlayAudio') === 'true'}
           />
         </div>
@@ -739,8 +762,12 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
         />
       )}
 
-
-
+      {/* Upgrade Prompt */}
+      <UpgradePrompt
+        isOpen={showUpgradePrompt}
+        onClose={() => setShowUpgradePrompt(false)}
+        feature={upgradeFeature}
+      />
 
     </CleanLayout>
   );
