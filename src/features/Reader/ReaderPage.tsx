@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { AppRoute, BookChapter, TextHighlight } from '../../types';
 import { loadBookChapters, fallbackChapters } from '../../data/bookContent';
@@ -9,9 +9,12 @@ import ChapterInfo from '../../components/ChapterInfo';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
 
 import UnifiedAudioPlayer from '../../components/UnifiedAudioPlayer';
+import TextSelection from '../../components/TextSelection';
+import ContentFormatter from '../../components/ContentFormatter';
 import { highlightsService } from '../../services/firebaseHighlights';
 import { authService } from '../../services/firebaseAuth';
 import { useUserCapabilities } from '../../hooks/useUserCapabilities';
+import { useTextSelection } from '../../hooks/useTextSelection';
 import UpgradePrompt from '../../components/UpgradePrompt';
 
 interface ReaderPageProps {
@@ -19,12 +22,6 @@ interface ReaderPageProps {
   onCloseAI?: () => void;
 }
 
-interface TextSelection {
-  text: string;
-  range: Range;
-  rect: DOMRect;
-  isManualSelection?: boolean;
-}
 
 
 const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
@@ -32,9 +29,9 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
-  const [selectedText, setSelectedText] = useState<TextSelection | null>(null);
-  const [isTextSelected, setIsTextSelected] = useState(false);
-  const [savedHighlights, setSavedHighlights] = useState<TextHighlight[]>([]);
+  // Use shared text selection hook
+  const { selectedText, isTextSelected, clearSelection } = useTextSelection({ contentRef });
+  const [, setSavedHighlights] = useState<TextHighlight[]>([]);
   const [chapters, setChapters] = useState<BookChapter[]>([]);
   const [isAudioPlayerOpen, setIsAudioPlayerOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -129,191 +126,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
     setFontSize(savedFontSize);
   }, []);
 
-  // Handle text selection
-  useEffect(() => {
-    const handleSelection = () => {
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0 && selection.toString().trim().length > 0) {
-        const range = selection.getRangeAt(0);
-        const rect = range.getBoundingClientRect();
-        
-        // Only show menu if selection is within our content area
-        if (contentRef.current?.contains(range.commonAncestorContainer)) {
-          const isManual = selection.toString().trim().length > 0;
-          setSelectedText({
-            text: selection.toString().trim(),
-            range: range.cloneRange(),
-            rect,
-            isManualSelection: isManual
-          });
-          setIsTextSelected(isManual);
-          
-          // Apply native-like selection styling with proper dark/light mode colors
-          if (isManual) {
-            const style = document.createElement('style');
-            style.id = 'native-selection-style';
-            style.textContent = `
-              /* Light mode selection - white text on black highlight */
-              ::selection {
-                background-color: rgba(15, 15, 15, 0.9) !important;
-                color: #FAFAFA !important;
-              }
-              ::-moz-selection {
-                background-color: rgba(15, 15, 15, 0.9) !important;
-                color: #FAFAFA !important;
-              }
-              
-              /* Dark mode selection - black text on white highlight */
-              .dark ::selection {
-                background-color: rgba(250, 250, 250, 0.9) !important;
-                color: #0F0F0F !important;
-              }
-              .dark ::-moz-selection {
-                background-color: rgba(250, 250, 250, 0.9) !important;
-                color: #0F0F0F !important;
-              }
-            `;
-            document.head.appendChild(style);
-          }
-        }
-      } else {
-        setSelectedText(null);
-        setIsTextSelected(false);
-        
-        // Remove custom selection styling
-        const existingStyle = document.getElementById('native-selection-style');
-        if (existingStyle) {
-          existingStyle.remove();
-        }
-      }
-    };
 
-    document.addEventListener('selectionchange', handleSelection);
-    return () => {
-      document.removeEventListener('selectionchange', handleSelection);
-      // Cleanup on unmount
-      const existingStyle = document.getElementById('native-selection-style');
-      if (existingStyle) {
-        existingStyle.remove();
-      }
-    };
-  }, []);
-
-  // Clear selection when clicking elsewhere
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (selectedText && !(event.target as Element).closest('.selection-menu')) {
-        setSelectedText(null);
-        window.getSelection()?.removeAllRanges();
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [selectedText]);
-
-  const handleSaveHighlight = async () => {
-    if (selectedText) {
-      // Check if user can save highlights
-      if (!userCapabilities.canSaveHighlights) {
-        setUpgradeFeature('highlights');
-        setShowUpgradePrompt(true);
-        return;
-      }
-
-      try {
-        const newHighlight: TextHighlight = {
-          id: Date.now().toString(),
-          text: selectedText.text,
-          chapterId: currentChapter.id,
-          chapterTitle: currentChapter.title,
-          timestamp: new Date(),
-          position: {
-            start: 0, // Would need to calculate actual position
-            end: selectedText.text.length
-          }
-        };
-        
-        // Save to Firebase for authenticated users
-        const currentUser = authService.getCurrentUser();
-        if (currentUser && !currentUser.isAnonymous) {
-          await highlightsService.saveHighlight(currentUser.uid, newHighlight);
-          console.log('Highlight saved to Firebase');
-        } else {
-          // Save to localStorage for anonymous/free users
-          const existingHighlights = localStorage.getItem('savedHighlights');
-          const highlights = existingHighlights ? JSON.parse(existingHighlights) : [];
-          highlights.push(newHighlight);
-          localStorage.setItem('savedHighlights', JSON.stringify(highlights));
-          console.log('Highlight saved to localStorage');
-        }
-        
-        // Update local state
-        setSavedHighlights(prev => [...prev, newHighlight]);
-        
-        // Clear selection
-        setSelectedText(null);
-        window.getSelection()?.removeAllRanges();
-        
-        // Show success feedback
-        console.log('Highlight saved successfully!');
-        
-      } catch (error) {
-        console.error('Error saving highlight:', error);
-        // Fallback to localStorage
-        const existingHighlights = localStorage.getItem('savedHighlights');
-        const highlights = existingHighlights ? JSON.parse(existingHighlights) : [];
-        highlights.push({
-          id: Date.now().toString(),
-          text: selectedText.text,
-          chapterId: currentChapter.id,
-          chapterTitle: currentChapter.title,
-          timestamp: new Date(),
-          position: {
-            start: 0,
-            end: selectedText.text.length
-          }
-        });
-        localStorage.setItem('savedHighlights', JSON.stringify(highlights));
-        
-        setSelectedText(null);
-        window.getSelection()?.removeAllRanges();
-        console.log('Highlight saved to localStorage as fallback');
-      }
-    }
-  };
-
-  const handleAskAI = () => {
-    // Check if user can use AI
-    if (!userCapabilities.canUseAI) {
-      setUpgradeFeature('ai');
-      setShowUpgradePrompt(true);
-      return;
-    }
-
-    if (selectedText) {
-      // Store selected text in context for AI
-      localStorage.setItem('selectedTextForAI', selectedText.text);
-      // Don't clear selection immediately - let the AI drawer handle it
-      // This allows for better UX when switching between selections
-    }
-    if (onOpenAI) {
-      onOpenAI();
-    }
-  };
-
-  // Function to clear selection when AI drawer is closed
-  const clearSelection = useCallback(() => {
-    setSelectedText(null);
-    setIsTextSelected(false);
-    window.getSelection()?.removeAllRanges();
-    
-    // Remove custom selection styling
-    const existingStyle = document.getElementById('native-selection-style');
-    if (existingStyle) {
-      existingStyle.remove();
-    }
-  }, []);
 
   // Expose clearSelection to parent component
   useEffect(() => {
@@ -408,6 +221,9 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
         contentRef.current.scrollTop = 0;
       }
       window.scrollTo(0, 0);
+      
+      // Reset audio highlighting progress when changing chapters
+      setHighlightedProgress(0);
     }
   }, [currentChapterIndex, chapters.length]);
 
@@ -419,6 +235,9 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
         contentRef.current.scrollTop = 0;
       }
       window.scrollTo(0, 0);
+      
+      // Reset audio highlighting progress when changing chapters
+      setHighlightedProgress(0);
     }
   }, [currentChapterIndex]);
 
@@ -466,63 +285,52 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
     }
   };
 
+  const handleSaveHighlight = async (text: string, range: Range) => {
+    if (!userCapabilities.canSaveHighlights) {
+      setUpgradeFeature('highlights');
+      setShowUpgradePrompt(true);
+      return;
+    }
 
+    try {
+      const currentUser = authService.getCurrentUser();
+      if (!currentUser) {
+        console.warn('No authenticated user for saving highlights');
+        return;
+      }
 
-  const formatContent = (content: string) => {
-    // Clean the content for consistent character counting
-    const cleanContent = content
-      .replace(/\*\*(.*?)\*\*/g, '$1')
-      .replace(/\*(.*?)\*/g, '$1')
-      .replace(/#{1,6}\s+/g, '')
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
-    
-    const totalChars = cleanContent.length;
-    const targetCharIndex = Math.floor(highlightedProgress * totalChars);
-    
-    return content.split('\n\n').map((paragraph, index) => {
-      // Split the paragraph into words and whitespace
-      const words = paragraph.split(/(\s+)/);
-      
-      // Calculate the character position for this paragraph
-      const cleanParagraph = paragraph
-        .replace(/\*\*(.*?)\*\*/g, '$1')
-        .replace(/\*(.*?)\*/g, '$1');
-      const paragraphStartCharIndex = cleanContent.indexOf(cleanParagraph);
-      
-      return (
-        <p key={index} className={`mb-6 leading-8 lg:leading-10 text-ink-primary dark:text-paper-light ${
-          fontSize === 'sm' ? 'text-sm lg:text-base' : 
-          fontSize === 'base' ? 'text-base lg:text-lg' : 
-          fontSize === 'lg' ? 'text-lg lg:text-xl' : 
-          'text-xl lg:text-2xl'
-        }`}>
-          {words.map((word, wordIndex) => {
-            // Calculate the character position for this word
-            const wordStartCharIndex = paragraphStartCharIndex + words.slice(0, wordIndex).join('').length;
-            const wordEndCharIndex = wordStartCharIndex + word.length;
-            
-            // Check if this word should be highlighted (character-based highlighting)
-            const shouldHighlight = wordEndCharIndex <= targetCharIndex && highlightedProgress > 0;
-            
-            // Apply markdown formatting to the word
-            const formattedWord = word
-              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-              .replace(/\*(.*?)\*/g, '<em>$1</em>');
-            
-            return (
-              <span
-                key={wordIndex}
-                className={shouldHighlight ? 'bg-blue-200 dark:bg-blue-800 bg-opacity-50 dark:bg-opacity-30 transition-all duration-75 ease-out' : 'transition-all duration-75 ease-out'}
-                dangerouslySetInnerHTML={{ __html: formattedWord }}
-              />
-            );
-          })}
-        </p>
-      );
-    });
+      const highlight: Omit<TextHighlight, 'id'> = {
+        chapterId: chapters[currentChapterIndex].id,
+        chapterTitle: chapters[currentChapterIndex].title,
+        text: text.trim(),
+        timestamp: new Date(),
+        position: {
+          start: range.startOffset,
+          end: range.endOffset
+        }
+      };
+
+      await highlightsService.saveHighlight(currentUser.uid, highlight);
+      console.log('Highlight saved successfully');
+    } catch (error) {
+      console.error('Error saving highlight:', error);
+    }
   };
+
+  const handleAIChatWithText = (text: string) => {
+    // Store the selected text for AI chat
+    localStorage.setItem('aiChatContext', JSON.stringify({
+      text: text.trim(),
+      chapter: chapters[currentChapterIndex].title,
+      timestamp: new Date().toISOString()
+    }));
+    
+    if (onOpenAI) {
+      onOpenAI();
+    }
+  };
+
+
 
   // Show loading state while chapters are being loaded
   if (chapters.length === 0) {
@@ -680,70 +488,28 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
 
           {/* Chapter Content */}
           <div className="max-w-none">
-            {formatContent(currentChapter.content)}
+            <ContentFormatter 
+              content={currentChapter.content}
+              highlightedProgress={highlightedProgress}
+              fontSize={fontSize}
+            />
           </div>
 
 
         </div>
       </main>
 
-      {/* Native-like Text Selection Menu */}
+      {/* Enhanced Text Selection with Pins */}
       <AnimatePresence>
-        {selectedText && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 5 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 5 }}
-            transition={{ duration: 0.12, ease: "easeOut" }}
-            className="selection-menu fixed z-50 bg-paper-light/95 dark:bg-paper-dark/95 backdrop-blur-md rounded-2xl shadow-2xl border border-ink-muted/20 dark:border-paper-light/20 px-2 py-2"
-            style={{
-              left: Math.max(16, Math.min(window.innerWidth - 180, selectedText.rect.left + selectedText.rect.width / 2 - 90)),
-              top: Math.max(16, selectedText.rect.top - 70),
-              boxShadow: '0 8px 32px rgba(15, 15, 15, 0.15), 0 2px 8px rgba(15, 15, 15, 0.1)',
-            }}
-          >
-            <div className="flex items-center space-x-1">
-              <button
-                onClick={handleSaveHighlight}
-                className="group px-5 py-3 text-sm font-medium text-ink-primary dark:text-paper-light hover:bg-ink-primary/5 dark:hover:bg-paper-light/5 active:bg-ink-primary/10 dark:active:bg-paper-light/10 rounded-xl transition-all duration-150 flex items-center space-x-2.5 min-w-0"
-              >
-                <svg className="w-4 h-4 transition-transform group-active:scale-95" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="font-medium">Save</span>
-              </button>
-              <div className="w-px h-6 bg-ink-muted/20 dark:bg-paper-light/20"></div>
-              <button
-                onClick={handleAskAI}
-                className="group px-5 py-3 text-sm font-medium text-ink-primary dark:text-paper-light hover:bg-ink-primary/5 dark:hover:bg-paper-light/5 active:bg-ink-primary/10 dark:active:bg-paper-light/10 rounded-xl transition-all duration-150 flex items-center space-x-2.5 min-w-0"
-              >
-                <svg className="w-4 h-4 transition-transform group-active:scale-95" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-                <span className="font-medium">Ask AI</span>
-              </button>
-            </div>
-            {/* Native-style triangle pointer */}
-            <div 
-              className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0"
-              style={{
-                borderLeft: '8px solid transparent',
-                borderRight: '8px solid transparent',
-                borderTop: '8px solid rgba(250, 250, 250, 0.95)',
-                filter: 'drop-shadow(0 2px 4px rgba(15, 15, 15, 0.1))'
-              }}
-            ></div>
-            {/* Dark mode triangle pointer */}
-            <div 
-              className="dark:block hidden absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0"
-              style={{
-                borderLeft: '8px solid transparent',
-                borderRight: '8px solid transparent',
-                borderTop: '8px solid rgba(15, 15, 15, 0.95)',
-                filter: 'drop-shadow(0 2px 4px rgba(255, 255, 255, 0.1))'
-              }}
-            ></div>
-          </motion.div>
+        {selectedText && isTextSelected && (
+          <TextSelection
+            selectedText={selectedText.text}
+            range={selectedText.range}
+            rect={selectedText.rect}
+            onSave={handleSaveHighlight}
+            onAIChat={handleAIChatWithText}
+            onDismiss={clearSelection}
+          />
         )}
       </AnimatePresence>
 

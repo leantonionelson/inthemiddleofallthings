@@ -9,9 +9,12 @@ import { useScrollTransition } from '../../hooks/useScrollTransition';
 import { Search, X, ChevronRight, Heart, Leaf, Star, Moon, Sun, Waves, Mountain, Compass, Flower2 } from 'lucide-react';
 
 import UnifiedAudioPlayer from '../../components/UnifiedAudioPlayer';
+import TextSelection from '../../components/TextSelection';
+import ContentFormatter from '../../components/ContentFormatter';
 import { highlightsService } from '../../services/firebaseHighlights';
 import { authService } from '../../services/firebaseAuth';
 import { useUserCapabilities } from '../../hooks/useUserCapabilities';
+import { useTextSelection } from '../../hooks/useTextSelection';
 import UpgradePrompt from '../../components/UpgradePrompt';
 
 interface MeditationsPageProps {
@@ -19,7 +22,7 @@ interface MeditationsPageProps {
   onCloseAI?: () => void;
 }
 
-interface TextSelection {
+interface TextSelectionData {
   text: string;
   range: Range;
   rect: DOMRect;
@@ -39,9 +42,9 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
   const contentRef = useRef<HTMLDivElement>(null);
   const [currentMeditationIndex, setCurrentMeditationIndex] = useState(0);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
-  const [selectedText, setSelectedText] = useState<TextSelection | null>(null);
-  const [isTextSelected, setIsTextSelected] = useState(false);
-  const [savedHighlights, setSavedHighlights] = useState<TextHighlight[]>([]);
+  // Use shared text selection hook
+  const { selectedText, isTextSelected, clearSelection } = useTextSelection({ contentRef });
+  const [, setSavedHighlights] = useState<TextHighlight[]>([]);
   const [meditations, setMeditations] = useState<Meditation[]>([]);
   const [filteredMeditations, setFilteredMeditations] = useState<Meditation[]>([]);
   const [isAudioPlayerOpen, setIsAudioPlayerOpen] = useState(false);
@@ -307,123 +310,7 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
     setIsListening(false);
   };
 
-  // Handle text selection
-  const handleTextSelection = useCallback(() => {
-    const selection = window.getSelection();
-    if (!selection || selection.isCollapsed || !contentRef.current) {
-      setSelectedText(null);
-      setIsTextSelected(false);
-      return;
-    }
 
-    const selectedText = selection.toString().trim();
-    if (selectedText.length === 0) {
-      setSelectedText(null);
-      setIsTextSelected(false);
-      return;
-    }
-
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
-
-    setSelectedText({
-      text: selectedText,
-      range: range.cloneRange(),
-      rect,
-      isManualSelection: true
-    });
-    setIsTextSelected(true);
-  }, []);
-
-  // Handle saving highlights
-  const handleSaveHighlight = async () => {
-    if (selectedText && currentMeditation) {
-      // Check if user can save highlights
-      if (!userCapabilities.canSaveHighlights) {
-        setUpgradeFeature('highlights');
-        setShowUpgradePrompt(true);
-        return;
-      }
-
-      try {
-        const newHighlight: TextHighlight = {
-          id: Date.now().toString(),
-          text: selectedText.text,
-          chapterId: currentMeditation.id,
-          chapterTitle: currentMeditation.title,
-          timestamp: new Date(),
-          position: {
-            start: selectedText.range.startOffset,
-            end: selectedText.range.endOffset
-          }
-        };
-        
-        // Save to Firebase for authenticated users
-        const currentUser = authService.getCurrentUser();
-        if (currentUser && !currentUser.isAnonymous) {
-          await highlightsService.saveHighlight(currentUser.uid, newHighlight);
-          console.log('Meditation highlight saved to Firebase');
-        } else {
-          // Save to localStorage for anonymous/free users
-          const existingHighlights = localStorage.getItem('savedHighlights');
-          const highlights = existingHighlights ? JSON.parse(existingHighlights) : [];
-          highlights.push(newHighlight);
-          localStorage.setItem('savedHighlights', JSON.stringify(highlights));
-          console.log('Meditation highlight saved to localStorage');
-        }
-        
-        // Update local state
-        setSavedHighlights(prev => [...prev, newHighlight]);
-        
-        // Clear selection
-        setSelectedText(null);
-        setIsTextSelected(false);
-        window.getSelection()?.removeAllRanges();
-        
-        console.log('Meditation highlight saved successfully!');
-        
-      } catch (error) {
-        console.error('Error saving meditation highlight:', error);
-        // Fallback to localStorage
-        const existingHighlights = localStorage.getItem('savedHighlights');
-        const highlights = existingHighlights ? JSON.parse(existingHighlights) : [];
-        highlights.push({
-          id: Date.now().toString(),
-          text: selectedText.text,
-          chapterId: currentMeditation.id,
-          chapterTitle: currentMeditation.title,
-          timestamp: new Date(),
-          position: {
-            start: selectedText.range.startOffset,
-            end: selectedText.range.endOffset
-          }
-        });
-        localStorage.setItem('savedHighlights', JSON.stringify(highlights));
-        
-        setSelectedText(null);
-        setIsTextSelected(false);
-        window.getSelection()?.removeAllRanges();
-        console.log('Meditation highlight saved to localStorage as fallback');
-      }
-    }
-  };
-
-  // Handle Ask AI
-  const handleAskAI = () => {
-    // Check if user can use AI
-    if (!userCapabilities.canUseAI) {
-      setUpgradeFeature('ai');
-      setShowUpgradePrompt(true);
-      return;
-    }
-
-    if (onOpenAI) {
-      onOpenAI();
-    }
-    setSelectedText(null);
-    setIsTextSelected(false);
-    window.getSelection()?.removeAllRanges();
-  };
 
   // Touch handlers
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -497,8 +384,7 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
         e.preventDefault();
         handleNextMeditation();
       } else if (e.key === 'Escape') {
-        setSelectedText(null);
-        setIsTextSelected(false);
+        clearSelection();
         setSearchQuery('');
         setIsSearchFocused(false);
       }
@@ -506,62 +392,51 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [handleNextMeditation, handlePreviousMeditation]);
+  }, [handleNextMeditation, handlePreviousMeditation, clearSelection]);
 
-  // Text selection listener
-  useEffect(() => {
-    const handleSelectionChange = () => {
-      if (!isDragging) {
-        handleTextSelection();
+  const handleSaveHighlight = async (text: string, range: Range) => {
+    if (!userCapabilities.canSaveHighlights) {
+      setUpgradeFeature('highlights');
+      setShowUpgradePrompt(true);
+      return;
+    }
+
+    try {
+      const currentUser = authService.getCurrentUser();
+      if (!currentUser) {
+        console.warn('No authenticated user for saving highlights');
+        return;
       }
-    };
 
-    document.addEventListener('selectionchange', handleSelectionChange);
-    return () => document.removeEventListener('selectionchange', handleSelectionChange);
-  }, [handleTextSelection, isDragging]);
+      const highlight: Omit<TextHighlight, 'id'> = {
+        chapterId: currentMeditation.id,
+        chapterTitle: currentMeditation.title,
+        text: text.trim(),
+        timestamp: new Date(),
+        position: {
+          start: range.startOffset,
+          end: range.endOffset
+        }
+      };
 
-  // Format content with word-level highlighting
-  const formatContent = (content: string) => {
-    const paragraphs = content.split('\n').filter(p => p.trim() !== '');
-    const cleanContent = content.replace(/\n+/g, ' ').trim();
-    const totalCharCount = cleanContent.length;
-    const targetCharIndex = highlightedProgress * totalCharCount;
+      await highlightsService.saveHighlight(currentUser.uid, highlight);
+      console.log('Highlight saved successfully');
+    } catch (error) {
+      console.error('Error saving highlight:', error);
+    }
+  };
 
-    return paragraphs.map((paragraph, index) => {
-      const cleanParagraph = paragraph.trim();
-      if (cleanParagraph === '') return <br key={index} />;
-      
-      const words = cleanParagraph.split(/(\s+)/).filter(Boolean);
-      const paragraphStartCharIndex = cleanContent.indexOf(cleanParagraph);
-      
-      return (
-        <p key={index} className={`mb-6 leading-8 text-ink-primary dark:text-paper-light ${
-          fontSize === 'sm' ? 'text-sm' : 
-          fontSize === 'base' ? 'text-base' : 
-          fontSize === 'lg' ? 'text-lg' : 
-          'text-xl'
-        }`}>
-          {words.map((word, wordIndex) => {
-            const wordStartCharIndex = paragraphStartCharIndex + words.slice(0, wordIndex).join('').length;
-            const wordEndCharIndex = wordStartCharIndex + word.length;
-            
-            const shouldHighlight = wordEndCharIndex <= targetCharIndex && highlightedProgress > 0;
-            
-            const formattedWord = word
-              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-              .replace(/\*(.*?)\*/g, '<em>$1</em>');
-            
-            return (
-              <span
-                key={wordIndex}
-                className={shouldHighlight ? 'bg-blue-200 dark:bg-blue-800 bg-opacity-50 dark:bg-opacity-30 transition-all duration-75 ease-out' : 'transition-all duration-75 ease-out'}
-                dangerouslySetInnerHTML={{ __html: formattedWord }}
-              />
-            );
-          })}
-        </p>
-      );
-    });
+  const handleAIChatWithText = (text: string) => {
+    // Store the selected text for AI chat
+    localStorage.setItem('aiChatContext', JSON.stringify({
+      text: text.trim(),
+      meditation: currentMeditation.title,
+      timestamp: new Date().toISOString()
+    }));
+    
+    if (onOpenAI) {
+      onOpenAI();
+    }
   };
 
   // Show loading state while meditations are being loaded
@@ -908,68 +783,26 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
 
           {/* Meditation Content */}
           <div className="max-w-none">
-            {formatContent(currentMeditation.content)}
+            <ContentFormatter 
+              content={currentMeditation.content}
+              highlightedProgress={highlightedProgress}
+              fontSize={fontSize}
+            />
           </div>
         </div>
       </main>
 
-      {/* Native-like Text Selection Menu */}
+      {/* Enhanced Text Selection with Pins */}
       <AnimatePresence>
-        {selectedText && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 5 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 5 }}
-            transition={{ duration: 0.12, ease: "easeOut" }}
-            className="selection-menu fixed z-50 bg-paper-light/95 dark:bg-paper-dark/95 backdrop-blur-md rounded-2xl shadow-2xl border border-ink-muted/20 dark:border-paper-light/20 px-2 py-2"
-            style={{
-              left: Math.max(16, Math.min(window.innerWidth - 180, selectedText.rect.left + selectedText.rect.width / 2 - 90)),
-              top: Math.max(16, selectedText.rect.top - 70),
-              boxShadow: '0 8px 32px rgba(15, 15, 15, 0.15), 0 2px 8px rgba(15, 15, 15, 0.1)',
-            }}
-          >
-            <div className="flex items-center space-x-1">
-              <button
-                onClick={handleSaveHighlight}
-                className="group px-5 py-3 text-sm font-medium text-ink-primary dark:text-paper-light hover:bg-ink-primary/5 dark:hover:bg-paper-light/5 active:bg-ink-primary/10 dark:active:bg-paper-light/10 rounded-xl transition-all duration-150 flex items-center space-x-2.5 min-w-0"
-              >
-                <svg className="w-4 h-4 transition-transform group-active:scale-95" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="font-medium">Save</span>
-              </button>
-              <div className="w-px h-6 bg-ink-muted/20 dark:bg-paper-light/20"></div>
-              <button
-                onClick={handleAskAI}
-                className="group px-5 py-3 text-sm font-medium text-ink-primary dark:text-paper-light hover:bg-ink-primary/5 dark:hover:bg-paper-light/5 active:bg-ink-primary/10 dark:active:bg-paper-light/10 rounded-xl transition-all duration-150 flex items-center space-x-2.5 min-w-0"
-              >
-                <svg className="w-4 h-4 transition-transform group-active:scale-95" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-                <span className="font-medium">Ask AI</span>
-              </button>
-            </div>
-            {/* Native-style triangle pointer */}
-            <div 
-              className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0"
-              style={{
-                borderLeft: '8px solid transparent',
-                borderRight: '8px solid transparent',
-                borderTop: '8px solid rgba(250, 250, 250, 0.95)',
-                filter: 'drop-shadow(0 2px 4px rgba(15, 15, 15, 0.1))'
-              }}
-            ></div>
-            {/* Dark mode triangle pointer */}
-            <div 
-              className="dark:block hidden absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0"
-              style={{
-                borderLeft: '8px solid transparent',
-                borderRight: '8px solid transparent',
-                borderTop: '8px solid rgba(15, 15, 15, 0.95)',
-                filter: 'drop-shadow(0 2px 4px rgba(255, 255, 255, 0.1))'
-              }}
-            ></div>
-          </motion.div>
+        {selectedText && isTextSelected && (
+          <TextSelection
+            selectedText={selectedText.text}
+            range={selectedText.range}
+            rect={selectedText.rect}
+            onSave={handleSaveHighlight}
+            onAIChat={handleAIChatWithText}
+            onDismiss={clearSelection}
+          />
         )}
       </AnimatePresence>
 

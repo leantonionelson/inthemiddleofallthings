@@ -46,24 +46,27 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
     duration: 0,
     isLoading: false,
     error: null,
-    audioSource: null
+    audioSource: null,
+    playbackRate: 1.0
   });
   const [isMuted, setIsMuted] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [showSettings, setShowSettings] = useState(false);
+  const [autoPlayNext, setAutoPlayNext] = useState(localStorage.getItem('audioAutoPlayNext') !== 'false');
   const progressRef = useRef<HTMLDivElement>(null);
   const isInitialized = useRef(false);
 
-  // Initialize audio when component opens
+  // Initialize audio when component opens or chapter changes
   useEffect(() => {
-    if (isOpen && !isInitialized.current) {
+    if (isOpen) {
+      // Always initialize when the chapter changes or opens
       initializeAudio();
       isInitialized.current = true;
-    } else if (!isOpen) {
+    } else {
       audioManagerService.stopAudio();
       isInitialized.current = false;
     }
-  }, [isOpen, chapter]);
+  }, [isOpen, chapter.id]); // Use chapter.id as dependency to detect chapter changes
 
   // Auto-play if enabled
   useEffect(() => {
@@ -85,8 +88,8 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
           console.error('Audio error:', error);
         },
         onComplete: () => {
-          // Auto-advance to next chapter if available
-          if (hasNextChapter && onNextChapter) {
+          // Auto-advance to next chapter if available and auto-play is enabled
+          if (hasNextChapter && onNextChapter && autoPlayNext) {
             setTimeout(() => {
               onNextChapter();
             }, 1000);
@@ -117,13 +120,32 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
   };
 
   const handleSkipForward = () => {
-    const newTime = Math.min(playbackState.currentTime + 15, playbackState.duration);
-    audioManagerService.seekTo(newTime);
+    audioManagerService.skipForward(15);
   };
 
   const handleSkipBackward = () => {
-    const newTime = Math.max(playbackState.currentTime - 15, 0);
-    audioManagerService.seekTo(newTime);
+    audioManagerService.skipBackward(15);
+  };
+
+  const handlePlaybackRateChange = () => {
+    const rates = [0.5, 0.75, 1, 1.25, 1.5, 2];
+    const currentIndex = rates.indexOf(playbackRate);
+    const nextIndex = (currentIndex + 1) % rates.length;
+    const newRate = rates[nextIndex];
+    setPlaybackRate(newRate);
+    audioManagerService.setPlaybackRate(newRate);
+  };
+
+  const handleMuteToggle = () => {
+    const newMuted = !isMuted;
+    setIsMuted(newMuted);
+    audioManagerService.setMuted(newMuted);
+  };
+
+  const handleAutoPlayToggle = () => {
+    const newAutoPlay = !autoPlayNext;
+    setAutoPlayNext(newAutoPlay);
+    localStorage.setItem('audioAutoPlayNext', newAutoPlay.toString());
   };
 
   const handleNextChapter = () => {
@@ -288,6 +310,37 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
               }`}
             >
               <SkipForward className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Quick Controls */}
+          <div className="flex items-center justify-center space-x-4 mt-4 pt-3 border-t border-ink-muted/20 dark:border-paper-light/20">
+            {/* Speed Control */}
+            <button
+              onClick={handlePlaybackRateChange}
+              className="px-3 py-1.5 text-sm font-medium text-ink-primary dark:text-paper-light hover:bg-ink-muted hover:bg-opacity-10 rounded-lg transition-colors min-w-[48px]"
+            >
+              {playbackRate}×
+            </button>
+
+            {/* Mute Button */}
+            <button
+              onClick={handleMuteToggle}
+              className="p-2 text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light hover:bg-ink-muted/10 dark:hover:bg-paper-light/10 rounded-full transition-colors"
+            >
+              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </button>
+
+            {/* Auto-Play Toggle */}
+            <button
+              onClick={handleAutoPlayToggle}
+              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                autoPlayNext
+                  ? 'bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary'
+                  : 'text-ink-secondary dark:text-ink-muted hover:bg-ink-muted hover:bg-opacity-10'
+              }`}
+            >
+              Auto-Next
             </button>
           </div>
 

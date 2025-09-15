@@ -21,6 +21,7 @@ export interface AudioPlaybackState {
   isLoading: boolean;
   error: string | null;
   audioSource: 'pre-generated' | 'gemini-tts' | 'browser-speech' | null;
+  playbackRate: number;
 }
 
 export interface AudioManagerCallbacks {
@@ -44,7 +45,8 @@ class AudioManagerService {
     duration: 0,
     isLoading: false,
     error: null,
-    audioSource: null
+    audioSource: null,
+    playbackRate: 1.0
   };
   private isInitialized = false;
   private voicePreference: 'male' | 'female' = 'male';
@@ -366,6 +368,24 @@ class AudioManagerService {
           speechSynthesis.resume();
           this.updatePlaybackState({ isPlaying: true });
         } else {
+          // Set up event listeners for speech synthesis
+          this.currentSpeechUtterance.onstart = () => {
+            this.updatePlaybackState({ isPlaying: true });
+          };
+          
+          this.currentSpeechUtterance.onend = () => {
+            this.updatePlaybackState({ isPlaying: false, currentTime: 0 });
+            this.callbacks.onComplete?.();
+          };
+          
+          this.currentSpeechUtterance.onerror = (e) => {
+            console.error('Speech synthesis error:', e);
+            this.updatePlaybackState({ 
+              isPlaying: false, 
+              error: 'Speech synthesis failed' 
+            });
+          };
+          
           speechSynthesis.speak(this.currentSpeechUtterance);
           this.updatePlaybackState({ isPlaying: true });
         }
@@ -452,6 +472,85 @@ class AudioManagerService {
     const words = content.split(/\s+/).length;
     const wordsPerMinute = 150; // Average reading speed
     return Math.max(1, (words / wordsPerMinute) * 60);
+  }
+
+  /**
+   * Set playback rate
+   */
+  public setPlaybackRate(rate: number): void {
+    // Update playback state first
+    this.updatePlaybackState({ playbackRate: rate });
+    
+    if (this.currentAudio) {
+      this.currentAudio.playbackRate = rate;
+    } else if (this.currentSpeechUtterance) {
+      // For speech synthesis, we need to recreate the utterance with new rate
+      const wasPlaying = this.playbackState.isPlaying;
+      const currentTime = this.playbackState.currentTime;
+      
+      speechSynthesis.cancel();
+      
+      if (this.currentChapter) {
+        const estimatedPosition = Math.floor(currentTime * 16);
+        const remainingText = this.currentChapter.content.substring(estimatedPosition) || '';
+        
+        if (remainingText) {
+          const newUtterance = new SpeechSynthesisUtterance(remainingText);
+          newUtterance.rate = rate * 0.8; // Scale to reasonable speech rate
+          newUtterance.pitch = 1.0;
+          newUtterance.volume = 1.0;
+          
+          if (this.currentSpeechUtterance.voice) {
+            newUtterance.voice = this.currentSpeechUtterance.voice;
+          }
+          
+          this.currentSpeechUtterance = newUtterance;
+          
+          if (wasPlaying) {
+            speechSynthesis.speak(newUtterance);
+            this.updatePlaybackState({ isPlaying: true });
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Set audio volume
+   */
+  public setVolume(volume: number): void {
+    if (this.currentAudio) {
+      this.currentAudio.volume = Math.max(0, Math.min(1, volume));
+    } else if (this.currentSpeechUtterance) {
+      this.currentSpeechUtterance.volume = Math.max(0, Math.min(1, volume));
+    }
+  }
+
+  /**
+   * Mute/unmute audio
+   */
+  public setMuted(muted: boolean): void {
+    if (this.currentAudio) {
+      this.currentAudio.muted = muted;
+    } else if (this.currentSpeechUtterance) {
+      this.currentSpeechUtterance.volume = muted ? 0 : 1;
+    }
+  }
+
+  /**
+   * Skip forward by specified seconds
+   */
+  public skipForward(seconds: number = 15): void {
+    const newTime = Math.min(this.playbackState.currentTime + seconds, this.playbackState.duration);
+    this.seekTo(newTime);
+  }
+
+  /**
+   * Skip backward by specified seconds
+   */
+  public skipBackward(seconds: number = 15): void {
+    const newTime = Math.max(this.playbackState.currentTime - seconds, 0);
+    this.seekTo(newTime);
   }
 
   /**
