@@ -149,9 +149,11 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
         }
         
         // Wait a moment to show the symbol, then complete onboarding
+        // Reduced timeout for mobile to prevent hanging
         setTimeout(() => {
+          console.log('Completing onboarding after symbol generation');
           onComplete();
-        }, 3000);
+        }, 2000);
         
       } catch (error) {
         console.error('Symbol generation failed:', error);
@@ -171,6 +173,7 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
         
         // Continue anyway
         setTimeout(() => {
+          console.log('Completing onboarding after error fallback');
           onComplete();
         }, 1000);
       }

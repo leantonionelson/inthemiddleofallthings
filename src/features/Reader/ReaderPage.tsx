@@ -601,18 +601,12 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
           // Mobile styles
           'pb-36 px-6 max-w-2xl mx-auto'
         } ${
-          // Desktop styles
-          'lg:pb-20 lg:px-8 lg:max-w-4xl'
+          // Desktop styles - consistent top padding
+          'lg:pb-20 lg:px-8 lg:max-w-4xl lg:pt-8'
         }`}
         style={{ 
-          // Mobile padding top
+          // Mobile padding top (desktop handled by Tailwind classes)
           paddingTop: isAudioPlaying ? '2rem' : '6rem',
-          // Desktop has different padding due to top nav
-          ...{
-            '@media (min-width: 1024px)': {
-              paddingTop: '2rem' // Desktop always has consistent padding due to fixed top nav
-            }
-          },
           transform: isAudioPlaying ? 'translateY(80px)' : 'none',
           transition: 'transform 0.3s ease-out, padding-top 0.3s ease-out'
         }}

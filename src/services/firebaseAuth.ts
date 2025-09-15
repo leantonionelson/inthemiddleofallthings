@@ -17,6 +17,10 @@ export interface UserProfile {
   isAnonymous: boolean;
   onboardingCompleted: boolean;
   selectedAIPersona?: string;
+  onboardingData?: {
+    paymentCompleted?: boolean;
+    [key: string]: any;
+  };
   subscriptionStatus?: {
     isActive: boolean;
     status: 'active' | 'canceled' | 'past_due' | 'unpaid' | 'trialing' | 'incomplete';
@@ -87,8 +91,8 @@ class FirebaseAuthService {
   private async createUserProfile(user: User, additionalData: Partial<UserProfile> = {}): Promise<void> {
     const userProfile: UserProfile = {
       uid: user.uid,
-      email: user.email || additionalData.email,
-      name: additionalData.name,
+      email: user.email || additionalData.email || undefined, // Avoid storing undefined
+      name: additionalData.name || undefined,
       isAnonymous: user.isAnonymous || additionalData.isAnonymous || false,
       onboardingCompleted: false,
       createdAt: new Date(),
@@ -96,7 +100,12 @@ class FirebaseAuthService {
       ...additionalData
     };
 
-    await setDoc(doc(db, 'users', user.uid), userProfile);
+    // Remove undefined fields to prevent Firestore errors
+    const cleanedProfile = Object.fromEntries(
+      Object.entries(userProfile).filter(([_, value]) => value !== undefined)
+    ) as UserProfile;
+
+    await setDoc(doc(db, 'users', user.uid), cleanedProfile);
   }
 
   // Get user profile from Firestore

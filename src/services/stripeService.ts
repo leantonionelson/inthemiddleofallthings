@@ -104,59 +104,43 @@ class StripeService {
   }
 
   /**
-   * Create a subscription checkout session using Stripe's hosted checkout
+   * Create a subscription checkout session using Stripe's client-side checkout
    */
   public async createCheckoutSession(priceId?: string): Promise<string> {
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-      
-      const response = await fetch(`${backendUrl}/create-checkout-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          priceId: priceId || STRIPE_MONTHLY_PRICE_ID,
-          successUrl: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-          cancelUrl: `${window.location.origin}/payment-canceled`
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create checkout session');
+      if (!this.stripe) {
+        throw new Error('Stripe is not initialized');
       }
 
-      const data = await response.json();
-      return data.sessionId;
-    } catch (error) {
+      const { error } = await this.stripe.redirectToCheckout({
+        lineItems: [{
+          price: priceId || STRIPE_MONTHLY_PRICE_ID,
+          quantity: 1,
+        }],
+        mode: 'subscription',
+        successUrl: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl: `${window.location.origin}/payment-canceled`,
+        billingAddressCollection: 'auto',
+      });
+
+      if (error) {
+        console.error('Stripe checkout error:', error);
+        throw new Error(error.message || 'Failed to redirect to checkout');
+      }
+
+      // This line will not be reached as redirectToCheckout redirects the page
+      return 'redirecting';
+    } catch (error: any) {
       console.error('Error creating checkout session:', error);
-      throw new Error('Failed to create checkout session. Please try again.');
+      throw new Error(error.message || 'Failed to create checkout session. Please try again.');
     }
   }
 
   /**
-   * Redirect to Stripe Checkout
+   * Redirect to Stripe Checkout (alias for createCheckoutSession)
    */
   public async redirectToCheckout(priceId?: string): Promise<void> {
-    if (!this.stripe) {
-      throw new Error('Stripe not initialized');
-    }
-
-    try {
-      const sessionId = await this.createCheckoutSession(priceId);
-      
-      const { error } = await this.stripe.redirectToCheckout({
-        sessionId
-      });
-
-      if (error) {
-        throw error;
-      }
-    } catch (error) {
-      console.error('Error redirecting to checkout:', error);
-      throw error;
-    }
+    await this.createCheckoutSession(priceId);
   }
 
   /**
@@ -183,7 +167,7 @@ class StripeService {
   }
 
   /**
-   * Get user's subscription status
+   * Get user's subscription status from Firebase user profile
    */
   public async getSubscriptionStatus(): Promise<SubscriptionStatus | null> {
     const user = authService.getCurrentUser();
@@ -192,31 +176,28 @@ class StripeService {
     }
 
     try {
-      const idToken = await user.getIdToken();
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-      
-      const response = await fetch(`${backendUrl}/api/stripe/subscription-status`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${idToken}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get subscription status');
+      // Get subscription status from Firebase user profile
+      const userProfile = await authService.getUserProfile(user.uid);
+      if (userProfile?.subscriptionStatus) {
+        return {
+          isActive: userProfile.subscriptionStatus.isActive,
+          status: userProfile.subscriptionStatus.status,
+          currentPeriodEnd: userProfile.subscriptionStatus.currentPeriodEnd,
+          cancelAtPeriodEnd: userProfile.subscriptionStatus.cancelAtPeriodEnd,
+          planName: userProfile.subscriptionStatus.planName
+        };
       }
-
-      const data = await response.json();
+      
+      // Return default status if no subscription found
       return {
-        isActive: data.isActive,
-        status: data.status,
-        currentPeriodEnd: data.currentPeriodEnd ? new Date(data.currentPeriodEnd) : null,
-        cancelAtPeriodEnd: data.cancelAtPeriodEnd || false,
-        planName: data.planName || 'Premium Plan'
+        isActive: false,
+        status: 'incomplete',
+        currentPeriodEnd: null,
+        cancelAtPeriodEnd: false,
+        planName: 'Premium Plan'
       };
     } catch (error) {
       console.error('Error getting subscription status:', error);
-      // Fallback to local storage or default status
       return {
         isActive: false,
         status: 'incomplete',
@@ -259,35 +240,27 @@ class StripeService {
 
   /**
    * Create customer portal session for subscription management
+   * Note: This requires Stripe's customer portal to be configured in your Stripe dashboard
    */
-  public async createCustomerPortalSession(): Promise<string> {
+  public async createCustomerPortalSession(): Promise<void> {
     const user = authService.getCurrentUser();
     if (!user) {
-      throw new Error('User must be authenticated to create customer portal session');
+      throw new Error('User must be authenticated to manage subscription');
     }
 
     try {
-      const idToken = await user.getIdToken();
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+      // Without a backend, we redirect to a customer portal URL
+      // You'll need to configure this in your Stripe dashboard
+      const userProfile = await authService.getUserProfile(user.uid);
+      const customerId = userProfile?.subscriptionStatus?.stripeCustomerId;
       
-      const response = await fetch(`${backendUrl}/api/stripe/create-customer-portal-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`
-        },
-        body: JSON.stringify({
-          returnUrl: window.location.origin
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create customer portal session');
+      if (!customerId) {
+        throw new Error('No active subscription found. Please contact support for assistance.');
       }
 
-      const data = await response.json();
-      return data.url;
+      // For now, we'll show a message that directs users to contact support
+      // In a full implementation, you'd need a backend to create portal sessions
+      throw new Error('To manage your subscription, please contact support at support@yourapp.com');
     } catch (error) {
       console.error('Error creating customer portal session:', error);
       throw error;
@@ -298,13 +271,7 @@ class StripeService {
    * Redirect to customer portal
    */
   public async redirectToCustomerPortal(): Promise<void> {
-    try {
-      const portalUrl = await this.createCustomerPortalSession();
-      window.location.href = portalUrl;
-    } catch (error) {
-      console.error('Error redirecting to customer portal:', error);
-      throw error;
-    }
+    await this.createCustomerPortalSession();
   }
 
   /**

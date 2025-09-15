@@ -19,7 +19,24 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Uncaught error:', error, errorInfo);
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error('Error stack:', error.stack);
+    console.error('Component stack:', errorInfo.componentStack);
+    
+    // Log to localStorage for debugging on mobile
+    try {
+      const errorLog = {
+        timestamp: new Date().toISOString(),
+        message: error.message,
+        stack: error.stack,
+        componentStack: errorInfo.componentStack,
+        userAgent: navigator.userAgent,
+        url: window.location.href
+      };
+      localStorage.setItem('lastError', JSON.stringify(errorLog));
+    } catch (e) {
+      console.error('Failed to log error to localStorage:', e);
+    }
   }
 
   public render() {

@@ -1,5 +1,5 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
@@ -9,17 +9,27 @@ import { getFirestore } from "firebase/firestore";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "AIzaSyAW4vyYLQjBGEJDwemF2gz26yLWkj5n2j8",
-  authDomain: "inthemiddleofallthings.firebaseapp.com",
-  projectId: "inthemiddleofallthings",
-  storageBucket: "inthemiddleofallthings.firebasestorage.app",
-  messagingSenderId: "422207850692",
-  appId: "1:422207850692:web:0aa277232f98b4429da191",
-  measurementId: "G-MMXLYHMTEZ"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase with duplicate app check
+let app;
+try {
+  app = initializeApp(firebaseConfig);
+} catch (error: any) {
+  if (error.code === 'app/duplicate-app') {
+    app = getApps()[0];
+  } else {
+    throw error;
+  }
+}
+
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);

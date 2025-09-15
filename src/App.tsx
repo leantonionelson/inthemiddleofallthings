@@ -12,12 +12,16 @@ import ReaderPage from './features/Reader/ReaderPage';
 import MeditationsPage from './features/Meditations/MeditationsPage';
 import SavedPage from './features/Saved/SavedPage';
 import SettingsPage from './pages/Settings/SettingsPage';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentCanceled from './pages/PaymentCanceled';
 
 // Components
 import ErrorBoundary from './components/ErrorBoundary';
 import LoadingSpinner from './components/LoadingSpinner';
 import AIDrawer from './features/AI/AIDrawer';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
+import ServiceWorkerRegistration from './components/ServiceWorkerRegistration';
+import NativeFeatures from './components/NativeFeatures';
 
 const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -117,33 +121,36 @@ const App: React.FC = () => {
   // Handle onboarding completion
   const handleOnboardingComplete = async () => {
     console.log('Onboarding completion started');
+    
+    // Always save to localStorage first to ensure the flag is set
+    localStorage.setItem('freeOnboarding', 'true');
+    
+    // Update state immediately to prevent race conditions
     setHasCompletedOnboarding(true);
     
-    // Save to Firebase for authenticated users
+    // Save to Firebase for authenticated users (in background)
     try {
       const currentUser = authService.getCurrentUser();
       console.log('Current user for onboarding completion:', currentUser?.uid, 'isAnonymous:', currentUser?.isAnonymous);
       
       if (currentUser && !currentUser.isAnonymous) {
         console.log('Saving onboarding completion to Firebase');
-        await authService.completeOnboarding(currentUser.uid, {
+        // Don't await this - let it happen in background
+        authService.completeOnboarding(currentUser.uid, {
           completedAt: new Date(),
           responses: {} // Could store onboarding responses here
+        }).then(() => {
+          console.log('Onboarding completion saved to Firebase successfully');
+        }).catch((error) => {
+          console.error('Error saving onboarding completion to Firebase:', error);
+          // This is okay - localStorage fallback is already in place
         });
-        console.log('Onboarding completion saved to Firebase successfully');
-        
-        // Also save to localStorage as backup
-        localStorage.setItem('freeOnboarding', 'true');
       } else {
-        console.log('Saving onboarding completion to localStorage (free/anonymous user)');
-        // Fallback to localStorage for free/anonymous users
-        localStorage.setItem('freeOnboarding', 'true');
+        console.log('Anonymous/free user - using localStorage only');
       }
     } catch (error) {
-      console.error('Error saving onboarding completion:', error);
-      console.log('Falling back to localStorage due to error');
-      // Fallback to localStorage
-      localStorage.setItem('freeOnboarding', 'true');
+      console.error('Error in onboarding completion process:', error);
+      // LocalStorage is already set, so we can continue
     }
   };
 
@@ -290,6 +297,10 @@ const App: React.FC = () => {
               }
             />
 
+            {/* Payment routes */}
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/payment-canceled" element={<PaymentCanceled />} />
+
             {/* Catch all */}
             <Route
               path="*"
@@ -306,6 +317,12 @@ const App: React.FC = () => {
 
           {/* PWA Install Prompt */}
           <PWAInstallPrompt />
+          
+          {/* Service Worker Registration */}
+          <ServiceWorkerRegistration />
+          
+          {/* Native Features Handler */}
+          <NativeFeatures />
         </div>
       </Router>
     </ErrorBoundary>

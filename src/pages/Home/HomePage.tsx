@@ -137,21 +137,45 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
   const progress = totalChapters > 0 ? Math.min((completedChapters / totalChapters) * 100, 100) : 0;
 
   useEffect(() => {
-    // Load user's symbol from localStorage
-    const savedSymbol = localStorage.getItem('userSymbol');
-    if (savedSymbol) {
-      try {
-        const symbolData = JSON.parse(savedSymbol);
-        setUserSymbol(symbolData);
-      } catch {
-        // If parsing fails, generate a new symbol
-        const newSymbol = generateSymbol('home');
-        setUserSymbol(newSymbol);
+    // Load user's symbol from localStorage with better error handling
+    try {
+      const savedSymbol = localStorage.getItem('userSymbol');
+      if (savedSymbol) {
+        try {
+          const symbolData = JSON.parse(savedSymbol);
+          if (symbolData && symbolData.svgPath) {
+            setUserSymbol(symbolData);
+            return;
+          }
+        } catch (parseError) {
+          console.warn('Failed to parse saved symbol, generating new one:', parseError);
+        }
       }
-    } else {
-      // Generate a new symbol if none exists
+      
+      // Generate a new symbol if none exists or parsing failed
       const newSymbol = generateSymbol('home');
       setUserSymbol(newSymbol);
+      
+      // Save the new symbol
+      try {
+        localStorage.setItem('userSymbol', JSON.stringify(newSymbol));
+      } catch (storageError) {
+        console.warn('Failed to save symbol to localStorage:', storageError);
+      }
+    } catch (error) {
+      console.error('Error in symbol initialization:', error);
+      // Set a minimal fallback symbol to prevent crashes
+      setUserSymbol({
+        svgPath: 'M 25 25 L 75 25 L 75 75 L 25 75 Z',
+        metadata: {
+          name: 'Fallback Symbol',
+          description: 'A simple geometric form',
+          meaning: 'Stability and grounding',
+          tags: ['geometric', 'square'],
+          morphHistory: []
+        },
+        colorScheme: { primary: '#000000', secondary: '#666666', accent: '#999999' }
+      });
     }
   }, []);
 
