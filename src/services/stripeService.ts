@@ -332,9 +332,20 @@ class StripeService {
     const planDetails = regionalPricingService.getPlanDetails(detectedCurrency, billing);
     
     // Add the correct Stripe price ID
+    const priceId = billing === 'yearly' ? STRIPE_YEARLY_PRICE_ID : STRIPE_MONTHLY_PRICE_ID;
+    
+    // Check if we have valid price IDs
+    if (!priceId || priceId.startsWith('price_') === false) {
+      console.warn(`⚠️ Invalid or missing ${billing} price ID: ${priceId}`);
+      console.warn('Please check your environment variables:');
+      console.warn('- VITE_STRIPE_MONTHLY_PRICE_ID');
+      console.warn('- VITE_STRIPE_YEARLY_PRICE_ID');
+      console.warn('Run: node scripts/getStripePrices.js to get your Price IDs');
+    }
+    
     return {
       ...planDetails,
-      priceId: billing === 'yearly' ? STRIPE_YEARLY_PRICE_ID : STRIPE_MONTHLY_PRICE_ID
+      priceId: priceId
     };
   }
 }

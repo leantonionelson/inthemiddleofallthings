@@ -40,12 +40,18 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onComplete, onSkip }) => {
         ? planDetails.priceId 
         : stripeService.getPlanDetails(userCurrency, 'monthly').priceId;
       
+      // Check if we have a valid price ID
+      if (!priceId || !priceId.startsWith('price_')) {
+        throw new Error('Payment configuration error. Please contact support.');
+      }
+      
       await stripeService.redirectToCheckout(priceId);
       // The user will be redirected to Stripe Checkout
       // onComplete will be called when they return from successful payment
     } catch (error) {
       console.error('Payment error:', error);
-      setError('Failed to start payment process. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to start payment process. Please try again.';
+      setError(errorMessage);
       setIsLoading(false);
     }
   };
