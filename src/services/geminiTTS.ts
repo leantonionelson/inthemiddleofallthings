@@ -124,7 +124,7 @@ class GeminiTTSService {
         const duration = Math.max(2, text.length * 0.05);
         const samples = Math.floor(sampleRate * duration);
         
-        const wavBuffer = this.createDemoWavFile(samples, sampleRate);
+        const wavBuffer = this.createTestWavFile(samples, sampleRate);
         return wavBuffer;
       }
 
@@ -253,7 +253,7 @@ class GeminiTTSService {
     return combinedBuffer;
   }
 
-  private createDemoWavFile(samples: number, sampleRate: number): ArrayBuffer {
+  private createTestWavFile(samples: number, sampleRate: number): ArrayBuffer {
     // Generate speech-like audio data
     const pcmData = new ArrayBuffer(samples * 2); // 16-bit = 2 bytes per sample
     const audioData = new Int16Array(pcmData);
@@ -628,7 +628,7 @@ class GeminiTTSService {
       return buffers[0];
     }
 
-    console.log(`Combining ${buffers.length} audio buffers (using first buffer for demo)`);
+    console.log(`Combining ${buffers.length} audio buffers (using first buffer for testing)`);
     return buffers[0];
   }
 

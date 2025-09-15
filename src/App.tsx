@@ -61,27 +61,27 @@ const App: React.FC = () => {
               setHasCompletedOnboarding(onboardingCompleted);
             } else {
               // User profile doesn't exist in Firebase yet, check localStorage
-              const localOnboardingState = localStorage.getItem('demoOnboarding') === 'true';
+              const localOnboardingState = localStorage.getItem('freeOnboarding') === 'true';
               console.log('No Firebase profile, using localStorage onboarding:', localOnboardingState);
               setHasCompletedOnboarding(localOnboardingState);
             }
           } catch (error) {
             console.error('Error checking onboarding status:', error);
             // Fallback to localStorage when Firebase fails
-            const demoOnboardingState = localStorage.getItem('demoOnboarding') === 'true';
-            console.log('Firebase error, falling back to localStorage onboarding:', demoOnboardingState);
-            setHasCompletedOnboarding(demoOnboardingState);
+            const freeOnboardingState = localStorage.getItem('freeOnboarding') === 'true';
+            console.log('Firebase error, falling back to localStorage onboarding:', freeOnboardingState);
+            setHasCompletedOnboarding(freeOnboardingState);
           }
         } else {
-          console.log('No Firebase user, checking demo mode');
-          // Check for demo mode fallback
-          const demoAuthState = localStorage.getItem('demoAuth');
-          const demoOnboardingState = localStorage.getItem('demoOnboarding');
+          console.log('No Firebase user, checking free mode');
+          // Check for free mode fallback
+          const freeAuthState = localStorage.getItem('freeAuth');
+          const freeOnboardingState = localStorage.getItem('freeOnboarding');
           
-          if (demoAuthState === 'true') {
-            console.log('Demo mode authenticated, onboarding:', demoOnboardingState);
+          if (freeAuthState === 'true') {
+            console.log('Free mode authenticated, onboarding:', freeOnboardingState);
             setIsAuthenticated(true);
-            setHasCompletedOnboarding(demoOnboardingState === 'true');
+            setHasCompletedOnboarding(freeOnboardingState === 'true');
           } else {
             console.log('No authentication found');
             setIsAuthenticated(false);
@@ -102,10 +102,10 @@ const App: React.FC = () => {
   // Listen for localStorage changes
   useEffect(() => {
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'demoAuth') {
+      if (e.key === 'freeAuth') {
         setIsAuthenticated(e.newValue === 'true');
       }
-      if (e.key === 'demoOnboarding') {
+      if (e.key === 'freeOnboarding') {
         setHasCompletedOnboarding(e.newValue === 'true');
       }
     };
@@ -133,17 +133,17 @@ const App: React.FC = () => {
         console.log('Onboarding completion saved to Firebase successfully');
         
         // Also save to localStorage as backup
-        localStorage.setItem('demoOnboarding', 'true');
+        localStorage.setItem('freeOnboarding', 'true');
       } else {
-        console.log('Saving onboarding completion to localStorage (demo/anonymous user)');
-        // Fallback to localStorage for demo/anonymous users
-        localStorage.setItem('demoOnboarding', 'true');
+        console.log('Saving onboarding completion to localStorage (free/anonymous user)');
+        // Fallback to localStorage for free/anonymous users
+        localStorage.setItem('freeOnboarding', 'true');
       }
     } catch (error) {
       console.error('Error saving onboarding completion:', error);
       console.log('Falling back to localStorage due to error');
       // Fallback to localStorage
-      localStorage.setItem('demoOnboarding', 'true');
+      localStorage.setItem('freeOnboarding', 'true');
     }
   };
 
@@ -263,8 +263,8 @@ const App: React.FC = () => {
                     onSignOut={() => {
                       setIsAuthenticated(false);
                       setHasCompletedOnboarding(false);
-                      localStorage.removeItem('demoAuth');
-                      localStorage.removeItem('demoOnboarding');
+                      localStorage.removeItem('freeAuth');
+                      localStorage.removeItem('freeOnboarding');
                     }}
                   />
                 ) : (

@@ -204,15 +204,15 @@ class FirebaseAuthService {
   // Get user capabilities based on auth status and subscription
   async getUserCapabilities() {
     const user = auth.currentUser;
-    const demoAuth = localStorage.getItem('demoAuth') === 'true';
+    const freeAuth = localStorage.getItem('freeAuth') === 'true';
     const userType = localStorage.getItem('userType');
     
-    // Handle demo mode (guest users)
-    if (demoAuth && !user) {
+    // Handle free mode (guest users)
+    if (freeAuth && !user) {
       return {
         canSaveProgress: true, // Local storage only
         canSaveHighlights: true, // Local storage only
-        canUseAI: false, // No AI for demo users
+        canUseAI: false, // No AI for free users
         canSync: false, // No cloud sync
         userType: 'guest',
         hasActiveSubscription: false

@@ -166,10 +166,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
               ) : (
                 <>
                   <p className="text-ink-primary dark:text-paper-light font-medium">
-                    Demo User
+                    Free User
                   </p>
                   <p className="text-ink-muted text-sm">
-                    demo@example.com
+                    free@example.com
                   </p>
                 </>
               )}
@@ -421,7 +421,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           </h2>
           <div className="space-y-3 text-ink-secondary dark:text-ink-muted text-sm">
             <p>
-              <strong>Version:</strong> 1.0.0 (Demo)
+              <strong>Version:</strong> 1.0.0 (Free)
             </p>
             <p>
               <strong>Build:</strong> Development

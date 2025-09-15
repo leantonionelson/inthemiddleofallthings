@@ -131,20 +131,20 @@ Firebase has been fully integrated into the application to provide:
 
 ### SavedPage (`src/features/Saved/SavedPage.tsx`)
 - Now loads highlights from Firebase for authenticated users
-- Falls back to localStorage for anonymous/demo users
+- Falls back to localStorage for anonymous/free users
 - Implements cloud sync for highlight management
 
 ### AuthPage (`src/features/Auth/AuthPage.tsx`)
 - Added Firebase authentication options
 - Email/password and anonymous sign-in
-- Maintains demo mode as fallback
+- Maintains free mode as fallback
 - Automatic progress initialization for new users
 
 ## Authentication Flow
 
 1. **Anonymous Users**: Sign in anonymously → Onboarding → App usage (local storage only)
 2. **Email Users**: Sign up/in with email → Onboarding (if new) → App usage (cloud sync)
-3. **Demo Users**: Fallback to localStorage-based demo mode
+3. **Free Users**: Fallback to localStorage-based free mode
 
 ## User Capabilities by Auth Type
 
@@ -174,7 +174,7 @@ Firebase has been fully integrated into the application to provide:
 ✅ **Highlight search** - Advanced search across all saved highlights  
 ✅ **Progress restoration** - Resume exactly where you left off  
 
-### For Anonymous/Demo Users:
+### For Anonymous/Free Users:
 ✅ **Local storage** - Data stored locally as fallback  
 ✅ **Full functionality** - All features work offline  
 ✅ **Easy upgrade** - Can create account later to sync data  

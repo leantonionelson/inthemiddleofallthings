@@ -10,7 +10,7 @@ interface AuthPageProps {
   onAuthenticate?: () => void;
 }
 
-type AuthMode = 'welcome' | 'login' | 'signup' | 'demo';
+type AuthMode = 'welcome' | 'login' | 'signup' | 'free';
 
 const AuthPage: React.FC<AuthPageProps> = ({ onAuthenticate }) => {
   const [mode, setMode] = useState<AuthMode>('welcome');
@@ -85,28 +85,34 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthenticate }) => {
       } else {
         navigate(AppRoute.ONBOARDING);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Authentication error:', error);
       
       // Map Firebase errors to user-friendly messages
-      let errorMessage = error.message || 'Authentication failed';
-      if (error.code === 'auth/user-not-found') {
-        errorMessage = 'No account found with this email address';
-      } else if (error.code === 'auth/wrong-password') {
-        errorMessage = 'Incorrect password';
-      } else if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'An account with this email already exists. Try signing in instead.';
-        // Automatically switch to login mode
-        setTimeout(() => {
-          setMode('login');
-          setErrors({});
-        }, 2000);
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'Password must be at least 6 characters long';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Invalid email address';
-      } else if (error.code === 'auth/network-request-failed') {
-        errorMessage = 'Network error. Please check your connection and try again.';
+      let errorMessage = 'Authentication failed';
+      if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = (error as { message: string }).message;
+      }
+      if (error && typeof error === 'object' && 'code' in error) {
+        const errorCode = (error as { code: string }).code;
+        if (errorCode === 'auth/user-not-found') {
+          errorMessage = 'No account found with this email address';
+        } else if (errorCode === 'auth/wrong-password') {
+          errorMessage = 'Incorrect password';
+        } else if (errorCode === 'auth/email-already-in-use') {
+          errorMessage = 'An account with this email already exists. Try signing in instead.';
+          // Automatically switch to login mode
+          setTimeout(() => {
+            setMode('login');
+            setErrors({});
+          }, 2000);
+        } else if (errorCode === 'auth/weak-password') {
+          errorMessage = 'Password must be at least 6 characters long';
+        } else if (errorCode === 'auth/invalid-email') {
+          errorMessage = 'Invalid email address';
+        } else if (errorCode === 'auth/network-request-failed') {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        }
       }
       
       setErrors({ general: errorMessage });
@@ -120,7 +126,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthenticate }) => {
     setErrors({});
     
     try {
-      const userCredential = await authService.signInAnonymously();
+      await authService.signInAnonymously();
       
       // Note: Anonymous users don't get cloud progress tracking
       // They will use local storage for progress and highlights
@@ -131,20 +137,20 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthenticate }) => {
       }
       
       navigate(AppRoute.ONBOARDING);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Anonymous auth error:', error);
-      // Fallback to demo mode
-      handleDemoAccess();
+      // Fallback to free mode
+      handleFreeAccess();
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDemoAccess = () => {
+  const handleFreeAccess = () => {
     setIsLoading(true);
     
     // Set authentication state in localStorage
-    localStorage.setItem('demoAuth', 'true');
+    localStorage.setItem('freeAuth', 'true');
     
     // Notify parent component about authentication
     if (onAuthenticate) {
@@ -275,15 +281,15 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthenticate }) => {
                 {isLoading ? 'Connecting...' : 'Continue as Guest'}
               </motion.button>
 
-              {/* Demo Access */}
+              {/* Free Access */}
               <motion.button
-                onClick={handleDemoAccess}
+                onClick={handleFreeAccess}
                 disabled={isLoading}
                 className="w-full px-6 py-3 text-ink-secondary dark:text-ink-muted font-medium hover:text-ink-primary dark:hover:text-paper-light transition-colors text-sm"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                Demo Mode (No Account)
+                Free Mode (No Account)
               </motion.button>
             </motion.div>
           )}

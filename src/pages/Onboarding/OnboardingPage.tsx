@@ -67,27 +67,27 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
   const [generatedSymbol, setGeneratedSymbol] = useState<any | null>(null);
   const [paymentCompleted, setPaymentCompleted] = useState(false);
   const [skippedQuestions, setSkippedQuestions] = useState<Set<number>>(new Set());
-  const [isDemoUser, setIsDemoUser] = useState(false);
+  const [isFreeUser, setIsFreeUser] = useState(false);
   const [filteredQuestions, setFilteredQuestions] = useState<Question[]>(questions);
 
-  // Check if user is in demo mode (guest user)
+  // Check if user is in free mode (guest user)
   useEffect(() => {
     const checkAuthState = () => {
-      const demoAuth = localStorage.getItem('demoAuth') === 'true';
+      const freeAuth = localStorage.getItem('freeAuth') === 'true';
       const currentUser = authService.getCurrentUser();
       
-      // User is in demo mode if they have demoAuth or if they're an anonymous Firebase user
-      const isDemo = demoAuth || (currentUser?.isAnonymous === true);
-      setIsDemoUser(isDemo);
+      // User is in free mode if they have freeAuth or if they're an anonymous Firebase user
+      const isFree = freeAuth || (currentUser?.isAnonymous === true);
+      setIsFreeUser(isFree);
       
       // Filter questions based on authentication state
-      const filtered = isDemo 
-        ? questions.filter(q => q.id !== 'payment') // Remove payment question for demo users
+      const filtered = isFree 
+        ? questions.filter(q => q.id !== 'payment') // Remove payment question for free users
         : questions; // Keep all questions for authenticated users
       
       setFilteredQuestions(filtered);
       
-      console.log('Auth state check - Demo user:', isDemo, 'Questions:', filtered.length);
+      console.log('Auth state check - Free user:', isFree, 'Questions:', filtered.length);
     };
 
     checkAuthState();
@@ -139,10 +139,10 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
           localStorage.setItem('audioVoicePreference', voicePreference);
         }
         
-        // For demo users, set a flag to indicate they have paywall restrictions
-        if (isDemoUser) {
-          localStorage.setItem('userType', 'demo');
-          console.log('Demo user onboarding completed - paywall restrictions apply');
+        // For free users, set a flag to indicate they have paywall restrictions
+        if (isFreeUser) {
+          localStorage.setItem('userType', 'free');
+          console.log('Free user onboarding completed - paywall restrictions apply');
         } else {
           localStorage.setItem('userType', 'authenticated');
           console.log('Authenticated user onboarding completed');
@@ -163,8 +163,8 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
         }
         
         // Set user type even if symbol generation fails
-        if (isDemoUser) {
-          localStorage.setItem('userType', 'demo');
+        if (isFreeUser) {
+          localStorage.setItem('userType', 'free');
         } else {
           localStorage.setItem('userType', 'authenticated');
         }

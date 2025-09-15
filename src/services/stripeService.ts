@@ -160,7 +160,7 @@ class StripeService {
   }
 
   /**
-   * Simulate successful payment (for demo purposes)
+   * Simulate successful payment (for testing purposes)
    */
   private simulatePaymentSuccess(): void {
     const user = authService.getCurrentUser();

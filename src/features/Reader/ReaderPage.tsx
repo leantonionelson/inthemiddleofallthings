@@ -240,7 +240,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
           await highlightsService.saveHighlight(currentUser.uid, newHighlight);
           console.log('Highlight saved to Firebase');
         } else {
-          // Save to localStorage for anonymous/demo users
+          // Save to localStorage for anonymous/free users
           const existingHighlights = localStorage.getItem('savedHighlights');
           const highlights = existingHighlights ? JSON.parse(existingHighlights) : [];
           highlights.push(newHighlight);
