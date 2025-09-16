@@ -101,7 +101,25 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
     }
   };
 
-  const handlePlayPause = () => {
+  const handlePlayPause = (e?: React.MouseEvent | React.TouchEvent) => {
+    // Prevent event bubbling and default behavior for better mobile experience
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    console.log('🎵 UnifiedAudioPlayer: Play/Pause button clicked', {
+      currentState: playbackState.isPlaying,
+      audioSource: playbackState.audioSource,
+      isLoading: playbackState.isLoading
+    });
+    
+    // Don't allow interaction while loading
+    if (playbackState.isLoading) {
+      console.log('⏸️ UnifiedAudioPlayer: Ignoring click while loading');
+      return;
+    }
+    
     audioManagerService.togglePlayPause();
   };
 
@@ -271,8 +289,11 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
             {/* Play/Pause */}
             <button
               onClick={handlePlayPause}
+              onTouchStart={handlePlayPause}
               disabled={playbackState.isLoading}
-              className="p-3 bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary rounded-full hover:bg-opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="p-3 bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary rounded-full hover:bg-opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
+              style={{ WebkitTapHighlightColor: 'transparent' }}
+              aria-label={playbackState.isPlaying ? 'Pause' : 'Play'}
             >
               {playbackState.isLoading ? (
                 <Loader2 className="w-6 h-6 animate-spin" />
