@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { BookOpen, Home, Star, Scale, Bookmark, Settings, User, LogOut } from 'lucide-react';
+import { BookOpen, Home, Star, Scale, Bookmark, Settings, User, LogOut, Scroll } from 'lucide-react';
 import { AppRoute } from '../types';
 import { authService } from '../services/firebaseAuth';
 
@@ -17,7 +17,7 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
     canSaveHighlights: false,
     canUseAI: false,
     canSync: false,
-    userType: 'guest' as 'guest' | 'anonymous' | 'authenticated',
+    userType: 'guest' as 'guest' | 'anonymous' | 'authenticated' | 'admin',
     hasActiveSubscription: false
   });
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -30,7 +30,7 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
         const capabilities = await authService.getUserCapabilities();
         setUserCapabilities({
           ...capabilities,
-          userType: capabilities.userType as 'guest' | 'anonymous' | 'authenticated'
+          userType: capabilities.userType as 'guest' | 'anonymous' | 'authenticated' | 'admin'
         });
       } catch (error) {
         console.error('Error checking user capabilities:', error);
@@ -51,6 +51,7 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
       case AppRoute.HOME: return 'home';
       case AppRoute.READER: return 'reader';
       case AppRoute.MEDITATIONS: return 'meditations';
+      case AppRoute.STORIES: return 'stories';
       case AppRoute.SAVED: return 'saved';
       case AppRoute.SETTINGS: return 'settings';
       default: return '';
@@ -69,11 +70,14 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
     setShowUserMenu(false);
   };
 
+  // Filter navigation items based on user capabilities
   const navigationItems = [
     { id: 'home', label: 'Home', icon: Home, route: AppRoute.HOME },
     { id: 'reader', label: 'Book', icon: BookOpen, route: AppRoute.READER },
     { id: 'meditations', label: 'Meditations', icon: Scale, route: AppRoute.MEDITATIONS },
-    { id: 'saved', label: 'Saved', icon: Bookmark, route: AppRoute.SAVED },
+    { id: 'stories', label: 'Stories', icon: Scroll, route: AppRoute.STORIES },
+    // Only show Saved for non-guest users
+    ...(userCapabilities.userType !== 'guest' ? [{ id: 'saved', label: 'Saved', icon: Bookmark, route: AppRoute.SAVED }] : []),
   ];
 
   return (

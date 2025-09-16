@@ -17,6 +17,7 @@ export interface UserProfile {
   isAnonymous: boolean;
   onboardingCompleted: boolean;
   selectedAIPersona?: string;
+  role?: 'user' | 'admin'; // Admin role field
   onboardingData?: {
     paymentCompleted?: boolean;
     [key: string]: any;
@@ -210,6 +211,30 @@ class FirebaseAuthService {
     return user !== null && user.isAnonymous;
   }
 
+  // Check if user is admin
+  async isAdmin(user?: User): Promise<boolean> {
+    const currentUser = user || auth.currentUser;
+    if (!currentUser || currentUser.isAnonymous) return false;
+    
+    // Check for admin email addresses
+    const adminEmails = [
+      'admin@middleapp.com',
+      'leantonionelson@gmail.com', // Add your email here
+      'dev@middleapp.com'
+    ];
+    
+    if (adminEmails.includes(currentUser.email || '')) return true;
+    
+    // Check user profile for admin role
+    try {
+      const userProfile = await this.getUserProfile(currentUser.uid);
+      return userProfile?.role === 'admin' || false;
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      return false;
+    }
+  }
+
   // Get user capabilities based on auth status and subscription
   async getUserCapabilities() {
     const user = auth.currentUser;
@@ -220,11 +245,12 @@ class FirebaseAuthService {
     if (freeAuth && !user) {
       return {
         canSaveProgress: true, // Local storage only
-        canSaveHighlights: true, // Local storage only
+        canSaveHighlights: false, // No saving for guest users
         canUseAI: false, // No AI for free users
         canSync: false, // No cloud sync
         userType: 'guest',
-        hasActiveSubscription: false
+        hasActiveSubscription: false,
+        isAdmin: false
       };
     }
     
@@ -235,7 +261,8 @@ class FirebaseAuthService {
         canUseAI: false,
         canSync: false,
         userType: 'guest',
-        hasActiveSubscription: false
+        hasActiveSubscription: false,
+        isAdmin: false
       };
     }
 
@@ -246,7 +273,24 @@ class FirebaseAuthService {
         canUseAI: false,
         canSync: false,
         userType: 'anonymous',
-        hasActiveSubscription: false
+        hasActiveSubscription: false,
+        isAdmin: false
+      };
+    }
+
+    // Check if user is admin
+    const isAdmin = await this.isAdmin(user);
+    
+    // Admins have full access to everything
+    if (isAdmin) {
+      return {
+        canSaveProgress: true,
+        canSaveHighlights: true,
+        canUseAI: true, // Full AI access
+        canSync: true,
+        userType: 'admin',
+        hasActiveSubscription: true, // Treated as premium
+        isAdmin: true
       };
     }
 
@@ -263,7 +307,8 @@ class FirebaseAuthService {
       canUseAI: hasActiveSubscription || completedPayment,
       canSync: true, // Authenticated users can sync
       userType: 'authenticated',
-      hasActiveSubscription: hasActiveSubscription || completedPayment
+      hasActiveSubscription: hasActiveSubscription || completedPayment,
+      isAdmin: false
     };
   }
 }

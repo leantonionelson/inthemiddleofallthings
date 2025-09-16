@@ -1,7 +1,8 @@
 import { Meditation } from '../types';
 
 // Import all meditation MD files at build time
-const mdFiles = import.meta.glob('../meditations/meditations/*.md', { as: 'raw' });
+// This will automatically include any new .md files added to the meditations directory
+const mdFiles = import.meta.glob('../meditations/meditations/*.md', { as: 'raw', eager: false });
 
 // Function to parse meditation markdown content
 function parseMeditationContent(markdown: string): { title: string; content: string; tags: string[] } {
@@ -40,7 +41,12 @@ function parseMeditationContent(markdown: string): { title: string; content: str
 export async function loadMeditations(): Promise<Meditation[]> {
   const meditations: Meditation[] = [];
 
-  for (const [path, loader] of Object.entries(mdFiles)) {
+  // Get all meditation files dynamically
+  const meditationFiles = import.meta.glob('../meditations/meditations/*.md', { as: 'raw', eager: false });
+  
+  console.log(`Found ${Object.keys(meditationFiles).length} meditation files to load`);
+  
+  for (const [path, loader] of Object.entries(meditationFiles)) {
     try {
       const markdown = await loader();
       
@@ -56,12 +62,16 @@ export async function loadMeditations(): Promise<Meditation[]> {
           tags: parsed.tags,
           filename
         });
+        
+        console.log(`Loaded meditation: ${parsed.title} (${id})`);
       }
     } catch (error) {
       console.error(`Error loading meditation file ${path}:`, error);
     }
   }
 
+  console.log(`Successfully loaded ${meditations.length} meditations`);
+  
   // Sort meditations alphabetically by title
   return meditations.sort((a, b) => a.title.localeCompare(b.title));
 }
@@ -111,8 +121,22 @@ Nothing clutched.`,
   }
 ];
 
+// Function to refresh meditations (useful for development)
+export async function refreshMeditations(): Promise<Meditation[]> {
+  console.log('Refreshing meditation list...');
+  return await loadMeditations();
+}
+
+// Function to get meditation file count (for debugging)
+export function getMeditationFileCount(): number {
+  const meditationFiles = import.meta.glob('../meditations/meditations/*.md', { as: 'raw', eager: false });
+  return Object.keys(meditationFiles).length;
+}
+
 export const meditationContent = {
   loadMeditations,
   searchMeditations,
-  fallbackMeditations
+  fallbackMeditations,
+  refreshMeditations,
+  getMeditationFileCount
 };

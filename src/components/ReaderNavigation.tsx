@@ -11,7 +11,7 @@ interface ReaderNavigationProps {
   onToggleListen: () => void;
   showShadow?: boolean;
   progress?: number; // Progress from 0 to 1
-  contentType?: 'chapter' | 'meditation'; // New prop to determine label
+  contentType?: 'chapter' | 'meditation' | 'story'; // New prop to determine label
 }
 
 const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
@@ -81,7 +81,7 @@ const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
           {/* Chapter/Meditation indicator (center of pill) */}
           <div className="flex items-center justify-center px-4 mx-2">
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {contentType === 'meditation' ? 'Meditation' : 'Chapter'} {currentChapterIndex + 1}
+              {contentType === 'meditation' ? 'Meditation' : contentType === 'story' ? 'Story' : 'Chapter'} {currentChapterIndex + 1}
             </span>
           </div>
 

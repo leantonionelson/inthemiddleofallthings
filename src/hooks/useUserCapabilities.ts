@@ -7,8 +7,9 @@ export interface UserCapabilities {
   canSaveHighlights: boolean;
   canUseAI: boolean;
   canSync: boolean;
-  userType: 'guest' | 'anonymous' | 'authenticated';
+  userType: 'guest' | 'anonymous' | 'authenticated' | 'admin';
   hasActiveSubscription: boolean;
+  isAdmin?: boolean;
   isLoading: boolean;
 }
 
@@ -29,7 +30,7 @@ export const useUserCapabilities = (): UserCapabilities => {
         const userCapabilities = await authService.getUserCapabilities();
         setCapabilities({
           ...userCapabilities,
-          userType: userCapabilities.userType as 'guest' | 'anonymous' | 'authenticated',
+          userType: userCapabilities.userType as 'guest' | 'anonymous' | 'authenticated' | 'admin',
           isLoading: false
         });
       } catch (error) {

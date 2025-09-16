@@ -10,6 +10,7 @@ import AuthPage from './features/Auth/AuthPage';
 import OnboardingPage from './pages/Onboarding/OnboardingPage';
 import ReaderPage from './features/Reader/ReaderPage';
 import MeditationsPage from './features/Meditations/MeditationsPage';
+import StoriesPage from './features/Stories/StoriesPage';
 import SavedPage from './features/Saved/SavedPage';
 import SettingsPage from './pages/Settings/SettingsPage';
 import PaymentSuccess from './pages/PaymentSuccess';
@@ -243,6 +244,17 @@ const App: React.FC = () => {
               element={
                 isAuthenticated && hasCompletedOnboarding ? (
                   <MeditationsPage onOpenAI={() => setIsAIDrawerOpen(true)} />
+                ) : (
+                  <Navigate to={AppRoute.AUTH} replace />
+                )
+              }
+            />
+
+            <Route
+              path={AppRoute.STORIES}
+              element={
+                isAuthenticated && hasCompletedOnboarding ? (
+                  <StoriesPage onOpenAI={() => setIsAIDrawerOpen(true)} />
                 ) : (
                   <Navigate to={AppRoute.AUTH} replace />
                 )

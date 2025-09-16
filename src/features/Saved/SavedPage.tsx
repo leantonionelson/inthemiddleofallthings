@@ -23,7 +23,7 @@ const SavedPage: React.FC<SavedPageProps> = ({ onOpenAI }) => {
     canSaveHighlights: false,
     canUseAI: false,
     canSync: false,
-    userType: 'guest' as 'guest' | 'anonymous' | 'authenticated',
+    userType: 'guest' as 'guest' | 'anonymous' | 'authenticated' | 'admin',
     hasActiveSubscription: false
   });
 
@@ -34,7 +34,7 @@ const SavedPage: React.FC<SavedPageProps> = ({ onOpenAI }) => {
         const capabilities = await authService.getUserCapabilities();
         setUserCapabilities({
           ...capabilities,
-          userType: capabilities.userType as 'guest' | 'anonymous' | 'authenticated'
+          userType: capabilities.userType as 'guest' | 'anonymous' | 'authenticated' | 'admin'
         });
       } catch (error) {
         console.error('Error checking user capabilities:', error);

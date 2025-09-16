@@ -84,6 +84,14 @@ export interface Meditation {
   filename: string;
 }
 
+export interface Story {
+  id: string;
+  title: string;
+  content: string;
+  tags: string[];
+  filename: string;
+}
+
 export interface ReflectionEntry {
   id: string;
   title: string;
@@ -174,6 +182,7 @@ export enum AppRoute {
   AUTH = '/auth',
   READER = '/read',
   MEDITATIONS = '/meditations',
+  STORIES = '/stories',
   SAVED = '/saved',
   SETTINGS = '/settings',
   SYMBOLS = '/symbols'

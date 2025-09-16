@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Route Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .route { margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 5px; }
+        .route a { text-decoration: none; color: #0066cc; font-weight: bold; }
+        .route a:hover { text-decoration: underline; }
+        .status { margin-left: 10px; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Route Testing</h1>
+    <p>Click these links to test the routes in your app:</p>
+    
+    <div class="route">
+        <a href="http://localhost:5173/" target="_blank">Home Page</a>
+        <span class="status">Should load the home page</span>
+    </div>
+    
+    <div class="route">
+        <a href="http://localhost:5173/meditations" target="_blank">Meditations Page</a>
+        <span class="status">Should load existing meditations</span>
+    </div>
+    
+    <div class="route">
+        <a href="http://localhost:5173/stories" target="_blank">Stories Page</a>
+        <span class="status success">🆕 NEW - Should load the new stories page</span>
+    </div>
+    
+    <div class="route">
+        <a href="http://localhost:5173/saved" target="_blank">Saved Page</a>
+        <span class="status">Should load saved content</span>
+    </div>
+
+    <h2>Navigation Debug</h2>
+    <p>When you load each page, check:</p>
+    <ul>
+        <li>✅ Does the page load without errors?</li>
+        <li>✅ Is the correct navigation tab highlighted?</li>
+        <li>✅ Does the "Stories" tab appear in the bottom navigation?</li>
+        <li>✅ Can you click between tabs?</li>
+    </ul>
+
+    <h2>Stories Debug</h2>
+    <p>When you access the Stories page, check:</p>
+    <ul>
+        <li>✅ Does "INTRUDENT" story appear?</li>
+        <li>✅ Do the tags show correctly?</li>
+        <li>✅ Does the refresh button work?</li>
+        <li>✅ Can you search for content?</li>
+    </ul>
+
+    <script>
+        console.log('Debug page loaded. App should be running on http://localhost:5173/');
+        console.log('Routes to test:', [
+            'http://localhost:5173/',
+            'http://localhost:5173/meditations', 
+            'http://localhost:5173/stories',
+            'http://localhost:5173/saved'
+        ]);
+    </script>
+</body>
+</html>

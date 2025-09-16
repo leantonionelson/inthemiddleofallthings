@@ -22,4 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Admin credentials (keep secure)
+.admin-credentials.json
+admin-login.html
 .env

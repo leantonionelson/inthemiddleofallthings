@@ -195,6 +195,7 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
     loadMeditationList();
   }, []);
 
+
   // Handle search and tag filtering
   useEffect(() => {
     let filtered = searchMeditations(meditations, searchQuery);
