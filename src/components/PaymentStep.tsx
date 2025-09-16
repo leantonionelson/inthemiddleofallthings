@@ -13,10 +13,9 @@ import { regionalPricingService } from '../services/regionalPricing';
 
 interface PaymentStepProps {
   onComplete: () => void;
-  onSkip?: () => void;
 }
 
-const PaymentStep: React.FC<PaymentStepProps> = ({ onComplete, onSkip }) => {
+const PaymentStep: React.FC<PaymentStepProps> = ({ onComplete }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedBilling, setSelectedBilling] = useState<'monthly' | 'yearly'>('monthly');
@@ -56,11 +55,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onComplete, onSkip }) => {
     }
   };
 
-  const handleSkip = () => {
-    if (onSkip) {
-      onSkip();
-    }
-  };
 
   const pricing = regionalPricingService.getPricingForCurrency(userCurrency);
 
@@ -170,15 +164,7 @@ const PaymentStep: React.FC<PaymentStepProps> = ({ onComplete, onSkip }) => {
         )}
       </div>
 
-      {/* Skip Option */}
-      <div className="text-center mb-8">
-        <button
-          onClick={handleSkip}
-          className="text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light transition-colors text-xs"
-        >
-          Skip for now
-        </button>
-      </div>
+      {/* No Skip Option - Payment is Required */}
 
       {/* Currency Info */}
       <div className="text-center">

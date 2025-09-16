@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { authService } from '../services/firebaseAuth';
 import { stripeService } from '../services/stripeService';
+import { paymentValidationService } from '../services/paymentValidation';
 
 export interface UserCapabilities {
   canSaveProgress: boolean;
@@ -27,12 +28,29 @@ export const useUserCapabilities = (): UserCapabilities => {
   useEffect(() => {
     const checkCapabilities = async () => {
       try {
+        // First validate payment status to catch any bypasses
+        const paymentValidation = await paymentValidationService.validatePaymentStatus();
+        
+        // Get user capabilities from auth service
         const userCapabilities = await authService.getUserCapabilities();
-        setCapabilities({
+        
+        // Override capabilities based on payment validation
+        const finalCapabilities = {
           ...userCapabilities,
-          userType: userCapabilities.userType as 'guest' | 'anonymous' | 'authenticated' | 'admin',
+          canUseAI: paymentValidation.hasActiveSubscription,
+          canSync: paymentValidation.hasActiveSubscription,
+          hasActiveSubscription: paymentValidation.hasActiveSubscription,
+          userType: paymentValidation.isFreeUser ? 'guest' : userCapabilities.userType as 'guest' | 'anonymous' | 'authenticated' | 'admin',
           isLoading: false
-        });
+        };
+        
+        setCapabilities(finalCapabilities);
+        
+        // Log payment bypass if detected
+        if (paymentValidationService.hasBypassedPayment()) {
+          console.warn('Payment bypass detected - user capabilities restricted');
+        }
+        
       } catch (error) {
         console.error('Error checking user capabilities:', error);
         setCapabilities({

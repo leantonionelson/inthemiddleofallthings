@@ -114,7 +114,21 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
   };
 
   const handleNext = async () => {
+    // Check if this is the payment step and payment hasn't been completed
+    if (currentQuestion?.type === 'payment' && responses.payment !== 'completed') {
+      console.warn('Payment step cannot be skipped - payment is required');
+      return; // Don't proceed without payment
+    }
+
     if (isLastQuestion) {
+      // Final validation: ensure payment was completed for authenticated users
+      if (!isFreeUser && responses.payment !== 'completed') {
+        console.error('Payment is required for authenticated users');
+        // Revert user to free account if they somehow bypassed payment
+        await revertToFreeAccount();
+        return;
+      }
+
       setIsGeneratingSymbol(true);
       
       try {
@@ -139,17 +153,16 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
           localStorage.setItem('audioVoicePreference', voicePreference);
         }
         
-        // For free users, set a flag to indicate they have paywall restrictions
-        if (isFreeUser) {
+        // Set user type based on payment status
+        if (isFreeUser || responses.payment !== 'completed') {
           localStorage.setItem('userType', 'free');
           console.log('Free user onboarding completed - paywall restrictions apply');
         } else {
           localStorage.setItem('userType', 'authenticated');
-          console.log('Authenticated user onboarding completed');
+          console.log('Authenticated user onboarding completed with payment');
         }
         
         // Wait a moment to show the symbol, then complete onboarding
-        // Reduced timeout for mobile to prevent hanging
         setTimeout(() => {
           console.log('Completing onboarding after symbol generation');
           onComplete();
@@ -165,7 +178,7 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
         }
         
         // Set user type even if symbol generation fails
-        if (isFreeUser) {
+        if (isFreeUser || responses.payment !== 'completed') {
           localStorage.setItem('userType', 'free');
         } else {
           localStorage.setItem('userType', 'authenticated');
@@ -192,14 +205,6 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
     handleNext();
   };
 
-  const handlePaymentSkip = () => {
-    setResponses(prev => ({
-      ...prev,
-      payment: 'skipped'
-    }));
-    // Move to next step (symbol generation)
-    handleNext();
-  };
 
   const handlePrevious = () => {
     if (currentStep > 0) {
@@ -208,6 +213,12 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
   };
 
   const handleSkip = () => {
+    // Prevent skipping payment step
+    if (currentQuestion?.type === 'payment') {
+      console.warn('Payment step cannot be skipped - payment is required');
+      return;
+    }
+
     // Mark current question as skipped
     setSkippedQuestions(prev => new Set([...prev, currentStep]));
     
@@ -217,6 +228,30 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
     } else {
       // Move to next question
       setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const revertToFreeAccount = async () => {
+    try {
+      const currentUser = authService.getCurrentUser();
+      if (currentUser && !currentUser.isAnonymous) {
+        // Update user profile to remove subscription status
+        await authService.updateUserProfile(currentUser.uid, {
+          subscriptionStatus: {
+            isActive: false,
+            status: 'incomplete',
+            currentPeriodEnd: null,
+            cancelAtPeriodEnd: false,
+            planName: 'Free Plan'
+          }
+        });
+        
+        // Set user type to free
+        localStorage.setItem('userType', 'free');
+        console.log('User account reverted to free due to payment bypass attempt');
+      }
+    } catch (error) {
+      console.error('Error reverting account to free:', error);
     }
   };
 
@@ -361,7 +396,6 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
         return (
           <PaymentStep
             onComplete={handlePaymentComplete}
-            onSkip={handlePaymentSkip}
           />
         );
 
@@ -414,7 +448,7 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
 
   const canProceed = currentQuestion 
     ? (currentQuestion.type === 'payment' 
-        ? responses[currentQuestion.id] !== undefined 
+        ? responses[currentQuestion.id] === 'completed' // Payment must be completed
         : responses[currentQuestion.id] !== undefined)
     : false;
 
@@ -443,13 +477,15 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
             <span className="text-sm font-medium">Close</span>
           </button>
           
-          <button
-            onClick={handleSkip}
-            className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-          >
-            <SkipForward className="w-4 h-4" />
-            <span className="text-sm font-medium">Skip</span>
-          </button>
+          {currentQuestion?.type !== 'payment' && (
+            <button
+              onClick={handleSkip}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <SkipForward className="w-4 h-4" />
+              <span className="text-sm font-medium">Skip</span>
+            </button>
+          )}
         </div>
 
         {/* Progress */}
