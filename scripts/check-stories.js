@@ -45,3 +45,4 @@ try {
   console.error('❌ Error checking story files:', error.message);
   process.exit(1);
 }
+

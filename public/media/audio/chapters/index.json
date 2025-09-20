@@ -1,5 +1,5 @@
 {
-  "generated": 1758009714226,
+  "generated": 1758397947392,
   "voiceType": "female",
   "voice": "Zephyr",
   "chapters": [
@@ -221,7 +221,7 @@
     },
     {
       "id": "chapter-23",
-      "title": "",
+      "title": "23. The Spiral Never Ends",
       "part": "Part IV: The Horizon Beyond",
       "chapterNumber": 28,
       "audioFile": "chapter-23_female.wav",

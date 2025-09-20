@@ -55,3 +55,4 @@ or let go.
 
 Life is just how we define perspective and time.
 And wisdom is the art of choosing both with care.
+

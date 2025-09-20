@@ -72,3 +72,4 @@ If new meditations don't appear:
 ## Current Status
 
 As of the last check, there are **41 meditation files** in the system, all properly formatted and ready to use.
+
