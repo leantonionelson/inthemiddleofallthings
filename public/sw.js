@@ -1,7 +1,9 @@
 // Service Worker for "In the Middle of All Things"
-const CACHE_NAME = 'middle-app-v1';
-const STATIC_CACHE = 'middle-static-v1';
-const DYNAMIC_CACHE = 'middle-dynamic-v1';
+const CACHE_NAME = 'middle-app-v2';
+const STATIC_CACHE = 'middle-static-v2';
+const DYNAMIC_CACHE = 'middle-dynamic-v2';
+const OFFLINE_CACHE = 'middle-offline-v2';
+const AUDIO_CACHE = 'middle-audio-v2';
 
 // Files to cache for offline functionality
 const STATIC_FILES = [
@@ -13,25 +15,45 @@ const STATIC_FILES = [
   '/favicon.ico',
   '/favicon-16x16.png',
   '/favicon-32x32.png',
-  '/apple-touch-icon.png'
+  '/apple-touch-icon.png',
+  '/logo.png'
+];
+
+// Audio files to cache for offline use
+const AUDIO_FILES = [
+  '/media/audio/chapters/',
+  '/media/audio/meditations/',
+  '/media/audio/stories/'
 ];
 
 // Install event - cache static files
 self.addEventListener('install', (event) => {
   console.log('Service Worker installing...');
   event.waitUntil(
-    caches.open(STATIC_CACHE)
-      .then((cache) => {
+    Promise.all([
+      // Cache static files
+      caches.open(STATIC_CACHE).then((cache) => {
         console.log('Caching static files');
         return cache.addAll(STATIC_FILES);
+      }),
+      // Initialize offline cache
+      caches.open(OFFLINE_CACHE).then((cache) => {
+        console.log('Offline cache initialized');
+        return cache;
+      }),
+      // Initialize audio cache
+      caches.open(AUDIO_CACHE).then((cache) => {
+        console.log('Audio cache initialized');
+        return cache;
       })
-      .then(() => {
-        console.log('Service Worker installed');
-        return self.skipWaiting();
-      })
-      .catch((error) => {
-        console.error('Service Worker installation failed:', error);
-      })
+    ])
+    .then(() => {
+      console.log('Service Worker installed');
+      return self.skipWaiting();
+    })
+    .catch((error) => {
+      console.error('Service Worker installation failed:', error);
+    })
   );
 });
 
@@ -43,7 +65,10 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
+            if (cacheName !== STATIC_CACHE && 
+                cacheName !== DYNAMIC_CACHE && 
+                cacheName !== OFFLINE_CACHE && 
+                cacheName !== AUDIO_CACHE) {
               console.log('Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
@@ -73,41 +98,128 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(
-    caches.match(request)
-      .then((cachedResponse) => {
-        // Return cached version if available
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-
-        // Otherwise, fetch from network
-        return fetch(request)
-          .then((response) => {
-            // Don't cache non-successful responses
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // Clone the response for caching
-            const responseToCache = response.clone();
-
-            // Cache dynamic content
-            caches.open(DYNAMIC_CACHE)
-              .then((cache) => {
-                cache.put(request, responseToCache);
-              });
-
-            return response;
-          })
-          .catch(() => {
-            // Return offline page for navigation requests
-            if (request.mode === 'navigate') {
-              return caches.match('/index.html');
-            }
-          });
-      })
+    handleFetch(request)
   );
 });
+
+// Enhanced fetch handler with offline support
+async function handleFetch(request) {
+  const url = new URL(request.url);
+  
+  // Handle audio files with special caching
+  if (url.pathname.startsWith('/media/audio/')) {
+    return handleAudioFetch(request);
+  }
+  
+  // Handle offline content
+  if (url.pathname.startsWith('/offline/')) {
+    return handleOfflineFetch(request);
+  }
+  
+  // Handle regular requests
+  return handleRegularFetch(request);
+}
+
+// Handle audio file requests
+async function handleAudioFetch(request) {
+  // Try audio cache first
+  const audioCache = await caches.open(AUDIO_CACHE);
+  const cachedAudio = await audioCache.match(request);
+  
+  if (cachedAudio) {
+    return cachedAudio;
+  }
+  
+  // Try offline cache
+  const offlineCache = await caches.open(OFFLINE_CACHE);
+  const cachedOffline = await offlineCache.match(request);
+  
+  if (cachedOffline) {
+    return cachedOffline;
+  }
+  
+  // Try network
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      // Cache successful audio responses
+      const responseToCache = response.clone();
+      await audioCache.put(request, responseToCache);
+    }
+    return response;
+  } catch (error) {
+    // Return offline indicator for audio
+    return new Response('Audio not available offline', {
+      status: 404,
+      statusText: 'Not Found'
+    });
+  }
+}
+
+// Handle offline content requests
+async function handleOfflineFetch(request) {
+  const offlineCache = await caches.open(OFFLINE_CACHE);
+  const cached = await offlineCache.match(request);
+  
+  if (cached) {
+    return cached;
+  }
+  
+  // Try network
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const responseToCache = response.clone();
+      await offlineCache.put(request, responseToCache);
+    }
+    return response;
+  } catch (error) {
+    return new Response('Content not available offline', {
+      status: 404,
+      statusText: 'Not Found'
+    });
+  }
+}
+
+// Handle regular requests
+async function handleRegularFetch(request) {
+  // Try static cache first
+  const staticCache = await caches.open(STATIC_CACHE);
+  const cachedStatic = await staticCache.match(request);
+  
+  if (cachedStatic) {
+    return cachedStatic;
+  }
+  
+  // Try dynamic cache
+  const dynamicCache = await caches.open(DYNAMIC_CACHE);
+  const cachedDynamic = await dynamicCache.match(request);
+  
+  if (cachedDynamic) {
+    return cachedDynamic;
+  }
+  
+  // Try network
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const responseToCache = response.clone();
+      await dynamicCache.put(request, responseToCache);
+    }
+    return response;
+  } catch (error) {
+    // Return offline page for navigation requests
+    if (request.mode === 'navigate') {
+      return caches.match('/index.html');
+    }
+    
+    // Return offline indicator for other requests
+    return new Response('Content not available offline', {
+      status: 404,
+      statusText: 'Not Found'
+    });
+  }
+}
 
 // Background sync for offline actions
 self.addEventListener('sync', (event) => {

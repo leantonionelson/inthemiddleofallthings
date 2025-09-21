@@ -56,6 +56,18 @@
           "sizes": "192x192"
         }
       ]
+    },
+    {
+      "name": "Offline Downloads",
+      "short_name": "Offline",
+      "description": "Manage offline content",
+      "url": "/offline",
+      "icons": [
+        {
+          "src": "/pwa-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ],
   "related_applications": [],
