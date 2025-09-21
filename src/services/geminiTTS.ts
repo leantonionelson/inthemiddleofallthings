@@ -429,6 +429,91 @@ class GeminiTTSService {
 
 
 
+  /**
+   * Generate audio specifically for chat interactions (bypasses pre-generated audio)
+   * This method is designed to use Gemini TTS for dynamic chat content
+   */
+  async generateChatAudio(text: string, config: TTSConfig = { voiceName: 'Zephyr', speakingRate: 1.15 }): Promise<{
+    audioUrl: string;
+    duration: number;
+    wordTimings: number[];
+  }> {
+    const chatId = `chat_${Date.now()}`;
+    
+    console.log('🤖 Generating chat audio with Gemini TTS (API usage expected)');
+    
+    try {
+      const cleanText = this.prepareTextForTTS(text);
+      
+      if (!this.client) {
+        throw new Error('Gemini client not initialized');
+      }
+
+      const speechConfig: any = {
+        voiceConfig: {
+          prebuiltVoiceConfig: { voiceName: config.voiceName },
+        },
+      };
+      
+      if (config.speakingRate !== undefined) {
+        speechConfig.speakingRate = config.speakingRate;
+      }
+      
+      const response = await this.client.models.generateContent({
+        model: "gemini-2.5-flash-preview-tts",
+        contents: [{ parts: [{ text: cleanText }] }],
+        config: {
+          responseModalities: ['AUDIO'],
+          speechConfig,
+        },
+      });
+
+      const data = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
+      if (!data) {
+        throw new Error('No audio data received from Gemini TTS');
+      }
+
+      // Convert base64 to binary
+      const binaryString = atob(data);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      
+      if (bytes.length === 0) {
+        throw new Error('Empty audio data received from Gemini TTS');
+      }
+      
+      console.log(`✅ Generated ${bytes.length} bytes of chat audio data`);
+      
+      // Create WAV file
+      const wavBuffer = this.createWavFile(bytes.buffer, 24000, 1, 2);
+      
+      // Create blob URL
+      const blob = new Blob([wavBuffer], { type: 'audio/wav' });
+      const audioUrl = URL.createObjectURL(blob);
+      
+      // Estimate duration
+      const duration = this.estimateDuration(cleanText);
+      const wordTimings = this.generateWordTimings(cleanText, duration);
+      
+      const result = {
+        audioUrl,
+        duration,
+        wordTimings
+      };
+      
+      // Cache the result
+      this.memoryCache.set(chatId, result);
+      
+      return result;
+      
+    } catch (error) {
+      console.error('❌ Error generating chat audio:', error);
+      throw error;
+    }
+  }
+
   async generateChapterAudio(chapter: BookChapter, config: TTSConfig = { voiceName: 'Zephyr', speakingRate: 1.15 }): Promise<{
     audioUrl: string;
     duration: number;
@@ -436,18 +521,18 @@ class GeminiTTSService {
   }> {
     const chapterId = this.getChapterId(chapter);
 
-    // 1. Check for pre-generated audio first (most efficient)
+    // 1. Check for pre-generated audio first (most efficient, no API usage)
     try {
       const preGeneratedAudio = await this.preGeneratedService.getPreGeneratedAudio(chapter);
       if (preGeneratedAudio) {
-        console.log(`🎵 Using pre-generated audio for chapter: ${chapter.title}`);
+        console.log(`🎵 Using pre-generated audio for chapter: ${chapter.title} (no API usage)`);
         return {
           audioUrl: preGeneratedAudio.audioUrl,
           duration: preGeneratedAudio.duration,
           wordTimings: preGeneratedAudio.wordTimings
         };
       }
-    } catch (error) {
+    } catch {
       console.warn(`⚠️ Could not load pre-generated audio for ${chapter.title}, falling back to cache/TTS`);
     }
 
@@ -982,6 +1067,31 @@ class GeminiTTSService {
     
     console.log('✅ Test audio created successfully');
     return audioUrl;
+  }
+
+  /**
+   * Estimate duration based on text length (fallback)
+   */
+  private estimateDuration(content: string): number {
+    // Average reading speed: ~150 words per minute
+    const words = content.split(/\s+/).length;
+    const wordsPerMinute = 150;
+    return Math.max(1, (words / wordsPerMinute) * 60);
+  }
+
+  /**
+   * Generate word timings based on estimated reading speed
+   */
+  private generateWordTimings(content: string, duration: number): number[] {
+    const words = content.split(/\s+/).filter(word => word.length > 0);
+    const wordCount = words.length;
+    
+    if (wordCount === 0) {
+      return [0];
+    }
+
+    const msPerWord = (duration * 1000) / wordCount;
+    return Array.from({ length: wordCount }, (_, i) => i * msPerWord);
   }
 }
 

@@ -162,7 +162,90 @@ class AudioManagerService {
   }
 
   /**
-   * Initialize audio for a chapter with fallback system
+   * Initialize audio for chat interactions (uses Gemini TTS for best quality)
+   * This is the only method that should use Gemini TTS to save API quota
+   */
+  public async initializeChatAudio(
+    text: string,
+    callbacks: AudioManagerCallbacks = {}
+  ): Promise<void> {
+    this.callbacks = callbacks;
+    
+    // Stop any existing audio
+    this.stopAudio();
+    
+    this.updatePlaybackState({ isLoading: true, error: null });
+
+    try {
+      // For chat, we prioritize Gemini TTS for best quality
+      if (this.geminiTTSService.isApiAvailable()) {
+        console.log('🤖 Using Gemini TTS for chat interaction');
+        const voiceName = this.voicePreference === 'male' ? 'Charon' : 'Zephyr';
+        
+        // Create a temporary chapter object for TTS
+        const tempChapter: BookChapter = {
+          id: 'chat',
+          title: 'Chat Response',
+          content: text,
+          chapterNumber: 0,
+          totalChapters: 1,
+          part: 'Chat'
+        };
+        
+        const audioData = await this.geminiTTSService.generateChatAudio(text, {
+          voiceName,
+          speakingRate: 1.15
+        });
+        
+        await this.setupGeminiAudio(audioData.audioUrl, audioData.duration);
+        this.updatePlaybackState({ 
+          audioSource: 'gemini-tts',
+          duration: audioData.duration,
+          isLoading: false 
+        });
+        return;
+      }
+
+      // Fallback to browser speech for chat if Gemini TTS unavailable
+      console.log('🗣️ Using browser speech synthesis for chat (Gemini TTS unavailable)');
+      const tempChapter: BookChapter = {
+        id: 'chat',
+        title: 'Chat Response',
+        content: text,
+        chapterNumber: 0,
+        totalChapters: 1,
+        part: 'Chat'
+      };
+      this.setupBrowserSpeech(tempChapter);
+      this.updatePlaybackState({ 
+        audioSource: 'browser-speech',
+        duration: this.estimateDuration(text),
+        isLoading: false 
+      });
+
+    } catch (error) {
+      console.error('❌ Chat audio generation failed:', error);
+      const tempChapter: BookChapter = {
+        id: 'chat',
+        title: 'Chat Response',
+        content: text,
+        chapterNumber: 0,
+        totalChapters: 1,
+        part: 'Chat'
+      };
+      this.setupBrowserSpeech(tempChapter);
+      this.updatePlaybackState({ 
+        audioSource: 'browser-speech',
+        duration: this.estimateDuration(text),
+        isLoading: false,
+        error: 'Chat audio generation failed, using browser speech'
+      });
+    }
+  }
+
+  /**
+   * Initialize audio for a chapter with optimized fallback system
+   * Prioritizes pre-generated audio, then browser TTS (no Gemini TTS for content)
    */
   public async initializeAudio(
     chapter: BookChapter, 
@@ -177,10 +260,10 @@ class AudioManagerService {
     this.updatePlaybackState({ isLoading: true, error: null });
 
     try {
-      // 1. Try pre-generated audio first (fastest)
+      // 1. Try pre-generated audio first (fastest, no API usage)
       const preGeneratedAudio = await this.preGeneratedService.getPreGeneratedAudio(chapter);
       if (preGeneratedAudio) {
-        console.log('🎵 Using pre-generated audio');
+        console.log('🎵 Using pre-generated audio (no API usage)');
         await this.setupPreGeneratedAudio(preGeneratedAudio.audioUrl, preGeneratedAudio.duration);
         this.updatePlaybackState({ 
           audioSource: 'pre-generated',
@@ -190,32 +273,17 @@ class AudioManagerService {
         return;
       }
 
-      // 2. Try Gemini TTS (good quality, but slower)
-      if (this.geminiTTSService.isApiAvailable()) {
-        console.log('🤖 Using Gemini TTS');
-        const voiceName = this.voicePreference === 'male' ? 'Charon' : 'Zephyr';
-        const audioData = await this.geminiTTSService.generateChapterAudio(chapter, {
-          voiceName,
-          speakingRate: 1.15
-        });
-        
-        await this.setupGeminiAudio(audioData.audioUrl, audioData.duration);
-        this.updatePlaybackState({ 
-          audioSource: 'gemini-tts',
-          duration: audioData.duration,
-          isLoading: false 
-        });
-        return;
-      }
-
-      // 3. Fallback to browser speech synthesis
-      console.log('🗣️ Using browser speech synthesis');
+      // 2. Use browser speech synthesis (no API usage, good fallback)
+      console.log('🗣️ Using browser speech synthesis (no API usage)');
       this.setupBrowserSpeech(chapter);
       this.updatePlaybackState({ 
         audioSource: 'browser-speech',
         duration: this.estimateDuration(chapter.content),
         isLoading: false 
       });
+
+      // Note: Gemini TTS is now reserved for chat interactions only
+      // This saves significant API quota for content that has pre-generated audio
 
     } catch (error) {
       console.error('❌ All audio methods failed, using browser speech as final fallback:', error);
