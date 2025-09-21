@@ -26,7 +26,7 @@ npm run audio-test
 
 ### 3. Generate audio manually
 ```bash
-# Generate all content types with male voice
+# Generate all content types with male voice (only new/missing files)
 npm run audio-generate male
 
 # Generate only meditations with female voice
@@ -34,6 +34,12 @@ npm run audio-generate female meditations
 
 # Generate book chapters and stories
 npm run audio-generate male book,stories
+
+# Check for modified files and regenerate only changed content
+npm run audio-check male book
+
+# Force regenerate all files (useful after voice changes)
+npm run audio-force female meditations
 ```
 
 ### 4. Start automatic scheduling
@@ -102,7 +108,7 @@ GEMINI_PAID_TIER=true
 
 ### Manual Generation
 ```bash
-# Generate all content with male voice
+# Generate all content with male voice (only new/missing files)
 node scripts/audioScheduler.js generate male
 
 # Generate specific content types
@@ -110,6 +116,12 @@ node scripts/audioScheduler.js generate female meditations,stories
 
 # Generate only book chapters
 node scripts/audioScheduler.js generate male book
+
+# Check for modified files and regenerate only changed content
+node scripts/audioScheduler.js check male book
+
+# Force regenerate all files (ignore modification times)
+node scripts/audioScheduler.js force female meditations
 ```
 
 ### Automatic Scheduling
@@ -125,6 +137,30 @@ node scripts/audioScheduler.js status
 
 # Test API connection
 node scripts/audioScheduler.js test
+```
+
+### NPM Scripts (Recommended)
+```bash
+# Generate audio (only new/missing files)
+npm run audio-generate male
+npm run audio-generate female meditations
+
+# Check for modified files and regenerate only changed content
+npm run audio-check male book
+npm run audio-check female meditations
+
+# Force regenerate all files
+npm run audio-force male book
+npm run audio-force female meditations
+
+# Start automatic scheduling
+npm run audio-schedule
+
+# Check quota status
+npm run audio-status
+
+# Test API connection
+npm run audio-test
 ```
 
 ## 🕐 Scheduling Strategy
@@ -173,6 +209,12 @@ public/media/audio/
 ```
 
 ## 🔧 Advanced Features
+
+### Intelligent File Change Detection
+- **Modification time checking**: Compares source file timestamps with audio files
+- **Automatic regeneration**: Only regenerates audio for modified content
+- **Quota efficiency**: Saves API requests by skipping unchanged files
+- **Force regeneration**: Option to regenerate all files regardless of modification time
 
 ### Intelligent Quota Management
 - **Daily reset detection**: Automatically resets at midnight UTC
@@ -274,6 +316,14 @@ DEBUG=* npm run audio-generate male book
    npm run audio-generate male meditations
    ```
 3. **Files are automatically detected** and processed
+
+### Editing Existing Content
+1. **Edit markdown files** as needed
+2. **Run check command** to regenerate only changed files:
+   ```bash
+   npm run audio-check male book
+   ```
+3. **Only modified files** will be regenerated, saving API quota
 
 ### Updating Existing Content
 1. **Edit markdown files** as needed

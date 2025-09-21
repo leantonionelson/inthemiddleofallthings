@@ -232,15 +232,40 @@ class AudioScheduler {
   }
 
   // Generate audio for a single content item
-  async generateContentAudio(content, outputPath, voiceType = 'male') {
+  async generateContentAudio(content, outputPath, voiceType = 'male', sourceFilePath = null, forceRegenerate = false) {
     try {
-      // Check if file already exists
+      // Check if file already exists and if we should regenerate
+      let shouldGenerate = true;
+      let skipReason = '';
+      
       try {
         await fs.access(outputPath);
-        console.log(`⏭️  Skipping - audio file already exists`);
-        return { status: 'skipped', size: 0 };
+        
+        if (!forceRegenerate && sourceFilePath) {
+          // Check if source file is newer than audio file
+          const sourceStats = await fs.stat(sourceFilePath);
+          const audioStats = await fs.stat(outputPath);
+          
+          if (sourceStats.mtime <= audioStats.mtime) {
+            shouldGenerate = false;
+            skipReason = 'source file unchanged';
+          } else {
+            console.log(`🔄 Source file modified - regenerating ${path.basename(outputPath)}`);
+          }
+        } else if (!forceRegenerate) {
+          shouldGenerate = false;
+          skipReason = 'audio file already exists';
+        } else {
+          console.log(`🔄 Force regeneration - recreating ${path.basename(outputPath)}`);
+        }
       } catch {
         // File doesn't exist, proceed with generation
+        console.log(`📝 Creating new audio file: ${path.basename(outputPath)}`);
+      }
+      
+      if (!shouldGenerate) {
+        console.log(`⏭️  Skipping - ${skipReason}`);
+        return { status: 'skipped', size: 0 };
       }
 
       // Check quota before generating
@@ -459,7 +484,7 @@ class AudioScheduler {
   }
 
   // Generate audio for book chapters
-  async generateBookAudio(voiceType = 'male') {
+  async generateBookAudio(voiceType = 'male', forceRegenerate = false) {
     console.log(`\n📚 Generating book audio (${voiceType} voice)...`);
     
     const chapters = await this.loadBookChapters();
@@ -472,7 +497,50 @@ class AudioScheduler {
       }
       
       const outputPath = path.join(outputDir, `${chapter.id}_${voiceType}.wav`);
-      const result = await this.generateContentAudio(chapter.content, outputPath, voiceType);
+      
+      // Find the source file path for this chapter
+      let sourceFilePath = null;
+      if (chapter.filename) {
+        // Map chapter ID to actual file path
+        const partMap = {
+          'introduction': 'introduction/0. Introduction: A Centre That Moves.mdx',
+          'part-1-intro': 'Part I: The Axis of Becoming/intro.md',
+          'chapter-1': 'Part I: The Axis of Becoming/1. The Axis of Consequence.md',
+          'chapter-2': 'Part I: The Axis of Becoming/2. The Shape of Desire.md',
+          'chapter-3': 'Part I: The Axis of Becoming/3. The Weight of Choice.md',
+          'chapter-4': 'Part I: The Axis of Becoming/4. The Discipline of Becoming.md',
+          'chapter-5': 'Part I: The Axis of Becoming/5. The Voice of Resistance.md',
+          'chapter-6': 'Part I: The Axis of Becoming/6. Integration and Return.md',
+          'part-2-intro': 'Part II: The Spiral Path/intro.md',
+          'chapter-7': 'Part II: The Spiral Path/7. The Spiral Path.md',
+          'chapter-8': 'Part II: The Spiral Path/8. The Return of the Old Self.md',
+          'chapter-9': 'Part II: The Spiral Path/9. Rest and the Sacred Pause.md',
+          'chapter-10': 'Part II: The Spiral Path/10. Other People, Other Mirrors.md',
+          'chapter-11': 'Part II: The Spiral Path/11. Time and the Myth of Readiness.md',
+          'chapter-12': 'Part II: The Spiral Path/12. Falling and Rising Again.md',
+          'part-3-intro': 'Part III: The Living Axis/intro.md',
+          'chapter-13': 'Part III: The Living Axis/13. The Body as Compass.md',
+          'chapter-14': 'Part III: The Living Axis/14. Emotion as Messenger, Not Master.md',
+          'chapter-15': 'Part III: The Living Axis/15. Living in the Middle.md',
+          'chapter-16': 'Part III: The Living Axis/16. The World as Field of Practice.md',
+          'chapter-17': 'Part III: The Living Axis/17. The Unfolding Now.md',
+          'part-4-intro': 'Part IV: The Horizon Beyond/intro.md',
+          'chapter-18': 'Part IV: The Horizon Beyond/18. Echoes and Imprints.md',
+          'chapter-19': 'Part IV: The Horizon Beyond/19. The Shape of Mortality.md',
+          'chapter-20': 'Part IV: The Horizon Beyond/20. Transcendence Without Escape.md',
+          'chapter-21': 'Part IV: The Horizon Beyond/21. Being Part of Something Larger.md',
+          'chapter-22': 'Part IV: The Horizon Beyond/22. The Silence That Holds Us.md',
+          'chapter-23': 'Part IV: The Horizon Beyond/23. The Spiral Never Ends.md',
+          'outro': 'outro.md/Begin Again.md'
+        };
+        
+        const relativePath = partMap[chapter.id];
+        if (relativePath) {
+          sourceFilePath = path.join(BOOK_DIR, relativePath);
+        }
+      }
+      
+      const result = await this.generateContentAudio(chapter.content, outputPath, voiceType, sourceFilePath, forceRegenerate);
       
       this.stats.book[result.status]++;
       
@@ -483,7 +551,7 @@ class AudioScheduler {
   }
 
   // Generate audio for meditations
-  async generateMeditationAudio(voiceType = 'male') {
+  async generateMeditationAudio(voiceType = 'male', forceRegenerate = false) {
     console.log(`\n🧘 Generating meditation audio (${voiceType} voice)...`);
     
     const meditations = await this.loadMeditations();
@@ -496,7 +564,9 @@ class AudioScheduler {
       }
       
       const outputPath = path.join(outputDir, `${meditation.id}_${voiceType}.wav`);
-      const result = await this.generateContentAudio(meditation.content, outputPath, voiceType);
+      const sourceFilePath = path.join(MEDITATIONS_DIR, meditation.filename);
+      
+      const result = await this.generateContentAudio(meditation.content, outputPath, voiceType, sourceFilePath, forceRegenerate);
       
       this.stats.meditations[result.status]++;
       
@@ -507,7 +577,7 @@ class AudioScheduler {
   }
 
   // Generate audio for stories
-  async generateStoryAudio(voiceType = 'male') {
+  async generateStoryAudio(voiceType = 'male', forceRegenerate = false) {
     console.log(`\n📖 Generating story audio (${voiceType} voice)...`);
     
     const stories = await this.loadStories();
@@ -520,7 +590,9 @@ class AudioScheduler {
       }
       
       const outputPath = path.join(outputDir, `${story.id}_${voiceType}.wav`);
-      const result = await this.generateContentAudio(story.content, outputPath, voiceType);
+      const sourceFilePath = path.join(STORIES_DIR, story.filename);
+      
+      const result = await this.generateContentAudio(story.content, outputPath, voiceType, sourceFilePath, forceRegenerate);
       
       this.stats.stories[result.status]++;
       
@@ -531,10 +603,11 @@ class AudioScheduler {
   }
 
   // Generate all audio content
-  async generateAllAudio(voiceType = 'male') {
+  async generateAllAudio(voiceType = 'male', forceRegenerate = false) {
     console.log(`\n🎤 Starting comprehensive audio generation (${voiceType} voice)...`);
     console.log(`📊 API Usage: ${this.dailyUsage}/${this.quotaConfig.dailyLimit} requests today`);
     console.log(`💰 Tier: ${this.isPaidTier ? 'Paid' : 'Free'}`);
+    console.log(`🔄 Force regenerate: ${forceRegenerate ? 'Yes' : 'No (skip unchanged files)'}`);
     
     // Reset stats
     this.stats = {
@@ -544,9 +617,9 @@ class AudioScheduler {
     };
     
     // Generate in priority order: book > meditations > stories
-    await this.generateBookAudio(voiceType);
-    await this.generateMeditationAudio(voiceType);
-    await this.generateStoryAudio(voiceType);
+    await this.generateBookAudio(voiceType, forceRegenerate);
+    await this.generateMeditationAudio(voiceType, forceRegenerate);
+    await this.generateStoryAudio(voiceType, forceRegenerate);
     
     // Print final stats
     console.log('\n📊 Generation Complete!');
@@ -594,8 +667,9 @@ class AudioScheduler {
   }
 
   // Manual generation with quota management
-  async generateWithQuotaManagement(voiceType = 'male', contentTypes = ['book', 'meditations', 'stories']) {
+  async generateWithQuotaManagement(voiceType = 'male', contentTypes = ['book', 'meditations', 'stories'], forceRegenerate = false) {
     console.log(`\n🎯 Starting quota-managed generation for: ${contentTypes.join(', ')}`);
+    console.log(`🔄 Force regenerate: ${forceRegenerate ? 'Yes' : 'No (skip unchanged files)'}`);
     
     for (const contentType of contentTypes) {
       if (!this.canMakeRequest()) {
@@ -605,16 +679,30 @@ class AudioScheduler {
       
       switch (contentType) {
         case 'book':
-          await this.generateBookAudio(voiceType);
+          await this.generateBookAudio(voiceType, forceRegenerate);
           break;
         case 'meditations':
-          await this.generateMeditationAudio(voiceType);
+          await this.generateMeditationAudio(voiceType, forceRegenerate);
           break;
         case 'stories':
-          await this.generateStoryAudio(voiceType);
+          await this.generateStoryAudio(voiceType, forceRegenerate);
           break;
       }
     }
+  }
+
+  // Check for modified files and regenerate only changed content
+  async checkAndRegenerateModified(voiceType = 'male', contentTypes = ['book', 'meditations', 'stories']) {
+    console.log(`\n🔍 Checking for modified files and regenerating audio...`);
+    
+    await this.generateWithQuotaManagement(voiceType, contentTypes, false); // false = only regenerate if source is newer
+  }
+
+  // Force regenerate all audio files
+  async forceRegenerateAll(voiceType = 'male', contentTypes = ['book', 'meditations', 'stories']) {
+    console.log(`\n🔄 Force regenerating all audio files...`);
+    
+    await this.generateWithQuotaManagement(voiceType, contentTypes, true); // true = force regenerate all
   }
 }
 
@@ -630,7 +718,20 @@ async function main() {
       case 'generate':
         const voiceType = args[1] || 'male';
         const contentTypes = args[2] ? args[2].split(',') : ['book', 'meditations', 'stories'];
-        await scheduler.generateWithQuotaManagement(voiceType, contentTypes);
+        const forceRegenerate = args.includes('--force');
+        await scheduler.generateWithQuotaManagement(voiceType, contentTypes, forceRegenerate);
+        break;
+        
+      case 'check':
+        const checkVoiceType = args[1] || 'male';
+        const checkContentTypes = args[2] ? args[2].split(',') : ['book', 'meditations', 'stories'];
+        await scheduler.checkAndRegenerateModified(checkVoiceType, checkContentTypes);
+        break;
+        
+      case 'force':
+        const forceVoiceType = args[1] || 'male';
+        const forceContentTypes = args[2] ? args[2].split(',') : ['book', 'meditations', 'stories'];
+        await scheduler.forceRegenerateAll(forceVoiceType, forceContentTypes);
         break;
         
       case 'schedule':
@@ -663,24 +764,50 @@ Usage:
   node scripts/audioScheduler.js <command> [options]
 
 Commands:
-  generate [voice] [content-types]  Generate audio for specified content
+  generate [voice] [content-types] [--force]  Generate audio for specified content
+    voice: male|female (default: male)
+    content-types: book,meditations,stories (default: all)
+    --force: Force regenerate all files (ignore modification times)
+    
+  check [voice] [content-types]              Check for modified files and regenerate only changed content
     voice: male|female (default: male)
     content-types: book,meditations,stories (default: all)
     
-  schedule                        Start automatic daily generation
-  status                          Show current quota status
-  test                           Test API connection
-  help                           Show this help message
+  force [voice] [content-types]              Force regenerate all audio files
+    voice: male|female (default: male)
+    content-types: book,meditations,stories (default: all)
+    
+  schedule                                    Start automatic daily generation
+  status                                      Show current quota status
+  test                                        Test API connection
+  help                                        Show this help message
 
 Examples:
+  # Generate only new/missing audio files
   node scripts/audioScheduler.js generate male book
   node scripts/audioScheduler.js generate female meditations,stories
+  
+  # Check for modified files and regenerate only changed content
+  node scripts/audioScheduler.js check male book
+  node scripts/audioScheduler.js check female meditations
+  
+  # Force regenerate all files (useful after voice changes)
+  node scripts/audioScheduler.js force male book
+  node scripts/audioScheduler.js force female meditations,stories
+  
+  # Start automatic daily generation
   node scripts/audioScheduler.js schedule
+  
+  # Check quota status
   node scripts/audioScheduler.js status
 
 Environment Variables:
   GEMINI_API_KEY                 Required: Your Gemini API key
   GEMINI_PAID_TIER              Optional: Set to 'true' for paid tier
+
+File Change Detection:
+  The scheduler automatically detects when markdown files are modified
+  and only regenerates audio for changed content, saving API quota.
         `);
         break;
     }

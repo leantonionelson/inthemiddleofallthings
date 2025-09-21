@@ -16,6 +16,8 @@
     "test-audio-female": "node scripts/generateAudio.js test female",
     "audio-schedule": "node scripts/audioScheduler.js schedule",
     "audio-generate": "node scripts/audioScheduler.js generate",
+    "audio-check": "node scripts/audioScheduler.js check",
+    "audio-force": "node scripts/audioScheduler.js force",
     "audio-status": "node scripts/audioScheduler.js status",
     "audio-test": "node scripts/audioScheduler.js test"
   },
