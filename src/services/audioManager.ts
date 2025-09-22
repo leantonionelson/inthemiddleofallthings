@@ -76,6 +76,8 @@ class AudioManagerService {
         this.voicePreference = saved;
       }
     }
+    // Ensure pre-generated service is synced with our preference
+    this.preGeneratedService.setVoicePreference(this.voicePreference);
   }
 
   /**

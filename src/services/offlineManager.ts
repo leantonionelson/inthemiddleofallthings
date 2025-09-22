@@ -352,11 +352,8 @@ class OfflineManagerService {
 
   private getStorageAvailable(): number {
     // Estimate available storage (this is approximate)
-    if ('storage' in navigator && 'estimate' in navigator.storage) {
-      return navigator.storage.estimate().then(estimate => 
-        (estimate.quota || 0) - (estimate.usage || 0)
-      ).catch(() => 50 * 1024 * 1024); // 50MB fallback
-    }
+    // Note: This is a synchronous approximation since we can't await in a sync method
+    // For more accurate storage info, use getStorageInfo() method instead
     return 50 * 1024 * 1024; // 50MB fallback
   }
 

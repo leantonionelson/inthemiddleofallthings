@@ -26,13 +26,18 @@ const OfflinePage: React.FC = () => {
 
   useEffect(() => {
     // Load all book chapters
-    const allChapters: BookChapter[] = [];
-    bookContent.forEach(part => {
-      part.chapters.forEach(chapter => {
-        allChapters.push(chapter);
-      });
-    });
-    setSelectedChapters(allChapters);
+    const loadChapters = async () => {
+      try {
+        const chapters = await bookContent.loadChapters();
+        setSelectedChapters(chapters);
+      } catch (error) {
+        console.error('Failed to load chapters:', error);
+        // Fallback to empty array
+        setSelectedChapters([]);
+      }
+    };
+    
+    loadChapters();
   }, []);
 
   const formatBytes = (bytes: number): string => {

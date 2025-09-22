@@ -17,6 +17,7 @@ interface AudioIndex {
     chapterNumber: number;
     audioFile: string;
     hasAudio: boolean;
+    voiceType?: 'male' | 'female';
   }[];
 }
 
@@ -107,17 +108,14 @@ class PreGeneratedAudioService {
 
     const baseId = chapter.id || `chapter-${chapter.chapterNumber}`;
     
-    // Look for voice-specific file first (new format)
-    let expectedFileName = `${baseId}_${this.userVoicePreference}.wav`;
-    let indexEntry = this.audioIndex.chapters.find(c => c.audioFile === expectedFileName);
+    // Look for voice-specific file with matching voiceType
+    const indexEntry = this.audioIndex.chapters.find(c => 
+      c.id === baseId && 
+      c.voiceType === this.userVoicePreference && 
+      c.hasAudio
+    );
     
-    // Fallback to old format (without voice suffix) for existing files
-    if (!indexEntry) {
-      expectedFileName = `${baseId}.wav`;
-      indexEntry = this.audioIndex.chapters.find(c => c.audioFile === expectedFileName);
-    }
-    
-    return indexEntry?.hasAudio || false;
+    return !!indexEntry;
   }
 
   /**
@@ -139,17 +137,14 @@ class PreGeneratedAudioService {
 
     const baseId = chapter.id || `chapter-${chapter.chapterNumber}`;
     
-    // Look for voice-specific file first (new format)
-    let expectedFileName = `${baseId}_${this.userVoicePreference}.wav`;
-    let indexEntry = this.audioIndex.chapters.find(c => c.audioFile === expectedFileName);
+    // Look for voice-specific file with matching voiceType
+    const indexEntry = this.audioIndex.chapters.find(c => 
+      c.id === baseId && 
+      c.voiceType === this.userVoicePreference && 
+      c.hasAudio
+    );
     
-    // Fallback to old format (without voice suffix) for existing files
     if (!indexEntry) {
-      expectedFileName = `${baseId}.wav`;
-      indexEntry = this.audioIndex.chapters.find(c => c.audioFile === expectedFileName);
-    }
-    
-    if (!indexEntry?.hasAudio) {
       return null;
     }
 

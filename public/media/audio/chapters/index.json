@@ -1,15 +1,34 @@
 {
-  "generated": 1758397947392,
-  "voiceType": "female",
-  "voice": "Zephyr",
+  "generated": 1758536765292,
+  "voiceType": "both",
+  "voice": "Charon (male) and Zephyr (female)",
   "chapters": [
     {
       "id": "introduction",
       "title": "Introduction: A Centre That Moves",
       "part": "Introduction",
       "chapterNumber": 1,
+      "audioFile": "introduction_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
+    },
+    {
+      "id": "introduction",
+      "title": "Introduction: A Centre That Moves",
+      "part": "Introduction",
+      "chapterNumber": 1,
       "audioFile": "introduction_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "part-1-intro",
+      "title": "Part I: The Axis of Becoming",
+      "part": "Part I: The Axis of Becoming",
+      "chapterNumber": 2,
+      "audioFile": "part-1-intro_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "part-1-intro",
@@ -17,7 +36,17 @@
       "part": "Part I: The Axis of Becoming",
       "chapterNumber": 2,
       "audioFile": "part-1-intro_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-1",
+      "title": "1. The Axis of Consequence",
+      "part": "Part I: The Axis of Becoming",
+      "chapterNumber": 3,
+      "audioFile": "chapter-1_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-1",
@@ -25,7 +54,17 @@
       "part": "Part I: The Axis of Becoming",
       "chapterNumber": 3,
       "audioFile": "chapter-1_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-2",
+      "title": "2. The Shape of Desire",
+      "part": "Part I: The Axis of Becoming",
+      "chapterNumber": 4,
+      "audioFile": "chapter-2_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-2",
@@ -33,7 +72,17 @@
       "part": "Part I: The Axis of Becoming",
       "chapterNumber": 4,
       "audioFile": "chapter-2_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-3",
+      "title": "3. The Weight of Choice",
+      "part": "Part I: The Axis of Becoming",
+      "chapterNumber": 5,
+      "audioFile": "chapter-3_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-3",
@@ -41,7 +90,17 @@
       "part": "Part I: The Axis of Becoming",
       "chapterNumber": 5,
       "audioFile": "chapter-3_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-4",
+      "title": "4. The Discipline of Becoming",
+      "part": "Part I: The Axis of Becoming",
+      "chapterNumber": 6,
+      "audioFile": "chapter-4_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-4",
@@ -49,7 +108,17 @@
       "part": "Part I: The Axis of Becoming",
       "chapterNumber": 6,
       "audioFile": "chapter-4_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-5",
+      "title": "5. The Voice of Resistance",
+      "part": "Part I: The Axis of Becoming",
+      "chapterNumber": 7,
+      "audioFile": "chapter-5_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-5",
@@ -57,7 +126,17 @@
       "part": "Part I: The Axis of Becoming",
       "chapterNumber": 7,
       "audioFile": "chapter-5_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-6",
+      "title": "6. Integration and Return",
+      "part": "Part I: The Axis of Becoming",
+      "chapterNumber": 8,
+      "audioFile": "chapter-6_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-6",
@@ -65,7 +144,17 @@
       "part": "Part I: The Axis of Becoming",
       "chapterNumber": 8,
       "audioFile": "chapter-6_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "part-2-intro",
+      "title": "Part II: The Spiral Path",
+      "part": "Part II: The Spiral Path",
+      "chapterNumber": 9,
+      "audioFile": "part-2-intro_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "part-2-intro",
@@ -73,7 +162,17 @@
       "part": "Part II: The Spiral Path",
       "chapterNumber": 9,
       "audioFile": "part-2-intro_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-7",
+      "title": "7. The Spiral Path",
+      "part": "Part II: The Spiral Path",
+      "chapterNumber": 10,
+      "audioFile": "chapter-7_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-7",
@@ -81,7 +180,17 @@
       "part": "Part II: The Spiral Path",
       "chapterNumber": 10,
       "audioFile": "chapter-7_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-8",
+      "title": "8. The Return of the Old Self",
+      "part": "Part II: The Spiral Path",
+      "chapterNumber": 11,
+      "audioFile": "chapter-8_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-8",
@@ -89,7 +198,17 @@
       "part": "Part II: The Spiral Path",
       "chapterNumber": 11,
       "audioFile": "chapter-8_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-9",
+      "title": "9. Rest and the Sacred Pause",
+      "part": "Part II: The Spiral Path",
+      "chapterNumber": 12,
+      "audioFile": "chapter-9_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-9",
@@ -97,7 +216,17 @@
       "part": "Part II: The Spiral Path",
       "chapterNumber": 12,
       "audioFile": "chapter-9_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-10",
+      "title": "10. Other People, Other Mirrors",
+      "part": "Part II: The Spiral Path",
+      "chapterNumber": 13,
+      "audioFile": "chapter-10_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-10",
@@ -105,7 +234,17 @@
       "part": "Part II: The Spiral Path",
       "chapterNumber": 13,
       "audioFile": "chapter-10_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-11",
+      "title": "11. Time and the Myth of Readiness",
+      "part": "Part II: The Spiral Path",
+      "chapterNumber": 14,
+      "audioFile": "chapter-11_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-11",
@@ -113,7 +252,17 @@
       "part": "Part II: The Spiral Path",
       "chapterNumber": 14,
       "audioFile": "chapter-11_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-12",
+      "title": "12. Falling and Rising Again",
+      "part": "Part II: The Spiral Path",
+      "chapterNumber": 15,
+      "audioFile": "chapter-12_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-12",
@@ -121,7 +270,17 @@
       "part": "Part II: The Spiral Path",
       "chapterNumber": 15,
       "audioFile": "chapter-12_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "part-3-intro",
+      "title": "Part III: The Living Axis",
+      "part": "Part III: The Living Axis",
+      "chapterNumber": 16,
+      "audioFile": "part-3-intro_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "part-3-intro",
@@ -129,7 +288,17 @@
       "part": "Part III: The Living Axis",
       "chapterNumber": 16,
       "audioFile": "part-3-intro_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-13",
+      "title": "13. The Body as Compass",
+      "part": "Part III: The Living Axis",
+      "chapterNumber": 17,
+      "audioFile": "chapter-13_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-13",
@@ -137,7 +306,17 @@
       "part": "Part III: The Living Axis",
       "chapterNumber": 17,
       "audioFile": "chapter-13_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-14",
+      "title": "14. Emotion as Messenger, Not Master",
+      "part": "Part III: The Living Axis",
+      "chapterNumber": 18,
+      "audioFile": "chapter-14_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-14",
@@ -145,7 +324,17 @@
       "part": "Part III: The Living Axis",
       "chapterNumber": 18,
       "audioFile": "chapter-14_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-15",
+      "title": "15. Living in the Middle",
+      "part": "Part III: The Living Axis",
+      "chapterNumber": 19,
+      "audioFile": "chapter-15_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-15",
@@ -153,7 +342,17 @@
       "part": "Part III: The Living Axis",
       "chapterNumber": 19,
       "audioFile": "chapter-15_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-16",
+      "title": "16. The World as Field of Practice",
+      "part": "Part III: The Living Axis",
+      "chapterNumber": 20,
+      "audioFile": "chapter-16_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-16",
@@ -161,7 +360,17 @@
       "part": "Part III: The Living Axis",
       "chapterNumber": 20,
       "audioFile": "chapter-16_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-17",
+      "title": "17. The Unfolding Now",
+      "part": "Part III: The Living Axis",
+      "chapterNumber": 21,
+      "audioFile": "chapter-17_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-17",
@@ -169,7 +378,17 @@
       "part": "Part III: The Living Axis",
       "chapterNumber": 21,
       "audioFile": "chapter-17_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "part-4-intro",
+      "title": "Part IV: The Horizon Beyond",
+      "part": "Part IV: The Horizon Beyond",
+      "chapterNumber": 22,
+      "audioFile": "part-4-intro_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "part-4-intro",
@@ -177,7 +396,17 @@
       "part": "Part IV: The Horizon Beyond",
       "chapterNumber": 22,
       "audioFile": "part-4-intro_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-18",
+      "title": "18. Echoes and Imprints",
+      "part": "Part IV: The Horizon Beyond",
+      "chapterNumber": 23,
+      "audioFile": "chapter-18_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-18",
@@ -185,7 +414,17 @@
       "part": "Part IV: The Horizon Beyond",
       "chapterNumber": 23,
       "audioFile": "chapter-18_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-19",
+      "title": "19. The Shape of Mortality",
+      "part": "Part IV: The Horizon Beyond",
+      "chapterNumber": 24,
+      "audioFile": "chapter-19_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-19",
@@ -193,7 +432,17 @@
       "part": "Part IV: The Horizon Beyond",
       "chapterNumber": 24,
       "audioFile": "chapter-19_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-20",
+      "title": "20. Transcendence Without Escape",
+      "part": "Part IV: The Horizon Beyond",
+      "chapterNumber": 25,
+      "audioFile": "chapter-20_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-20",
@@ -201,7 +450,17 @@
       "part": "Part IV: The Horizon Beyond",
       "chapterNumber": 25,
       "audioFile": "chapter-20_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-21",
+      "title": "21. Being Part of Something Larger",
+      "part": "Part IV: The Horizon Beyond",
+      "chapterNumber": 26,
+      "audioFile": "chapter-21_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-21",
@@ -209,7 +468,17 @@
       "part": "Part IV: The Horizon Beyond",
       "chapterNumber": 26,
       "audioFile": "chapter-21_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-22",
+      "title": "22. The Silence That Holds Us",
+      "part": "Part IV: The Horizon Beyond",
+      "chapterNumber": 27,
+      "audioFile": "chapter-22_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-22",
@@ -217,7 +486,17 @@
       "part": "Part IV: The Horizon Beyond",
       "chapterNumber": 27,
       "audioFile": "chapter-22_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "chapter-23",
+      "title": "23. The Spiral Never Ends",
+      "part": "Part IV: The Horizon Beyond",
+      "chapterNumber": 28,
+      "audioFile": "chapter-23_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "chapter-23",
@@ -225,7 +504,17 @@
       "part": "Part IV: The Horizon Beyond",
       "chapterNumber": 28,
       "audioFile": "chapter-23_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
+    },
+    {
+      "id": "outro",
+      "title": "Begin Again",
+      "part": "Outro",
+      "chapterNumber": 29,
+      "audioFile": "outro_male.wav",
+      "hasAudio": true,
+      "voiceType": "male"
     },
     {
       "id": "outro",
@@ -233,7 +522,8 @@
       "part": "Outro",
       "chapterNumber": 29,
       "audioFile": "outro_female.wav",
-      "hasAudio": true
+      "hasAudio": true,
+      "voiceType": "female"
     }
   ]
 }
