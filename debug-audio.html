@@ -53,20 +53,52 @@
                     return;
                 }
                 
-                // Test 4: Try to create audio element
-                console.log('Creating audio element...');
-                const audio = new Audio(audioUrl);
+                // Test 4: Try blob-based loading (same as the app now uses)
+                console.log('Testing blob-based loading...');
+                
+                // Fetch audio file as blob
+                const audioBlobResponse = await fetch(audioUrl);
+                if (!audioBlobResponse.ok) {
+                    resultDiv.innerHTML = `❌ Failed to fetch audio blob: ${audioBlobResponse.status}`;
+                    return;
+                }
+                
+                const audioBlob = await audioBlobResponse.blob();
+                const blobUrl = URL.createObjectURL(audioBlob);
+                console.log('✅ Audio blob created, blob URL:', blobUrl);
+                
+                // Create audio element with blob URL
+                const audio = new Audio(blobUrl);
+                
+                // Add more detailed error handling
+                audio.addEventListener('loadstart', () => {
+                    console.log('🔄 Audio load started');
+                });
+                
+                audio.addEventListener('canplay', () => {
+                    console.log('✅ Audio can play');
+                });
                 
                 audio.addEventListener('loadedmetadata', () => {
                     console.log('✅ Audio metadata loaded');
-                    resultDiv.innerHTML = `✅ Audio test successful!<br>URL: ${audioUrl}<br>Duration: ${audio.duration}s`;
+                    resultDiv.innerHTML = `✅ Blob-based audio test successful!<br>Original URL: ${audioUrl}<br>Blob URL: ${blobUrl}<br>Duration: ${audio.duration}s`;
                 });
                 
                 audio.addEventListener('error', (e) => {
                     console.error('❌ Audio error:', e);
-                    resultDiv.innerHTML = `❌ Audio element error: ${e.type}`;
+                    console.error('Error details:', {
+                        type: e.type,
+                        target: e.target,
+                        currentTarget: e.currentTarget,
+                        src: audio.src,
+                        networkState: audio.networkState,
+                        readyState: audio.readyState
+                    });
+                    URL.revokeObjectURL(blobUrl); // Clean up blob URL
+                    resultDiv.innerHTML = `❌ Audio element error: ${e.type}<br>Network State: ${audio.networkState}<br>Ready State: ${audio.readyState}`;
                 });
                 
+                console.log('Audio element created with blob URL, calling load()...');
                 audio.load();
                 
             } catch (error) {

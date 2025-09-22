@@ -23,6 +23,7 @@ interface AudioIndex {
 
 interface AudioMetadata {
   audioUrl: string;
+  blobUrl?: string; // Blob URL for pre-generated audio
   duration: number;
   wordTimings: number[];
   isPreGenerated: boolean;
@@ -167,8 +168,18 @@ class PreGeneratedAudioService {
 
       console.log(`🎵 Loading pre-generated audio: ${chapter.title} (${this.userVoicePreference} voice)`);
 
-      // Create audio element to get duration
-      const audio = new Audio(audioUrl);
+      // Fetch audio file as blob to avoid CORS and cache issues
+      const audioResponse = await fetch(audioUrl);
+      if (!audioResponse.ok) {
+        throw new Error(`Failed to fetch audio: ${audioResponse.status} ${audioResponse.statusText}`);
+      }
+      
+      const audioBlob = await audioResponse.blob();
+      const blobUrl = URL.createObjectURL(audioBlob);
+      console.log('✅ Audio blob created, blob URL:', blobUrl);
+
+      // Create audio element with blob URL
+      const audio = new Audio(blobUrl);
       const duration = await new Promise<number>((resolve) => {
         audio.addEventListener('loadedmetadata', () => {
           console.log('✅ Audio metadata loaded successfully');
@@ -176,14 +187,16 @@ class PreGeneratedAudioService {
         });
         audio.addEventListener('error', (e) => {
           console.error('❌ Audio loading error:', e);
+          URL.revokeObjectURL(blobUrl); // Clean up blob URL
           resolve(this.estimateDuration(chapter.content));
         });
         // Set a timeout in case the audio doesn't load
         setTimeout(() => {
           console.warn('⏰ Audio loading timeout');
+          URL.revokeObjectURL(blobUrl); // Clean up blob URL
           resolve(this.estimateDuration(chapter.content));
         }, 5000);
-        console.log('🔄 Loading audio element...');
+        console.log('🔄 Loading audio element with blob URL...');
         audio.load();
       });
 
@@ -192,6 +205,7 @@ class PreGeneratedAudioService {
 
       const audioMetadata: AudioMetadata = {
         audioUrl,
+        blobUrl,
         duration,
         wordTimings,
         isPreGenerated: true
@@ -285,11 +299,17 @@ class PreGeneratedAudioService {
   }
 
   /**
-   * Clear memory cache
+   * Clear memory cache and clean up blob URLs
    */
   clearCache(): void {
+    // Clean up blob URLs before clearing cache
+    for (const [key, metadata] of this.audioCache.entries()) {
+      if (metadata.blobUrl) {
+        URL.revokeObjectURL(metadata.blobUrl);
+      }
+    }
     this.audioCache.clear();
-    console.log('Pre-generated audio cache cleared');
+    console.log('Pre-generated audio cache cleared and blob URLs cleaned up');
   }
 }
 

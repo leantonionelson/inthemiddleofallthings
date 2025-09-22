@@ -266,7 +266,9 @@ class AudioManagerService {
       const preGeneratedAudio = await this.preGeneratedService.getPreGeneratedAudio(chapter);
       if (preGeneratedAudio) {
         console.log('🎵 Using pre-generated audio (no API usage)');
-        await this.setupPreGeneratedAudio(preGeneratedAudio.audioUrl, preGeneratedAudio.duration);
+        // Use blob URL if available, otherwise fall back to original URL
+        const audioUrl = preGeneratedAudio.blobUrl || preGeneratedAudio.audioUrl;
+        await this.setupPreGeneratedAudio(audioUrl, preGeneratedAudio.duration);
         this.updatePlaybackState({ 
           audioSource: 'pre-generated',
           duration: preGeneratedAudio.duration,
@@ -533,6 +535,12 @@ class AudioManagerService {
     if (this.currentAudio) {
       this.currentAudio.pause();
       this.currentAudio.currentTime = 0;
+      
+      // Clean up blob URL if it's a blob URL
+      if (this.currentAudio.src.startsWith('blob:')) {
+        URL.revokeObjectURL(this.currentAudio.src);
+      }
+      
       this.currentAudio = null;
     }
 
