@@ -13,6 +13,7 @@ import { BookChapter } from '../types';
 import { getGeminiTTSService } from './geminiTTS';
 import { getPreGeneratedAudioService } from './preGeneratedAudio';
 import { mediaSessionService } from './mediaSession';
+import { audioPlaylistService, PlaylistItem, PlaylistCallbacks } from './audioPlaylist';
 
 export interface AudioPlaybackState {
   isPlaying: boolean;
@@ -31,6 +32,8 @@ export interface AudioManagerCallbacks {
   onComplete?: () => void;
   onPrevious?: () => void;
   onNext?: () => void;
+  onTrackChange?: (item: PlaylistItem, index: number) => void;
+  onPlaylistStateChange?: (state: any) => void;
 }
 
 class AudioManagerService {
@@ -57,6 +60,7 @@ class AudioManagerService {
     this.loadVoicePreference();
     this.setupNavigationHandling();
     this.setupMobileAudioUnlock();
+    this.setupPlaylistIntegration();
   }
 
   public static getInstance(): AudioManagerService {
@@ -165,6 +169,61 @@ class AudioManagerService {
     events.forEach(event => {
       document.addEventListener(event, unlockAudio, { once: true, passive: true });
     });
+  }
+
+  /**
+   * Setup playlist integration
+   */
+  private setupPlaylistIntegration(): void {
+    // Set up playlist callbacks
+    audioPlaylistService.setCallbacks({
+      onTrackChange: (item: PlaylistItem, index: number) => {
+        console.log(`🎵 Playlist: Track changed to ${item.title} (${index + 1}/${audioPlaylistService.getLength()})`);
+        this.callbacks.onTrackChange?.(item, index);
+        
+        // Convert playlist item to BookChapter and initialize audio
+        const chapter: BookChapter = {
+          id: item.id,
+          title: item.title,
+          content: item.content,
+          part: item.part,
+          chapterNumber: item.chapterNumber
+        };
+        
+        this.initializeAudio(chapter, this.callbacks);
+      },
+      onPlaybackStateChange: (isPlaying: boolean) => {
+        this.updatePlaybackState({ isPlaying });
+      },
+      onProgress: (currentTime: number, duration: number) => {
+        const progress = duration > 0 ? currentTime / duration : 0;
+        this.updatePlaybackState({ currentTime, duration });
+        this.callbacks.onProgress?.(progress);
+      },
+      onComplete: () => {
+        console.log('🎵 Playlist: Track completed, moving to next');
+        this.handleTrackComplete();
+      },
+      onError: (error: string) => {
+        console.error('🎵 Playlist error:', error);
+        this.updatePlaybackState({ error, isPlaying: false });
+      }
+    });
+  }
+
+  /**
+   * Handle track completion and move to next track in playlist
+   */
+  private handleTrackComplete(): void {
+    const nextItem = audioPlaylistService.next();
+    if (nextItem) {
+      console.log(`🎵 Auto-advancing to next track: ${nextItem.title}`);
+      // The playlist service will trigger onTrackChange which will initialize the new audio
+    } else {
+      console.log('🎵 Playlist completed');
+      this.updatePlaybackState({ isPlaying: false, currentTime: 0 });
+      this.callbacks.onComplete?.();
+    }
   }
 
   /**
@@ -409,17 +468,43 @@ class AudioManagerService {
     // Set up Media Session for native mobile controls
     if (mediaSessionService.isSupported() && this.currentChapter) {
       mediaSessionService.setAudioElement(audio);
-      mediaSessionService.setMetadata(this.currentChapter);
+      
+      // Get current playlist item for enhanced metadata
+      const currentPlaylistItem = audioPlaylistService.getCurrentItem();
+      mediaSessionService.setMetadata(this.currentChapter, currentPlaylistItem);
+      
       mediaSessionService.setActionHandlers({
         onPlayPause: () => this.togglePlayPause(),
-        onPrevious: () => this.callbacks.onPrevious?.(),
-        onNext: () => this.callbacks.onNext?.(),
+        onPrevious: () => {
+          if (audioPlaylistService.getLength() > 0) {
+            this.previousTrack();
+          } else {
+            this.callbacks.onPrevious?.();
+          }
+        },
+        onNext: () => {
+          if (audioPlaylistService.getLength() > 0) {
+            this.nextTrack();
+          } else {
+            this.callbacks.onNext?.();
+          }
+        },
         onSeek: (time: number) => {
           if (audio) {
             audio.currentTime = time;
           }
-        }
+        },
+        onSeekToPosition: (position: number) => {
+          if (audio && audio.duration) {
+            audio.currentTime = position * audio.duration;
+          }
+        },
+        onToggleShuffle: () => this.toggleShuffle(),
+        onToggleRepeat: () => this.cycleRepeatMode()
       });
+
+      // Enable enhanced mobile controls
+      mediaSessionService.updateMobileControls();
     }
 
     // Set up audio event listeners
@@ -600,6 +685,81 @@ class AudioManagerService {
    */
   public getPlaybackState(): AudioPlaybackState {
     return { ...this.playbackState };
+  }
+
+  /**
+   * Create a playlist from chapters, meditations, or stories
+   */
+  public createPlaylist(
+    items: BookChapter[], 
+    type: 'chapter' | 'meditation' | 'story',
+    startIndex: number = 0
+  ): void {
+    audioPlaylistService.createPlaylist(items, type, startIndex);
+    console.log(`🎵 AudioManager: Created ${type} playlist with ${items.length} items`);
+  }
+
+  /**
+   * Get current playlist item
+   */
+  public getCurrentPlaylistItem(): PlaylistItem | null {
+    return audioPlaylistService.getCurrentItem();
+  }
+
+  /**
+   * Get playlist state
+   */
+  public getPlaylistState(): any {
+    return audioPlaylistService.getPlaylistState();
+  }
+
+  /**
+   * Move to next track in playlist
+   */
+  public nextTrack(): PlaylistItem | null {
+    return audioPlaylistService.next();
+  }
+
+  /**
+   * Move to previous track in playlist
+   */
+  public previousTrack(): PlaylistItem | null {
+    return audioPlaylistService.previous();
+  }
+
+  /**
+   * Jump to specific track in playlist
+   */
+  public jumpToTrack(index: number): PlaylistItem | null {
+    return audioPlaylistService.jumpTo(index);
+  }
+
+  /**
+   * Toggle shuffle mode
+   */
+  public toggleShuffle(): boolean {
+    return audioPlaylistService.toggleShuffle();
+  }
+
+  /**
+   * Cycle through repeat modes
+   */
+  public cycleRepeatMode(): 'none' | 'one' | 'all' {
+    return audioPlaylistService.cycleRepeatMode();
+  }
+
+  /**
+   * Check if there's a next track available
+   */
+  public hasNextTrack(): boolean {
+    return audioPlaylistService.hasNext();
+  }
+
+  /**
+   * Check if there's a previous track available
+   */
+  public hasPreviousTrack(): boolean {
+    return audioPlaylistService.hasPrevious();
   }
 
   /**
