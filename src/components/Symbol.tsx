@@ -61,7 +61,7 @@ export function Symbol({
     >
       {/* Symbol SVG */}
       <div 
-        className="relative p-4"
+        className="relative"
         style={{ width: size, height: size }}
       >
         <svg

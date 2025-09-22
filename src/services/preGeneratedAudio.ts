@@ -32,8 +32,16 @@ interface AudioMetadata {
 class PreGeneratedAudioService {
   private audioIndex: AudioIndex | null = null;
   private audioCache: Map<string, AudioMetadata> = new Map();
-  private readonly AUDIO_BASE_PATH = '/media/audio/chapters/';
-  private readonly INDEX_PATH = '/media/audio/chapters/index.json';
+  private readonly AUDIO_BASE_PATHS = {
+    chapters: '/media/audio/chapters/',
+    meditations: '/media/audio/meditations/',
+    stories: '/media/audio/stories/'
+  };
+  private readonly INDEX_PATHS = {
+    chapters: '/media/audio/chapters/index.json',
+    meditations: '/media/audio/meditations/index.json',
+    stories: '/media/audio/stories/index.json'
+  };
   private userVoicePreference: 'male' | 'female' = 'male'; // Default to male voice
 
   constructor() {
@@ -78,16 +86,29 @@ class PreGeneratedAudioService {
    */
   private async loadAudioIndex(): Promise<void> {
     try {
-      const response = await fetch(this.INDEX_PATH);
+      // Try to load chapters index first (most common)
+      const response = await fetch(this.INDEX_PATHS.chapters);
       if (response.ok) {
         this.audioIndex = await response.json();
-        console.log(`📄 Loaded audio index with ${this.audioIndex?.chapters.length || 0} chapters`);
+        console.log(`📄 Loaded chapters audio index with ${this.audioIndex?.chapters.length || 0} entries`);
       } else {
-        console.log('📄 No pre-generated audio index found - will use real-time TTS');
+        console.log('📄 No chapters audio index found - will use real-time TTS');
       }
     } catch (error) {
       console.log('📄 Could not load audio index - will use real-time TTS');
     }
+  }
+
+  /**
+   * Determine content type from chapter part
+   */
+  private getContentType(chapter: BookChapter): 'chapters' | 'meditations' | 'stories' {
+    if (chapter.part?.toLowerCase().includes('meditation')) {
+      return 'meditations';
+    } else if (chapter.part?.toLowerCase().includes('story')) {
+      return 'stories';
+    }
+    return 'chapters';
   }
 
   /**
@@ -97,6 +118,85 @@ class PreGeneratedAudioService {
     // Match the ID generation from the script
     const baseId = chapter.id || `chapter-${chapter.chapterNumber}`;
     return `${baseId}_${this.userVoicePreference}`;
+  }
+
+  /**
+   * Get audio file directly for meditations and stories (no index file)
+   */
+  private async getDirectAudioFile(chapter: BookChapter, contentType: 'meditations' | 'stories'): Promise<AudioMetadata | null> {
+    const baseId = chapter.id || `chapter-${chapter.chapterNumber}`;
+    const audioFileName = `${baseId}_${this.userVoicePreference}.wav`;
+    const audioUrl = this.AUDIO_BASE_PATHS[contentType] + audioFileName;
+    
+    console.log(`🔍 Checking direct audio file: ${audioUrl}`);
+    
+    try {
+      // Verify the file exists
+      const response = await fetch(audioUrl, { method: 'HEAD' });
+      console.log('📡 Direct fetch response:', response.status, response.statusText);
+      
+      if (!response.ok) {
+        console.log(`⚠️ Direct audio file not found: ${audioUrl}`);
+        return null;
+      }
+
+      console.log(`🎵 Loading direct audio: ${chapter.title} (${this.userVoicePreference} voice)`);
+
+      // Fetch audio file as blob to avoid CORS and cache issues
+      const audioResponse = await fetch(audioUrl);
+      if (!audioResponse.ok) {
+        throw new Error(`Failed to fetch audio: ${audioResponse.status} ${audioResponse.statusText}`);
+      }
+      
+      const audioBlob = await audioResponse.blob();
+      const blobUrl = URL.createObjectURL(audioBlob);
+      console.log('✅ Direct audio blob created, blob URL:', blobUrl);
+
+      // Create audio element with blob URL
+      const audio = new Audio(blobUrl);
+      const duration = await new Promise<number>((resolve) => {
+        audio.addEventListener('loadedmetadata', () => {
+          console.log('✅ Direct audio metadata loaded successfully');
+          resolve(audio.duration || this.estimateDuration(chapter.content));
+        });
+        audio.addEventListener('error', (e) => {
+          console.error('❌ Direct audio loading error:', e);
+          // Don't revoke blob URL here - let audioManager handle cleanup
+          resolve(this.estimateDuration(chapter.content));
+        });
+        // Set a timeout in case the audio doesn't load
+        setTimeout(() => {
+          console.warn('⏰ Direct audio loading timeout');
+          // Don't revoke blob URL here - let audioManager handle cleanup
+          resolve(this.estimateDuration(chapter.content));
+        }, 5000);
+        console.log('🔄 Loading direct audio element with blob URL...');
+        audio.load();
+      });
+
+      // Generate word timings based on estimated reading speed
+      const wordTimings = this.generateWordTimings(chapter.content, duration);
+
+      const audioMetadata: AudioMetadata = {
+        audioUrl,
+        blobUrl,
+        duration,
+        wordTimings,
+        isPreGenerated: true
+      };
+
+      // Cache for future use
+      const cacheKey = this.getChapterId(chapter);
+      this.audioCache.set(cacheKey, audioMetadata);
+
+      console.log(`✅ Direct audio loaded: ${chapter.title} (${this.userVoicePreference} voice, ${duration.toFixed(1)}s)`);
+      
+      return audioMetadata;
+
+    } catch (error) {
+      console.error(`❌ Error loading direct audio for ${chapter.title}:`, error);
+      return null;
+    }
   }
 
   /**
@@ -132,7 +232,15 @@ class PreGeneratedAudioService {
       return this.audioCache.get(cacheKey)!;
     }
 
-    // Check if we have this chapter in our index
+    const contentType = this.getContentType(chapter);
+    console.log(`🔍 Content type: ${contentType}`);
+
+    // For meditations and stories, try direct file access since they may not have index files
+    if (contentType === 'meditations' || contentType === 'stories') {
+      return await this.getDirectAudioFile(chapter, contentType);
+    }
+
+    // For chapters, use the index-based approach
     if (!this.audioIndex) {
       return null;
     }
@@ -155,7 +263,7 @@ class PreGeneratedAudioService {
     }
 
     try {
-      const audioUrl = this.AUDIO_BASE_PATH + indexEntry.audioFile;
+      const audioUrl = this.AUDIO_BASE_PATHS.chapters + indexEntry.audioFile;
       console.log('🔍 Checking pre-generated audio file:', audioUrl);
       
       // Verify the file exists and get metadata
