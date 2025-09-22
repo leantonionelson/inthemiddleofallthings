@@ -61,8 +61,8 @@ class PreGeneratedAudioService {
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem('audioVoicePreference', voice);
     }
-    // Clear cache since we need different audio files now
-    this.audioCache.clear();
+    // Clear cache and clean up blob URLs since we need different audio files now
+    this.clearCache();
     console.log(`🎙️ Voice preference set to: ${voice}`);
   }
 
@@ -187,13 +187,13 @@ class PreGeneratedAudioService {
         });
         audio.addEventListener('error', (e) => {
           console.error('❌ Audio loading error:', e);
-          URL.revokeObjectURL(blobUrl); // Clean up blob URL
+          // Don't revoke blob URL here - let audioManager handle cleanup
           resolve(this.estimateDuration(chapter.content));
         });
         // Set a timeout in case the audio doesn't load
         setTimeout(() => {
           console.warn('⏰ Audio loading timeout');
-          URL.revokeObjectURL(blobUrl); // Clean up blob URL
+          // Don't revoke blob URL here - let audioManager handle cleanup
           resolve(this.estimateDuration(chapter.content));
         }, 5000);
         console.log('🔄 Loading audio element with blob URL...');

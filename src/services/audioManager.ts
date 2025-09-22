@@ -90,6 +90,10 @@ class AudioManagerService {
     }
     // Update pre-generated service
     this.preGeneratedService.setVoicePreference(voice);
+    
+    // Stop current audio and clear any blob URLs
+    this.stopAudio();
+    
     console.log(`🎙️ Audio Manager: Voice preference set to ${voice}`);
   }
 

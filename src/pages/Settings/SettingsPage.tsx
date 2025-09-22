@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppRoute } from '../../types';
 import StandardHeader from '../../components/StandardHeader';
 import { geminiTTSService } from '../../services/geminiTTS';
+import { audioManagerService } from '../../services/audioManager';
 import { authService, UserProfile } from '../../services/firebaseAuth';
 import InstallButton from '../../components/InstallButton';
 
@@ -89,9 +90,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
     setVoicePreference(newVoice);
     localStorage.setItem('audioVoicePreference', newVoice);
     
-    // Update the pre-generated audio service with new voice preference
-    const { preGeneratedAudioService } = require('../../services/preGeneratedAudio');
-    preGeneratedAudioService.setVoicePreference(newVoice);
+    // Update the audio manager with new voice preference
+    audioManagerService.setVoicePreference(newVoice);
   };
 
   const handleDownloadAllAudio = async () => {
