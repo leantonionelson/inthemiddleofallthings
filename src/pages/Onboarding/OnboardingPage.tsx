@@ -465,10 +465,10 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-6">
-      <div className="w-full max-w-2xl">
-        {/* Header with Close and Skip buttons */}
-        <div className="flex justify-between items-center mb-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Fixed Header with Close and Skip buttons */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex justify-between items-center px-6 py-4">
           <button
             onClick={onClose}
             className="flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
@@ -487,6 +487,11 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
             </button>
           )}
         </div>
+      </div>
+
+      {/* Main content with top padding to account for fixed header */}
+      <div className="pt-20 flex items-center justify-center p-6 min-h-screen">
+        <div className="w-full max-w-2xl">
 
         {/* Progress */}
         <div className="mb-8">
@@ -540,6 +545,7 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
             </div>
           </motion.div>
         </AnimatePresence>
+        </div>
       </div>
     </div>
   );
