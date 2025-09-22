@@ -187,7 +187,8 @@ class AudioManagerService {
           title: item.title,
           content: item.content,
           part: item.part,
-          chapterNumber: item.chapterNumber
+          chapterNumber: item.chapterNumber,
+          totalChapters: item.totalChapters
         };
         
         this.initializeAudio(chapter, this.callbacks);
@@ -471,7 +472,7 @@ class AudioManagerService {
       
       // Get current playlist item for enhanced metadata
       const currentPlaylistItem = audioPlaylistService.getCurrentItem();
-      mediaSessionService.setMetadata(this.currentChapter, currentPlaylistItem);
+      mediaSessionService.setMetadata(this.currentChapter, currentPlaylistItem || undefined);
       
       mediaSessionService.setActionHandlers({
         onPlayPause: () => this.togglePlayPause(),

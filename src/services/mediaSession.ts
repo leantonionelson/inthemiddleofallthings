@@ -260,10 +260,9 @@ export class MediaSessionService {
 
     try {
       // Set audio context to resume state for mobile
-      if (this.audioElement.audioContext) {
-        this.audioElement.audioContext.resume();
-      }
-
+      // Note: audioContext is not a standard property of HTMLAudioElement
+      // This is handled by the browser's audio context management
+      
       // Enable background playback
       this.audioElement.setAttribute('playsinline', 'true');
       this.audioElement.setAttribute('webkit-playsinline', 'true');
