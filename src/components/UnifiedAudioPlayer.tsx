@@ -116,8 +116,13 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
   const handlePlayPause = (e?: React.MouseEvent | React.TouchEvent) => {
     // Prevent event bubbling and default behavior for better mobile experience
     if (e) {
-      e.preventDefault();
-      e.stopPropagation();
+      try {
+        e.preventDefault();
+        e.stopPropagation();
+      } catch (error) {
+        // Ignore errors from passive event listeners
+        console.log('Event prevention skipped (passive listener)');
+      }
     }
     
     console.log('🎵 UnifiedAudioPlayer: Play/Pause button clicked', {
