@@ -1,18 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Play, 
-  Pause, 
-  SkipForward, 
-  SkipBack, 
-  Volume2, 
-  VolumeX, 
+import {
+  Play,
+  Pause,
+  SkipForward,
+  SkipBack,
+  Volume2,
+  VolumeX,
   X,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Shuffle,
+  Repeat
 } from 'lucide-react';
 import { BookChapter } from '../types';
 import { audioManagerService, AudioPlaybackState } from '../services/audioManager';
+import { PlaylistItem } from '../services/audioPlaylist';
 
 interface UnifiedAudioPlayerProps {
   chapter: BookChapter;
@@ -51,6 +54,8 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
   const [isMuted, setIsMuted] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [autoPlayNext, setAutoPlayNext] = useState(localStorage.getItem('audioAutoPlayNext') !== 'false');
+  const [playlistState, setPlaylistState] = useState<any>(null);
+  const [currentPlaylistItem, setCurrentPlaylistItem] = useState<PlaylistItem | null>(null);
   const progressRef = useRef<HTMLDivElement>(null);
   const isInitialized = useRef(false);
 
@@ -94,7 +99,14 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
           }
         },
         onPrevious: onPreviousChapter,
-        onNext: onNextChapter
+        onNext: onNextChapter,
+        onTrackChange: (item: PlaylistItem, index: number) => {
+          setCurrentPlaylistItem(item);
+          console.log(`🎵 Track changed to: ${item.title} (${index + 1})`);
+        },
+        onPlaylistStateChange: (state: any) => {
+          setPlaylistState(state);
+        }
       });
     } catch (error) {
       console.error('Failed to initialize audio:', error);
@@ -141,6 +153,26 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
 
   const handleSkipBackward = () => {
     audioManagerService.skipBackward(15);
+  };
+
+  const handleNextTrack = () => {
+    audioManagerService.nextTrack();
+  };
+
+  const handlePreviousTrack = () => {
+    audioManagerService.previousTrack();
+  };
+
+  const handleToggleShuffle = () => {
+    audioManagerService.toggleShuffle();
+    // Update playlist state
+    setPlaylistState(audioManagerService.getPlaylistState());
+  };
+
+  const handleToggleRepeat = () => {
+    audioManagerService.cycleRepeatMode();
+    // Update playlist state
+    setPlaylistState(audioManagerService.getPlaylistState());
   };
 
   const handlePlaybackRateChange = () => {
@@ -218,6 +250,13 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
               <h3 className="text-sm font-medium text-ink-primary dark:text-paper-light truncate">
                 {chapter.title}
               </h3>
+              {playlistState && playlistState.items.length > 1 && (
+                <div className="text-xs text-ink-secondary dark:text-ink-muted mt-1">
+                  Track {playlistState.currentIndex + 1} of {playlistState.items.length}
+                  {playlistState.shuffleMode && ' • Shuffled'}
+                  {playlistState.repeatMode !== 'none' && ` • Repeat ${playlistState.repeatMode}`}
+                </div>
+              )}
               <div className="flex items-center space-x-2 mt-1">
                 <span className={`text-xs ${getAudioSourceColor(playbackState.audioSource)}`}>
                   {getAudioSourceLabel(playbackState.audioSource)}
@@ -311,6 +350,53 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
             >
               <SkipForward className="w-4 h-4" />
             </button>
+
+            {/* Playlist Controls */}
+            {playlistState && playlistState.items.length > 1 && (
+              <>
+                {/* Previous Track */}
+                <button
+                  onClick={handlePreviousTrack}
+                  disabled={!audioManagerService.hasPreviousTrack()}
+                  className="p-2 text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light hover:bg-ink-muted/10 dark:hover:bg-paper-light/10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <SkipBack className="w-4 h-4" />
+                </button>
+
+                {/* Next Track */}
+                <button
+                  onClick={handleNextTrack}
+                  disabled={!audioManagerService.hasNextTrack()}
+                  className="p-2 text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light hover:bg-ink-muted/10 dark:hover:bg-paper-light/10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <SkipForward className="w-4 h-4" />
+                </button>
+
+                {/* Shuffle */}
+                <button
+                  onClick={handleToggleShuffle}
+                  className={`p-2 rounded-full transition-colors ${
+                    playlistState.shuffleMode
+                      ? 'text-ink-primary dark:text-paper-light bg-ink-muted/20 dark:bg-paper-light/20'
+                      : 'text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light hover:bg-ink-muted/10 dark:hover:bg-paper-light/10'
+                  }`}
+                >
+                  <Shuffle className="w-4 h-4" />
+                </button>
+
+                {/* Repeat */}
+                <button
+                  onClick={handleToggleRepeat}
+                  className={`p-2 rounded-full transition-colors ${
+                    playlistState.repeatMode !== 'none'
+                      ? 'text-ink-primary dark:text-paper-light bg-ink-muted/20 dark:bg-paper-light/20'
+                      : 'text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light hover:bg-ink-muted/10 dark:hover:bg-paper-light/10'
+                  }`}
+                >
+                  <Repeat className="w-4 h-4" />
+                </button>
+              </>
+            )}
 
             {/* Next Chapter */}
             <button
