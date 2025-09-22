@@ -122,6 +122,7 @@ class PreGeneratedAudioService {
    * Get pre-generated audio for a chapter
    */
   async getPreGeneratedAudio(chapter: BookChapter): Promise<AudioMetadata | null> {
+    console.log(`🔍 Getting pre-generated audio for: ${chapter.title}, voice preference: ${this.userVoicePreference}`);
     const cacheKey = this.getChapterId(chapter);
 
     // Check memory cache first
@@ -136,6 +137,7 @@ class PreGeneratedAudioService {
     }
 
     const baseId = chapter.id || `chapter-${chapter.chapterNumber}`;
+    console.log(`🔍 Looking for chapter: ${baseId}, voice: ${this.userVoicePreference}`);
     
     // Look for voice-specific file with matching voiceType
     const indexEntry = this.audioIndex.chapters.find(c => 
@@ -144,15 +146,20 @@ class PreGeneratedAudioService {
       c.hasAudio
     );
     
+    console.log(`🔍 Index entry found:`, indexEntry);
+    
     if (!indexEntry) {
+      console.log(`❌ No index entry found for ${baseId} with voice ${this.userVoicePreference}`);
       return null;
     }
 
     try {
       const audioUrl = this.AUDIO_BASE_PATH + indexEntry.audioFile;
+      console.log('🔍 Checking pre-generated audio file:', audioUrl);
       
       // Verify the file exists and get metadata
       const response = await fetch(audioUrl, { method: 'HEAD' });
+      console.log('📡 Fetch response:', response.status, response.statusText);
       if (!response.ok) {
         console.warn(`⚠️ Pre-generated audio file not found: ${audioUrl}`);
         return null;
@@ -164,15 +171,19 @@ class PreGeneratedAudioService {
       const audio = new Audio(audioUrl);
       const duration = await new Promise<number>((resolve) => {
         audio.addEventListener('loadedmetadata', () => {
+          console.log('✅ Audio metadata loaded successfully');
           resolve(audio.duration || this.estimateDuration(chapter.content));
         });
-        audio.addEventListener('error', () => {
+        audio.addEventListener('error', (e) => {
+          console.error('❌ Audio loading error:', e);
           resolve(this.estimateDuration(chapter.content));
         });
         // Set a timeout in case the audio doesn't load
         setTimeout(() => {
+          console.warn('⏰ Audio loading timeout');
           resolve(this.estimateDuration(chapter.content));
         }, 5000);
+        console.log('🔄 Loading audio element...');
         audio.load();
       });
 

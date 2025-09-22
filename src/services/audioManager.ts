@@ -303,9 +303,11 @@ class AudioManagerService {
    * Setup pre-generated audio
    */
   private async setupPreGeneratedAudio(audioUrl: string, duration: number): Promise<void> {
+    console.log('🎵 Setting up pre-generated audio:', audioUrl);
     const audio = new Audio(audioUrl);
     audio.preload = 'metadata';
-    audio.crossOrigin = 'anonymous';
+    // Temporarily remove crossOrigin to test if it's causing issues
+    // audio.crossOrigin = 'anonymous';
     
     this.setupAudioElement(audio, duration);
     this.currentAudio = audio;
