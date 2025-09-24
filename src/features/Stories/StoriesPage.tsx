@@ -299,9 +299,35 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
   }, []);
 
   // Handle Listen button
-  const handleListen = () => {
-    setIsAudioPlayerOpen(true);
-    setIsListening(true);
+  const handleListen = async () => {
+    // Check if audio is available before opening the media player
+    try {
+      const { getGenericAudioService } = await import('../../services/genericAudioService');
+      const audioService = getGenericAudioService();
+      
+      const currentStory = stories[currentStoryIndex];
+      if (!currentStory) return;
+      
+      const contentItem = {
+        id: currentStory.id,
+        title: currentStory.title,
+        content: currentStory.content,
+        type: 'story' as const,
+        part: 'Story' as const
+      };
+      
+      const hasAudio = await audioService.hasPreGeneratedAudio(contentItem);
+      if (hasAudio) {
+        setIsAudioPlayerOpen(true);
+        setIsListening(true);
+      } else {
+        // Audio not available - don't open media player
+        console.log('Audio not available for this story');
+      }
+    } catch (error) {
+      console.error('Error checking audio availability:', error);
+      // Don't open media player if there's an error
+    }
   };
 
   const handleAudioPlayerClose = () => {
@@ -730,6 +756,9 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
           showShadow={!isAudioPlayerOpen}
           progress={highlightedProgress}
           contentType="story"
+          contentId={stories[currentStoryIndex]?.id}
+          contentTitle={stories[currentStoryIndex]?.title}
+          content={stories[currentStoryIndex]?.content}
         />
       </div>
 
