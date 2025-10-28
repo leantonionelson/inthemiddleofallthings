@@ -1,16 +1,15 @@
 /**
- * Comprehensive Audio Management Service
+ * Simplified Audio Management Service
  * 
  * This service provides:
  * - Single audio playback management (only one audio plays at a time)
- * - Audio fallback system (pre-generated -> Gemini TTS -> browser speech)
+ * - Pre-generated audio playback only
  * - Voice preference handling (male/female)
  * - Navigation handling (stop audio when navigating away)
  * - Background audio support (continues when screen is off)
  */
 
 import { BookChapter } from '../types';
-import { getGeminiTTSService } from './geminiTTS';
 import { getPreGeneratedAudioService } from './preGeneratedAudio';
 import { mediaSessionService } from './mediaSession';
 import { audioPlaylistService, PlaylistItem, PlaylistCallbacks } from './audioPlaylist';
@@ -21,7 +20,7 @@ export interface AudioPlaybackState {
   duration: number;
   isLoading: boolean;
   error: string | null;
-  audioSource: 'pre-generated' | 'gemini-tts' | 'browser-speech' | null;
+  audioSource: 'pre-generated' | null;
   playbackRate: number;
 }
 
@@ -33,13 +32,11 @@ export interface AudioManagerCallbacks {
   onPrevious?: () => void;
   onNext?: () => void;
   onTrackChange?: (item: PlaylistItem, index: number) => void;
-  onPlaylistStateChange?: (state: any) => void;
 }
 
 class AudioManagerService {
   private static instance: AudioManagerService;
   private currentAudio: HTMLAudioElement | null = null;
-  private currentSpeechUtterance: SpeechSynthesisUtterance | null = null;
   private currentChapter: BookChapter | null = null;
   private callbacks: AudioManagerCallbacks = {};
   private playbackState: AudioPlaybackState = {
@@ -53,7 +50,6 @@ class AudioManagerService {
   };
   private isInitialized = false;
   private voicePreference: 'male' | 'female' = 'male';
-  private geminiTTSService = getGeminiTTSService();
   private preGeneratedService = getPreGeneratedAudioService();
 
   private constructor() {
@@ -97,8 +93,6 @@ class AudioManagerService {
     
     // Stop current audio and clear any blob URLs
     this.stopAudio();
-    
-    console.log(`🎙️ Audio Manager: Voice preference set to ${voice}`);
   }
 
   /**
@@ -109,209 +103,70 @@ class AudioManagerService {
   }
 
   /**
-   * Setup navigation handling to stop audio when navigating away
+   * Setup navigation handling to stop audio when user navigates away
    */
   private setupNavigationHandling(): void {
-    if (typeof window === 'undefined') return;
+    if (typeof window !== 'undefined') {
+      // Handle React Router navigation (location change)
+      window.addEventListener('popstate', () => {
+        console.log('🚫 Navigation detected: Stopping audio');
+        this.stopAudio();
+      });
 
-    // Handle page visibility changes
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden && this.playbackState.isPlaying) {
-        // Page is hidden but audio should continue playing
-        console.log('📱 Page hidden - audio continues playing');
-      } else if (!document.hidden && this.playbackState.isPlaying) {
-        // Page is visible again
-        console.log('📱 Page visible - audio still playing');
-      }
-    });
-
-    // Handle beforeunload to clean up
-    window.addEventListener('beforeunload', () => {
-      this.stopAudio();
-    });
-
-    // Handle popstate (back/forward navigation)
-    window.addEventListener('popstate', () => {
-      this.stopAudio();
-    });
+      // Handle page unload (user closes tab or refreshes)
+      window.addEventListener('beforeunload', () => {
+        this.cleanup();
+      });
+    }
   }
 
   /**
-   * Setup mobile audio unlock for iOS Safari and other mobile browsers
+   * Setup mobile audio unlock
+   * Mobile browsers require user interaction before playing audio
    */
   private setupMobileAudioUnlock(): void {
-    if (typeof window === 'undefined') return;
-
-    let audioUnlocked = false;
-
-    const unlockAudio = () => {
-      if (audioUnlocked) return;
-
-      console.log('🔓 AudioManager: Attempting to unlock audio context for mobile...');
+    if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+      const unlockAudio = () => {
+        const audio = new Audio();
+        audio.play().catch(() => {});
+        document.removeEventListener('touchstart', unlockAudio);
+        document.removeEventListener('click', unlockAudio);
+      };
       
-      // Create a silent audio element and try to play it
-      const silentAudio = new Audio();
-      silentAudio.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmMbCDuW3vLNeSsFJHfH8N2QQAoUXrTp66hVFApGn+DyvmM=';
-      silentAudio.volume = 0.01;
-      silentAudio.play().then(() => {
-        console.log('✅ AudioManager: Audio context unlocked successfully');
-        audioUnlocked = true;
-        silentAudio.remove();
-      }).catch((error) => {
-        console.log('⚠️ AudioManager: Audio unlock attempt failed (this is normal for some browsers):', error);
-        audioUnlocked = true; // Mark as unlocked anyway to prevent repeated attempts
-        silentAudio.remove();
-      });
-    };
-
-    // Listen for first user interaction to unlock audio
-    const events = ['touchstart', 'touchend', 'mousedown', 'keydown'];
-    events.forEach(event => {
-      document.addEventListener(event, unlockAudio, { once: true, passive: true });
-    });
+      document.addEventListener('touchstart', unlockAudio);
+      document.addEventListener('click', unlockAudio);
+    }
   }
 
   /**
    * Setup playlist integration
    */
   private setupPlaylistIntegration(): void {
-    // Set up playlist callbacks
-    audioPlaylistService.setCallbacks({
-      onTrackChange: (item: PlaylistItem, index: number) => {
-        console.log(`🎵 Playlist: Track changed to ${item.title} (${index + 1}/${audioPlaylistService.getLength()})`);
+    // Subscribe to playlist events
+    const playlistCallbacks: PlaylistCallbacks = {
+      onTrackChange: (item, index) => {
+        console.log('📻 Playlist track changed:', item.title);
         this.callbacks.onTrackChange?.(item, index);
-        
-        // Convert playlist item to BookChapter and initialize audio
-        const chapter: BookChapter = {
-          id: item.id,
-          title: item.title,
-          content: item.content,
-          part: item.part,
-          chapterNumber: item.chapterNumber,
-          totalChapters: item.totalChapters
-        };
-        
-        this.initializeAudio(chapter, this.callbacks);
       },
-      onPlaybackStateChange: (isPlaying: boolean) => {
-        this.updatePlaybackState({ isPlaying });
-      },
-      onProgress: (currentTime: number, duration: number) => {
-        const progress = duration > 0 ? currentTime / duration : 0;
-        this.updatePlaybackState({ currentTime, duration });
-        this.callbacks.onProgress?.(progress);
-      },
-      onComplete: () => {
-        console.log('🎵 Playlist: Track completed, moving to next');
-        this.handleTrackComplete();
-      },
-      onError: (error: string) => {
-        console.error('🎵 Playlist error:', error);
-        this.updatePlaybackState({ error, isPlaying: false });
+      onError: (error) => {
+        this.callbacks.onError?.(error);
       }
-    });
+    };
+
+    audioPlaylistService.setCallbacks(playlistCallbacks);
   }
 
   /**
-   * Handle track completion and move to next track in playlist
+   * Update playback state and notify callbacks
    */
-  private handleTrackComplete(): void {
-    const nextItem = audioPlaylistService.next();
-    if (nextItem) {
-      console.log(`🎵 Auto-advancing to next track: ${nextItem.title}`);
-      // The playlist service will trigger onTrackChange which will initialize the new audio
-    } else {
-      console.log('🎵 Playlist completed');
-      this.updatePlaybackState({ isPlaying: false, currentTime: 0 });
-      this.callbacks.onComplete?.();
-    }
+  private updatePlaybackState(updates: Partial<AudioPlaybackState>): void {
+    this.playbackState = { ...this.playbackState, ...updates };
+    this.callbacks.onPlaybackStateChange?.(this.playbackState);
   }
 
   /**
-   * Initialize audio for chat interactions (uses Gemini TTS for best quality)
-   * This is the only method that should use Gemini TTS to save API quota
-   */
-  public async initializeChatAudio(
-    text: string,
-    callbacks: AudioManagerCallbacks = {}
-  ): Promise<void> {
-    this.callbacks = callbacks;
-    
-    // Stop any existing audio
-    this.stopAudio();
-    
-    this.updatePlaybackState({ isLoading: true, error: null });
-
-    try {
-      // For chat, we prioritize Gemini TTS for best quality
-      if (this.geminiTTSService.isApiAvailable()) {
-        console.log('🤖 Using Gemini TTS for chat interaction');
-        const voiceName = this.voicePreference === 'male' ? 'Charon' : 'Zephyr';
-        
-        // Create a temporary chapter object for TTS
-        const tempChapter: BookChapter = {
-          id: 'chat',
-          title: 'Chat Response',
-          content: text,
-          chapterNumber: 0,
-          totalChapters: 1,
-          part: 'Chat'
-        };
-        
-        const audioData = await this.geminiTTSService.generateChatAudio(text, {
-          voiceName,
-          speakingRate: 1.15
-        });
-        
-        await this.setupGeminiAudio(audioData.audioUrl, audioData.duration);
-        this.updatePlaybackState({ 
-          audioSource: 'gemini-tts',
-          duration: audioData.duration,
-          isLoading: false 
-        });
-        return;
-      }
-
-      // Fallback to browser speech for chat if Gemini TTS unavailable
-      console.log('🗣️ Using browser speech synthesis for chat (Gemini TTS unavailable)');
-      const tempChapter: BookChapter = {
-        id: 'chat',
-        title: 'Chat Response',
-        content: text,
-        chapterNumber: 0,
-        totalChapters: 1,
-        part: 'Chat'
-      };
-      this.setupBrowserSpeech(tempChapter);
-      this.updatePlaybackState({ 
-        audioSource: 'browser-speech',
-        duration: this.estimateDuration(text),
-        isLoading: false 
-      });
-
-    } catch (error) {
-      console.error('❌ Chat audio generation failed:', error);
-      const tempChapter: BookChapter = {
-        id: 'chat',
-        title: 'Chat Response',
-        content: text,
-        chapterNumber: 0,
-        totalChapters: 1,
-        part: 'Chat'
-      };
-      this.setupBrowserSpeech(tempChapter);
-      this.updatePlaybackState({ 
-        audioSource: 'browser-speech',
-        duration: this.estimateDuration(text),
-        isLoading: false,
-        error: 'Chat audio generation failed, using browser speech'
-      });
-    }
-  }
-
-  /**
-   * Initialize audio for a chapter with optimized fallback system
-   * Prioritizes pre-generated audio, then browser TTS (no Gemini TTS for content)
+   * Initialize audio for a chapter
+   * Only uses pre-generated audio files
    */
   public async initializeAudio(
     chapter: BookChapter, 
@@ -326,11 +181,10 @@ class AudioManagerService {
     this.updatePlaybackState({ isLoading: true, error: null });
 
     try {
-      // 1. Try pre-generated audio first (fastest, no API usage)
+      // Try pre-generated audio
       const preGeneratedAudio = await this.preGeneratedService.getPreGeneratedAudio(chapter);
       if (preGeneratedAudio) {
-        console.log('🎵 Using pre-generated audio (no API usage)');
-        // Use blob URL if available, otherwise fall back to original URL
+        console.log('🎵 Using pre-generated audio');
         const audioUrl = preGeneratedAudio.blobUrl || preGeneratedAudio.audioUrl;
         await this.setupPreGeneratedAudio(audioUrl, preGeneratedAudio.duration);
         this.updatePlaybackState({ 
@@ -338,30 +192,26 @@ class AudioManagerService {
           duration: preGeneratedAudio.duration,
           isLoading: false 
         });
+        
+        // Update media session
+        mediaSessionService.setMetadata(chapter);
+        
         return;
       }
 
-      // 2. Use browser speech synthesis (no API usage, good fallback)
-      console.log('🗣️ Using browser speech synthesis (no API usage)');
-      this.setupBrowserSpeech(chapter);
-      this.updatePlaybackState({ 
-        audioSource: 'browser-speech',
-        duration: this.estimateDuration(chapter.content),
-        isLoading: false 
-      });
-
-      // Note: Gemini TTS is now reserved for chat interactions only
-      // This saves significant API quota for content that has pre-generated audio
+      // No pre-generated audio available
+      throw new Error('No audio file available for this content. Please upload audio via CMS.');
 
     } catch (error) {
-      console.error('❌ All audio methods failed, using browser speech as final fallback:', error);
-      this.setupBrowserSpeech(chapter);
+      const errorMessage = error instanceof Error ? error.message : 'No audio available';
+      console.error('❌ Audio initialization failed:', errorMessage);
       this.updatePlaybackState({ 
-        audioSource: 'browser-speech',
-        duration: this.estimateDuration(chapter.content),
+        audioSource: null,
+        duration: 0,
         isLoading: false,
-        error: 'Audio generation failed, using browser speech'
+        error: errorMessage
       });
+      this.callbacks.onError?.(errorMessage);
     }
   }
 
@@ -369,175 +219,65 @@ class AudioManagerService {
    * Setup pre-generated audio
    */
   private async setupPreGeneratedAudio(audioUrl: string, duration: number): Promise<void> {
-    console.log('🎵 Setting up pre-generated audio:', audioUrl);
-    const audio = new Audio(audioUrl);
-    audio.preload = 'metadata';
-    // Temporarily remove crossOrigin to test if it's causing issues
-    // audio.crossOrigin = 'anonymous';
-    
-    this.setupAudioElement(audio, duration);
-    this.currentAudio = audio;
-  }
+    return new Promise((resolve, reject) => {
+      this.currentAudio = new Audio(audioUrl);
+      this.currentAudio.playbackRate = this.playbackState.playbackRate;
 
-  /**
-   * Setup Gemini TTS audio
-   */
-  private async setupGeminiAudio(audioUrl: string, duration: number): Promise<void> {
-    const audio = new Audio(audioUrl);
-    audio.preload = 'metadata';
-    audio.crossOrigin = 'anonymous';
-    
-    this.setupAudioElement(audio, duration);
-    this.currentAudio = audio;
-  }
-
-  /**
-   * Setup browser speech synthesis
-   */
-  private setupBrowserSpeech(chapter: BookChapter): void {
-    // Cancel any existing speech
-    speechSynthesis.cancel();
-    
-    if (!window.speechSynthesis) {
-      throw new Error('Speech synthesis not supported in this browser');
-    }
-
-    // Clean text for speech synthesis
-    const cleanText = chapter.content
-      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove bold
-      .replace(/\*(.*?)\*/g, '$1') // Remove italic
-      .replace(/#{1,6}\s+/g, '') // Remove headers
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links
-      .replace(/\n{3,}/g, '\n\n') // Normalize line breaks
-      .trim();
-
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    
-    // Configure speech settings
-    utterance.rate = 0.8; // Slightly slower for better comprehension
-    utterance.pitch = 1.0;
-    utterance.volume = 1.0;
-    
-    // Try to find a voice that matches preference
-    const voices = speechSynthesis.getVoices();
-    let preferredVoice = voices.find(voice => {
-      const isEnglish = voice.lang.startsWith('en');
-      const isMale = this.voicePreference === 'male' && 
-        (voice.name.toLowerCase().includes('male') || 
-         voice.name.toLowerCase().includes('man') ||
-         voice.name.toLowerCase().includes('david') ||
-         voice.name.toLowerCase().includes('alex'));
-      const isFemale = this.voicePreference === 'female' && 
-        (voice.name.toLowerCase().includes('female') || 
-         voice.name.toLowerCase().includes('woman') ||
-         voice.name.toLowerCase().includes('samantha') ||
-         voice.name.toLowerCase().includes('karen'));
-      
-      return isEnglish && (isMale || isFemale);
-    }) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
-    
-    if (preferredVoice) {
-      utterance.voice = preferredVoice;
-      console.log(`🗣️ Using voice: ${preferredVoice.name} (${this.voicePreference})`);
-    }
-
-    // Set up event handlers
-    utterance.onstart = () => {
-      this.updatePlaybackState({ isPlaying: true });
-    };
-
-    utterance.onend = () => {
-      this.updatePlaybackState({ isPlaying: false, currentTime: 0 });
-      this.callbacks.onComplete?.();
-    };
-
-    utterance.onerror = (event) => {
-      console.error('Speech synthesis error:', event);
-      this.updatePlaybackState({ 
-        isPlaying: false, 
-        error: `Speech synthesis error: ${event.error}` 
-      });
-    };
-
-    this.currentSpeechUtterance = utterance;
-  }
-
-  /**
-   * Setup audio element with common event handlers
-   */
-  private setupAudioElement(audio: HTMLAudioElement, duration: number): void {
-    // Set up Media Session for native mobile controls
-    if (mediaSessionService.isSupported() && this.currentChapter) {
-      mediaSessionService.setAudioElement(audio);
-      
-      // Get current playlist item for enhanced metadata
-      const currentPlaylistItem = audioPlaylistService.getCurrentItem();
-      mediaSessionService.setMetadata(this.currentChapter, currentPlaylistItem || undefined);
-      
-      mediaSessionService.setActionHandlers({
-        onPlayPause: () => this.togglePlayPause(),
-        onPrevious: () => {
-          if (audioPlaylistService.getLength() > 0) {
-            this.previousTrack();
-          } else {
-            this.callbacks.onPrevious?.();
-          }
-        },
-        onNext: () => {
-          if (audioPlaylistService.getLength() > 0) {
-            this.nextTrack();
-          } else {
-            this.callbacks.onNext?.();
-          }
-        },
-        onSeek: (time: number) => {
-          if (audio) {
-            audio.currentTime = time;
-          }
-        },
-        onSeekToPosition: (position: number) => {
-          if (audio && audio.duration) {
-            audio.currentTime = position * audio.duration;
-          }
-        },
-        onToggleShuffle: () => this.toggleShuffle(),
-        onToggleRepeat: () => this.cycleRepeatMode()
+      // Audio loaded
+      this.currentAudio.addEventListener('loadedmetadata', () => {
+        if (this.currentAudio) {
+          const actualDuration = this.currentAudio.duration || duration;
+          this.updatePlaybackState({ 
+            duration: actualDuration,
+            isLoading: false 
+          });
+          console.log(`✅ Audio loaded: ${actualDuration.toFixed(1)}s`);
+          resolve();
+        }
       });
 
-      // Enable enhanced mobile controls
-      mediaSessionService.updateMobileControls();
-    }
-
-    // Set up audio event listeners
-    audio.addEventListener('loadedmetadata', () => {
-      this.updatePlaybackState({ duration: audio.duration || duration });
-    });
-
-    audio.addEventListener('timeupdate', () => {
-      const progress = audio.duration ? audio.currentTime / audio.duration : 0;
-      this.updatePlaybackState({ currentTime: audio.currentTime });
-      this.callbacks.onProgress?.(progress);
-    });
-
-    audio.addEventListener('ended', () => {
-      this.updatePlaybackState({ isPlaying: false, currentTime: 0 });
-      this.callbacks.onComplete?.();
-    });
-
-    audio.addEventListener('error', (e) => {
-      console.error('Audio playback error:', e);
-      this.updatePlaybackState({ 
-        isPlaying: false, 
-        error: 'Audio playback failed' 
+      // Time update for progress tracking
+      this.currentAudio.addEventListener('timeupdate', () => {
+        if (this.currentAudio) {
+          const currentTime = this.currentAudio.currentTime;
+          const duration = this.currentAudio.duration;
+          
+          this.updatePlaybackState({ 
+            currentTime,
+            duration
+          });
+          
+          // Calculate progress percentage
+          const progress = duration > 0 ? currentTime / duration : 0;
+          this.callbacks.onProgress?.(progress);
+        }
       });
-    });
 
-    audio.addEventListener('play', () => {
-      this.updatePlaybackState({ isPlaying: true });
-    });
+      // Playback ended
+      this.currentAudio.addEventListener('ended', () => {
+        console.log('🏁 Audio playback completed');
+        this.updatePlaybackState({ isPlaying: false });
+        this.callbacks.onComplete?.();
+      });
 
-    audio.addEventListener('pause', () => {
-      this.updatePlaybackState({ isPlaying: false });
+      // Error handling
+      this.currentAudio.addEventListener('error', () => {
+        const error = this.currentAudio?.error;
+        const errorMessage = error 
+          ? `Audio error: ${error.code} - ${error.message}` 
+          : 'Unknown audio error';
+        console.error('❌ Audio playback error:', errorMessage);
+        this.updatePlaybackState({ 
+          isPlaying: false, 
+          isLoading: false,
+          error: errorMessage
+        });
+        this.callbacks.onError?.(errorMessage);
+        reject(new Error(errorMessage));
+      });
+
+      // Start loading
+      this.currentAudio.load();
     });
   }
 
@@ -545,76 +285,21 @@ class AudioManagerService {
    * Toggle play/pause
    */
   public togglePlayPause(): void {
-    if (this.currentAudio) {
-      // Using audio element
-      if (this.playbackState.isPlaying) {
-        console.log('🔄 AudioManager: Pausing audio...');
-        try {
-          this.currentAudio.pause();
-          // Immediately update state for responsive UI
-          this.updatePlaybackState({ isPlaying: false });
-          console.log('✅ AudioManager: Audio paused successfully');
-        } catch (error) {
-          console.error('❌ AudioManager: Error pausing audio:', error);
-          this.updatePlaybackState({ 
-            isPlaying: false, 
-            error: 'Failed to pause audio' 
-          });
-        }
-      } else {
-        console.log('🔄 AudioManager: Starting audio playback...');
-        // Immediately update state to show loading state
+    if (!this.currentAudio) {
+      console.warn('⚠️ No audio initialized');
+      return;
+    }
+
+    if (this.playbackState.isPlaying) {
+      this.currentAudio.pause();
+      this.updatePlaybackState({ isPlaying: false });
+    } else {
+      this.currentAudio.play().then(() => {
         this.updatePlaybackState({ isPlaying: true });
-        
-        this.currentAudio.play().then(() => {
-          console.log('✅ AudioManager: Audio playing successfully');
-          // Confirm playing state after successful play
-          this.updatePlaybackState({ isPlaying: true, error: null });
-        }).catch(error => {
-          console.error('❌ AudioManager: Audio play error:', error);
-          this.updatePlaybackState({ 
-            isPlaying: false, 
-            error: 'Failed to play audio' 
-          });
-        });
-      }
-    } else if (this.currentSpeechUtterance) {
-      // Using speech synthesis
-      if (this.playbackState.isPlaying) {
-        console.log('🔄 AudioManager: Pausing speech synthesis...');
-        speechSynthesis.pause();
-        this.updatePlaybackState({ isPlaying: false });
-      } else {
-        if (speechSynthesis.paused) {
-          console.log('🔄 AudioManager: Resuming speech synthesis...');
-          speechSynthesis.resume();
-          this.updatePlaybackState({ isPlaying: true });
-        } else {
-          console.log('🔄 AudioManager: Starting speech synthesis...');
-          // Set up event listeners for speech synthesis
-          this.currentSpeechUtterance.onstart = () => {
-            console.log('✅ AudioManager: Speech synthesis started');
-            this.updatePlaybackState({ isPlaying: true });
-          };
-          
-          this.currentSpeechUtterance.onend = () => {
-            console.log('✅ AudioManager: Speech synthesis ended');
-            this.updatePlaybackState({ isPlaying: false, currentTime: 0 });
-            this.callbacks.onComplete?.();
-          };
-          
-          this.currentSpeechUtterance.onerror = (e) => {
-            console.error('❌ AudioManager: Speech synthesis error:', e);
-            this.updatePlaybackState({ 
-              isPlaying: false, 
-              error: 'Speech synthesis failed' 
-            });
-          };
-          
-          speechSynthesis.speak(this.currentSpeechUtterance);
-          this.updatePlaybackState({ isPlaying: true });
-        }
-      }
+      }).catch(error => {
+        console.error('❌ Failed to play audio:', error);
+        this.callbacks.onError?.('Failed to play audio');
+      });
     }
   }
 
@@ -625,59 +310,65 @@ class AudioManagerService {
     if (this.currentAudio) {
       this.currentAudio.pause();
       this.currentAudio.currentTime = 0;
-      
-      // Clean up blob URL if it's a blob URL
-      if (this.currentAudio.src.startsWith('blob:')) {
-        URL.revokeObjectURL(this.currentAudio.src);
-      }
-      
       this.currentAudio = null;
     }
-
-    if (this.currentSpeechUtterance) {
-      speechSynthesis.cancel();
-      this.currentSpeechUtterance = null;
-    }
-
-    // Clear Media Session
-    mediaSessionService.clearMetadata();
 
     this.updatePlaybackState({
       isPlaying: false,
       currentTime: 0,
-      audioSource: null,
-      error: null
+      audioSource: null
     });
   }
 
   /**
-   * Seek to specific time
+   * Seek to a specific time
    */
   public seekTo(time: number): void {
     if (this.currentAudio) {
       this.currentAudio.currentTime = time;
       this.updatePlaybackState({ currentTime: time });
-    } else if (this.currentSpeechUtterance) {
-      // For speech synthesis, we can't seek precisely, so we restart from estimated position
-      const estimatedPosition = Math.floor(time * 16); // Rough estimate
-      const remainingText = this.currentChapter?.content.substring(estimatedPosition) || '';
-      
-      speechSynthesis.cancel();
-      if (remainingText) {
-        const newUtterance = new SpeechSynthesisUtterance(remainingText);
-        newUtterance.rate = 0.8;
-        newUtterance.pitch = 1.0;
-        newUtterance.volume = 1.0;
-        
-        // Copy voice settings from current utterance
-        if (this.currentSpeechUtterance.voice) {
-          newUtterance.voice = this.currentSpeechUtterance.voice;
-        }
-        
-        this.currentSpeechUtterance = newUtterance;
-        speechSynthesis.speak(newUtterance);
-        this.updatePlaybackState({ isPlaying: true, currentTime: time });
-      }
+    }
+  }
+
+  /**
+   * Skip forward by seconds
+   */
+  public skipForward(seconds: number = 15): void {
+    if (this.currentAudio) {
+      const newTime = Math.min(
+        this.currentAudio.currentTime + seconds,
+        this.currentAudio.duration
+      );
+      this.seekTo(newTime);
+    }
+  }
+
+  /**
+   * Skip backward by seconds
+   */
+  public skipBackward(seconds: number = 15): void {
+    if (this.currentAudio) {
+      const newTime = Math.max(this.currentAudio.currentTime - seconds, 0);
+      this.seekTo(newTime);
+    }
+  }
+
+  /**
+   * Set playback rate
+   */
+  public setPlaybackRate(rate: number): void {
+    if (this.currentAudio) {
+      this.currentAudio.playbackRate = rate;
+    }
+    this.updatePlaybackState({ playbackRate: rate });
+  }
+
+  /**
+   * Set muted state
+   */
+  public setMuted(muted: boolean): void {
+    if (this.currentAudio) {
+      this.currentAudio.muted = muted;
     }
   }
 
@@ -689,177 +380,6 @@ class AudioManagerService {
   }
 
   /**
-   * Create a playlist from chapters, meditations, or stories
-   */
-  public createPlaylist(
-    items: BookChapter[], 
-    type: 'chapter' | 'meditation' | 'story',
-    startIndex: number = 0
-  ): void {
-    audioPlaylistService.createPlaylist(items, type, startIndex);
-    console.log(`🎵 AudioManager: Created ${type} playlist with ${items.length} items`);
-  }
-
-  /**
-   * Get current playlist item
-   */
-  public getCurrentPlaylistItem(): PlaylistItem | null {
-    return audioPlaylistService.getCurrentItem();
-  }
-
-  /**
-   * Get playlist state
-   */
-  public getPlaylistState(): any {
-    return audioPlaylistService.getPlaylistState();
-  }
-
-  /**
-   * Move to next track in playlist
-   */
-  public nextTrack(): PlaylistItem | null {
-    return audioPlaylistService.next();
-  }
-
-  /**
-   * Move to previous track in playlist
-   */
-  public previousTrack(): PlaylistItem | null {
-    return audioPlaylistService.previous();
-  }
-
-  /**
-   * Jump to specific track in playlist
-   */
-  public jumpToTrack(index: number): PlaylistItem | null {
-    return audioPlaylistService.jumpTo(index);
-  }
-
-  /**
-   * Toggle shuffle mode
-   */
-  public toggleShuffle(): boolean {
-    return audioPlaylistService.toggleShuffle();
-  }
-
-  /**
-   * Cycle through repeat modes
-   */
-  public cycleRepeatMode(): 'none' | 'one' | 'all' {
-    return audioPlaylistService.cycleRepeatMode();
-  }
-
-  /**
-   * Check if there's a next track available
-   */
-  public hasNextTrack(): boolean {
-    return audioPlaylistService.hasNext();
-  }
-
-  /**
-   * Check if there's a previous track available
-   */
-  public hasPreviousTrack(): boolean {
-    return audioPlaylistService.hasPrevious();
-  }
-
-  /**
-   * Update playback state and notify callbacks
-   */
-  private updatePlaybackState(updates: Partial<AudioPlaybackState>): void {
-    this.playbackState = { ...this.playbackState, ...updates };
-    this.callbacks.onPlaybackStateChange?.(this.playbackState);
-  }
-
-  /**
-   * Estimate duration based on text length
-   */
-  private estimateDuration(content: string): number {
-    const words = content.split(/\s+/).length;
-    const wordsPerMinute = 150; // Average reading speed
-    return Math.max(1, (words / wordsPerMinute) * 60);
-  }
-
-  /**
-   * Set playback rate
-   */
-  public setPlaybackRate(rate: number): void {
-    // Update playback state first
-    this.updatePlaybackState({ playbackRate: rate });
-    
-    if (this.currentAudio) {
-      this.currentAudio.playbackRate = rate;
-    } else if (this.currentSpeechUtterance) {
-      // For speech synthesis, we need to recreate the utterance with new rate
-      const wasPlaying = this.playbackState.isPlaying;
-      const currentTime = this.playbackState.currentTime;
-      
-      speechSynthesis.cancel();
-      
-      if (this.currentChapter) {
-        const estimatedPosition = Math.floor(currentTime * 16);
-        const remainingText = this.currentChapter.content.substring(estimatedPosition) || '';
-        
-        if (remainingText) {
-          const newUtterance = new SpeechSynthesisUtterance(remainingText);
-          newUtterance.rate = rate * 0.8; // Scale to reasonable speech rate
-          newUtterance.pitch = 1.0;
-          newUtterance.volume = 1.0;
-          
-          if (this.currentSpeechUtterance.voice) {
-            newUtterance.voice = this.currentSpeechUtterance.voice;
-          }
-          
-          this.currentSpeechUtterance = newUtterance;
-          
-          if (wasPlaying) {
-            speechSynthesis.speak(newUtterance);
-            this.updatePlaybackState({ isPlaying: true });
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Set audio volume
-   */
-  public setVolume(volume: number): void {
-    if (this.currentAudio) {
-      this.currentAudio.volume = Math.max(0, Math.min(1, volume));
-    } else if (this.currentSpeechUtterance) {
-      this.currentSpeechUtterance.volume = Math.max(0, Math.min(1, volume));
-    }
-  }
-
-  /**
-   * Mute/unmute audio
-   */
-  public setMuted(muted: boolean): void {
-    if (this.currentAudio) {
-      this.currentAudio.muted = muted;
-    } else if (this.currentSpeechUtterance) {
-      this.currentSpeechUtterance.volume = muted ? 0 : 1;
-    }
-  }
-
-  /**
-   * Skip forward by specified seconds
-   */
-  public skipForward(seconds: number = 15): void {
-    const newTime = Math.min(this.playbackState.currentTime + seconds, this.playbackState.duration);
-    this.seekTo(newTime);
-  }
-
-  /**
-   * Skip backward by specified seconds
-   */
-  public skipBackward(seconds: number = 15): void {
-    const newTime = Math.max(this.playbackState.currentTime - seconds, 0);
-    this.seekTo(newTime);
-  }
-
-  /**
    * Check if audio is currently playing
    */
   public isPlaying(): boolean {
@@ -867,19 +387,11 @@ class AudioManagerService {
   }
 
   /**
-   * Get current chapter
+   * Cleanup resources
    */
-  public getCurrentChapter(): BookChapter | null {
-    return this.currentChapter;
-  }
-
-  /**
-   * Clean up resources
-   */
-  public cleanup(): void {
+  private cleanup(): void {
     this.stopAudio();
     this.callbacks = {};
-    this.currentChapter = null;
   }
 }
 

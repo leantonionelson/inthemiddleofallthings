@@ -85,10 +85,39 @@ Your content here...
 
 ## Audio Files
 
-- Audio files are stored in `public/media/audio/`
-- Preferred format: `.wav`
-- Pages CMS handles the upload automatically
-- Reference them in your content if needed
+### Important: Audio Upload Process
+
+When you upload audio through Pages CMS:
+
+1. **File Storage**: Audio files go to `public/media/audio/{type}/`
+   - Meditations: `public/media/audio/meditations/`
+   - Stories: `public/media/audio/stories/`
+   - Chapters: `public/media/audio/chapters/`
+
+2. **File Naming**: Files are automatically named as:
+   - Format: `{content-id}_{voice-type}.wav`
+   - Example: `the-mirror-of-everything-and-nothing_male.wav`
+   - Voice types: `male` or `female` (choose one)
+
+3. **Update Index**: After uploading, you must update the `index.json` in the same folder:
+   ```json
+   {
+     "generated": 1234567890,
+     "type": "meditations",
+     "items": [
+       {
+         "id": "your-content-id",
+         "title": "Your Content Title",
+         "audioFile": "your-content-id_male.wav",
+         "hasAudio": true
+       }
+     ]
+   }
+   ```
+
+4. **Preferred Format**: `.wav` files for best quality
+
+**See `AUDIO_MANUAL_UPLOAD.md` for complete audio upload documentation.**
 
 ## GitHub Integration
 

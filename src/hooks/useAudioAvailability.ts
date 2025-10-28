@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getGenericAudioService } from '../services/genericAudioService';
+import { getUnifiedContentService, ContentType } from '../services/unifiedContentService';
 
 interface UseAudioAvailabilityProps {
   contentId: string;
@@ -19,22 +19,25 @@ export const useAudioAvailability = ({
 
   useEffect(() => {
     const checkAudioAvailability = async () => {
+      // Don't check if we don't have content loaded yet
+      if (!contentId || !contentTitle || !content) {
+        console.log('⏸️  Skipping audio check - content not loaded yet');
+        setIsChecking(false);
+        setHasAudio(null);
+        return;
+      }
+
       try {
         setIsChecking(true);
-        const audioService = getGenericAudioService();
+        console.log(`🔍 Checking audio for ${contentType}: "${contentTitle}" (ID: ${contentId})`);
         
-        const contentItem = {
-          id: contentId,
-          title: contentTitle,
-          content: content,
-          type: contentType,
-          part: contentType === 'story' ? 'Story' : contentType === 'meditation' ? 'Meditation' : undefined
-        };
-
-        const audioExists = await audioService.hasPreGeneratedAudio(contentItem);
+        const service = getUnifiedContentService();
+        const audioExists = await service.hasAudio(contentId, contentType as ContentType);
+        
+        console.log(`✅ Audio check complete for "${contentTitle}": ${audioExists ? 'HAS AUDIO' : 'NO AUDIO'}`);
         setHasAudio(audioExists);
       } catch (error) {
-        console.error('Error checking audio availability:', error);
+        console.error(`❌ Error checking audio for "${contentTitle}":`, error);
         setHasAudio(false);
       } finally {
         setIsChecking(false);

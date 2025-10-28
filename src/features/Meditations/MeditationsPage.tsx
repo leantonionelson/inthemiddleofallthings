@@ -304,30 +304,24 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
   const handleListen = async () => {
     // Check if audio is available before opening the media player
     try {
-      const { getGenericAudioService } = await import('../../services/genericAudioService');
-      const audioService = getGenericAudioService();
+      const { getUnifiedContentService } = await import('../../services/unifiedContentService');
+      const audioService = getUnifiedContentService();
       
       const currentMeditation = meditations[currentMeditationIndex];
       if (!currentMeditation) return;
       
-      const contentItem = {
-        id: currentMeditation.id,
-        title: currentMeditation.title,
-        content: currentMeditation.content,
-        type: 'meditation' as const,
-        part: 'Meditation' as const
-      };
+      console.log(`🎵 Opening audio player for meditation: "${currentMeditation.title}" (${currentMeditation.id})`);
       
-      const hasAudio = await audioService.hasPreGeneratedAudio(contentItem);
+      const hasAudio = await audioService.hasAudio(currentMeditation.id, 'meditation');
       if (hasAudio) {
+        console.log('✅ Audio available - opening player');
         setIsAudioPlayerOpen(true);
         setIsListening(true);
       } else {
-        // Audio not available - don't open media player
-        console.log('Audio not available for this meditation');
+        console.log('⚠️  Audio not available for this meditation');
       }
     } catch (error) {
-      console.error('Error checking audio availability:', error);
+      console.error('❌ Error checking audio availability:', error);
       // Don't open media player if there's an error
     }
   };

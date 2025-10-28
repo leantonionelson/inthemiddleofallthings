@@ -60,3 +60,6 @@ not as a victim of circumstance,
 but as a co-creator of reality.
 
 
+
+
+

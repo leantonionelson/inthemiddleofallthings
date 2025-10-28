@@ -302,30 +302,24 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
   const handleListen = async () => {
     // Check if audio is available before opening the media player
     try {
-      const { getGenericAudioService } = await import('../../services/genericAudioService');
-      const audioService = getGenericAudioService();
+      const { getUnifiedContentService } = await import('../../services/unifiedContentService');
+      const audioService = getUnifiedContentService();
       
       const currentStory = stories[currentStoryIndex];
       if (!currentStory) return;
       
-      const contentItem = {
-        id: currentStory.id,
-        title: currentStory.title,
-        content: currentStory.content,
-        type: 'story' as const,
-        part: 'Story' as const
-      };
+      console.log(`🎵 Opening audio player for story: "${currentStory.title}" (${currentStory.id})`);
       
-      const hasAudio = await audioService.hasPreGeneratedAudio(contentItem);
+      const hasAudio = await audioService.hasAudio(currentStory.id, 'story');
       if (hasAudio) {
+        console.log('✅ Audio available - opening player');
         setIsAudioPlayerOpen(true);
         setIsListening(true);
       } else {
-        // Audio not available - don't open media player
-        console.log('Audio not available for this story');
+        console.log('⚠️  Audio not available for this story');
       }
     } catch (error) {
-      console.error('Error checking audio availability:', error);
+      console.error('❌ Error checking audio availability:', error);
       // Don't open media player if there's an error
     }
   };

@@ -44,11 +44,12 @@ class GenericAudioService {
   private audioIndexes: Map<string, AudioIndex> = new Map();
   private audioCache: Map<string, AudioMetadata> = new Map();
   private userVoicePreference: 'male' | 'female' = 'female';
+  private indexesLoadedPromise: Promise<void>;
 
   constructor() {
     this.loadUserVoicePreference();
-    // Load audio indexes asynchronously
-    this.loadAudioIndexes().then(() => {
+    // Load audio indexes asynchronously and store the promise
+    this.indexesLoadedPromise = this.loadAudioIndexes().then(() => {
       console.log('🔍 GenericAudioService: Audio indexes loaded successfully');
     }).catch((error) => {
       console.error('🔍 GenericAudioService: Failed to load audio indexes:', error);
@@ -135,6 +136,9 @@ class GenericAudioService {
    * Check if a pre-generated audio file exists for this content
    */
   async hasPreGeneratedAudio(item: ContentItem): Promise<boolean> {
+    // Wait for indexes to be loaded first
+    await this.indexesLoadedPromise;
+    
     const contentType = this.getContentType(item);
     const audioIndex = this.audioIndexes.get(contentType);
     
@@ -177,6 +181,9 @@ class GenericAudioService {
    * Get pre-generated audio for content
    */
   async getPreGeneratedAudio(item: ContentItem): Promise<AudioMetadata | null> {
+    // Wait for indexes to be loaded first
+    await this.indexesLoadedPromise;
+    
     console.log('🔍 getPreGeneratedAudio called with:', item);
     
     const contentType = this.getContentType(item);

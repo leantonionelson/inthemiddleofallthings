@@ -1,0 +1,107 @@
+{
+  "generated": 1759405445969,
+  "voiceType": "male",
+  "voice": "Charon",
+  "items": [
+    {
+      "id": "between-two-breaths",
+      "title": "Between Two Breaths",
+      "type": "meditation",
+      "audioFile": "between-two-breaths_male.wav",
+      "hasAudio": true
+    },
+    {
+      "id": "beyond-morals",
+      "title": "Beyond Morals",
+      "type": "meditation",
+      "audioFile": "beyond-morals_male.wav",
+      "hasAudio": true
+    },
+    {
+      "id": "layers-of-perspective",
+      "title": "Layers Of Perspective",
+      "type": "meditation",
+      "audioFile": "layers-of-perspective_male.wav",
+      "hasAudio": true
+    },
+    {
+      "id": "life-is-not-a-problem",
+      "title": "Life Is Not A Problem",
+      "type": "meditation",
+      "audioFile": "life-is-not-a-problem_male.wav",
+      "hasAudio": true
+    },
+    {
+      "id": "pain-as-teacher",
+      "title": "Pain As Teacher",
+      "type": "meditation",
+      "audioFile": "pain-as-teacher_male.wav",
+      "hasAudio": true
+    },
+    {
+      "id": "perspective-and-time",
+      "title": "Perspective And Time",
+      "type": "meditation",
+      "audioFile": "perspective-and-time_male.wav",
+      "hasAudio": true
+    },
+    {
+      "id": "recognition-not-pursuit",
+      "title": "Recognition Not Pursuit",
+      "type": "meditation",
+      "audioFile": "recognition-not-pursuit_male.wav",
+      "hasAudio": true
+    },
+    {
+      "id": "the-anchor-of-breath",
+      "title": "The Anchor Of Breath",
+      "type": "meditation",
+      "audioFile": "the-anchor-of-breath_male.wav",
+      "hasAudio": true
+    },
+    {
+      "id": "the-angle-of-seeing",
+      "title": "The Angle Of Seeing",
+      "type": "meditation",
+      "audioFile": "the-angle-of-seeing_male.wav",
+      "hasAudio": true
+    },
+    {
+      "id": "the-balance-of-focus",
+      "title": "The Balance Of Focus",
+      "type": "meditation",
+      "audioFile": "the-balance-of-focus_male.wav",
+      "hasAudio": true
+    },
+    {
+      "id": "the-celebration-of-goodness",
+      "title": "The Celebration Of Goodness",
+      "type": "meditation",
+      "audioFile": "the-celebration-of-goodness_male.wav",
+      "hasAudio": true
+    },
+    {
+      "id": "the-choice-of-nature",
+      "title": "The Choice Of Nature",
+      "type": "meditation",
+      "audioFile": "the-choice-of-nature_male.wav",
+      "hasAudio": true
+    },
+    {
+      "id": "the-default-of-love",
+      "title": "The Default Of Love",
+      "type": "meditation",
+      "audioFile": "the-default-of-love_male.wav",
+      "hasAudio": true
+    },
+    {
+      "id": "the-density-of-divinity",
+      "title": "The Density Of Divinity",
+      "type": "meditation",
+      "audioFile": "the-density-of-divinity_male.wav",
+      "hasAudio": true
+    }
+  ],
+  "type": "meditations"
+}
+

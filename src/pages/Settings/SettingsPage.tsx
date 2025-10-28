@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { AppRoute } from '../../types';
 import StandardHeader from '../../components/StandardHeader';
-import { geminiTTSService } from '../../services/geminiTTS';
 import { audioManagerService } from '../../services/audioManager';
 import { authService, UserProfile } from '../../services/firebaseAuth';
 import InstallButton from '../../components/InstallButton';
@@ -20,8 +19,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   onSignOut
 }) => {
   const navigate = useNavigate();
-  const [autoDownload, setAutoDownload] = useState(false);
-  const [totalSize, setTotalSize] = useState(0);
   const [fontSize, setFontSize] = useState('base');
   const [voicePreference, setVoicePreference] = useState<'male' | 'female'>('male');
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -44,10 +41,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
     };
 
     loadUserProfile();
-
-    // Load audio settings
-    const autoDownloadSetting = localStorage.getItem('autoDownloadAudio') === 'true';
-    setAutoDownload(autoDownloadSetting);
     
     // Load font size setting
     const savedFontSize = localStorage.getItem('fontSize') || 'base';
@@ -56,10 +49,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
     // Load voice preference setting
     const savedVoicePreference = localStorage.getItem('audioVoicePreference') as 'male' | 'female' || 'male';
     setVoicePreference(savedVoicePreference);
-    
-    // Load audio cache info
-    const cacheSize = geminiTTSService.getCacheSize();
-    setTotalSize(cacheSize);
   }, []);
 
   const handleSignOut = () => {
@@ -73,12 +62,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
     localStorage.removeItem('reflections');
     localStorage.removeItem('highlights');
     alert('Local data cleared successfully');
-  };
-
-  const handleAutoDownloadToggle = () => {
-    const newValue = !autoDownload;
-    setAutoDownload(newValue);
-    localStorage.setItem('autoDownloadAudio', newValue.toString());
   };
 
   const handleFontSizeChange = (newSize: string) => {
@@ -95,23 +78,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   };
 
   const handleDownloadAllAudio = async () => {
-    alert('Audio files are automatically generated and cached as needed. No manual download required.');
-  };
-
-  const handleClearAudioFiles = async () => {
-    if (confirm('Are you sure you want to clear all generated audio files? This cannot be undone.')) {
-      await geminiTTSService.clearCache();
-      setTotalSize(0);
-      alert('Audio files cleared successfully');
-    }
-  };
-
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    alert('Audio files are managed manually via Pages CMS. Upload audio files for each chapter, meditation, or story through the CMS interface.');
   };
 
   return (
@@ -309,57 +276,18 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
               </div>
             </div>
 
-            {/* Auto Download Toggle */}
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-ink-secondary dark:text-ink-muted">
-                  Auto-download Audio
-                </span>
-                <p className="text-xs text-ink-muted">
-                  Automatically download generated audio files
-                </p>
-              </div>
-              <button
-                onClick={handleAutoDownloadToggle}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  autoDownload ? 'bg-ink-primary' : 'bg-ink-muted bg-opacity-30'
-                }`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 transform rounded-full bg-paper-light transition-transform ${
-                    autoDownload ? 'translate-x-6' : 'translate-x-1'
-                  }`}
-                />
-              </button>
-            </div>
-
             {/* Audio Files Info */}
             <div className="border-t border-ink-muted border-opacity-20 pt-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-ink-secondary dark:text-ink-muted">
-                  Generated Files
-                </span>
-                <span className="text-sm text-ink-muted">
-                  {totalSize > 0 ? 'Cached audio' : 'No cached audio'} ({formatFileSize(totalSize)})
-                </span>
-              </div>
+              <p className="text-sm text-ink-muted mb-3">
+                Audio files are managed through Pages CMS. Upload .wav files for each content piece via the CMS interface.
+              </p>
               
-              {/* Action Buttons */}
-              <div className="space-y-2">
-                <button
-                  onClick={handleDownloadAllAudio}
-                  className="w-full px-4 py-2 text-sm text-ink-secondary dark:text-ink-muted hover:bg-ink-muted hover:bg-opacity-10 rounded-lg transition-colors"
-                >
-                  Download All Audio Files
-                </button>
-                <button
-                  onClick={handleClearAudioFiles}
-                  disabled={totalSize === 0}
-                  className="w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 dark:hover:bg-opacity-20 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Clear All Audio Files
-                </button>
-              </div>
+              <button
+                onClick={handleDownloadAllAudio}
+                className="w-full px-4 py-2 text-sm text-ink-secondary dark:text-ink-muted hover:bg-ink-muted hover:bg-opacity-10 rounded-lg transition-colors"
+              >
+                About Audio Management
+              </button>
             </div>
           </div>
         </motion.div>

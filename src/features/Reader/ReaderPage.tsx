@@ -399,6 +399,10 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
           onToggleListen={handleListen}
           showShadow={!isAudioPlayerOpen}
           progress={highlightedProgress}
+          contentType="chapter"
+          contentId={currentChapter.id}
+          contentTitle={currentChapter.title}
+          content={currentChapter.content}
         />
       </div>
 
