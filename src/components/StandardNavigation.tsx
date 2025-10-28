@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { AppRoute } from '../types';
-import { BookOpen, Home, Star, Scale, Bookmark, Scroll } from 'lucide-react';
-import { authService } from '../services/firebaseAuth';
+import { BookOpen, Home, Star, Scale, Scroll } from 'lucide-react';
 
 interface StandardNavigationProps {
   currentPage: string;
@@ -21,36 +20,6 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
   onOpenAI
 }) => {
   const navigate = useNavigate();
-  const [userCapabilities, setUserCapabilities] = useState({
-    canSaveProgress: false,
-    canSaveHighlights: false,
-    canUseAI: false,
-    canSync: false,
-    userType: 'guest' as 'guest' | 'anonymous' | 'authenticated' | 'admin',
-    hasActiveSubscription: false
-  });
-
-  // Update capabilities when auth state changes
-  useEffect(() => {
-    const checkCapabilities = async () => {
-      try {
-        const capabilities = await authService.getUserCapabilities();
-        setUserCapabilities({
-          ...capabilities,
-          userType: capabilities.userType as 'guest' | 'anonymous' | 'authenticated' | 'admin'
-        });
-      } catch (error) {
-        console.error('Error checking user capabilities:', error);
-      }
-    };
-
-    checkCapabilities();
-
-    const unsubscribe = authService.onAuthStateChanged(async () => {
-      await checkCapabilities();
-    });
-    return unsubscribe;
-  }, []);
 
   const getActivePage = () => {
     switch (currentPage) {
@@ -58,7 +27,6 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
       case 'reader': return 'read';
       case 'meditations': return 'meditations';
       case 'stories': return 'stories';
-      case 'saved': return 'saved';
       default: return 'home';
     }
   };
@@ -127,23 +95,6 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
           <Scroll className="w-6 h-6 mb-1" />
           <span className="text-xs font-medium">Stories</span>
         </motion.button>
-
-        {/* Saved Button - Only show for non-guest users */}
-        {userCapabilities.userType !== 'guest' && (
-          <motion.button
-            onClick={() => navigate(AppRoute.SAVED)}
-            className={`flex flex-col items-center justify-center py-2 px-1 transition-all ${
-              activePage === 'saved'
-                ? 'text-blue-600 dark:text-blue-400'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-            }`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Bookmark className="w-6 h-6 mb-1" />
-            <span className="text-xs font-medium">Saved</span>
-          </motion.button>
-        )}
       </div>
     </div>
   );

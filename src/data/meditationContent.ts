@@ -2,7 +2,8 @@ import { Meditation } from '../types';
 
 // Import all meditation MD files at build time
 // This will automatically include any new .md files added to the meditations directory
-const mdFiles = import.meta.glob('../meditations/meditations/*.md', { as: 'raw', eager: false });
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _mdFiles = import.meta.glob('../meditations/meditations/*.md', { as: 'raw', eager: false });
 
 // Function to parse meditation markdown content
 function parseMeditationContent(markdown: string): { title: string; content: string; tags: string[] } {

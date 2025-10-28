@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { AppRoute } from '../../types';
 import StandardHeader from '../../components/StandardHeader';
 import { audioManagerService } from '../../services/audioManager';
-import { authService, UserProfile } from '../../services/firebaseAuth';
 import InstallButton from '../../components/InstallButton';
 
 interface SettingsPageProps {
@@ -18,30 +15,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   onToggleTheme,
   onSignOut
 }) => {
-  const navigate = useNavigate();
   const [fontSize, setFontSize] = useState('base');
   const [voicePreference, setVoicePreference] = useState<'male' | 'female'>('male');
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
   useEffect(() => {
-    // Load user profile
-    const loadUserProfile = async () => {
-      try {
-        const currentUser = authService.getCurrentUser();
-        if (currentUser && !currentUser.isAnonymous) {
-          const profile = await authService.getUserProfile(currentUser.uid);
-          setUserProfile(profile);
-        }
-      } catch (error) {
-        console.error('Error loading user profile:', error);
-      } finally {
-        setIsLoadingProfile(false);
-      }
-    };
-
-    loadUserProfile();
-    
     // Load font size setting
     const savedFontSize = localStorage.getItem('fontSize') || 'base';
     setFontSize(savedFontSize);
@@ -51,17 +28,15 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
     setVoicePreference(savedVoicePreference);
   }, []);
 
-  const handleSignOut = () => {
-    onSignOut();
-    navigate(AppRoute.AUTH);
+  const handleResetSymbol = () => {
+    onSignOut(); // This will clear the symbol and reload
   };
 
   const clearLocalData = () => {
-    localStorage.removeItem('onboardingResponses');
-    localStorage.removeItem('userSymbol');
-    localStorage.removeItem('reflections');
-    localStorage.removeItem('highlights');
-    alert('Local data cleared successfully');
+    // Clear all app data except the user symbol
+    const keysToRemove = Object.keys(localStorage).filter(key => key !== 'userSymbol' && key !== 'theme');
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    alert('Local data cleared successfully (symbol and theme preserved)');
   };
 
   const handleFontSizeChange = (newSize: string) => {
@@ -90,94 +65,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 
       {/* Content */}
       <div className="p-6 max-w-md mx-auto space-y-6 pt-20 pb-24">
-        {/* Profile */}
-        <motion.div
-          className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
-            Profile
-          </h2>
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-ink-primary dark:bg-paper-light rounded-full flex items-center justify-center">
-              <span className="text-paper-light dark:text-ink-primary font-medium">
-                {isLoadingProfile ? (
-                  <div className="w-4 h-4 border-2 border-paper-light border-t-transparent rounded-full animate-spin" />
-                ) : userProfile ? (
-                  (userProfile.name || userProfile.email || 'U').charAt(0).toUpperCase()
-                ) : (
-                  'D'
-                )}
-              </span>
-            </div>
-            <div>
-              {isLoadingProfile ? (
-                <div className="space-y-2">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-24"></div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-32"></div>
-                </div>
-              ) : userProfile ? (
-                <>
-                  <p className="text-ink-primary dark:text-paper-light font-medium">
-                    {userProfile.name || 'User'}
-                  </p>
-                  <p className="text-ink-muted text-sm">
-                    {userProfile.email || 'No email'}
-                  </p>
-                  <p className="text-ink-muted text-xs">
-                    {userProfile.isAnonymous ? 'Anonymous User' : 'Authenticated User'}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="text-ink-primary dark:text-paper-light font-medium">
-                    Free User
-                  </p>
-                  <p className="text-ink-muted text-sm">
-                    free@example.com
-                  </p>
-                </>
-              )}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Account Info */}
-        {userProfile && (
-          <motion.div
-            className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-          >
-            <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
-              Account
-            </h2>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-ink-secondary dark:text-ink-muted">Account Type</span>
-                <span className="text-ink-primary dark:text-paper-light font-medium">
-                  {userProfile.isAnonymous ? 'Anonymous' : 'Authenticated'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-ink-secondary dark:text-ink-muted">Cloud Sync</span>
-                <span className={`font-medium ${userProfile.isAnonymous ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'}`}>
-                  {userProfile.isAnonymous ? 'Disabled' : 'Enabled'}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-ink-secondary dark:text-ink-muted">Member Since</span>
-                <span className="text-ink-primary dark:text-paper-light font-medium">
-                  {userProfile.createdAt ? new Date(userProfile.createdAt).toLocaleDateString() : 'Unknown'}
-                </span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
         {/* Appearance */}
         <motion.div
           className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
@@ -360,18 +247,21 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           </div>
         </motion.div>
 
-        {/* Sign Out */}
+        {/* Reset Symbol */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
           <button
-            onClick={handleSignOut}
+            onClick={handleResetSymbol}
             className="w-full px-6 py-3 bg-accent-ember text-paper-light font-medium rounded-lg hover:opacity-90 transition-opacity"
           >
-            Sign Out
+            Generate New Symbol
           </button>
+          <p className="text-xs text-ink-muted text-center mt-2">
+            This will clear your current symbol and generate a new one
+          </p>
         </motion.div>
 
         {/* Footer */}

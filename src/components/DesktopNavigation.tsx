@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { BookOpen, Home, Star, Scale, Bookmark, Settings, User, LogOut, Scroll } from 'lucide-react';
+import { BookOpen, Home, Star, Scale, Settings, User, Scroll } from 'lucide-react';
 import { AppRoute } from '../types';
-import { authService } from '../services/firebaseAuth';
 
 interface DesktopNavigationProps {
   onOpenAI?: () => void;
@@ -12,39 +11,7 @@ interface DesktopNavigationProps {
 const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [userCapabilities, setUserCapabilities] = useState({
-    canSaveProgress: false,
-    canSaveHighlights: false,
-    canUseAI: false,
-    canSync: false,
-    userType: 'guest' as 'guest' | 'anonymous' | 'authenticated' | 'admin',
-    hasActiveSubscription: false
-  });
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
-
-  // Update capabilities and user when auth state changes
-  useEffect(() => {
-    const checkCapabilities = async () => {
-      try {
-        const capabilities = await authService.getUserCapabilities();
-        setUserCapabilities({
-          ...capabilities,
-          userType: capabilities.userType as 'guest' | 'anonymous' | 'authenticated' | 'admin'
-        });
-      } catch (error) {
-        console.error('Error checking user capabilities:', error);
-      }
-    };
-
-    checkCapabilities();
-
-    const unsubscribe = authService.onAuthStateChanged(async (user) => {
-      setCurrentUser(user);
-      await checkCapabilities();
-    });
-    return unsubscribe;
-  }, []);
 
   const getActivePage = () => {
     switch (location.pathname) {
@@ -52,7 +19,6 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
       case AppRoute.READER: return 'reader';
       case AppRoute.MEDITATIONS: return 'meditations';
       case AppRoute.STORIES: return 'stories';
-      case AppRoute.SAVED: return 'saved';
       case AppRoute.SETTINGS: return 'settings';
       default: return '';
     }
@@ -60,24 +26,12 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
 
   const activePage = getActivePage();
 
-  const handleSignOut = async () => {
-    try {
-      await authService.signOut();
-      navigate(AppRoute.AUTH);
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
-    setShowUserMenu(false);
-  };
-
-  // Filter navigation items based on user capabilities
+  // All navigation items available to all users
   const navigationItems = [
     { id: 'home', label: 'Home', icon: Home, route: AppRoute.HOME },
     { id: 'reader', label: 'Book', icon: BookOpen, route: AppRoute.READER },
     { id: 'meditations', label: 'Meditations', icon: Scale, route: AppRoute.MEDITATIONS },
     { id: 'stories', label: 'Stories', icon: Scroll, route: AppRoute.STORIES },
-    // Only show Saved for non-guest users
-    ...(userCapabilities.userType !== 'guest' ? [{ id: 'saved', label: 'Saved', icon: Bookmark, route: AppRoute.SAVED }] : []),
   ];
 
   return (
@@ -142,8 +96,8 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
               </motion.button>
             ))}
 
-            {/* AI Button (for authenticated users only) */}
-            {userCapabilities.canUseAI && onOpenAI && (
+            {/* AI Button (available to all users) */}
+            {onOpenAI && (
               <motion.button
                 onClick={onOpenAI}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light hover:bg-ink-muted/5 dark:hover:bg-paper-light/5 transition-all"
@@ -169,10 +123,10 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
               </div>
               <div className="text-left hidden sm:block">
                 <p className="text-sm font-medium text-ink-primary dark:text-paper-light">
-                  {currentUser?.email || 'Guest User'}
+                  User
                 </p>
-                <p className="text-xs text-ink-secondary dark:text-ink-muted capitalize">
-                  {userCapabilities.userType}
+                <p className="text-xs text-ink-secondary dark:text-ink-muted">
+                  Full Access
                 </p>
               </div>
             </motion.button>
@@ -204,16 +158,6 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
                       <Settings className="w-4 h-4" />
                       <span className="text-sm">Settings</span>
                     </button>
-                    
-                    {currentUser && (
-                      <button
-                        onClick={handleSignOut}
-                        className="w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-ink-secondary dark:text-ink-muted hover:text-red-600 dark:hover:text-red-400"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span className="text-sm">Sign Out</span>
-                      </button>
-                    )}
                   </div>
                 </motion.div>
               </>
