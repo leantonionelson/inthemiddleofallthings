@@ -1,0 +1,287 @@
+title: The Middle of All Things
+description: Content management for meditations, stories, and book chapters
+
+media:
+  input: public/media
+  output: public/media
+
+collections:
+  - label: Meditations
+    name: meditations
+    description: Guided meditation content
+    path: src/meditations/meditations
+    fields:
+      - label: Title
+        name: title
+        type: string
+        required: true
+        description: The meditation title
+      - label: Tags
+        name: tags
+        type: string
+        required: true
+        description: Comma-separated tags (e.g., paradox, infinity, emptiness)
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: The meditation content
+      - label: Audio File
+        name: audio
+        type: file
+        required: false
+        description: Upload audio file (.wav format preferred)
+    format: md
+    newFile:
+      filename: "{{slug}}"
+      frontmatter: false
+    template: |
+      # {{title}}
+
+      **Tags:** {{tags}}
+
+      ---
+
+      {{content}}
+
+  - label: Stories
+    name: stories
+    description: Philosophical stories and narratives
+    path: src/stories/stories
+    fields:
+      - label: Title
+        name: title
+        type: string
+        required: true
+        description: The story title
+      - label: Tags
+        name: tags
+        type: string
+        required: true
+        description: Comma-separated tags (e.g., consciousness, eternity, existence)
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: The story content
+      - label: Audio File
+        name: audio
+        type: file
+        required: false
+        description: Upload audio file (.wav format preferred)
+    format: md
+    newFile:
+      filename: "{{slug}}"
+      frontmatter: false
+    template: |
+      # {{title}}
+
+      **Tags:** {{tags}}
+
+      ---
+
+      {{content}}
+
+  - label: "Book - Introduction"
+    name: book_introduction
+    description: Introduction content
+    path: src/book/introduction
+    fields:
+      - label: Title
+        name: title
+        type: string
+        required: true
+        description: Section title
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: Content
+      - label: Audio File
+        name: audio
+        type: file
+        required: false
+        description: Upload audio file (.wav format preferred)
+    format: md
+    newFile:
+      filename: "{{slug}}"
+      frontmatter: false
+    template: |
+      # {{title}}
+
+      {{content}}
+
+  - label: "Book - Part I: The Axis of Becoming"
+    name: book_part_1
+    description: Chapters for Part I
+    path: "src/book/Part I: The Axis of Becoming"
+    fields:
+      - label: Title
+        name: title
+        type: string
+        required: true
+        description: Chapter title
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: Chapter content
+      - label: Audio File
+        name: audio
+        type: file
+        required: false
+        description: Upload audio file (.wav format preferred)
+    format: md
+    newFile:
+      filename: "{{slug}}"
+      frontmatter: false
+    template: |
+      # {{title}}
+
+      {{content}}
+
+  - label: "Book - Part II: The Spiral Path"
+    name: book_part_2
+    description: Chapters for Part II
+    path: "src/book/Part II: The Spiral Path"
+    fields:
+      - label: Title
+        name: title
+        type: string
+        required: true
+        description: Chapter title
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: Chapter content
+      - label: Audio File
+        name: audio
+        type: file
+        required: false
+        description: Upload audio file (.wav format preferred)
+    format: md
+    newFile:
+      filename: "{{slug}}"
+      frontmatter: false
+    template: |
+      # {{title}}
+
+      {{content}}
+
+  - label: "Book - Part III: The Living Axis"
+    name: book_part_3
+    description: Chapters for Part III
+    path: "src/book/Part III: The Living Axis"
+    fields:
+      - label: Title
+        name: title
+        type: string
+        required: true
+        description: Chapter title
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: Chapter content
+      - label: Audio File
+        name: audio
+        type: file
+        required: false
+        description: Upload audio file (.wav format preferred)
+    format: md
+    newFile:
+      filename: "{{slug}}"
+      frontmatter: false
+    template: |
+      # {{title}}
+
+      {{content}}
+
+  - label: "Book - Part IV: The Horizon Beyond"
+    name: book_part_4
+    description: Chapters for Part IV
+    path: "src/book/Part IV: The Horizon Beyond"
+    fields:
+      - label: Title
+        name: title
+        type: string
+        required: true
+        description: Chapter title
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: Chapter content
+      - label: Audio File
+        name: audio
+        type: file
+        required: false
+        description: Upload audio file (.wav format preferred)
+    format: md
+    newFile:
+      filename: "{{slug}}"
+      frontmatter: false
+    template: |
+      # {{title}}
+
+      {{content}}
+
+  - label: "Book - Glossary"
+    name: book_glossary
+    description: Glossary entries
+    path: src/book/glossary
+    fields:
+      - label: Title
+        name: title
+        type: string
+        required: true
+        description: Entry title
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: Content
+      - label: Audio File
+        name: audio
+        type: file
+        required: false
+        description: Upload audio file (.wav format preferred)
+    format: md
+    newFile:
+      filename: "{{slug}}"
+      frontmatter: false
+    template: |
+      # {{title}}
+
+      {{content}}
+
+  - label: "Book - Outro"
+    name: book_outro
+    description: Outro content
+    path: src/book/outro.md
+    fields:
+      - label: Title
+        name: title
+        type: string
+        required: true
+        description: Section title
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: Content
+      - label: Audio File
+        name: audio
+        type: file
+        required: false
+        description: Upload audio file (.wav format preferred)
+    format: md
+    newFile:
+      filename: "{{slug}}"
+      frontmatter: false
+    template: |
+      # {{title}}
+
+      {{content}}
+
