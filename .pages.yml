@@ -21,28 +21,19 @@ collections:
         type: string
         required: true
         description: Comma-separated tags (e.g., paradox, infinity, emptiness)
-      - label: Content
-        name: content
-        type: rich-text
-        required: true
-        description: The meditation content
       - label: Audio File
         name: audio
         type: file
         required: false
         description: Upload audio file (.wav format preferred)
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: The meditation content
     format: md
     newFile:
       filename: "{{slug}}"
-      frontmatter: false
-    template: |
-      # {{title}}
-
-      **Tags:** {{tags}}
-
-      ---
-
-      {{content}}
 
   - label: Stories
     name: stories
@@ -58,29 +49,20 @@ collections:
         name: tags
         type: string
         required: true
-        description: Comma-separated tags (e.g., consciousness, eternity, existence)
-      - label: Content
-        name: content
-        type: rich-text
-        required: true
-        description: The story content
+        description: Comm-separated tags (e.g., consciousness, eternity, existence)
       - label: Audio File
         name: audio
         type: file
         required: false
         description: Upload audio file (.wav format preferred)
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: The story content
     format: md
     newFile:
       filename: "{{slug}}"
-      frontmatter: false
-    template: |
-      # {{title}}
-
-      **Tags:** {{tags}}
-
-      ---
-
-      {{content}}
 
   - label: "Book - Introduction"
     name: book_introduction
@@ -92,140 +74,115 @@ collections:
         type: string
         required: true
         description: Section title
+      - label: Audio File
+        name: audio
+        type: file
+        required: false
+        description: Upload audio file (.wav format preferred)
       - label: Content
         name: content
         type: rich-text
         required: true
         description: Content
-      - label: Audio File
-        name: audio
-        type: file
-        required: false
-        description: Upload audio file (.wav format preferred)
     format: md
     newFile:
       filename: "{{slug}}"
-      frontmatter: false
-    template: |
-      # {{title}}
-
-      {{content}}
 
   - label: "Book - Part I: The Axis of Becoming"
     name: book_part_1
     description: Chapters for Part I
-    path: "src/book/Part I: The Axis of Becoming"
+    path: "src/book/part-1" # Cleaned path
     fields:
       - label: Title
         name: title
         type: string
         required: true
         description: Chapter title
-      - label: Content
-        name: content
-        type: rich-text
-        required: true
-        description: Chapter content
       - label: Audio File
         name: audio
         type: file
         required: false
         description: Upload audio file (.wav format preferred)
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: Chapter content
     format: md
     newFile:
       filename: "{{slug}}"
-      frontmatter: false
-    template: |
-      # {{title}}
-
-      {{content}}
 
   - label: "Book - Part II: The Spiral Path"
     name: book_part_2
     description: Chapters for Part II
-    path: "src/book/Part II: The Spiral Path"
+    path: "src/book/part-2" # Cleaned path
     fields:
       - label: Title
         name: title
         type: string
         required: true
         description: Chapter title
-      - label: Content
-        name: content
-        type: rich-text
-        required: true
-        description: Chapter content
       - label: Audio File
         name: audio
         type: file
         required: false
         description: Upload audio file (.wav format preferred)
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: Chapter content
     format: md
     newFile:
       filename: "{{slug}}"
-      frontmatter: false
-    template: |
-      # {{title}}
-
-      {{content}}
 
   - label: "Book - Part III: The Living Axis"
     name: book_part_3
     description: Chapters for Part III
-    path: "src/book/Part III: The Living Axis"
+    path: "src/book/part-3" # Cleaned path
     fields:
       - label: Title
         name: title
         type: string
         required: true
         description: Chapter title
-      - label: Content
-        name: content
-        type: rich-text
-        required: true
-        description: Chapter content
       - label: Audio File
         name: audio
         type: file
         required: false
         description: Upload audio file (.wav format preferred)
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: Chapter content
     format: md
     newFile:
       filename: "{{slug}}"
-      frontmatter: false
-    template: |
-      # {{title}}
-
-      {{content}}
 
   - label: "Book - Part IV: The Horizon Beyond"
     name: book_part_4
     description: Chapters for Part IV
-    path: "src/book/Part IV: The Horizon Beyond"
+    path: "src/book/part-4" # Cleaned path
     fields:
       - label: Title
         name: title
         type: string
         required: true
         description: Chapter title
-      - label: Content
-        name: content
-        type: rich-text
-        required: true
-        description: Chapter content
       - label: Audio File
         name: audio
         type: file
         required: false
         description: Upload audio file (.wav format preferred)
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: Chapter content
     format: md
     newFile:
       filename: "{{slug}}"
-      frontmatter: false
-    template: |
-      # {{title}}
-
-      {{content}}
 
   - label: "Book - Glossary"
     name: book_glossary
@@ -237,51 +194,39 @@ collections:
         type: string
         required: true
         description: Entry title
-      - label: Content
-        name: content
-        type: rich-text
-        required: true
-        description: Content
       - label: Audio File
         name: audio
         type: file
         required: false
         description: Upload audio file (.wav format preferred)
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: Content
     format: md
     newFile:
       filename: "{{slug}}"
-      frontmatter: false
-    template: |
-      # {{title}}
-
-      {{content}}
 
   - label: "Book - Outro"
     name: book_outro
     description: Outro content
-    path: src/book/outro.md
+    path: src/book/outro.md # This is a single file
     fields:
       - label: Title
         name: title
         type: string
         required: true
         description: Section title
-      - label: Content
-        name: content
-        type: rich-text
-        required: true
-        description: Content
       - label: Audio File
         name: audio
         type: file
         required: false
         description: Upload audio file (.wav format preferred)
+      - label: Content
+        name: content
+        type: rich-text
+        required: true
+        description: Content
     format: md
-    newFile:
-      filename: "{{slug}}"
-      frontmatter: false
-    template: |
-      # {{title}}
-
-      {{content}}
-
+    # Removed 'newFile' block because this is a single file collection
