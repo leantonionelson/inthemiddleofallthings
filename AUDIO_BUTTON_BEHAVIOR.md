@@ -22,17 +22,17 @@ const { hasAudio, isChecking } = useAudioAvailability({
 ### Button Display Logic
 
 ```typescript
-{hasAudio !== false && (
+{hasAudio === true && (
   // Show button
 )}
 ```
 
 **When audio button is HIDDEN:**
 - `hasAudio === false` - Audio file does not exist for this content
+- `hasAudio === null` - Currently checking for audio availability (don't show button until confirmed)
 
 **When audio button is SHOWN:**
 - `hasAudio === true` - Audio file exists and is ready to play
-- `hasAudio === null` - Currently checking for audio availability (button is disabled with loading state)
 
 ## User Experience
 
