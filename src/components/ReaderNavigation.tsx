@@ -52,8 +52,8 @@ const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
       )}
       
       <div className="flex items-center justify-center px-4 py-3">
-        {/* Left side: Listen button - only show if audio is available or checking */}
-        {hasAudio !== false && (
+        {/* Left side: Listen button - only show if audio is confirmed available */}
+        {hasAudio === true && (
           <div className="flex items-center space-x-3 mr-4">
             {/* Listen button (play button) */}
             <motion.button
@@ -66,7 +66,7 @@ const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
               } ${isChecking ? 'opacity-50 cursor-not-allowed' : ''}`}
               whileHover={!isChecking ? { scale: 1.05 } : {}}
               whileTap={!isChecking ? { scale: 0.95 } : {}}
-              title={isChecking ? 'Checking audio availability...' : hasAudio ? 'Listen to audio' : 'No audio available'}
+              title="Listen to audio"
             >
               <div className="relative">
                 {isListening ? (
