@@ -11,8 +11,6 @@ import { Search, X, ChevronRight, Heart, Leaf, Star, Moon, Sun, Waves, Mountain,
 import UnifiedAudioPlayer from '../../components/UnifiedAudioPlayer';
 import TextSelection from '../../components/TextSelection';
 import ContentFormatter from '../../components/ContentFormatter';
-import { highlightsService } from '../../services/firebaseHighlights';
-import { authService } from '../../services/firebaseAuth';
 import { useUserCapabilities } from '../../hooks/useUserCapabilities';
 import { useTextSelection } from '../../hooks/useTextSelection';
 import UpgradePrompt from '../../components/UpgradePrompt';
@@ -423,13 +421,8 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
     }
 
     try {
-      const currentUser = authService.getCurrentUser();
-      if (!currentUser) {
-        console.warn('No authenticated user for saving highlights');
-        return;
-      }
-
-      const highlight: Omit<TextHighlight, 'id'> = {
+      const highlight: TextHighlight = {
+        id: `highlight-${Date.now()}`,
         chapterId: currentMeditation.id,
         chapterTitle: currentMeditation.title,
         text: text.trim(),
@@ -440,7 +433,11 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
         }
       };
 
-      await highlightsService.saveHighlight(currentUser.uid, highlight);
+      // Save to localStorage
+      const savedHighlights = JSON.parse(localStorage.getItem('savedHighlights') || '[]');
+      savedHighlights.push(highlight);
+      localStorage.setItem('savedHighlights', JSON.stringify(savedHighlights));
+      
       console.log('Highlight saved successfully');
     } catch (error) {
       console.error('Error saving highlight:', error);

@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Search, BookOpen, Brain, Calendar, Bookmark } from 'lucide-react';
 import { AppRoute, TextHighlight } from '../../types';
 import CleanLayout from '../../components/CleanLayout';
-import { highlightsService } from '../../services/firebaseHighlights';
-import { authService } from '../../services/firebaseAuth';
 import UpgradePrompt from '../../components/UpgradePrompt';
 
 interface SavedPageProps {
@@ -27,14 +25,22 @@ const SavedPage: React.FC<SavedPageProps> = ({ onOpenAI }) => {
     hasActiveSubscription: false
   });
 
-  // Update capabilities when auth state changes
+  // Update capabilities
   useEffect(() => {
     const checkCapabilities = async () => {
       try {
-        const capabilities = await authService.getUserCapabilities();
+        const freeAuth = localStorage.getItem('freeAuth') === 'true';
+        const userType = localStorage.getItem('userType') || 'guest';
+        const subscriptionData = localStorage.getItem('subscriptionStatus');
+        const hasActiveSubscription = subscriptionData ? JSON.parse(subscriptionData).isActive === true : false;
+        
         setUserCapabilities({
-          ...capabilities,
-          userType: capabilities.userType as 'guest' | 'anonymous' | 'authenticated' | 'admin'
+          canSaveProgress: true,
+          canSaveHighlights: true,
+          canUseAI: hasActiveSubscription,
+          canSync: false,
+          userType: freeAuth ? 'guest' : (userType as 'guest' | 'anonymous' | 'authenticated' | 'admin'),
+          hasActiveSubscription
         });
       } catch (error) {
         console.error('Error checking user capabilities:', error);
@@ -42,45 +48,25 @@ const SavedPage: React.FC<SavedPageProps> = ({ onOpenAI }) => {
     };
 
     checkCapabilities();
-
-    const unsubscribe = authService.onAuthStateChanged(async () => {
-      await checkCapabilities();
-    });
-    return unsubscribe;
   }, []);
 
-  // Load saved highlights from Firebase or localStorage
+  // Load saved highlights from localStorage
   useEffect(() => {
-    const loadHighlights = async () => {
+    const loadHighlights = () => {
       try {
-        const currentUser = authService.getCurrentUser();
-        if (currentUser && !currentUser.isAnonymous) {
-          // Authenticated user - load from Firebase
-          const userHighlights = await highlightsService.getUserHighlights(currentUser.uid);
-          setHighlights(userHighlights);
-          setFilteredHighlights(userHighlights);
-        } else {
-          // Anonymous user or not authenticated - use localStorage
-          const savedHighlights = localStorage.getItem('savedHighlights');
-          if (savedHighlights) {
-            const parsed = JSON.parse(savedHighlights);
-            setHighlights(parsed);
-            setFilteredHighlights(parsed);
-          }
+        const savedHighlights = localStorage.getItem('savedHighlights');
+        if (savedHighlights) {
+          const parsed = JSON.parse(savedHighlights);
+          // Convert timestamp strings back to Date objects
+          const highlightsWithDates = parsed.map((h: any) => ({
+            ...h,
+            timestamp: new Date(h.timestamp)
+          }));
+          setHighlights(highlightsWithDates);
+          setFilteredHighlights(highlightsWithDates);
         }
       } catch (error) {
         console.error('Error loading highlights:', error);
-        // Fallback to localStorage on error
-        try {
-          const savedHighlights = localStorage.getItem('savedHighlights');
-          if (savedHighlights) {
-            const parsed = JSON.parse(savedHighlights);
-            setHighlights(parsed);
-            setFilteredHighlights(parsed);
-          }
-        } catch (fallbackError) {
-          console.error('Error loading fallback highlights:', fallbackError);
-        }
       } finally {
         setIsLoading(false);
       }
@@ -125,24 +111,11 @@ const SavedPage: React.FC<SavedPageProps> = ({ onOpenAI }) => {
     return highlight.chapterId.startsWith('meditation-') ? Brain : BookOpen;
   };
 
-  const clearAllHighlights = async () => {
+  const clearAllHighlights = () => {
     if (window.confirm('Are you sure you want to delete all saved highlights?')) {
-      try {
-        const currentUser = authService.getCurrentUser();
-        if (currentUser) {
-          await highlightsService.deleteAllUserHighlights(currentUser.uid);
-        } else {
-          localStorage.removeItem('savedHighlights');
-        }
-        setHighlights([]);
-        setFilteredHighlights([]);
-      } catch (error) {
-        console.error('Error clearing highlights:', error);
-        // Fallback to localStorage
-        localStorage.removeItem('savedHighlights');
-        setHighlights([]);
-        setFilteredHighlights([]);
-      }
+      localStorage.removeItem('savedHighlights');
+      setHighlights([]);
+      setFilteredHighlights([]);
     }
   };
 

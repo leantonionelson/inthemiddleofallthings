@@ -4,7 +4,6 @@ import { X, SkipForward } from 'lucide-react';
 import { Symbol } from '../../components/Symbol';
 import { generateSymbol } from '../../services/symbolGenerator';
 import PaymentStep from '../../components/PaymentStep';
-import { authService } from '../../services/firebaseAuth';
 
 interface OnboardingPageProps {
   onComplete: () => void;
@@ -74,10 +73,9 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
   useEffect(() => {
     const checkAuthState = () => {
       const freeAuth = localStorage.getItem('freeAuth') === 'true';
-      const currentUser = authService.getCurrentUser();
       
-      // User is in free mode if they have freeAuth or if they're an anonymous Firebase user
-      const isFree = freeAuth || (currentUser?.isAnonymous === true);
+      // User is in free mode if they have freeAuth
+      const isFree = freeAuth;
       setIsFreeUser(isFree);
       
       // Filter questions based on authentication state
@@ -233,23 +231,18 @@ const OnboardingPage: React.FC<OnboardingPageProps> = ({ onComplete, onClose }) 
 
   const revertToFreeAccount = async () => {
     try {
-      const currentUser = authService.getCurrentUser();
-      if (currentUser && !currentUser.isAnonymous) {
-        // Update user profile to remove subscription status
-        await authService.updateUserProfile(currentUser.uid, {
-          subscriptionStatus: {
-            isActive: false,
-            status: 'incomplete',
-            currentPeriodEnd: null,
-            cancelAtPeriodEnd: false,
-            planName: 'Free Plan'
-          }
-        });
-        
-        // Set user type to free
-        localStorage.setItem('userType', 'free');
-        console.log('User account reverted to free due to payment bypass attempt');
-      }
+      // Update localStorage to remove subscription status
+      localStorage.setItem('subscriptionStatus', JSON.stringify({
+        isActive: false,
+        status: 'incomplete',
+        currentPeriodEnd: null,
+        cancelAtPeriodEnd: false,
+        planName: 'Free Plan'
+      }));
+      
+      // Set user type to free
+      localStorage.setItem('userType', 'free');
+      console.log('User account reverted to free due to payment bypass attempt');
     } catch (error) {
       console.error('Error reverting account to free:', error);
     }

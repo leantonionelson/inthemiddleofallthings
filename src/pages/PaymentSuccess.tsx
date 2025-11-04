@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AppRoute } from '../types';
-import { authService } from '../services/firebaseAuth';
 
 const PaymentSuccess: React.FC = () => {
   const navigate = useNavigate();
@@ -13,23 +12,20 @@ const PaymentSuccess: React.FC = () => {
   useEffect(() => {
     const updateUserSubscription = async () => {
       try {
-        const user = authService.getCurrentUser();
-        if (user && !user.isAnonymous) {
-          // Update user profile with subscription status
-          await authService.updateUserProfile(user.uid, {
-            subscriptionStatus: {
-              isActive: true,
-              status: 'active',
-              currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-              cancelAtPeriodEnd: false,
-              planName: 'Premium Plan',
-              stripeCustomerId: `cus_${user.uid}`,
-              stripeSubscriptionId: sessionId || `sub_${Date.now()}`
-            }
-          });
-          
-          console.log('✅ User subscription activated successfully');
-        }
+        // Update localStorage with subscription status
+        localStorage.setItem('subscriptionStatus', JSON.stringify({
+          isActive: true,
+          status: 'active',
+          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+          cancelAtPeriodEnd: false,
+          planName: 'Premium Plan',
+          stripeCustomerId: `cus_${Date.now()}`,
+          stripeSubscriptionId: sessionId || `sub_${Date.now()}`
+        }));
+        
+        localStorage.setItem('userType', 'authenticated');
+        
+        console.log('✅ User subscription activated successfully');
       } catch (error) {
         console.error('Error updating subscription status:', error);
       } finally {

@@ -5,8 +5,6 @@
  * account reversion for users who attempt to skip payment.
  */
 
-import { authService } from './firebaseAuth';
-
 export interface PaymentValidationResult {
   isValid: boolean;
   isFreeUser: boolean;
@@ -21,12 +19,9 @@ class PaymentValidationService {
    */
   public async validatePaymentStatus(): Promise<PaymentValidationResult> {
     try {
-      const currentUser = authService.getCurrentUser();
-      
       // Check if user is in free mode
       const isFreeMode = localStorage.getItem('freeAuth') === 'true';
-      const isAnonymous = currentUser?.isAnonymous === true;
-      const isFreeUser = isFreeMode || isAnonymous;
+      const isFreeUser = isFreeMode;
       
       if (isFreeUser) {
         return {
@@ -38,20 +33,9 @@ class PaymentValidationService {
         };
       }
       
-      // For authenticated users, check subscription status
-      if (!currentUser) {
-        return {
-          isValid: false,
-          isFreeUser: false,
-          hasActiveSubscription: false,
-          requiresPayment: true,
-          reason: 'No authenticated user found'
-        };
-      }
-      
-      // Get user profile and subscription status
-      const userProfile = await authService.getUserProfile(currentUser.uid);
-      const hasActiveSubscription = userProfile?.subscriptionStatus?.isActive === true;
+      // Check subscription status from localStorage
+      const subscriptionData = localStorage.getItem('subscriptionStatus');
+      const hasActiveSubscription = subscriptionData ? JSON.parse(subscriptionData).isActive === true : false;
       
       if (!hasActiveSubscription) {
         // Check if user somehow bypassed payment
@@ -104,18 +88,14 @@ class PaymentValidationService {
    */
   public async revertToFreeAccount(userId: string): Promise<void> {
     try {
-      // Update user profile to remove subscription status
-      await authService.updateUserProfile(userId, {
-        subscriptionStatus: {
-          isActive: false,
-          status: 'incomplete',
-          currentPeriodEnd: null,
-          cancelAtPeriodEnd: false,
-          planName: 'Free Plan'
-        }
-      });
-      
       // Update local storage
+      localStorage.setItem('subscriptionStatus', JSON.stringify({
+        isActive: false,
+        status: 'incomplete',
+        currentPeriodEnd: null,
+        cancelAtPeriodEnd: false,
+        planName: 'Free Plan'
+      }));
       localStorage.setItem('userType', 'free');
       localStorage.setItem('paymentBypassDetected', 'true');
       

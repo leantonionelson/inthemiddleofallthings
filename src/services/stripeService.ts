@@ -5,7 +5,6 @@
  */
 
 import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
-import { authService } from './firebaseAuth';
 import { regionalPricingService } from './regionalPricing';
 
 // Stripe configuration
@@ -66,22 +65,15 @@ class StripeService {
    * Create a payment intent for subscription
    */
   public async createPaymentIntent(priceId?: string): Promise<PaymentIntent> {
-    const user = authService.getCurrentUser();
-    if (!user) {
-      throw new Error('User must be authenticated to create payment intent');
-    }
-
     try {
       // In a real implementation, this would call your backend API
       // For now, we'll simulate the response
       const response = await fetch('/api/create-payment-intent', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await user.getIdToken()}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          userId: user.uid,
           priceId: priceId || STRIPE_MONTHLY_PRICE_ID
         })
       });
@@ -147,44 +139,35 @@ class StripeService {
    * Simulate successful payment (for testing purposes)
    */
   private simulatePaymentSuccess(): void {
-    const user = authService.getCurrentUser();
-    if (user) {
-      // Update user profile with subscription status
-      authService.updateUserProfile(user.uid, {
-        subscriptionStatus: {
-          isActive: true,
-          status: 'active',
-          currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-          cancelAtPeriodEnd: false,
-          planName: 'Premium Plan',
-          stripeCustomerId: `cus_${user.uid}`,
-          stripeSubscriptionId: `sub_${Date.now()}`
-        }
-      }).catch(console.error);
-      
-      console.log('✅ Payment simulation completed - user subscription activated');
-    }
+    // Update localStorage with subscription status
+    localStorage.setItem('subscriptionStatus', JSON.stringify({
+      isActive: true,
+      status: 'active',
+      currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      cancelAtPeriodEnd: false,
+      planName: 'Premium Plan',
+      stripeCustomerId: `cus_${Date.now()}`,
+      stripeSubscriptionId: `sub_${Date.now()}`
+    }));
+    
+    console.log('✅ Payment simulation completed - user subscription activated');
   }
 
   /**
-   * Get user's subscription status from Firebase user profile
+   * Get user's subscription status from localStorage
    */
   public async getSubscriptionStatus(): Promise<SubscriptionStatus | null> {
-    const user = authService.getCurrentUser();
-    if (!user) {
-      return null;
-    }
-
     try {
-      // Get subscription status from Firebase user profile
-      const userProfile = await authService.getUserProfile(user.uid);
-      if (userProfile?.subscriptionStatus) {
+      // Get subscription status from localStorage
+      const subscriptionData = localStorage.getItem('subscriptionStatus');
+      if (subscriptionData) {
+        const parsed = JSON.parse(subscriptionData);
         return {
-          isActive: userProfile.subscriptionStatus.isActive,
-          status: userProfile.subscriptionStatus.status,
-          currentPeriodEnd: userProfile.subscriptionStatus.currentPeriodEnd,
-          cancelAtPeriodEnd: userProfile.subscriptionStatus.cancelAtPeriodEnd,
-          planName: userProfile.subscriptionStatus.planName
+          isActive: parsed.isActive || false,
+          status: parsed.status || 'incomplete',
+          currentPeriodEnd: parsed.currentPeriodEnd ? new Date(parsed.currentPeriodEnd) : null,
+          cancelAtPeriodEnd: parsed.cancelAtPeriodEnd || false,
+          planName: parsed.planName || 'Premium Plan'
         };
       }
       
@@ -212,25 +195,26 @@ class StripeService {
    * Cancel user's subscription
    */
   public async cancelSubscription(): Promise<void> {
-    const user = authService.getCurrentUser();
-    if (!user) {
-      throw new Error('User must be authenticated to cancel subscription');
-    }
-
     try {
       const response = await fetch('/api/cancel-subscription', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await user.getIdToken()}`
-        },
-        body: JSON.stringify({
-          userId: user.uid
-        })
+          'Content-Type': 'application/json'
+        }
       });
 
       if (!response.ok) {
         throw new Error('Failed to cancel subscription');
+      }
+      
+      // Update localStorage
+      const subscriptionData = localStorage.getItem('subscriptionStatus');
+      if (subscriptionData) {
+        const parsed = JSON.parse(subscriptionData);
+        parsed.isActive = false;
+        parsed.status = 'canceled';
+        parsed.cancelAtPeriodEnd = true;
+        localStorage.setItem('subscriptionStatus', JSON.stringify(parsed));
       }
     } catch (error) {
       console.error('Error canceling subscription:', error);
@@ -243,16 +227,15 @@ class StripeService {
    * Note: This requires Stripe's customer portal to be configured in your Stripe dashboard
    */
   public async createCustomerPortalSession(): Promise<void> {
-    const user = authService.getCurrentUser();
-    if (!user) {
-      throw new Error('User must be authenticated to manage subscription');
-    }
-
     try {
-      // Without a backend, we redirect to a customer portal URL
-      // You'll need to configure this in your Stripe dashboard
-      const userProfile = await authService.getUserProfile(user.uid);
-      const customerId = userProfile?.subscriptionStatus?.stripeCustomerId;
+      // Check subscription status from localStorage
+      const subscriptionData = localStorage.getItem('subscriptionStatus');
+      if (!subscriptionData) {
+        throw new Error('No active subscription found. Please contact support for assistance.');
+      }
+      
+      const parsed = JSON.parse(subscriptionData);
+      const customerId = parsed.stripeCustomerId;
       
       if (!customerId) {
         throw new Error('No active subscription found. Please contact support for assistance.');

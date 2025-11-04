@@ -3,8 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, AlertCircle, ArrowLeft } from 'lucide-react';
 import { AppRoute } from '../../types';
-import { authService } from '../../services/firebaseAuth';
-import { progressService } from '../../services/firebaseProgress';
 
 interface AuthPageProps {
   onAuthenticate?: () => void;
@@ -63,84 +61,20 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthenticate }) => {
     setErrors({});
 
     try {
-      let userCredential;
-      
-      if (mode === 'signup') {
-        userCredential = await authService.createAccount(email, password);
-        // Initialize progress for new users
-        await progressService.initializeUserProgress(userCredential.user.uid);
-      } else {
-        userCredential = await authService.signInWithEmail(email, password);
-      }
-
-      // Notify parent component about authentication
-      if (onAuthenticate) {
-        onAuthenticate();
-      }
-
-      // Navigate to appropriate page
-      const userProfile = await authService.getUserProfile(userCredential.user.uid);
-      if (userProfile?.onboardingCompleted) {
-        navigate(AppRoute.HOME);
-      } else {
-        navigate(AppRoute.ONBOARDING);
-      }
-    } catch (error: unknown) {
-      console.error('Authentication error:', error);
-      
-      // Map Firebase errors to user-friendly messages
-      let errorMessage = 'Authentication failed';
-      if (error && typeof error === 'object' && 'message' in error) {
-        errorMessage = (error as { message: string }).message;
-      }
-      if (error && typeof error === 'object' && 'code' in error) {
-        const errorCode = (error as { code: string }).code;
-        if (errorCode === 'auth/user-not-found') {
-          errorMessage = 'No account found with this email address';
-        } else if (errorCode === 'auth/wrong-password') {
-          errorMessage = 'Incorrect password';
-        } else if (errorCode === 'auth/email-already-in-use') {
-          errorMessage = 'An account with this email already exists. Try signing in instead.';
-          // Automatically switch to login mode
-          setTimeout(() => {
-            setMode('login');
-            setErrors({});
-          }, 2000);
-        } else if (errorCode === 'auth/weak-password') {
-          errorMessage = 'Password must be at least 6 characters long';
-        } else if (errorCode === 'auth/invalid-email') {
-          errorMessage = 'Invalid email address';
-        } else if (errorCode === 'auth/network-request-failed') {
-          errorMessage = 'Network error. Please check your connection and try again.';
-        }
-      }
-      
-      setErrors({ general: errorMessage });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleAnonymousAuth = async () => {
-    setIsLoading(true);
-    setErrors({});
-    
-    try {
-      await authService.signInAnonymously();
-      
-      // Note: Anonymous users don't get cloud progress tracking
-      // They will use local storage for progress and highlights
+      // Store user info in localStorage (simplified auth without Firebase)
+      localStorage.setItem('userEmail', email);
+      localStorage.setItem('userType', 'authenticated');
       
       // Notify parent component about authentication
       if (onAuthenticate) {
         onAuthenticate();
       }
-      
+
+      // Navigate to onboarding
       navigate(AppRoute.ONBOARDING);
     } catch (error: unknown) {
-      console.error('Anonymous auth error:', error);
-      // Fallback to free mode
-      handleFreeAccess();
+      console.error('Authentication error:', error);
+      setErrors({ general: 'Authentication failed. Please try again.' });
     } finally {
       setIsLoading(false);
     }
@@ -151,6 +85,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthenticate }) => {
     
     // Set authentication state in localStorage
     localStorage.setItem('freeAuth', 'true');
+    localStorage.setItem('userType', 'free');
     
     // Notify parent component about authentication
     if (onAuthenticate) {
@@ -269,17 +204,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthenticate }) => {
                 <span className="text-ink-secondary dark:text-ink-muted text-sm">or</span>
                 <div className="flex-1 h-px bg-ink-muted/20 dark:bg-paper-light/20" />
               </div>
-
-              {/* Anonymous Access */}
-              <motion.button
-                onClick={handleAnonymousAuth}
-                disabled={isLoading}
-                className="w-full px-6 py-4 bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted font-medium rounded-xl hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 transition-colors disabled:opacity-50"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {isLoading ? 'Connecting...' : 'Continue as Guest'}
-              </motion.button>
 
               {/* Free Access */}
               <motion.button
@@ -477,4 +401,4 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthenticate }) => {
   );
 };
 
-export default AuthPage; 
+export default AuthPage;
