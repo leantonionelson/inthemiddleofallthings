@@ -63,15 +63,15 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthenticate }) => {
     try {
       // Store user info in localStorage (simplified auth without Firebase)
       localStorage.setItem('userEmail', email);
-      localStorage.setItem('userType', 'authenticated');
+      localStorage.setItem('userType', 'guest');
       
       // Notify parent component about authentication
       if (onAuthenticate) {
         onAuthenticate();
       }
 
-      // Navigate to onboarding
-      navigate(AppRoute.ONBOARDING);
+      // Navigate to home
+      navigate(AppRoute.HOME);
     } catch (error: unknown) {
       console.error('Authentication error:', error);
       setErrors({ general: 'Authentication failed. Please try again.' });
@@ -85,24 +85,16 @@ const AuthPage: React.FC<AuthPageProps> = ({ onAuthenticate }) => {
     
     // Set authentication state in localStorage
     localStorage.setItem('freeAuth', 'true');
-    localStorage.setItem('userType', 'free');
+    localStorage.setItem('userType', 'guest');
     
     // Notify parent component about authentication
     if (onAuthenticate) {
       onAuthenticate();
     }
     
-    // Navigate to onboarding with a small delay to ensure state is updated
+    // Navigate to home
     setTimeout(() => {
-      navigate(AppRoute.ONBOARDING);
-      
-      // Fallback: if navigation doesn't work, force a page refresh after 2 seconds
-      setTimeout(() => {
-        if (window.location.pathname !== AppRoute.ONBOARDING) {
-          console.log('Navigation fallback: refreshing page');
-          window.location.href = AppRoute.ONBOARDING;
-        }
-      }, 2000);
+      navigate(AppRoute.HOME);
     }, 100);
   };
 

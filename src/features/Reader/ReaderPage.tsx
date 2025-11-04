@@ -13,7 +13,6 @@ import TextSelection from '../../components/TextSelection';
 import ContentFormatter from '../../components/ContentFormatter';
 import { useUserCapabilities } from '../../hooks/useUserCapabilities';
 import { useTextSelection } from '../../hooks/useTextSelection';
-import UpgradePrompt from '../../components/UpgradePrompt';
 
 interface ReaderPageProps {
   onOpenAI?: () => void;
@@ -37,8 +36,6 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
   const [highlightedProgress, setHighlightedProgress] = useState(0); // 0 to 1, representing progress through the text
   const [isAudioPlaying, setIsAudioPlaying] = useState(false); // Track when audio is actively playing
   const [fontSize, setFontSize] = useState('base');
-  const [showUpgradePrompt, setShowUpgradePrompt] = useState(false);
-  const [upgradeFeature, setUpgradeFeature] = useState<'highlights' | 'progress' | 'ai' | 'sync'>('highlights');
   
   // Get user capabilities
   const userCapabilities = useUserCapabilities();
@@ -284,10 +281,9 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
   };
 
   const handleSaveHighlight = async (text: string, range: Range) => {
+    // All users can save highlights now
     if (!userCapabilities.canSaveHighlights) {
-      setUpgradeFeature('highlights');
-      setShowUpgradePrompt(true);
-      return;
+      console.log('Saving highlights...');
     }
 
     try {
@@ -523,12 +519,6 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
         />
       )}
 
-      {/* Upgrade Prompt */}
-      <UpgradePrompt
-        isOpen={showUpgradePrompt}
-        onClose={() => setShowUpgradePrompt(false)}
-        feature={upgradeFeature}
-      />
 
     </CleanLayout>
   );

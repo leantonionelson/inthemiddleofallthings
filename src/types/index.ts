@@ -4,21 +4,8 @@ export interface User {
   email: string;
   displayName: string;
   isGuest: boolean;
-  onboardingResponses: OnboardingResponse[];
-  selectedAIPersona: AIPersona;
   createdAt: Date;
   lastActive: Date;
-}
-
-export interface OnboardingResponse {
-  question: string;
-  answer: string;
-}
-
-export enum AIPersona {
-  SAGE = 'sage',
-  MIRROR = 'mirror', 
-  FLAME = 'flame'
 }
 
 // Conversation tone types
@@ -178,12 +165,10 @@ export interface TextHighlight {
 // Routes
 export enum AppRoute {
   HOME = '/',
-  ONBOARDING = '/onboarding',
   AUTH = '/auth',
   READER = '/read',
   MEDITATIONS = '/meditations',
   STORIES = '/stories',
-  SAVED = '/saved',
   SETTINGS = '/settings',
   SYMBOLS = '/symbols'
 }
