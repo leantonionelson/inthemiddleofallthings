@@ -6,13 +6,13 @@
 
 The now does not move.
 It does not arrive or depart.
-It simply is —
+It simply is –
 boundless, unmeasured, whole.
 And yet within it,
 everything changes.
 
 In the eternal now,
-reality unfolds —
+reality unfolds –
 like a flower blooming without time,
 each petal a moment,
 each fragrance a life.
@@ -22,14 +22,13 @@ but motion itself happens inside stillness.
 All of becoming
 is contained within being.
 
-Pause here.
 Breathe.
 Let the breath anchor you.
 Notice how, even as it rises and falls,
 the awareness that watches it
 remains unchanged.
 That awareness is the eternal now.
-It does not unfold —
+It does not unfold –
 it allows unfolding.
 
 Reality is not being built.
@@ -52,7 +51,7 @@ To live from the eternal now
 is to step out of hurry,
 to stop mistaking change for loss,
 to see that everything you've ever loved
-still exists here —
+still exists here –
 not gone,
 just folded into another expression of the same whole.
 
@@ -62,6 +61,6 @@ The eternal now
 is the heart of the universe,
 beating without beginning,
 without end,
-and you —
+and you –
 you are its pulse made conscious.
 

@@ -16,13 +16,12 @@ The body remembers what the mind refuses.
 The child carries what the ancestors could not.
 
 Pain travels through families
-until someone is ready to feel it —
+until someone is ready to feel it –
 to open the sealed room,
 to breathe the dust,
 to let the cry that never came.
 
-Pause here.
-Think of the grief that feels older than you —
+Think of the grief that feels older than you –
 sorrow without story,
 fear without cause,
 the heaviness that feels inherited.
@@ -39,7 +38,7 @@ finally being seen.
 
 You are not cursed.
 You are called.
-To feel it all is not to drown —
+To feel it all is not to drown –
 it is to cleanse the river.
 To break the chain of silence
 that has echoed through generations.

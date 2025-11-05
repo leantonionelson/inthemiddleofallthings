@@ -12,7 +12,7 @@ Joy alone cannot teach you,
 nor pain alone,
 nor study,
 nor stillness.
-Each is a note —
+Each is a note –
 and together they make the song.
 
 You must understand the whole of life,
@@ -32,8 +32,7 @@ but through participation.
 Life asks not for mastery of a piece,
 but for willingness to play the whole symphony.
 
-Pause here.
-Think of the parts of yourself you have rejected —
+Think of the parts of yourself you have rejected –
 your grief, your anger, your desire, your doubt.
 Now see how incomplete your story would be
 without them.
@@ -43,16 +42,16 @@ The storm deepens the root.
 The silence restores the song.
 
 When you look at the sky,
-you see vastness —
+you see vastness –
 but even the clouds and the shadows belong.
 So too within you.
 Understanding life
-means understanding contrast —
+means understanding contrast –
 that light and dark, gain and loss,
 are not enemies,
 but partners in the dance of becoming.
 
-To read, to sing, to suffer, to create —
+To read, to sing, to suffer, to create –
 these are the ways consciousness learns itself.
 They stretch the soul
 until it can hold more of existence
@@ -62,13 +61,13 @@ Do not settle for the narrowness of comfort.
 Do not call peace the absence of pain.
 To understand life wholly
 is to stand in the centre of contradiction
-and say, "Yes — this too."
+and say, "Yes – this too."
 
 All that is life.
 All of it belongs.
 And the one who understands that
 no longer seeks escape,
-but participation —
+but participation –
 the joy of being witness and wave,
 observer and expression,
 the infinite learning itself through you.

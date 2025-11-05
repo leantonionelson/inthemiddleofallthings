@@ -10,11 +10,10 @@ The need to be seen
 keeps you from seeing yourself.
 
 Approval is a mirror
-that distorts reflection —
+that distorts reflection –
 it shows not who you are,
 but who others need you to be.
 
-Pause here.
 Think of the last compliment
 that made you feel whole.
 Then notice how quickly

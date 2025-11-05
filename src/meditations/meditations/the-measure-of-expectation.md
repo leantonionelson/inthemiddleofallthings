@@ -9,7 +9,7 @@ To move only when reflected,
 to love only when asked,
 to offer only when the world reaches first.
 
-"I know my flaw —
+"I know my flaw –
 I only give what is expected."
 It sounds like humility,
 but it is a quiet kind of imprisonment.
@@ -25,9 +25,8 @@ not to express.
 You serve to balance,
 not to overflow.
 
-Pause here.
 Feel the weight of that rhythm.
-Notice how it narrows your life—
+Notice how it narrows your life –
 how it trades authenticity
 for control.
 Expectation is safe,

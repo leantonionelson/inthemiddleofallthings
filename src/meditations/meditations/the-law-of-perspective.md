@@ -6,7 +6,7 @@
 
 Truth bends with the light that reveals it.
 Not because truth lies,
-but because sight is partial—
+but because sight is partial –
 and every eye,
 every mind,
 every soul
@@ -18,8 +18,7 @@ is shadowed valley to another.
 What feels eternal today
 will fade beneath tomorrow's sun.
 
-Pause here.
-Think of a moment you were certain—
+Think of a moment you were certain –
 utterly convinced of your rightness.
 Then recall when time,
 or pain,
@@ -39,7 +38,7 @@ To see truly
 is not to fix truth in place,
 but to allow it to move.
 To understand that it grows
-as you do—
+as you do –
 widening, unfolding,
 revealing more of what was always there.
 
@@ -49,9 +48,9 @@ It keeps your seeing honest.
 It reminds you that your clarity
 is still a corner of the vast.
 
-So speak your truth—
+So speak your truth –
 but hold it gently.
-Listen to others—
+Listen to others –
 not to defend,
 but to expand.
 Because when all perspectives align,

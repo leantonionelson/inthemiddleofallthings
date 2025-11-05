@@ -25,7 +25,6 @@ but through reorientation.
 Not more facts,
 but more vantage points.
 
-Pause here.
 Think of a moment in your past
 that still unsettles you.
 Now tilt it.

@@ -21,7 +21,6 @@ It adds.
 It creates.
 It carries the moment forward.
 
-Pause here.
 Think of how often you say "no, but…"
 and feel the contraction it brings.
 It closes doors.

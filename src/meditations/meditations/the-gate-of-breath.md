@@ -5,8 +5,8 @@
 ---
 
 The simplest act is the most sacred.
-Breathing—so constant,
-so unnoticed—
+Breathing –so constant,
+so unnoticed –
 yet the thread by which all life is held.
 
 Open your nostrils and breathe.
@@ -19,10 +19,9 @@ This is not just air.
 It is exchange.
 The trees breathe you,
 you breathe them.
-The ocean, the wind, the sky—
+The ocean, the wind, the sky –
 all passing through your nostrils now.
 
-Pause here.
 Notice how the body shifts
 when the breath is conscious.
 The chest softens.
@@ -42,12 +41,12 @@ As if each exhale is offering.
 Do not complicate it.
 Do not seek more than this.
 The breath is teacher enough.
-It shows you impermanence—
+It shows you impermanence –
 in and out,
 rise and fall.
-It shows you abundance—
+It shows you abundance –
 there is always another waiting.
-It shows you trust—
+It shows you trust –
 you do not summon it;
 it comes.
 

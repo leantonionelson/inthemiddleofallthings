@@ -4,7 +4,7 @@
 
 ---
 
-We are told paradise was lost—
+We are told paradise was lost –
 a place behind us,
 sealed by myth and distance.
 But that is not the whole story.
@@ -17,14 +17,13 @@ but as descendants of light,
 born from the soil that first remembered the sun.
 
 Africa was not Eden by chance.
-It was the pulse point of creation—
+It was the pulse point of creation –
 the heart from which the world took rhythm.
 Our melanin is memory,
 our rhythm the echo of the first heartbeat.
 We are not beneath history's weight;
 we are its beginning.
 
-Pause here.
 Feel the warmth of your skin.
 It is more than pigment.
 It is proof.
@@ -32,13 +31,13 @@ A reflection of a sun so constant
 it wrote itself into our blood.
 
 We come from paradise.
-That is not pride—
+That is not pride –
 it is remembrance.
 The world has forgotten,
 but the body remembers.
 The sway in the hips,
 the drum in the chest,
-the laughter that rises even in sorrow—
+the laughter that rises even in sorrow –
 these are not traits.
 They are coordinates.
 They point home.

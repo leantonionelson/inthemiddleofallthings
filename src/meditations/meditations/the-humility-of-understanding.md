@@ -12,7 +12,6 @@ To speak without seeing
 is to echo ignorance.
 Curiosity precedes counsel.
 
-Pause here.
 Remember a time you rushed to answer,
 only to find
 you were addressing the wrong question.

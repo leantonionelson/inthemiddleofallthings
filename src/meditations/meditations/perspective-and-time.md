@@ -28,7 +28,6 @@ it is vast,
 a horizon so wide
 that each breath becomes a world.
 
-Pause here.
 Look at your own life.
 Notice how different it feels
 depending on the lens you wear.

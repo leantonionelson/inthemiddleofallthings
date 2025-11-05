@@ -4,19 +4,18 @@
 
 ---
 
-Remember —
+Remember –
 no one sees you
 the way you see yourself.
 
 You are confined to reflections:
-mirrors, pictures, recordings —
+mirrors, pictures, recordings –
 flat surfaces of interpretation.
 Others meet you
 in three dimensions,
 alive and dynamic,
 as you truly are.
 
-Pause here.
 Recall a moment of self-consciousness.
 You thought you looked odd,
 spoke awkwardly,
@@ -41,5 +40,5 @@ the reflection loses its authority.
 You are not two-dimensional.
 You are light in motion.
 Let yourself be seen
-as you already are — whole.
+as you already are – whole.
 

@@ -7,7 +7,7 @@
 For those who say
 they don't see colour
 in response to racism,
-I say —
+I say –
 then you become blind
 to my struggle.
 
@@ -16,7 +16,6 @@ is not to erase pain.
 It is to ignore
 where the wound still bleeds.
 
-Pause here.
 Reflect on what it means
 to see someone fully.
 Visibility is dignity.
@@ -31,7 +30,7 @@ inheritance,
 humanity.
 
 Seeing difference
-does not divide us —
+does not divide us –
 it allows compassion
 to take shape.
 

@@ -6,7 +6,7 @@
 
 Knowledge is easy.
 Wisdom is earned.
-Anyone can repeat the right answer —
+Anyone can repeat the right answer –
 but to know why it is right
 requires the courage to think,
 to feel,
@@ -19,7 +19,6 @@ is integration.
 The first memorises.
 The second understands.
 
-Pause here.
 Think of the truths you hold most tightly.
 Do you know them,
 or do you know why you know them?
@@ -30,7 +29,7 @@ or carve them from the raw stone of experience?
 Answers without understanding
 build fragile foundations.
 They collapse under pressure,
-because they were never lived —
+because they were never lived –
 only learned.
 
 To know why
@@ -49,7 +48,7 @@ curious,
 alive.
 
 The right answer can be recited by anyone.
-But why requires intimacy —
+But why requires intimacy –
 with the question,
 with the struggle,
 with yourself.

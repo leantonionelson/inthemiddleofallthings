@@ -21,7 +21,6 @@ We meddle with what once balanced itself.
 We imagine we know best,
 and often we do not.
 
-Pause here.
 Think of the times your choices,
 even with good intent,
 pulled you away from harmony.

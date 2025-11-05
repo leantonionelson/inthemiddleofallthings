@@ -6,7 +6,7 @@
 
 The self is not fixed.
 It is not only who you are now.
-You are stretched—
+You are stretched –
 a thread running through memory and possibility,
 woven across the fabric of time.
 
@@ -17,7 +17,6 @@ echoes backward as healing,
 forward as becoming.
 Every choice vibrates across the whole thread.
 
-Pause here.
 Close your eyes.
 Picture your younger self.
 The child, the adolescent,
@@ -55,7 +54,7 @@ So breathe.
 Honour the thread.
 Be gentle with the self that was,
 be faithful to the self that will be.
-For all of them—past, present, future—
+For all of them –past, present, future –
 are you,
 together,
 now.

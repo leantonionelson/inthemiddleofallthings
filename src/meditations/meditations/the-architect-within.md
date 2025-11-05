@@ -5,7 +5,7 @@
 ---
 
 The world is neutral until the mind arrives.
-It is the mind that builds meaning—
+It is the mind that builds meaning –
 cathedral or prison,
 garden or desert.
 The same landscape,
@@ -19,7 +19,6 @@ It invents seasons.
 It turns sunlight into storm
 or darkness into dawn.
 
-Pause here.
 Close your eyes.
 Notice the tone of your thoughts right now.
 Not the words,
@@ -31,9 +30,9 @@ And it colours everything you see.
 
 Heaven and hell are not distant realms.
 They unfold inside consciousness.
-Heaven is clarity—
+Heaven is clarity –
 the mind at rest in acceptance.
-Hell is distortion—
+Hell is distortion –
 the mind consumed by its own resistance.
 
 To change your world,
@@ -56,7 +55,7 @@ that paradise and torment
 are not assigned by fate,
 but authored by focus.
 
-The mind is its own place—
+The mind is its own place –
 and through awareness,
 you learn to build with light.
 

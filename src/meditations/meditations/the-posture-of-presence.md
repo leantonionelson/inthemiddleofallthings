@@ -26,7 +26,6 @@ I will not curl into the armour of defence.
 I will stand,
 balanced between effort and release.
 
-Pause here.
 Try it now.
 Notice how the space in your lungs grows
 when the shoulders are allowed to hang.
@@ -35,7 +34,7 @@ when the spine is lifted with dignity.
 Notice how the mind steadies
 when the body signals readiness.
 
-Life will always try to bend you forward—
+Life will always try to bend you forward –
 burden, grief, distraction, fatigue.
 But the body can remind the soul:
 there is another way to meet the world.

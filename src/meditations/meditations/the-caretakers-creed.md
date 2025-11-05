@@ -5,16 +5,15 @@
 ---
 
 Caring for life
-is about creating a safe environment —
+is about creating a safe environment –
 not controlling it.
 
 Love protects,
 but it must not cage.
 
-Pause here.
 Think of something or someone
 you wish to keep safe.
-Now ask —
+Now ask –
 does my care create space,
 or confinement?
 

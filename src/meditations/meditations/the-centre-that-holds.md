@@ -13,10 +13,9 @@ We live on the bridge
 between extremes,
 carrying the tension of both.
 
-Pause here.
 Think of a time
 you were torn between two truths.
-You were not lost —
+You were not lost –
 you were alive.
 
 The middle is not indecision.
@@ -29,7 +28,7 @@ It allows both to exist
 without collapse.
 
 To live in the middle
-is to live where creation happens —
+is to live where creation happens –
 at the crossing point
 of what was
 and what might be.

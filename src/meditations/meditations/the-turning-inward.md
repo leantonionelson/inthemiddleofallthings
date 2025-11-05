@@ -5,7 +5,7 @@
 ---
 
 To look outward
-is to see reflections —
+is to see reflections –
 the moving shadows of your own mind
 cast upon the world.
 To look inward
@@ -18,18 +18,17 @@ The dream of life is seductive.
 It fills the senses with movement and meaning,
 each thing demanding to be touched,
 named, owned, remembered.
-But all of it —
-the ambitions, the loves, the losses —
+But all of it –
+the ambitions, the loves, the losses –
 exists only as long as you're looking outward.
 Close your eyes,
 and the dream pauses.
 
-Pause here.
 Take a slow breath.
 Notice how the world disappears
 when you stop feeding it with attention.
 Where does that attention go now?
-Into the silent watcher —
+Into the silent watcher –
 the one who sees,
 but is not seen.
 
@@ -39,7 +38,7 @@ it is awakening.
 It is returning to the consciousness
 from which all appearances arise.
 It is remembering
-that you are not the dreamer lost in the dream —
+that you are not the dreamer lost in the dream –
 you are the dreaming itself.
 
 When you look outside,
@@ -60,7 +59,7 @@ but only one leads home.
 
 Who looks outside, dreams;
 who looks inside, awakes.
-Do not fear waking —
+Do not fear waking –
 it will not take you from life;
 it will give you back to it,
 whole and unafraid.

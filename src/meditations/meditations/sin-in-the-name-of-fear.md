@@ -7,7 +7,7 @@
 Sin in the name of fear
 is the worst of all sins.
 
-Fear masquerades as virtue —
+Fear masquerades as virtue –
 it claims to protect,
 to caution,
 to save.
@@ -20,7 +20,6 @@ History is written
 in trembling hands
 that believed they were clean.
 
-Pause here.
 Recall a time you chose safety
 over sincerity,
 silence over truth.

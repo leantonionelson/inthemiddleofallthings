@@ -20,16 +20,15 @@ their own shadows without flinching
 can sit calmly
 in the shadows of another.
 
-Pause here.
 Close your eyes.
 Remember a time you faced
-something in yourself you wished weren't there —
+something in yourself you wished weren't there –
 anger, envy, shame, fear.
 Feel how it pulsed beneath the surface,
 begging not to be judged
 but to be seen.
-That moment —
-that willingness to see without denial —
+That moment –
+that willingness to see without denial –
 was the birth of understanding.
 
 When you know your own darkness,
@@ -67,7 +66,7 @@ Name it.
 Learn its language.
 For when you do,
 you'll find you no longer fear
-the darkness in others —
+the darkness in others –
 you simply recognise
 the part of yourself
 still learning how to heal.

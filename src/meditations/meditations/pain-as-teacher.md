@@ -7,7 +7,7 @@
 Pain sharpens attention.
 It gathers the mind,
 draws it like iron to a magnet,
-until there is only one point—
+until there is only one point –
 the ache,
 the burn,
 the throb.
@@ -28,12 +28,11 @@ It insists: look at me.
 And in looking,
 you arrive.
 
-Pause here.
 Bring to mind a moment of pain.
 Notice how it commanded your whole being.
 How even in protest,
 your awareness was absolute.
-That is meditation—
+That is meditation –
 the unbroken attention on what is.
 
 Pain is not the enemy of stillness.
@@ -41,7 +40,7 @@ It is the doorway to it.
 If you can sit with pain,
 not resist,
 not flee,
-but observe—
+but observe –
 you will find clarity waiting beneath it.
 
 The breath deepens.

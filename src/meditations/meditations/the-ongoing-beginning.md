@@ -24,7 +24,6 @@ The Big Bang was not once.
 It is always.
 It is happening now.
 
-Pause here.
 Feel your breath expand your chest.
 This is expansion.
 Feel your thoughts spark and scatter.
@@ -35,7 +34,7 @@ This is the echo of that first fire.
 From one perspective,
 it was a moment.
 From another,
-it is the only moment—
+it is the only moment –
 drawn out, stretched across eternity,
 still speaking itself into being.
 

@@ -6,7 +6,7 @@
 
 Reality does not sit apart,
 watching you from some fixed throne.
-It bends, responds, adjusts —
+It bends, responds, adjusts –
 a vast mirror shaped by the light of your perception.
 
 Reality is both a reflection of you
@@ -17,12 +17,11 @@ It listens to the tone of your thoughts,
 the posture of your energy,
 and returns them as circumstance.
 
-Every moment is feedback —
+Every moment is feedback –
 the universe whispering,
 "This is how you are looking at me."
 
-Pause here.
-Consider the reflections you meet daily —
+Consider the reflections you meet daily –
 in people, in work, in quiet moments of solitude.
 What do they show?
 Are they kind?
@@ -45,7 +44,7 @@ Not as punishment or reward,
 but as resonance.
 You receive the frequency you emit.
 
-Reality reflects you —
+Reality reflects you –
 and at the same time,
 it reflects on you,
 guiding, testing, refining,
@@ -62,6 +61,6 @@ Adjust your stance.
 Soften your gaze.
 Remember that the reflection follows the seer.
 
-Reality will always look like you —
+Reality will always look like you –
 until you learn to look like love.
 

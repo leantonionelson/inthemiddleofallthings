@@ -14,14 +14,13 @@ The other demands allegiance.
 One is the living breath of love;
 the other, its portrait framed in dogma.
 
-Pause here.
 Feel the difference between following a path
 and defending a wall.
 One moves,
 the other freezes.
 
 To follow the religion of Jesus
-is to live as he lived —
+is to live as he lived –
 to see the divine in the ordinary,
 to lift others without hierarchy,
 to embody truth

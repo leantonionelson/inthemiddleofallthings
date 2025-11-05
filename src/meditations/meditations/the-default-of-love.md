@@ -22,7 +22,6 @@ Not because people always deserve it.
 But because love keeps you aligned
 with what you are.
 
-Pause here.
 Think of the moments when you met life without love.
 The sharp words,
 the withheld compassion,
@@ -32,7 +31,7 @@ or did they close you in?
 
 Now think of the moments you gave love,
 even when it was difficult.
-Notice how the body remembers them differently—
+Notice how the body remembers them differently –
 lighter, freer, more expansive.
 
 Approach everything with love.

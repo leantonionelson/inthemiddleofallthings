@@ -9,17 +9,16 @@ watching faces form and fade in the clouds,
 I glimpse the divine in the act of seeing.
 
 It must be what God feels
-when looking at us —
+when looking at us –
 each shape appearing briefly,
 beautiful, absurd, alive,
 then dissolving into formlessness again.
 
-Pause here.
 Look at the sky,
 or at the passing thoughts within it.
 They are the same.
 Each moment forms a face,
-a story, a self —
+a story, a self –
 then drifts away.
 
 To see creation is to join it,

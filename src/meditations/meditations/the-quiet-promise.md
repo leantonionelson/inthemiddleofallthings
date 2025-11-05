@@ -7,7 +7,7 @@
 I try not to be someone
 or gain something in particular.
 Of course, there are plans,
-and goals —
+and goals –
 but they are less about achievement
 and more about keeping promises
 to myself and to others.
@@ -18,7 +18,6 @@ that make your life coherent.
 But to live freely
 is to avoid being imprisoned by them.
 
-Pause here.
 Think of the goals you hold most tightly.
 Ask whose voice first named them.
 Are they born of love or comparison?
@@ -36,6 +35,6 @@ but leave enough room
 for grace to rearrange the plan.
 
 Be someone only when needed,
-then return to being no one —
+then return to being no one –
 so that life can find you again.
 

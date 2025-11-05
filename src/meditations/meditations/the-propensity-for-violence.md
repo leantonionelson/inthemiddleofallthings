@@ -15,8 +15,7 @@ is to honour its boundaries.
 To deny it
 is to let it rule from the dark.
 
-Pause here.
-Think of the energy you hide —
+Think of the energy you hide –
 anger, desire, will, assertion.
 They are not sins.
 They are raw materials

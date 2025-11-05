@@ -4,7 +4,7 @@
 
 ---
 
-I am the flame —
+I am the flame –
 a single form,
 forever changing.
 
@@ -13,7 +13,6 @@ no self stays.
 Continuity is a mirage;
 what endures is motion.
 
-Pause here.
 Watch a candle flicker.
 Each second,
 it dies and is reborn.
@@ -25,7 +24,7 @@ To cling is to smother;
 to allow is to illuminate.
 
 You are not the smoke that fades,
-nor the wax that melts —
+nor the wax that melts –
 you are the light
 that persists through change.
 

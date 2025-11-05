@@ -5,7 +5,7 @@
 ---
 
 To be who you are
-is not a task —
+is not a task –
 it is the rarest privilege.
 Across the vastness of time,
 through stars that burned
@@ -18,14 +18,13 @@ is being who you are.
 Not the roles you play,
 not the story you were told,
 but the living consciousness
-looking out through these eyes —
+looking out through these eyes –
 unique, irreplaceable, divine.
 
-Pause here.
 Feel the weight of that truth.
-Everything you are —
+Everything you are –
 the pain, the joy,
-the contradictions and the grace —
+the contradictions and the grace –
 has never existed before,
 and will never exist again
 in this exact expression.
@@ -47,7 +46,7 @@ Each of us is a facet
 through which the whole perceives itself anew.
 
 To be who you are
-is not arrogance —
+is not arrogance –
 it is gratitude.
 It is saying,
 "I accept the miracle of my form,
@@ -56,7 +55,7 @@ pretending to be another."
 
 The privilege of a lifetime
 is not wealth or power,
-but presence —
+but presence –
 to inhabit this particular consciousness,
 to meet existence
 as only you can.

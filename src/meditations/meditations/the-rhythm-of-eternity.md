@@ -7,7 +7,7 @@
 The universe has no edge.
 It does not begin,
 it does not end.
-It folds, it expands, it transforms—
+It folds, it expands, it transforms –
 but it does not stop.
 
 If the universe is eternal,
@@ -18,7 +18,7 @@ Moments vanish,
 but their pattern returns.
 You, too, are bound to this rhythm.
 
-You imagine yourself singular—
+You imagine yourself singular –
 this body, this name, this fleeting breath.
 But eternity does not recognise singular.
 It recognises repetition,
@@ -59,9 +59,9 @@ of something that cannot end.
 
 If the universe is eternal,
 everything is eternal.
-And you—
+And you –
 not just the story of you,
-but the essence of you—
+but the essence of you –
 will rise again,
 again,
 and again.

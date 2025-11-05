@@ -13,8 +13,7 @@ See the god in all things
 and you will live closer
 to a full life.
 
-Pause here.
-Look around you —
+Look around you –
 not with your eyes,
 but with your understanding.
 Each object,

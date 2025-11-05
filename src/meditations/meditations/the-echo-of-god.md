@@ -15,14 +15,13 @@ For those who speak the word of God
 as if it were a banner to wave,
 rather than a mystery to live.
 
-They are still human—
+They are still human –
 beautiful,
 fallible,
 hungry for certainty.
 And when certainty hardens,
 it builds altars to itself.
 
-Pause here.
 Feel how easy it is
 to want someone else to know for you,
 to take their confidence
@@ -39,7 +38,7 @@ then step aside.
 The danger of priesthood
 is not the robe or the ritual.
 It is forgetting that the divine
-moves through everyone equally—
+moves through everyone equally –
 the sinner and the saint,
 the fool and the wise,
 the silence and the sound.
@@ -56,7 +55,7 @@ release it.
 The divine does not hide behind hierarchy.
 It whispers directly.
 And when you are still enough,
-you realise—
+you realise –
 you were never waiting to hear them.
 You were waiting to hear yourself.
 

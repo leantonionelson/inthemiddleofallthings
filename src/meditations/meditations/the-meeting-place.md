@@ -12,7 +12,6 @@ that they meet you
 at your altitude.
 Descent can be divine.
 
-Pause here.
 Think of someone
 you find difficult to understand.
 Now imagine standing beside them,
@@ -25,7 +24,7 @@ It is proximity.
 We grow close enough
 to remember our sameness.
 
-Meet others as you would meet yourself —
+Meet others as you would meet yourself –
 patiently,
 in progress,
 still learning how to love.

@@ -8,13 +8,12 @@ We exist solely
 and completely
 in the mind of God.
 
-Everything we call reality —
-matter, thought, time, self —
+Everything we call reality –
+matter, thought, time, self –
 is the dreaming of an infinite awareness.
 And we are the dream
 wondering at itself.
 
-Pause here.
 Feel the air on your skin.
 Notice how perception
 happens inside you.

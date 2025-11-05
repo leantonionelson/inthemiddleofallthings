@@ -5,7 +5,7 @@
 ---
 
 Fear is only useful
-in a threatening world —
+in a threatening world –
 but the world is only threatening
 because of fear.
 
@@ -14,7 +14,6 @@ dance in a circle.
 The fear you see outside
 is often the fear unacknowledged within.
 
-Pause here.
 Notice the thing you call dangerous.
 What part of you
 does it mirror?
@@ -30,6 +29,6 @@ but not lead.
 Use it as signal,
 not compass.
 For when you see through it,
-the world softens —
+the world softens –
 and so do you.
 

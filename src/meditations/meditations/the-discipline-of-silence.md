@@ -13,7 +13,6 @@ deserves a monument of words.
 Energy follows attention;
 choose where to invest.
 
-Pause here.
 Recall the last small annoyance
 that stole your calm.
 Did it warrant the rent

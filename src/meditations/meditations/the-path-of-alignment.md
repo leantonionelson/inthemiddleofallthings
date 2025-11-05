@@ -5,7 +5,7 @@
 ---
 
 Bliss is not indulgence.
-It is alignment —
+It is alignment –
 the resonance between your deepest truth
 and the movement of existence itself.
 
@@ -24,13 +24,12 @@ what is in harmony with it.
 It flows toward coherence,
 toward the song that sounds like its own.
 
-Pause here.
 Think of a time you did what you loved
 without asking permission,
 without calculating gain.
 Do you remember how easily
 things seemed to fall into place?
-That was not coincidence —
+That was not coincidence –
 that was resonance.
 The pattern of reality
 rearranging itself
@@ -48,7 +47,7 @@ What once seemed locked
 reveals its hinge.
 
 Following your bliss
-requires trust —
+requires trust –
 to step toward joy
 even when reason hesitates.
 To believe that what lights your spirit
@@ -63,7 +62,7 @@ rushes to meet you halfway.
 
 So listen closely.
 Your bliss is not a luxury.
-It is a signal —
+It is a signal –
 a frequency tuned to your role
 in the grand harmony of existence.
 
@@ -72,7 +71,7 @@ and the world unfolds to meet you.
 Ignore it,
 and the walls will remain walls.
 
-The choice is not between risk and safety —
+The choice is not between risk and safety –
 it is between aliveness and inertia.
 Between living as an echo,
 or becoming the sound itself.

@@ -7,7 +7,7 @@
 Conflict is part of life.
 Not everyone will see you clearly.
 Not everyone will wish you well.
-And some will try to reduce you—
+And some will try to reduce you –
 to a mistake,
 to a role,
 to the image they need you to be.
@@ -21,7 +21,6 @@ replace your own.
 The only way you can lose
 is by letting the enemy define who you are.
 
-Pause here.
 Think of the names you've been called.
 The judgments you've carried.
 The ways you've been misunderstood.
@@ -43,7 +42,7 @@ Not complete.
 But true.
 Yours.
 
-Enemies will always exist—
+Enemies will always exist –
 sometimes outside,
 sometimes within.
 But their voices do not define you.

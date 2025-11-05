@@ -11,7 +11,7 @@ To live as a statement of love and compassion
 is to become an instrument
 through which existence remembers its gentleness.
 
-I would like my life to be a statement of love and compassion —
+I would like my life to be a statement of love and compassion –
 and where it isn't,
 that's where my work lies.
 
@@ -19,11 +19,10 @@ This is not a moral aspiration.
 It is alignment.
 It is choosing to live
 from the same frequency
-that birthed the universe —
+that birthed the universe –
 love expanding,
 awareness awakening to itself.
 
-Pause here.
 Think of the areas in your life
 where you are not yet a statement of love.
 The relationships that still hold tension,
@@ -45,7 +44,7 @@ even to the parts of yourself
 you wish were different.
 
 To make your life a statement of love
-is to accept the unfinished nature of being —
+is to accept the unfinished nature of being –
 to see that your rough edges
 are opportunities for grace to take form.
 
@@ -60,7 +59,7 @@ is not your shame.
 It is your syllabus.
 The curriculum of the soul.
 And as long as breath remains,
-you are still being written —
+you are still being written –
 still composing,
 still learning
 how to let love speak through you

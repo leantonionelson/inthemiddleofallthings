@@ -5,7 +5,7 @@
 ---
 
 The world you see
-is not the world itself —
+is not the world itself –
 it is the meeting point
 between what is and how you look at it.
 
@@ -18,8 +18,7 @@ but life is observing you,
 adapting, responding,
 turning its face to match your gaze.
 
-Pause here.
-Notice how your energy feels now —
+Notice how your energy feels now –
 the weight of your thoughts,
 the tone of your breath.
 Each one carries an instruction
@@ -30,7 +29,7 @@ This is what I am ready to receive."
 Shift the internal orientation,
 and the mirror moves.
 No force required,
-no ritual needed —
+no ritual needed –
 just a turn in perspective.
 It is not optimism;
 it is resonance.
@@ -45,7 +44,7 @@ they close again.
 Reality bends to your alignment.
 
 This is the quiet law:
-you do not chase better worlds —
+you do not chase better worlds –
 you become the frequency
 that calls them into being.
 

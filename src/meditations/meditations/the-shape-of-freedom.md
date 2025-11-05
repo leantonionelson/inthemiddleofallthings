@@ -5,7 +5,7 @@
 ---
 
 Every boundary recognises form.
-Every box depends on corners—
+Every box depends on corners –
 edges for catching,
 lines for holding in.
 But what if you simply changed your shape?
@@ -18,8 +18,7 @@ what does not conform.
 Constraint only works
 when you agree to its geometry.
 
-Pause here.
-Think of your limits—
+Think of your limits –
 the definitions you've accepted:
 who you think you are,
 what you believe you can do,

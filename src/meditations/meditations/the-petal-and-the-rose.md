@@ -12,9 +12,8 @@ but expression.
 The petal may fall,
 but the rose remains whole.
 
-Pause here.
 Touch your hand to your chest.
-Feel the life there —
+Feel the life there –
 the same pulse
 that moves oceans,
 the same rhythm

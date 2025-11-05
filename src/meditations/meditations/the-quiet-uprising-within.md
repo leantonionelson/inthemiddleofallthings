@@ -4,7 +4,7 @@
 
 ---
 
-Revolutions have always begun in the outer world —
+Revolutions have always begun in the outer world –
 banners raised, systems overturned,
 empires replaced by new empires.
 But the cycle never ends
@@ -20,14 +20,13 @@ but in the self.
 Not with slogans,
 but with awareness.
 It is the uprising of perception
-against ignorance —
+against ignorance –
 the moment the observer awakens
 from the trance of separation.
 
-Pause here.
 Feel the space between thoughts.
-That stillness —
-that vastness behind your name and story —
+That stillness –
+that vastness behind your name and story –
 is the field where true change begins.
 No law, no policy, no rebellion
 can touch it.
@@ -67,7 +66,7 @@ but by new levels of awareness.
 Systems crumble when their creators awaken.
 The real revolution has no flag,
 no leader,
-no army —
+no army –
 only the quiet realisation
 that consciousness, once expanded,
 can never shrink again.

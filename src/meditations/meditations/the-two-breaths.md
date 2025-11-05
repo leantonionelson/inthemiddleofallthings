@@ -7,19 +7,18 @@
 Life exists
 between two breaths.
 
-The first —
+The first –
 an arrival.
-The last —
+The last –
 a release.
 
 Everything else
 is the space between.
 
-Pause here.
 Breathe in slowly.
 Breathe out fully.
 Feel how each cycle
-is a miniature life —
+is a miniature life –
 birth, existence, surrender.
 
 To live consciously
@@ -28,6 +27,6 @@ how precious the middle is.
 
 Every breath
 is a reminder
-that life is always now —
+that life is always now –
 and only now.
 

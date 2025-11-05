@@ -4,7 +4,7 @@
 
 ---
 
-Chase wonder —
+Chase wonder –
 not success,
 not certainty,
 not safety.
@@ -14,14 +14,13 @@ even as the body grows old.
 
 To chase wonder
 is not to flee the world,
-but to meet it as if for the first time —
+but to meet it as if for the first time –
 eyes wide,
 heart unclenched,
 mind unarmed.
 
-Pause here.
 Think of the last time
-you were struck silent by beauty —
+you were struck silent by beauty –
 not because it was grand,
 but because it was alive.
 A flicker of light on water,
@@ -39,7 +38,7 @@ It reminds you that you are not separate
 from what astonishes you.
 
 To chase wonder
-is to chase remembering —
+is to chase remembering –
 the recognition that life
 is not a puzzle to be solved,
 but a miracle to be witnessed.
@@ -64,7 +63,7 @@ It will find you in small hours,
 in sudden tears,
 in the silence between heartbeats,
 reminding you that life
-was never meant to be understood —
+was never meant to be understood –
 only felt deeply enough
 to leave you amazed.
 

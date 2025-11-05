@@ -11,7 +11,7 @@ but it cannot give you peace.
 
 If the only reason you go on
 is a sense of purpose or duty,
-then your life is tethered—
+then your life is tethered –
 a kite that forgets the sky
 the moment the string is cut.
 
@@ -23,16 +23,15 @@ And when it does,
 you may find yourself standing in silence,
 wondering why you still breathe.
 
-Pause here.
 Ask yourself:
 What moves me when no one is watching?
 What rises in me when all demands are gone?
-That is where real life begins—
+That is where real life begins –
 in the space beyond purpose.
 
 Purpose belongs to the mind.
 Obligation belongs to the world.
-But meaning—
+But meaning –
 meaning belongs to the soul.
 And meaning needs no task.
 It simply is.

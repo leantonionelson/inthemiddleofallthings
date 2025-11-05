@@ -11,7 +11,7 @@ a question with endless answers.
 But real love does not require such effort.
 It is recognition.
 
-Always remember—
+Always remember –
 if she is the one,
 she is the one.
 No proving.
@@ -20,7 +20,6 @@ No bargaining with fate.
 Only the quiet knowing
 that settles deeper than thought.
 
-Pause here.
 Think of the times you doubted love,
 the times you tried to force it into shape,
 to make it what it was not.
@@ -34,7 +33,7 @@ If she is the one,
 you will not need to cling.
 The truth of it will not waver
 with fear or circumstance.
-It will endure—
+It will endure –
 not as constant feeling,
 but as unbroken orientation.
 

@@ -14,7 +14,6 @@ The act of seeing
 and the seen
 are one.
 
-Pause here.
 Feel yourself watching this sentence.
 Who is watching?
 Where does the watcher end
@@ -28,7 +27,7 @@ you are its living surface.
 The universe witnesses itself
 through your eyes,
 and when you look long enough,
-you realise —
+you realise –
 you were never looking at anything.
 You were looking as it.
 

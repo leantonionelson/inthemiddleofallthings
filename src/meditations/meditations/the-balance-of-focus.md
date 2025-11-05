@@ -18,8 +18,7 @@ It is symphony.
 A weaving of many threads,
 each needing space to breathe.
 
-Pause here.
-Think of a time you obsessed over one pursuit—
+Think of a time you obsessed over one pursuit –
 a goal, a problem, a desire.
 Notice how the rest of life dimmed,
 how harmony gave way to distortion.

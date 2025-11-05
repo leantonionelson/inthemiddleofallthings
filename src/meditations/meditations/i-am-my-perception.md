@@ -14,10 +14,9 @@ the seeing itself.
 
 The world arises
 as I become conscious of it.
-The bird does not sing "out there" —
+The bird does not sing "out there" –
 it sings inside my hearing.
 
-Pause here.
 Close your eyes.
 Notice how reality
 continues behind the eyelids,

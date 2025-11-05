@@ -15,17 +15,16 @@ in a capitalist nation,
 do not lift a finger
 if not for their own benefit.
 And in this quiet confession
-lies the sickness of our time —
+lies the sickness of our time –
 a blindness born not of cruelty,
 but of conditioning.
 
-Pause here.
 Consider the pulse of the modern world.
 The ceaseless exchange,
 the relentless pursuit of "more."
 Even kindness,
 too often,
-is traded like currency —
+is traded like currency –
 a means to reputation,
 to belonging,
 to return.
@@ -35,7 +34,7 @@ It is born from abundance,
 not scarcity.
 It asks for nothing back
 because it has already received
-everything it needs —
+everything it needs –
 the simple knowing of connection.
 
 Capitalism teaches the illusion of separation.
@@ -46,8 +45,7 @@ Every act of selfishness
 carves a wound in the collective body
 we all inhabit.
 
-Pause again.
-Ask yourself —
+Ask yourself –
 when was the last time you acted
 without strategy?
 Without expectation?
@@ -69,7 +67,7 @@ is the highest form of reason.
 People in the West may not lift a finger
 without reward.
 But perhaps the reward they've forgotten
-is the simplest one of all —
+is the simplest one of all –
 the quiet joy that comes
 when the hand that reaches out
 for another

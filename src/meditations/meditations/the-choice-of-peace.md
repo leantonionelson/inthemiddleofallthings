@@ -13,8 +13,7 @@ Peace belongs to climate.
 Happiness arrives when things align;
 peace endures when they don't.
 
-Pause here.
-Name something you're waiting for —
+Name something you're waiting for –
 a result, a recognition,
 a resolution.
 Now imagine being content

@@ -9,13 +9,12 @@ Learn their names.
 
 Fear thrives in anonymity.
 Once named,
-it becomes part of your vocabulary —
+it becomes part of your vocabulary –
 something you can speak with
 instead of flee from.
 
-Pause here.
 Close your eyes.
-Call to mind the emotion you avoid most —
+Call to mind the emotion you avoid most –
 anger, shame, envy, grief.
 Whisper its name.
 Notice how the moment you name it,

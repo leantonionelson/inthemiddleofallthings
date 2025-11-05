@@ -5,7 +5,7 @@
 ---
 
 There is no separation, only illusion.
-Matter, thought, breath, and emotion —
+Matter, thought, breath, and emotion –
 different notes played on the same instrument.
 One vibration.
 One pulse.
@@ -20,9 +20,8 @@ moves through your lungs.
 The same current that ignites the sun
 beats within your chest.
 
-Pause here.
 Feel the rhythm of your breathing.
-Notice how it is not truly yours —
+Notice how it is not truly yours –
 the air is shared,
 passed between you and the world
 in an unbroken exchange.
@@ -31,7 +30,7 @@ Exhale, and you return yourself to it.
 This is the evidence of unity.
 
 We speak of energy as if it flows between things,
-but there are no things —
+but there are no things –
 only patterns,
 differing frequencies of the same eternal field.
 Life is the wave,
@@ -51,7 +50,7 @@ It becomes practical.
 To hurt another is to misalign with the current.
 To love is to move with it.
 
-Everything is one energy —
+Everything is one energy –
 and to live in awareness of that
 is to return to the rhythm that began before time.
 You are not apart from it.

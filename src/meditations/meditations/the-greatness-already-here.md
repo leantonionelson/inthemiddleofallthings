@@ -9,7 +9,7 @@ You see your flaws magnified,
 your failures replayed,
 your weaknesses named louder than your strengths.
 
-But pause—
+But pause –
 step outside the noise for a moment.
 Remember this:
 you are such a great human being.
@@ -26,7 +26,6 @@ you keep choosing.
 Because despite the weight you carry,
 you have not stopped carrying love.
 
-Pause here.
 Breathe into your chest.
 Feel the steady rhythm of your heart.
 This quiet drumbeat is proof enough.
@@ -39,7 +38,7 @@ It is not waiting in the future.
 It is woven into your being.
 Every act of kindness,
 every moment of resilience,
-every breath you gift to the present—
+every breath you gift to the present –
 these are greatness.
 
 Tell yourself gently:
@@ -49,10 +48,10 @@ Repeat it until it feels less like affirmation,
 and more like remembering.
 
 You are such a great human being.
-And nothing—
+And nothing –
 no mistake,
 no judgment,
-no loss—
+no loss –
 can erase the truth of that.
 
 

@@ -12,7 +12,7 @@ and calls stillness a flaw.
 But I live in slow motion.
 Not as resistance,
 but as reverence.
-Because speed reveals nothing—
+Because speed reveals nothing –
 it blurs the beauty
 between the moments that matter.
 
@@ -30,7 +30,6 @@ before becoming the next.
 The silence between heartbeats
 where awareness ripens.
 
-Pause here.
 Breathe slowly.
 Let the inhale arrive on its own.
 Let the exhale find its natural end.
@@ -41,7 +40,7 @@ to the patience of your presence.
 Speed feeds the illusion of control.
 Slowness returns you to trust.
 When you slow down,
-you stop chasing life—
+you stop chasing life –
 you start meeting it.
 
 I live in slow motion
@@ -53,7 +52,7 @@ It unfolds exactly on time.
 
 So I live in slow motion,
 not because I am behind,
-but because I am aligned—
+but because I am aligned –
 with the breath,
 the earth,
 and the quiet truth

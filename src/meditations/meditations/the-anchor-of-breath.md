@@ -6,8 +6,8 @@
 
 The body remembers before the mind.
 It tightens, it heats, it braces.
-The trigger arrives—
-a word, a look, a memory—
+The trigger arrives –
+a word, a look, a memory –
 and suddenly you are no longer here.
 You are caught,
 pulled into a storm of reaction.
@@ -26,7 +26,6 @@ It anchors you
 so that the feeling can pass through
 without consuming you.
 
-Pause here.
 Notice the inhale.
 It rises like a tide.
 Notice the exhale.
@@ -56,7 +55,7 @@ you are safe.
 In the breath,
 you are whole.
 In the breath,
-you are free to choose—
+you are free to choose –
 not from fear,
 not from reflex,
 but from presence.

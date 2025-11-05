@@ -19,13 +19,12 @@ but in its certainty.
 It is the only question
 that guarantees its own answer.
 
-Pause here.
 Let that truth settle.
 Notice the calm that follows.
 We spend our lives
 running from the unknown,
 and yet this final mystery
-does not need to be solved—
+does not need to be solved –
 only met.
 
 Death strips away speculation.
@@ -38,7 +37,7 @@ the noise of life's false importance fades.
 The beauty of death
 is that it will end every illusion.
 The roles, the striving,
-the endless rearranging of fears—
+the endless rearranging of fears –
 all dissolve into the simple light
 of what is real.
 

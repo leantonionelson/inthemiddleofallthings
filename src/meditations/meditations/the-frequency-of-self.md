@@ -11,7 +11,7 @@ Thought.
 Even silence has its hum.
 
 You are no exception.
-You carry a frequency—
+You carry a frequency –
 a rhythm that is uniquely yours.
 Not higher, not lower.
 Simply distinct.
@@ -35,7 +35,7 @@ even when the air around you wavers.
 Pause now.
 Feel into your body.
 Notice the subtle hum beneath thought.
-It is there—
+It is there –
 in the breath,
 in the blood,
 in the warmth of your skin.
@@ -69,7 +69,7 @@ to my own signal?
 
 Keep your own frequency.
 Because when you do,
-the world doesn't just hear you—
+the world doesn't just hear you –
 it hears itself more clearly through you.
 Harmony comes not from sameness,
 but from each note sounding true.

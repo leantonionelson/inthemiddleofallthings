@@ -10,7 +10,7 @@ This is the whole rhythm of existence.
 
 Life is not in the breath taken,
 nor in the breath released.
-It is in the space between—
+It is in the space between –
 the pause where neither clinging nor letting go remains.
 
 Life exists between two breaths.
@@ -21,7 +21,6 @@ a moment without striving,
 without fear.
 A moment where you simply are.
 
-Pause here.
 Notice your breathing.
 Feel the rise.
 Feel the fall.
@@ -31,15 +30,15 @@ The axis around which all else turns.
 
 The mind races toward the future,
 back into the past.
-But the body knows—
+But the body knows –
 the present is only ever the breath,
 and the silence between.
 
 Life exists between two breaths.
 It teaches you balance.
-You cannot only inhale—
+You cannot only inhale –
 to take without end is suffocation.
-You cannot only exhale—
+You cannot only exhale –
 to give without return is death.
 Both are needed,
 but the truth of being rests in neither.

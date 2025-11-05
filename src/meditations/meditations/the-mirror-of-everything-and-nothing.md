@@ -20,7 +20,7 @@ you imagine emptiness.
 No star, no sand, no thought, no silence.
 An infinite absence where nothing exists.
 
-And yet—
+And yet –
 stand at the threshold of infinity long enough
 and you will see they are the same.
 Everything dissolves into wholeness,
@@ -35,7 +35,6 @@ Both erase separation.
 Both point to the same truth:
 the edge of comprehension.
 
-Pause here.
 Ask yourself:
 What is the difference between overflowing
 and utterly empty

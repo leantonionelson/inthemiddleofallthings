@@ -13,10 +13,9 @@ of which you are a part.
 We are what the universe does.
 Just as the apple is what the tree does,
 just as the wave is what the ocean does,
-just as the flame is what fire does—
+just as the flame is what fire does –
 you are what the universe does.
 
-Pause here.
 Feel your breath.
 It is not yours alone.
 It is the atmosphere breathing you.

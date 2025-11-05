@@ -6,7 +6,7 @@
 
 We stir too much.
 The mind, restless and afraid of quiet,
-keeps reaching into the water of life —
+keeps reaching into the water of life –
 trying to fix, to clarify, to understand.
 But every grasp sends up new clouds of silt.
 Every effort to force stillness
@@ -18,7 +18,6 @@ Clarity is not achieved;
 it is revealed,
 once movement ceases.
 
-Pause here.
 Let your thoughts settle like sediment.
 Do nothing.
 Not even "try to be still."
@@ -62,6 +61,6 @@ Let the water clear.
 Let the moment breathe.
 And when you finally see to the bottom,
 you will realise
-it was never the water that was clouded —
+it was never the water that was clouded –
 only your need to control its calm.
 

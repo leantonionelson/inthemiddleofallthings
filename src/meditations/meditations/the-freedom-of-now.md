@@ -4,7 +4,7 @@
 
 ---
 
-The past is a story that no longer exists —
+The past is a story that no longer exists –
 a memory written in fading ink
 upon the mind's imagination of time.
 It can echo,
@@ -15,13 +15,12 @@ unless you open the door and invite it in.
 The past has no power over the present moment.
 
 What we call "the past"
-is not an external force —
+is not an external force –
 it is recollection sustained by attention.
 The instant you withdraw that attention,
 the story dissolves.
 The ghosts lose their form.
 
-Pause here.
 Bring to mind something from your past
 that still holds weight.
 Notice how its power
@@ -55,7 +54,7 @@ you stop trying to fix what cannot be undone
 and begin to live what can still unfold.
 
 The past has no power over the present moment
-because the present is reality itself —
+because the present is reality itself –
 the pulse of creation,
 forever fresh,
 forever unburdened.

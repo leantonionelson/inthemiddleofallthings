@@ -5,7 +5,7 @@
 ---
 
 To fit neatly into a broken system
-is not wellness —
+is not wellness –
 it is surrender disguised as success.
 When the world grows sick,
 health looks like rebellion.
@@ -20,9 +20,8 @@ To feel out of place here
 is not weakness;
 it is evidence of awakening.
 
-Pause here.
 Think of all the ways
-you've been told to adapt —
+you've been told to adapt –
 to hurry,
 to consume,
 to numb,
@@ -43,7 +42,7 @@ To be well adjusted to sickness
 is to inherit its delusion.
 To stay sensitive,
 to question,
-to ache for balance —
+to ache for balance –
 these are signs not of fragility,
 but of vitality.
 
@@ -63,7 +62,7 @@ that normal is not the same as natural.
 
 So when you feel estranged,
 misfit,
-out of sync —
+out of sync –
 take heart.
 That discomfort is your compass
 pointing you toward a saner world

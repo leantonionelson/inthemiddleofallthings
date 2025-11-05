@@ -5,7 +5,7 @@
 ---
 
 Reality is not fixed.
-It flickers —
+It flickers –
 a sea of potential
 that solidifies only when seen.
 
@@ -19,11 +19,10 @@ takes shape around awareness.
 
 Reality emerges through the iterative collapse
 of wave functions within the eternal now.
-Not once, but forever —
+Not once, but forever –
 a constant creation,
 a rhythm of becoming and being.
 
-Pause here.
 Close your eyes.
 Notice the gentle shifting of thought,
 how each one appears,
@@ -52,7 +51,7 @@ collapses the infinite
 into the shape of your belief.
 
 You are not separate from reality.
-You are its articulation —
+You are its articulation –
 a phrase spoken by the universe
 to describe itself.
 

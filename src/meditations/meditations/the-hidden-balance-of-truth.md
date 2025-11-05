@@ -8,7 +8,7 @@ Even error has symmetry.
 Even the mistaken view
 leans toward truth in its distortion.
 For to be wrong completely
-would require a kind of perfect blindness —
+would require a kind of perfect blindness –
 a precision of ignorance
 no mind could maintain.
 
@@ -19,12 +19,11 @@ Reality leaks through everything.
 Even in falsehood,
 a glimmer of truth remains,
 a shard of light embedded in the shadow.
-And it is this that makes understanding possible —
+And it is this that makes understanding possible –
 that even confusion
 is an attempt at coherence,
 an imperfect reflection of what is.
 
-Pause here.
 Think of someone whose view opposes yours.
 Notice how quickly the mind wants to dismiss,
 to label, to defend.
@@ -48,10 +47,10 @@ become your teachers.
 No one is smart enough
 to be wrong all the time.
 And that includes you.
-Even in your worst moments —
+Even in your worst moments –
 when you misunderstand,
 when you fail,
-when you hurt or are hurt —
+when you hurt or are hurt –
 life is still revealing something essential.
 Your error is your education.
 
@@ -61,7 +60,7 @@ And in that curiosity,
 the world becomes gentler,
 less divided.
 You begin to see that truth
-does not belong to anyone —
+does not belong to anyone –
 it permeates everyone,
 expressing itself through the imperfect language
 of human limitation.

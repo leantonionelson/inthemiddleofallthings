@@ -13,7 +13,7 @@ is rewritten with every step.
 We must be willing to let go of the life we planned
 so as to have the life that is waiting for us.
 
-The plan is comfort —
+The plan is comfort –
 a story we tell to calm the mind's need for control.
 But destiny is conversation,
 not command.
@@ -21,8 +21,7 @@ It listens to your intent,
 then replies in its own language.
 And often, its reply is change.
 
-Pause here.
-Think of the plans you once clung to —
+Think of the plans you once clung to –
 how they shimmered with certainty,
 and how life, with quiet grace,
 undid them.
@@ -48,7 +47,7 @@ It requires not certainty,
 but surrender.
 
 There is no shame in outgrowing a dream.
-The plan served its purpose —
+The plan served its purpose –
 it got you moving.
 Now let it rest.
 The next step can only appear
@@ -61,7 +60,7 @@ To trade control for connection,
 ambition for alignment.
 
 The life that is waiting
-does not need your plan —
+does not need your plan –
 only your openness.
 Only your yes.
 

@@ -6,7 +6,7 @@
 
 Life is not only trial.
 It is not only burden.
-It is woven, always, with moments of goodness—
+It is woven, always, with moments of goodness –
 quiet, fleeting, easily missed.
 
 Notice them.
@@ -30,10 +30,9 @@ but with presence.
 Smile.
 Breathe deeper.
 Whisper gratitude into the air.
-The celebration need not be grand—
+The celebration need not be grand –
 it only needs to be sincere.
 
-Pause here.
 Recall a recent moment of goodness,
 no matter how small.
 Hold it in the mind.
@@ -58,7 +57,7 @@ Notice.
 Recognise.
 Celebrate.
 When life is good,
-let it be known—
+let it be known –
 to yourself,
 to others,
 to the moment itself.

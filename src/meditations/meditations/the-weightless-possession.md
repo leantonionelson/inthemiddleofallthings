@@ -6,11 +6,10 @@
 
 I have every material need.
 
-Not every want —
+Not every want –
 but every need.
 And that is wealth enough.
 
-Pause here.
 Look around.
 What in this moment
 is lacking?

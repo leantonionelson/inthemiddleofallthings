@@ -4,7 +4,7 @@
 
 ---
 
-We imagine ourselves as arrivals —
+We imagine ourselves as arrivals –
 souls dropped into matter,
 foreign guests inhabiting a world
 that existed before us.
@@ -14,12 +14,11 @@ we come out of it.
 As leaves grow from the tree,
 we grow from the universe.
 
-You are not in nature —
+You are not in nature –
 you are nature.
 You are the living continuation
 of everything that has ever been.
 
-Pause here.
 Feel the ground beneath you.
 It does not hold you as a surface
 but feeds you as a source.
@@ -54,7 +53,7 @@ between self and cosmos.
 To realise that when you touch your own skin,
 you touch the edge of the universe.
 
-So live like a leaf—
+So live like a leaf –
 unafraid to grow,
 unashamed to fall,
 content to feed what comes next.

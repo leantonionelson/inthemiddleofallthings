@@ -17,9 +17,9 @@ for the story you tell,
 for the mask you wear,
 for the shadow others cast upon you.
 
-But beneath all of it—
+But beneath all of it –
 beneath the weight of expectation,
-beneath the noise of comparison—
+beneath the noise of comparison –
 you remain what you are.
 
 Never forget this.
@@ -34,7 +34,6 @@ You are not just your past.
 Though past shapes,
 it does not contain you.
 
-Pause here.
 Breathe.
 Ask yourself softly:
 What am I, without my name?

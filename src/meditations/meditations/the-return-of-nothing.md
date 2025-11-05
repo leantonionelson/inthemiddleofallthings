@@ -4,8 +4,8 @@
 
 ---
 
-Everything you see—
-the stars, the oceans, your very breath—
+Everything you see –
+the stars, the oceans, your very breath –
 came from nothing.
 Not emptiness as absence,
 but emptiness as origin.
@@ -32,7 +32,6 @@ It is the womb.
 The reset.
 The fertile dark from which all light emerges.
 
-Pause here.
 Notice the exhale.
 It feels like ending,
 but it is also clearing.

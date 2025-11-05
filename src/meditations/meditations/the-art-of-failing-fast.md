@@ -4,7 +4,7 @@
 
 ---
 
-Innovation requires failure —
+Innovation requires failure –
 so take a fail-fast approach.
 
 Failure is not a verdict;
@@ -12,10 +12,9 @@ it is a method.
 It refines the possible
 by burning away illusion.
 
-Pause here.
 Recall the last time you hesitated,
 afraid to try.
-Ask yourself —
+Ask yourself –
 what if failure were feedback
 instead of flaw?
 

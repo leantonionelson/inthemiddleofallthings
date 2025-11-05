@@ -14,14 +14,13 @@ to recognise presence.
 Treat everyone you meet
 like God in disguise.
 Not as metaphor,
-but as reality —
+but as reality –
 for what else could they be?
 Every being is a temporary expression
 of the same source,
 a fragment of divinity
 playing at individuality.
 
-Pause here.
 Think of someone who frustrates you,
 someone who tests your patience.
 Now strip away their name,
@@ -42,7 +41,7 @@ for love becomes recognition.
 The beggar,
 the friend,
 the stranger,
-the rival —
+the rival –
 each one is the infinite
 wearing a new face
 to see how you'll respond.
@@ -50,7 +49,7 @@ to see how you'll respond.
 God hides in the mundane
 because only through the veil of ordinariness
 can compassion be tested.
-Every encounter is an initiation —
+Every encounter is an initiation –
 a chance to look beyond the mask
 and bow to the eternal within it.
 
@@ -60,7 +59,7 @@ Not out of duty,
 but out of reverence.
 Because when you finally stop reserving divinity
 for altars and heavens,
-you'll find it everywhere —
+you'll find it everywhere –
 in laughter,
 in sorrow,
 in the eyes of the next person you pass.

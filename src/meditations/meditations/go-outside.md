@@ -21,7 +21,6 @@ a moving bubble of attention,
 sphere of influence radiating from a centre.
 As above, so below.
 
-Pause here.
 Notice your room shaping your thoughts.
 Now step to a window,
 or into air if you can.

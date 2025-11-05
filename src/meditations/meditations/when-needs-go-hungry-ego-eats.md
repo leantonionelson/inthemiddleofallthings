@@ -13,10 +13,9 @@ performing size to secure a seat at the table.
 Deprive the body of safety,
 and the psyche puts on armour.
 
-Pause here.
 Name a recent overreaction.
 Trace it back.
-Which need was hungry —
+Which need was hungry –
 rest, respect, touch, choice, shelter, certainty?
 Feed the right one.
 Do not punish the child for crying.
