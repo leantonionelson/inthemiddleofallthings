@@ -7,7 +7,7 @@
 The world never pauses.
 Even silence shifts.
 Even the mountains tilt by inches while no one looks.
-And yet we cling—
+And yet we cling –
 to names, to shapes, to the illusion of a fixed "I."
 
 But what you call you
@@ -20,7 +20,6 @@ is to mistake the candle for the fire.
 When the wax melts,
 you grieve what was never meant to last.
 
-Pause here.
 Ask yourself:
 Who am I today?
 Notice how the answer changes
@@ -32,7 +31,7 @@ The self is not lost in change.
 It is change.
 A wave cannot exist without motion;
 neither can you.
-You are not the identity—
+You are not the identity –
 you are the act of becoming it.
 
 Define yourself as the thing that is changing.
@@ -45,7 +44,7 @@ and dust to stars again.
 
 To cling is to fracture.
 To flow is to remember.
-You are not being carried by change—
+You are not being carried by change –
 you are what carries it.
 
 The moment you stop resisting,

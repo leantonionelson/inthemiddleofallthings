@@ -24,16 +24,15 @@ The eternal now
 is the stage upon which
 all experience appears and dissolves.
 
-Pause here.
 Feel the pulse in your chest.
 It is not from yesterday,
 nor does it belong to tomorrow.
 It beats in the only place
-life ever happens —
+life ever happens –
 here.
 
 We spend our days
-postponing presence —
+postponing presence –
 believing meaning lies elsewhere,
 waiting for the next chapter,
 the next achievement,
@@ -58,7 +57,7 @@ this glance,
 this heartbeat.
 
 When you enter this realisation fully,
-fear dissolves —
+fear dissolves –
 for what could the future threaten
 when there is no future apart from now?
 What could the past hold over you
@@ -74,7 +73,7 @@ without chase,
 without loss.
 
 This is not philosophy;
-it is salvation —
+it is salvation –
 the return to what never left.
 
 Realise deeply

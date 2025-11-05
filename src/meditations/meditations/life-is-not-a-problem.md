@@ -17,13 +17,12 @@ moment after moment,
 with or without your interpretation.
 
 Get over yourself.
-The weight you feel is often the weight you created—
+The weight you feel is often the weight you created –
 the drama of self-importance,
 the constant measuring of "how am I doing?"
 The universe does not measure.
 It moves.
 
-Pause here.
 Breathe.
 Notice how the body rises and falls.
 This is life.

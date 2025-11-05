@@ -7,7 +7,7 @@
 Rather than forcing sight
 through the eyes,
 I channel attention
-to the space between them —
+to the space between them –
 the quiet centre
 of awareness.
 
@@ -17,7 +17,6 @@ Perception sharpens.
 Insight appears
 without effort.
 
-Pause here.
 Breathe slowly.
 Let your gaze soften.
 Notice how stillness gathers

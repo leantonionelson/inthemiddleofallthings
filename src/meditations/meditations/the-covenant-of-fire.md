@@ -6,7 +6,7 @@
 
 Fire divides us from the wild.
 It is both our fear and our belonging.
-For every creature, flame is danger —
+For every creature, flame is danger –
 the signal of death,
 the promise of ash.
 But for us, it is memory.
@@ -14,16 +14,15 @@ It is home.
 
 All life on earth fears fire apart from humans.
 Because fire, to us, is not merely destruction.
-It is transformation —
+It is transformation –
 matter surrendering to light.
 
-Pause here.
 Picture the flicker of a flame.
 See how it consumes
 and yet illuminates.
 See how it dances
 without ever holding its shape.
-That is what the soul does —
+That is what the soul does –
 it burns in order to reveal.
 
 When humans see fire,
@@ -42,13 +41,13 @@ can also nurture,
 guide,
 and gather.
 
-Fire is the covenant we made with the universe —
+Fire is the covenant we made with the universe –
 we will carry your light into the night.
 We will keep it, feed it,
 and through it, remember you.
 
 So sit by the flame and watch.
-You will see yourself in it —
+You will see yourself in it –
 the consuming, the giving, the endless renewal.
 You will feel the ancestral calm:
 the danger that once terrified
@@ -56,7 +55,7 @@ now teaching warmth and wonder.
 
 All life fears fire apart from humans.
 Because we, of all creation,
-were chosen to understand it —
+were chosen to understand it –
 to see not only the blaze,
 but the home within it.
 

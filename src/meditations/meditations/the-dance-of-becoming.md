@@ -7,7 +7,7 @@
 Change is the rhythm of existence.
 It does not ask for permission.
 It does not wait for readiness.
-It simply moves—
+It simply moves –
 like tide,
 like breath,
 like time itself unfolding.
@@ -17,19 +17,18 @@ is to plunge into it,
 move with it,
 and join the dance.
 
-We spend so much energy resisting—
+We spend so much energy resisting –
 anchoring ourselves to what was familiar,
 clutching to the version of ourselves
 that the world once recognised.
 But resistance does not stop the current;
 it only exhausts the swimmer.
 
-Pause here.
 Think of a change you feared
 that later became your freedom.
 How it only revealed its meaning
 once you surrendered to its motion.
-That is the hidden mercy of change—
+That is the hidden mercy of change –
 it teaches you to trust
 that falling apart is another way of opening.
 
@@ -47,7 +46,7 @@ because they are not yours to lead.
 The universe leads.
 You follow.
 And when you stop counting beats,
-you realise you were never out of sync—
+you realise you were never out of sync –
 you were only thinking too loudly to hear the song.
 
 The only way to make sense out of change
@@ -61,6 +60,6 @@ Plunge in.
 Let movement become meditation.
 Let uncertainty become art.
 And you will find
-that change was never trying to break you—
+that change was never trying to break you –
 only trying to teach you how to dance.
 

@@ -12,7 +12,6 @@ Time is only the medium
 through which action travels.
 Desire sets the trajectory.
 
-Pause here.
 Hold a quiet wish in mind.
 See it as done.
 Now act as though

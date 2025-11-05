@@ -5,7 +5,7 @@
 ---
 
 The road to hell
-is paved with good intentions —
+is paved with good intentions –
 and right now,
 we have a plague of virtuous people.
 
@@ -14,7 +14,6 @@ turns poisonous.
 It forgets the heart it came from
 and feeds on approval instead.
 
-Pause here.
 Think of a time you were right
 and knew it.
 How quickly righteousness

@@ -12,7 +12,6 @@ When expectation expands
 faster than awareness,
 contentment breaks.
 
-Pause here.
 Name one thing
 you wish were different.
 Now imagine

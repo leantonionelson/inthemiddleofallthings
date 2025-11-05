@@ -13,9 +13,8 @@ is alive in you.
 Or everything can exist,
 but only exists where there is attention.
 
-Pause here.
 Close your eyes.
-Notice the sounds beyond you—
+Notice the sounds beyond you –
 a car, a bird, the hum of silence itself.
 Were they not there a moment ago?
 They were.
@@ -26,12 +25,12 @@ do they exist for you.
 This is the secret of creation.
 Attention is not passive.
 It is generative.
-It does not merely observe reality—
+It does not merely observe reality –
 it summons it.
 
 The tree in the forest,
 the star beyond sight,
-the stranger's joy on another continent—
+the stranger's joy on another continent –
 they exist.
 But for you,
 they awaken only when attention arrives.

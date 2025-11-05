@@ -9,7 +9,7 @@ An instruction, a revelation,
 a doorway back to life:
 Be here now.
 
-Everything you seek — peace, meaning, love —
+Everything you seek – peace, meaning, love –
 exists only within that command.
 Not in the mind's rehearsals of the past,
 nor in its anxious rehearsing of the future.
@@ -20,8 +20,7 @@ To be is to stop pretending.
 To be here is to stop wandering.
 To be now is to stop waiting.
 
-Pause here.
-Feel your breath move through you —
+Feel your breath move through you –
 not as something to control,
 but as evidence of presence.
 This breath was not in the past.
@@ -57,7 +56,7 @@ So stop running.
 Stop planning.
 Stop waiting for permission to exist.
 
-Just —
+Just –
 be.
 Here.
 Now.
@@ -65,6 +64,6 @@ Now.
 This is eternity condensed into a breath,
 infinity disguised as a moment.
 If you enter it fully,
-you will see —
+you will see –
 there was never anywhere else to go.
 

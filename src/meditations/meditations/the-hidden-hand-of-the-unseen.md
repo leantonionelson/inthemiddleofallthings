@@ -21,8 +21,7 @@ The echo of an old wound
 choosing again and again
 the same familiar ache.
 
-Pause here.
-Think of the cycles that keep returning —
+Think of the cycles that keep returning –
 the relationships that mirror each other,
 the habits that seem older than this lifetime,
 the fears that rise without cause.
@@ -47,7 +46,7 @@ is the true alchemy of growth.
 It is how pain becomes wisdom,
 and how patterns become paths.
 
-This is the inner work —
+This is the inner work –
 to sit with the hidden,
 to turn toward what you resist,
 to shine awareness
@@ -66,7 +65,7 @@ Until you make the unconscious conscious,
 it will direct your life.
 But when you do,
 you become not the puppet,
-but the playwright —
+but the playwright –
 the one who writes
 with the ink of awareness
 and calls it freedom.

@@ -6,7 +6,7 @@
 
 Reality rarely hurts as much as our resistance to it.
 The pain we feel is often not born from what is,
-but from what we believe about what is —
+but from what we believe about what is –
 the mind's endless commentary,
 its insistence that things should be otherwise.
 
@@ -16,16 +16,15 @@ but your thoughts about it.
 
 The situation is neutral.
 It simply is.
-Cold, hot, sudden, still —
+Cold, hot, sudden, still –
 the world moves by the laws of nature,
 not the preferences of the ego.
 Suffering arises when we argue with that movement,
 when we demand of life
 that it be different than it is.
 
-Pause here.
 Recall a recent moment of discontent.
-Now strip it of its story —
+Now strip it of its story –
 of "should," of "why," of "unfair."
 What remains?
 Just sensation.
@@ -38,7 +37,7 @@ and resistance hardens into unhappiness.
 But when you drop the thought,
 the emotion loses its foundation,
 and what's left
-is pure being —
+is pure being –
 untroubled, aware, still.
 
 This is not denial.
@@ -58,7 +57,7 @@ to keep unfolding.
 
 The situation does not imprison you;
 the story does.
-And the key has always been in your pocket —
+And the key has always been in your pocket –
 awareness.
 To see thought for what it is:
 a passing cloud
@@ -71,6 +70,6 @@ Then fall silent,
 and let reality speak for itself.
 
 You may find
-it was never cruel —
+it was never cruel –
 only misunderstood.
 

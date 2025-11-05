@@ -7,7 +7,7 @@
 I have a religion
 of no religion.
 
-Not faithless —
+Not faithless –
 but free.
 
 Dogma divides;
@@ -16,7 +16,6 @@ I worship nothing
 and therefore
 can revere everything.
 
-Pause here.
 Consider how many names
 we've given to the same silence.
 Each a doorway
@@ -27,7 +26,7 @@ you finally enter.
 
 My temple is the present moment.
 My ritual is attention.
-My god is existence itself —
+My god is existence itself –
 formless, infinite,
 and always here.
 

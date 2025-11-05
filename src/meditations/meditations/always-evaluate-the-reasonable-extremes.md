@@ -22,8 +22,7 @@ Let them name the field.
 Stand close enough to feel their power,
 far enough to keep your footing.
 
-Pause here.
-Think of a place you overcorrect —
+Think of a place you overcorrect –
 work without sabbath,
 speech without silence,
 discipline without tenderness.

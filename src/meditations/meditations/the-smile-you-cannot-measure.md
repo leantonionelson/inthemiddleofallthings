@@ -17,8 +17,7 @@ that slips past the instruments.
 It is the world remembering it is more
 than properties and parts.
 
-Pause here.
-Think of a thing you know well —
+Think of a thing you know well –
 your craft, your routine, your body.
 Recall the instant it surprised you
 with joy beyond its function.

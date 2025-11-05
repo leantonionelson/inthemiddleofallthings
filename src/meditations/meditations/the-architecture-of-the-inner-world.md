@@ -24,7 +24,6 @@ We create our own heaven and our own hell.
 No god needs to sentence us.
 We carry the tools within our minds.
 
-Pause here.
 Look at where you are living today.
 Is the air clear or heavy?
 What tone fills your inner space?
@@ -35,7 +34,7 @@ Heaven is not perfection.
 It is acceptance.
 It is the alignment of being with truth.
 Hell is not punishment.
-It is resistance—
+It is resistance –
 the refusal to let go,
 to forgive,
 to soften.
@@ -48,7 +47,7 @@ and the walls begin to move.
 
 We create our own heaven and our own hell.
 And the difference between them
-is often only a breath—
+is often only a breath –
 the decision to see beauty instead of burden,
 to meet life with openness instead of fear.
 

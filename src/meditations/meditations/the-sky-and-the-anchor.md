@@ -4,7 +4,7 @@
 
 ---
 
-Emotions move like weather —
+Emotions move like weather –
 shifting, unpredictable,
 beautiful, sometimes violent,
 but never permanent.
@@ -18,16 +18,15 @@ The breath does not chase the storm;
 it stays steady,
 rhythmic, faithful.
 It reminds you that beneath every emotion,
-there is a vastness untouched by turbulence —
+there is a vastness untouched by turbulence –
 the clear sky of awareness.
 
-Pause here.
 Inhale slowly.
 Feel the breath expand your chest.
 Exhale fully.
 Notice how stillness returns,
 even if only for a moment.
-That is the anchor —
+That is the anchor –
 the return to the eternal now.
 
 When emotion rises,

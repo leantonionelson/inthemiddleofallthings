@@ -5,8 +5,8 @@
 ---
 
 Family is strength.
-To be surrounded by people —
-people —
+To be surrounded by people –
+people –
 who wish you only goodness
 is priceless.
 
@@ -15,14 +15,13 @@ for isolation.
 No freedom replaces
 the safety of being known.
 
-Pause here.
 Picture those who hold you
 without condition.
 Let their faces rise.
 Feel how your spine straightens
 in their memory.
 
-Family — by blood or by choice —
+Family – by blood or by choice –
 is not a possession.
 It is a mirror reminding you
 that love is reciprocal existence.

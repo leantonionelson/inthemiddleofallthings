@@ -17,16 +17,15 @@ into invitation.
 
 The truly interesting
 are not those who know the most,
-but those who keep asking—
+but those who keep asking –
 who meet the world
 as an equal mystery.
 
-Pause here.
 Think of someone whose presence
 draws you in.
 Notice what makes them magnetic.
 It is not perfection or knowledge;
-it is engagement—
+it is engagement –
 the willingness to see,
 to listen,
 to be fascinated by life.
@@ -50,7 +49,7 @@ The interesting
 are those who never stopped wondering.
 
 Even in the mundane,
-they find texture—
+they find texture –
 the dance of light on glass,
 the music in a stranger's story,
 the secret beauty of imperfection.
@@ -65,7 +64,7 @@ So stay curious.
 Ask questions without seeking to win.
 Listen as if each word were a universe.
 The more interested you become,
-the more the world reveals itself—
+the more the world reveals itself –
 and in revealing itself,
 makes you luminous too.
 

@@ -28,7 +28,6 @@ Do not interpret.
 Simply notice,
 and point.
 
-Pause here.
 Where are you?
 Not in the story,
 not in the past,
@@ -50,7 +49,7 @@ To return again and again
 to the essence beneath the narrative.
 To the naked fact of being.
 
-Point directly at it—
+Point directly at it –
 and you will see there was never a veil.
 Only your hesitation to look.
 

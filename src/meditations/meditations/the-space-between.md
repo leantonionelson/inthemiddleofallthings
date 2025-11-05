@@ -13,12 +13,11 @@ thought and response,
 there lies a silence
 that holds everything together.
 
-We chase the things —
-the form, the word, the movement —
+We chase the things –
+the form, the word, the movement –
 forgetting that their meaning
 exists only because of the distance between them.
 
-Pause here.
 Listen for a sound,
 then listen after it ends.
 Notice that the ending

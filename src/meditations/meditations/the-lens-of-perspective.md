@@ -12,10 +12,9 @@ is a window angled toward light.
 Change the angle,
 and the light changes too.
 
-Pause here.
 Think of a disagreement that still stings.
 Both sides believed they saw clearly.
-Both were right —
+Both were right –
 and neither was complete.
 
 Truth is not a flag to defend.

@@ -6,7 +6,7 @@
 
 Love begins as projection.
 We meet another
-and cast light upon them —
+and cast light upon them –
 a reflection of our longing,
 our ideal,
 our unfinished story.
@@ -14,14 +14,14 @@ We fall for the image,
 not the being.
 
 But that is not love.
-That is desire in disguise —
+That is desire in disguise –
 a wish for completion dressed as devotion.
 
 See her as she is,
 not as you want her to be.
 Then fall in love with that.
 
-To love truly is to shift orientation —
+To love truly is to shift orientation –
 from grasping to witnessing,
 from possession to presence.
 It is to release the fantasy
@@ -29,16 +29,15 @@ and meet the real,
 to let the soul of another
 remain unedited by your dream.
 
-Pause here.
 Think of the person you love,
 or once did.
 Notice the subtle pull
-to adjust them in your mind —
+to adjust them in your mind –
 to soften their edges,
 to amplify their light.
 Now, strip away the projection.
 See what remains.
-The human — whole, flawed, alive.
+The human – whole, flawed, alive.
 That is where love begins.
 
 Love requires orientation.
@@ -60,7 +59,7 @@ and what is.
 
 See her as she is,
 not as you want her to be.
-Fall in love with that —
+Fall in love with that –
 not to cage her,
 but to free yourself.
 For when you love what is,

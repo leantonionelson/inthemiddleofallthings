@@ -14,12 +14,11 @@ that first whispered
 "Let there be."
 
 When you make,
-you mirror that original gesture —
+you mirror that original gesture –
 bringing form to the formless,
 order to the infinite.
 
-Pause here.
-Think of something you've made —
+Think of something you've made –
 a sentence,
 a meal,
 a small act of kindness.

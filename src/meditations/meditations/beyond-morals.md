@@ -17,8 +17,7 @@ what is right does not fit cleanly into the law of men,
 or the codes you inherited,
 or the rigid lines you once believed unbreakable.
 
-Pause here.
-Think of the rules you have carried—
+Think of the rules you have carried –
 the ones etched into you by family,
 by culture,
 by fear of judgement.

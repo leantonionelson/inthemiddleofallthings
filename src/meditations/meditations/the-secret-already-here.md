@@ -5,7 +5,7 @@
 ---
 
 We chase.
-Always chasing—
+Always chasing –
 the next place,
 the next prize,
 the next self
@@ -27,7 +27,6 @@ Wholeness.
 They are not waiting to arrive.
 They are waiting to be recognised.
 
-Pause here.
 Breathe.
 Ask yourself:
 What do I think I lack?
@@ -52,8 +51,8 @@ Not arrival.
 Not acquisition.
 Presence.
 
-All that you desire—
-freedom, joy, peace, belonging—
+All that you desire –
+freedom, joy, peace, belonging –
 is the shape of your attention,
 not the possession of the world.
 

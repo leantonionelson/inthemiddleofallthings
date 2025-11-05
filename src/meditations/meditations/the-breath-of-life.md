@@ -4,7 +4,7 @@
 
 ---
 
-Flare your nostrils and breathe —
+Flare your nostrils and breathe –
 especially when eating.
 
 Taste begins in attention.
@@ -13,7 +13,6 @@ Life does too.
 The body hungers for presence
 more than for food.
 
-Pause here.
 Take one deep breath
 through the nose.
 Feel the air widen you.

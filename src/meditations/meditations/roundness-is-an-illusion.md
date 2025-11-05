@@ -19,10 +19,9 @@ Roundness is an illusion.
 It is not deceit,
 only distance.
 
-Pause here.
 Think of someone you idealise.
 Now remember the first time
-you saw their humanity up close —
+you saw their humanity up close –
 the fatigue,
 the doubt,
 the tender flaw.

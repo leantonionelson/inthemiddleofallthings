@@ -6,7 +6,7 @@
 
 Nothing appears outside awareness.
 Every thought, emotion, and sensation
-is not happening to consciousness —
+is not happening to consciousness –
 it is happening as consciousness.
 There is no edge where awareness ends
 and experience begins.
@@ -22,11 +22,10 @@ the storm and the stillness,
 the joy and the sorrow,
 are made of the same light.
 The content shifts endlessly,
-but the field remains constant —
+but the field remains constant –
 the eternal witness,
 watching itself come alive.
 
-Pause here.
 Let whatever is present
 be fully felt.
 Do not name it or resist it.
@@ -37,7 +36,7 @@ See how each appears in awareness,
 then dissolves back into it,
 like a wave folding into the sea.
 
-This is the essence of peace —
+This is the essence of peace –
 to realise that awareness
 does not need to control what arises.
 It simply allows.
@@ -49,7 +48,7 @@ as sensation, as sound, as thought.
 
 The mistake of the mind
 is to believe awareness is a backdrop.
-It is not behind life —
+It is not behind life –
 it is life.
 There is nothing outside it.
 Even your confusion,
@@ -73,8 +72,8 @@ There is no other.
 The wave does not leave the ocean;
 it reveals it.
 
-So let it all arise —
-the thought, the ache, the wonder —
+So let it all arise –
+the thought, the ache, the wonder –
 and know:
 it is all awareness
 meeting itself again.

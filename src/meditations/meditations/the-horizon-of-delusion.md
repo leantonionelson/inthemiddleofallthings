@@ -18,10 +18,9 @@ These are not truths of the universe.
 They are structures we agreed to believe in.
 And because we agree, they become real.
 
-Anything is possible—
+Anything is possible –
 but not while we are bound by the stories we refuse to question.
 
-Pause here.
 Think of the invisible lines you obey daily.
 The ones you never touch,
 but always feel.

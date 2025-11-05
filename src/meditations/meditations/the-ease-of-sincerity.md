@@ -15,10 +15,9 @@ A truth unforced.
 A presence without mask.
 
 To live in sincerity is not to perform honesty.
-It is to carry yourself the way laughter carries itself—
+It is to carry yourself the way laughter carries itself –
 effortless, unhidden, undeniable.
 
-Pause here.
 Think of a time you laughed so fully
 that your body shook.
 There was no strategy in it.
@@ -44,7 +43,7 @@ Live in sincerity, like laughter.
 It does not mean you are always joyful.
 It means you are always real.
 Even your sorrow can be sincere.
-Even your silence can ring like laughter—
+Even your silence can ring like laughter –
 felt, authentic, unafraid.
 
 Ask yourself:
@@ -53,7 +52,7 @@ Where do I still polish my truth before releasing it?
 Where do I still hide the pulse of what I feel?
 
 Then breathe.
-And let sincerity surface—
+And let sincerity surface –
 as sudden, as uncontainable,
 as liberating
 as laughter breaking open the air.

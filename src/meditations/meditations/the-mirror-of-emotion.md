@@ -10,7 +10,6 @@ validate before offering perspective.
 Truth without tenderness
 builds walls.
 
-Pause here.
 Remember a time
 someone met your pain
 with explanation instead of empathy.

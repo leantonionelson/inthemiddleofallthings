@@ -5,7 +5,7 @@
 ---
 
 You walk through a hall of mirrors.
-Every face you meet reflects a part of you back—
+Every face you meet reflects a part of you back –
 not who you are,
 but who they need you to be.
 
@@ -19,8 +19,7 @@ when the eyes that meet yours
 do not meet you,
 but their own reflection.
 
-Pause here.
-Think of how often you have been misread—
+Think of how often you have been misread –
 your calm mistaken for coldness,
 your silence mistaken for judgement,
 your strength mistaken for pride.

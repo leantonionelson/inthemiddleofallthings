@@ -9,13 +9,12 @@ to reset thoughts.
 
 When the mind spirals,
 return to the body.
-Pain — even slight —
+Pain – even slight –
 anchors awareness.
 
-Pause here.
 Pinch your fingers together,
 press your feet to the floor.
-Feel that — real.
+Feel that – real.
 Thoughts cannot spiral
 where presence is planted.
 
@@ -25,6 +24,6 @@ clarity is sharpened.
 
 Use sensation
 to reclaim focus.
-The body never lies —
+The body never lies –
 it only calls you home.
 

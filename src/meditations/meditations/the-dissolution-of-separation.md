@@ -5,7 +5,7 @@
 ---
 
 Heaven is not above.
-It is within—
+It is within –
 the place where division ends,
 where the edges between self and world
 melt like dawn into light.
@@ -18,7 +18,6 @@ the ancient wound of distance,
 the illusion that love must discriminate
 to be pure.
 
-Pause here.
 Feel where separation lives in you.
 Perhaps in the chest,
 the tightening of the heart
@@ -39,7 +38,7 @@ but through recognition.
 
 Heaven is not a place of reward.
 It is a state of realisation.
-It is the return to unity—
+It is the return to unity –
 the awareness that the light in your eyes
 is the same light that burns in all others.
 

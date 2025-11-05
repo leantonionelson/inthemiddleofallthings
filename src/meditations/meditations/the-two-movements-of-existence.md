@@ -4,7 +4,7 @@
 
 ---
 
-Matter and light —
+Matter and light –
 two rhythms,
 two ways of being in the same universe.
 
@@ -17,7 +17,7 @@ Every heartbeat a step downstream,
 every breath a soft surrender
 to the flow of becoming.
 
-But light —
+But light –
 light is free.
 It does not travel with time;
 it is time unfolded.
@@ -26,20 +26,19 @@ no memory, no waiting.
 It moves through both
 as if they were the same.
 
-Pause here.
-Feel the weight of your body —
+Feel the weight of your body –
 the way gravity holds you close,
 reminding you that to be matter
 is to belong to the story of change.
 Then close your eyes
-and imagine being light —
+and imagine being light –
 weightless, immediate, everywhere at once.
 
 We travel through space and with time.
 We are the slow unfolding of eternity,
 the witnessing of the eternal moment
 as motion.
-But light —
+But light –
 light never leaves the moment.
 It never began.
 It never ends.
@@ -54,10 +53,10 @@ that everything already is.
 
 Matter teaches humility.
 Light teaches truth.
-We are both —
+We are both –
 the embodied and the eternal,
 the traveller and the radiance.
-Each breath is the meeting point —
+Each breath is the meeting point –
 half gravity,
 half grace.
 

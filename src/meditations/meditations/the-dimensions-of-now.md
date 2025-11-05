@@ -6,7 +6,7 @@
 
 Time is not a river.
 It is a sea,
-and now is the surface—
+and now is the surface –
 rippling endlessly,
 reflecting every possible sky.
 
@@ -17,11 +17,10 @@ through which all moments appear.
 Each breath,
 each thought,
 each act of attention
-collapses infinity into a single scene—
+collapses infinity into a single scene –
 your reality,
 your chosen version of the whole.
 
-Pause here.
 Feel the immediacy of this breath.
 Notice how the past dissolves when you enter it fully.
 Notice how the future fades.
@@ -49,15 +48,15 @@ you stop collapsing the same stale version of now.
 You reset the field.
 You allow new realities to unfold.
 
-Everything has two faces—
+Everything has two faces –
 positive and negative,
-light and shadow—
+light and shadow –
 but both are present in every now.
 The dimension you inhabit
 is chosen by the side you acknowledge.
 
 Through meditation,
-you move—not in space,
+you move –not in space,
 but in perception.
 Not in time,
 but in resonance.

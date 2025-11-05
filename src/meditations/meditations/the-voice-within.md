@@ -12,7 +12,7 @@ it fills the silence with commentary.
 But not all voices are true.
 Some are echoes of fear.
 Some are the weight of expectation.
-Some are simply noise—
+Some are simply noise –
 the restless machine of thought
 that confuses movement with meaning.
 
@@ -30,7 +30,7 @@ Notice the words forming.
 Do not follow them.
 Do not fight them.
 Let them pass
-like birds crossing the sky—
+like birds crossing the sky –
 visible, transient, gone.
 
 The voice will say:
@@ -72,7 +72,7 @@ The body becomes trustworthy again.
 The self becomes spacious again.
 
 You do not need to kill the voice.
-You only need to remember—
+You only need to remember –
 you are not it.
 You are the silence
 that remains when it fades.

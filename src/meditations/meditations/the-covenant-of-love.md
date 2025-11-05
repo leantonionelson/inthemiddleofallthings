@@ -11,11 +11,10 @@ but the sacred thread
 that binds soul to soul.
 
 Love is not transaction.
-It is trust in continuity —
+It is trust in continuity –
 a belief that what we share
 transcends convenience.
 
-Pause here.
 Call to mind
 someone who trusts you.
 Let the weight of that trust

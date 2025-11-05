@@ -6,8 +6,8 @@
 
 Intelligence is not the accumulation of knowledge,
 but the refinement of perception.
-To see without distortion —
-without the veil of judgment or memory —
+To see without distortion –
+without the veil of judgment or memory –
 is to perceive truth directly,
 as it is,
 before the mind divides it into good and bad,
@@ -26,16 +26,15 @@ every conclusion a small forgetting.
 In trying to define reality,
 we stop seeing it.
 
-Pause here.
 Look around you.
-Choose one ordinary thing —
+Choose one ordinary thing –
 a hand, a leaf, a sound.
 Observe it without naming it.
 Just watch.
 Let the object dissolve into sensation.
 Notice how quiet the mind becomes
 when it no longer needs to comment.
-That stillness is intelligence —
+That stillness is intelligence –
 awareness resting in its pure form.
 
 When you observe without evaluating,
@@ -52,7 +51,7 @@ And only in that meeting
 can understanding arise.
 
 This intelligence is not of the intellect.
-It belongs to consciousness itself —
+It belongs to consciousness itself –
 the clear seeing that precedes thought.
 It is the gaze of the universe
 looking through your eyes,
@@ -60,7 +59,7 @@ unclouded by opinion.
 
 To observe without evaluating
 is to love without condition.
-It is the mind becoming mirror —
+It is the mind becoming mirror –
 reflecting all things
 without distortion,
 without possession.
@@ -72,7 +71,7 @@ but guided by awareness.
 
 The highest intelligence
 is not cleverness,
-but presence —
+but presence –
 seeing life
 as it reveals itself,
 moment by moment,

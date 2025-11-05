@@ -14,14 +14,13 @@ in what we refuse to feel.
 Endurance grows
 only through encounter.
 
-Pause here.
 Recall a season of ache
 that shaped you.
 Notice what grew
 in the ruins.
 
 Comfort born from pain
-is not pleasure —
+is not pleasure –
 it is proof of transformation.
 Like muscle under strain,
 the soul strengthens

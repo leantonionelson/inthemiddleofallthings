@@ -9,7 +9,7 @@ that does not move with time.
 A still centre
 beneath the shifting weather of thought,
 beneath the noise of striving and sorrow.
-Your sacred space is there —
+Your sacred space is there –
 the inner hearth where the flame never dies.
 
 Your sacred space is where you can find yourself
@@ -19,7 +19,6 @@ but a state of remembering.
 A returning.
 A quiet doorway back to being.
 
-Pause here.
 Close your eyes and ask:
 "Where do I go when I come home to myself?"
 It may be the breath.
@@ -29,7 +28,7 @@ between one heartbeat and the next.
 That is your sanctuary.
 You have always carried it.
 
-The world will pull you outward —
+The world will pull you outward –
 into plans, into personas,
 into the endless mirrors of expectation.
 You will lose your centre a thousand times.
@@ -42,7 +41,7 @@ you rediscover that peace was never absent,
 only unattended.
 
 Your sacred space is not about escape.
-It is where life touches you most intimately —
+It is where life touches you most intimately –
 where you stop performing long enough
 to feel the pulse of truth beneath all identity.
 

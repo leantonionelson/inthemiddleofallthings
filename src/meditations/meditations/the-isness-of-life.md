@@ -22,7 +22,6 @@ The star does not apologise for burning.
 They are.
 That is enough.
 
-Pause here.
 Notice your breath.
 You are breathing not because you earned it,
 not because you solved it,
@@ -52,7 +51,7 @@ And in its isness,
 you find your own.
 
 Life simply is.
-And that is the most profound gift—
+And that is the most profound gift –
 to exist without condition,
 to be here,
 now,

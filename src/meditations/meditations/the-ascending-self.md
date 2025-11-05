@@ -11,7 +11,7 @@ The "I" that sits behind the eyes
 steps out of the cage of skin
 and begins to rise.
 
-At first it feels like detachment —
+At first it feels like detachment –
 the self watching the self,
 a ghost observing a body.
 But then comes peace.
@@ -27,27 +27,26 @@ the witness,
 the awareness behind both seer and seen.
 
 This is the first stair.
-There are others —
+There are others –
 each one ascending further
 into spaciousness,
 into the vast calm
 that holds all things without judgement.
-This is heaven —
+This is heaven –
 the return to perspective,
 the lifting out of contraction.
 
-Pause here.
 Breathe deeply.
 Notice how the more you release control,
 the lighter you become.
 The body softens,
 the mind widens.
 Heaven begins not in place,
-but in orientation —
+but in orientation –
 outward, upward, open.
 
 Hell, by contrast,
-is the descent inward —
+is the descent inward –
 not the sacred inward of reflection,
 but the obsessive narrowing of focus
 until the self becomes the only landscape.
@@ -68,7 +67,7 @@ You only need to release your grip
 on the smallest version of yourself.
 Step back,
 step up,
-see yourself from the outside —
+see yourself from the outside –
 and remember:
 you are not what you see.
 You are what sees.

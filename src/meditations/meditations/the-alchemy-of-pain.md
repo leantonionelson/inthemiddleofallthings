@@ -6,7 +6,7 @@
 
 Turn pain into wisdom.
 
-This is the true alchemy —
+This is the true alchemy –
 not of metals,
 but of meaning.
 
@@ -15,9 +15,8 @@ without interpretation.
 Wisdom is what happens
 when awareness learns compassion.
 
-Pause here.
 Recall something that hurt you deeply.
-Now ask —
+Now ask –
 what did it teach that comfort never could?
 
 Pain refines perception.

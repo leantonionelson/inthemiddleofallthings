@@ -10,7 +10,6 @@ No matter how vast the shadow,
 it cannot swallow
 a single spark that chooses to burn.
 
-Pause here.
 Close your eyes.
 Imagine a small flame
 in the centre of your chest.
@@ -19,7 +18,7 @@ it fills the dark behind your eyelids.
 
 Light is not the absence of darkness;
 it is its understanding.
-Darkness has no substance —
+Darkness has no substance –
 only space
 awaiting illumination.
 

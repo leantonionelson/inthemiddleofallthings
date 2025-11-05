@@ -8,7 +8,7 @@ Nothing happens by accident.
 Every event,
 every joy,
 every sorrow,
-is a conversation between you and life —
+is a conversation between you and life –
 the infinite shaping itself
 to meet your current understanding.
 
@@ -23,8 +23,7 @@ it is precise.
 It offers you the exact experience
 that reveals what still needs to awaken within you.
 
-Pause here.
-Think of a moment you resisted —
+Think of a moment you resisted –
 a loss, a failure, a confusion
 that felt unjust or unbearable.
 Now look back through gentler eyes:

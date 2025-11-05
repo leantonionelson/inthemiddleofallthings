@@ -5,7 +5,7 @@
 ---
 
 Extremes are seductive.
-They promise certainty—
+They promise certainty –
 the comfort of choosing a side,
 the illusion of clarity in a world of grey.
 But truth does not live at the edges.
@@ -20,10 +20,9 @@ It is precision.
 It is the still point
 where both opposites meet and dissolve.
 
-Pause here.
 Feel your breath.
-Inhale—one pole.
-Exhale—the other.
+Inhale –one pole.
+Exhale –the other.
 Between them,
 a brief stillness,
 a space untouched by either.
@@ -59,6 +58,6 @@ You will not lose conviction.
 You will find clarity.
 And in the stillness between all things,
 you will discover the one thing
-that was never divided—
+that was never divided –
 you.
 

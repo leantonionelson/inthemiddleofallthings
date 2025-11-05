@@ -5,7 +5,7 @@
 ---
 
 Heaven and hell are not destinations.
-They are dimensions within the same moment —
+They are dimensions within the same moment –
 different rooms of the same mind.
 You move between them every day.
 
@@ -20,7 +20,7 @@ is simple:
 they are internal states,
 shaped by orientation.
 The body never leaves the present,
-but the mind does —
+but the mind does –
 wandering into guilt,
 projection,
 regret,
@@ -28,25 +28,24 @@ fear.
 There, in that distortion of now,
 hell begins.
 
-Pause here.
 Feel what it's like to be entirely present.
 The breath steady,
 the senses open,
 the moment complete.
 Notice how peace enters
 the moment you stop fighting what is.
-This is heaven —
+This is heaven –
 not absence of pain,
 but absence of resistance.
 
 Hell is not fire;
-it is friction —
+it is friction –
 the endless grinding of "what is"
 against "what should be."
 It burns not the body,
 but the soul.
 
-Heaven is surrender —
+Heaven is surrender –
 the willingness to see this moment
 as enough.
 It does not require perfection,
@@ -70,6 +69,6 @@ Tend your inner atmosphere.
 When you find yourself descending,
 pause, breathe, soften.
 Remind yourself:
-it was never the world that burned —
+it was never the world that burned –
 only the thought that refused to let go.
 

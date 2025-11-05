@@ -15,18 +15,17 @@ It cannot be followed,
 because to follow is already to lose it.
 The moment someone claims a way,
 a system,
-a formula —
+a formula –
 the truth has slipped through their fingers.
 
 Truth cannot be organised.
 It is too alive for that.
 It does not belong to belief
 or to those who speak most loudly of it.
-It belongs only to awareness —
+It belongs only to awareness –
 to the quiet seeing that perceives
 without conclusion.
 
-Pause here.
 Notice the impulse to seek.
 It feels noble, purposeful, familiar.
 Now trace it deeper:
@@ -47,10 +46,10 @@ when every path dissolves.
 This is why enlightenment cannot be given.
 It is not a destination,
 but a recognition:
-that you were never apart from truth —
+that you were never apart from truth –
 you were simply looking elsewhere.
 
-Religions, philosophies, teachers —
+Religions, philosophies, teachers –
 they can point,
 but the finger is never the moon.
 The moment you worship the path,
@@ -60,7 +59,7 @@ Truth is the open field
 beneath every structure.
 The moment you stop building roads,
 you find yourself standing on it.
-It was always here —
+It was always here –
 beneath your feet,
 beneath your questions,
 beneath the seeking itself.
@@ -71,7 +70,7 @@ is to stop walking.
 To find it
 is to stop searching.
 And in that stillness,
-you realise —
+you realise –
 you were never travelling.
 You were home all along.
 

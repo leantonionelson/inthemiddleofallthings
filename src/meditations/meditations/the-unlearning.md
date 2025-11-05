@@ -16,8 +16,7 @@ is that it fossilises wonder.
 And when wonder dies,
 so does growth.
 
-Pause here.
-Think of a belief you once held as truth—
+Think of a belief you once held as truth –
 a conviction that once felt unshakable.
 Now recall the moment it began to tremble,
 the first crack that let light through.
@@ -50,7 +49,7 @@ They meet reality not with conclusions,
 but with curiosity.
 
 Be open to the re-examination of your core beliefs.
-Because truth is not a monument—
+Because truth is not a monument –
 it is a movement.
 And to walk with it
 is to accept that even your most sacred foundations

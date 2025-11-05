@@ -12,7 +12,7 @@ measure them,
 name them,
 but you cannot transfer their truth.
 
-Qualia —
+Qualia –
 the private textures of experience.
 The shimmer that makes your world yours.
 
@@ -24,19 +24,18 @@ Each of us lives
 inside a cathedral of sensations
 that no one else can enter.
 
-Pause here.
 Close your eyes.
 Feel the air against your skin.
 Notice the faint hum behind your thoughts.
 The way colours linger behind closed lids.
-This is qualia —
+This is qualia –
 the secret signature of consciousness.
 
 Science can chart the brain's fire,
 but not the warmth it gives.
 Words can reach the mind,
 but not the flavour of knowing.
-That is the miracle —
+That is the miracle –
 that existence is not only seen,
 but felt.
 
@@ -59,7 +58,7 @@ the temperature of silence,
 the taste of your own breath.
 Each is a world entire.
 
-Qualia —
+Qualia –
 the proof that reality is not a fact,
 but an intimacy.
 

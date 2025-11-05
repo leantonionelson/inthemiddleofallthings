@@ -4,7 +4,7 @@
 
 ---
 
-Fear is not the barrier —
+Fear is not the barrier –
 it is the doorway.
 It guards what matters most,
 the unclaimed pieces of your power
@@ -16,8 +16,7 @@ It always has.
 For life hides its most sacred gifts
 in the places we most resist looking.
 
-Pause here.
-Picture your cave —
+Picture your cave –
 the thing avoided,
 the conversation,
 the truth,
@@ -29,7 +28,7 @@ it is invitation.
 
 Fear points to intensity,
 and intensity points to meaning.
-The cave is never empty —
+The cave is never empty –
 it is simply heavy
 with the presence of everything
 you have not yet made peace with.
@@ -47,7 +46,7 @@ is only the wounded guardian of my strength?"
 
 Each descent is sacred.
 You go in trembling,
-but you come out carrying something new —
+but you come out carrying something new –
 a truth,
 a power,
 a piece of yourself once exiled.

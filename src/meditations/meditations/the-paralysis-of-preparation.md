@@ -21,10 +21,9 @@ You can plan forever
 and never move an inch.
 You can perfect the conditions for beginning
 and still never begin.
-The plan becomes a cocoon—
+The plan becomes a cocoon –
 safe, detailed, lifeless.
 
-Pause here.
 Think of something you've delayed
 because you were "not ready."
 Notice how long the preparation has stretched,
@@ -48,7 +47,7 @@ but to motion.
 Nothing real begins
 until you are in the doing.
 
-Planning has its place—
+Planning has its place –
 but only as a breath before the leap,
 not the reason to never jump.
 The truth is:

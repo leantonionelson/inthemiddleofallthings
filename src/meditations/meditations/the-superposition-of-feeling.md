@@ -8,19 +8,18 @@ I am a superposition
 of all emotions.
 
 When asked
-if I am happy, sad, angry —
+if I am happy, sad, angry –
 I say, yes.
 
 All are true,
 until observed.
 
 It is my orientation
-that collapses the wave function —
+that collapses the wave function –
 the direction of attention
 that chooses which feeling
 becomes form.
 
-Pause here.
 Notice your mood.
 Then notice
 the one who notices it.

@@ -8,7 +8,7 @@ The universe is not distance.
 It is not matter.
 It is not even time.
 
-It is perspective—
+It is perspective –
 layered, shifting, infinite.
 
 From one vantage,
@@ -23,7 +23,7 @@ a centre from which worlds unfold.
 
 Neither view is wrong.
 Neither is complete.
-They are layers—
+They are layers –
 each true,
 each partial.
 
@@ -37,7 +37,7 @@ and it is a teacher,
 delivering you to patience,
 or forgiveness.
 
-Layers upon layers—
+Layers upon layers –
 not competing,
 but nested.
 Like skin,
@@ -64,7 +64,7 @@ It is a prism,
 turning light into many colours.
 To live well
 is not to choose one,
-but to see the whole spectrum—
+but to see the whole spectrum –
 and to remember
 that the light itself never fractured.
 

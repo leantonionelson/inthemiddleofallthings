@@ -14,10 +14,9 @@ It is inevitable.
 How could it not be?
 With this much of god condensed into one space,
 into this body,
-into this fragile yet luminous form—
+into this fragile yet luminous form –
 you carry divinity pressed into matter.
 
-Pause here.
 Touch your chest.
 Feel the pulse beneath your hand.
 That rhythm is older than you.

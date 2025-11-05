@@ -4,7 +4,7 @@
 
 ---
 
-We spend our lives in pursuit —
+We spend our lives in pursuit –
 of success, of peace,
 of a happiness imagined always
 just beyond the horizon.
@@ -13,7 +13,7 @@ believing joy to be a destination.
 But joy was never waiting ahead.
 It was walking beside us all along.
 
-There is no way to happiness —
+There is no way to happiness –
 happiness is the way.
 
 This is not a riddle;
@@ -22,7 +22,6 @@ The path does not lead to joy.
 The path is joy,
 when walked with awareness.
 
-Pause here.
 Notice your breath.
 You are breathing,
 and therefore, you are living.
@@ -31,7 +30,7 @@ could happiness be?
 
 Happiness is not a possession.
 It is not an achievement.
-It is orientation —
+It is orientation –
 a turning of perception
 toward the present.
 It is gratitude without condition.
@@ -54,7 +53,7 @@ everything shifts.
 
 The struggle softens.
 The destination disappears.
-You realise there was never a journey —
+You realise there was never a journey –
 only unfolding,
 only presence,
 only the living pulse of being.

@@ -4,7 +4,7 @@
 
 ---
 
-We were taught to see God as a thing —
+We were taught to see God as a thing –
 a throne, a figure,
 a presence to worship from afar.
 But divinity does not sit still.
@@ -19,19 +19,18 @@ Not the name,
 but the happening beneath the name.
 
 Every pulse of life is its expression.
-Every birth, decay, renewal —
+Every birth, decay, renewal –
 the endless grammar of creation.
 
-Pause here.
 Look at your hands.
-They are doing what the universe does —
+They are doing what the universe does –
 shaping, touching, transforming.
 When you move with awareness,
 you do not imitate God;
 you participate in God.
 
 The divine is not a being to seek.
-It is being itself —
+It is being itself –
 the current that turns thought into matter,
 matter into meaning,
 meaning back into silence.
@@ -59,7 +58,7 @@ To act with awareness is to worship.
 To love is to speak its true name.
 
 And when you finally stop asking where God is,
-you will feel it —
+you will feel it –
 not watching you,
 but moving through you.
 

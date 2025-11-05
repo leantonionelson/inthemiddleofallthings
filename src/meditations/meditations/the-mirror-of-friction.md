@@ -9,7 +9,7 @@ reveals what remains unresolved in us.
 Every irritation,
 every judgment,
 every tightening in the chest
-is not an external problem —
+is not an external problem –
 it is a reflection.
 
 Everything that irritates us about others
@@ -19,7 +19,6 @@ It shows us where the ego still defends,
 where the heart still fears,
 where the soul still hides.
 
-Pause here.
 Bring to mind someone who unsettles you.
 Let their image arise without story.
 Now look past the person,
@@ -44,14 +43,14 @@ is to reclaim power.
 Instead of fighting the reflection,
 study it.
 Ask, "What is this showing me about me?"
-And listen —
+And listen –
 not with defensiveness,
 but with curiosity.
 
 The more you understand your triggers,
 the fewer enemies you will have.
 Because enemies are simply
-teachers in disguise —
+teachers in disguise –
 guides pointing toward the unfinished places
 within your own awareness.
 

@@ -21,7 +21,6 @@ This is opposition.
 This is fracture.
 And fracture breeds exhaustion.
 
-Pause here.
 Feel into your breath.
 Is it shallow or deep?
 Notice your body.

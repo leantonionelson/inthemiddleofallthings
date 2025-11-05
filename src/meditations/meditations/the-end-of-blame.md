@@ -5,7 +5,7 @@
 ---
 
 Blame is easy.
-It divides the world into clean lines—
+It divides the world into clean lines –
 you and I,
 right and wrong,
 wound and weapon.
@@ -26,7 +26,6 @@ Blame corrodes the one who holds it.
 It feeds on righteousness
 and leaves only ash.
 
-Pause here.
 Think of someone who wronged you.
 Notice how the story tightens the chest,
 how the mind rehearses its defence.
@@ -53,7 +52,7 @@ every cruelty born from its own wound.
 You cannot untangle the web with anger.
 Only love can dissolve it.
 
-Treat all with love—
+Treat all with love –
 not to change them,
 but to free yourself
 from the illusion of enemies.

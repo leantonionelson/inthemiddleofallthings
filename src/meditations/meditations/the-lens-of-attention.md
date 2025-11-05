@@ -7,7 +7,7 @@
 The universe is vast.
 Every possibility,
 every form,
-every unfolding—
+every unfolding –
 all here, all at once.
 
 But you do not live in all of it.
@@ -19,11 +19,10 @@ Everything exists.
 But only where your point of attention rests
 does it become real for you.
 
-Pause here.
 Feel the breath.
 In this moment,
-the entire world continues—
-storms, laughter, death, birth—
+the entire world continues –
+storms, laughter, death, birth –
 but for you, right now,
 reality is this inhale,
 this exhale.
@@ -33,7 +32,7 @@ Place it on fear,
 and fear grows.
 Place it on beauty,
 and beauty expands.
-The world is not different—
+The world is not different –
 but your world becomes what you attend to.
 
 This is not illusion.

@@ -24,16 +24,15 @@ It pulls you away from your centre,
 asks you to live a life
 that is not yours.
 
-Pause here.
 Think of a time you said yes
 when your body was already saying no.
-Notice how it felt—
+Notice how it felt –
 tightness in the chest,
 weight in the stomach,
 resentment in the heart.
 Now think of a time you said no,
 even when it was difficult.
-Notice how it felt—
+Notice how it felt –
 clear, steady, whole.
 
 This is the difference.
@@ -52,7 +51,7 @@ undoubting,
 a gift without resentment.
 
 To live sincerely
-is to let both words—yes and no—
+is to let both words –yes and no –
 be honest.
 And honesty,
 though it may cost in the moment,

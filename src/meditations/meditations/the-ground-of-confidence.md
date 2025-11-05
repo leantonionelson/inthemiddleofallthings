@@ -27,14 +27,13 @@ you stand on solid ground.
 Your steps are not tentative.
 They belong to you.
 
-Pause here.
 Think of something you truly want.
 Not what was handed to you.
 Not what was expected of you.
 Something that stirs your chest when you name it.
 
 Now ask: why?
-Not once, but again and again—
+Not once, but again and again –
 until the reason is clear,
 until it feels unshakable.
 

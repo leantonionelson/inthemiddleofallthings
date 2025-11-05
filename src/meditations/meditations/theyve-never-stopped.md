@@ -4,7 +4,7 @@
 
 ---
 
-Some people still eat every two to three hours —
+Some people still eat every two to three hours –
 they've never stopped.
 Not just the act,
 but the state.
@@ -15,14 +15,13 @@ for warmth, for soothing, for validation.
 Their bodies grew,
 but their hunger did not mature.
 It changed shape,
-took new names —
+took new names –
 attention, approval, distraction, love.
 But it was always the same cry,
 the same reaching hand in the dark.
 
-Pause here.
 Look around you.
-The world is full of grown infants —
+The world is full of grown infants –
 souls that never learned
 how to feed themselves from within.
 They seek the breast of the world,
@@ -37,7 +36,7 @@ The infant consumes.
 The adult integrates.
 The wise give.
 
-Some people still eat every two to three hours —
+Some people still eat every two to three hours –
 they've never stopped.
 They feed on affirmation,
 on being right,
@@ -62,7 +61,7 @@ your own peace.
 So when you feel the infant stirring within,
 do not scold it.
 Hold it.
-Feed it what it truly needs —
+Feed it what it truly needs –
 presence.
 And perhaps, finally,
 you will know what it means to grow.

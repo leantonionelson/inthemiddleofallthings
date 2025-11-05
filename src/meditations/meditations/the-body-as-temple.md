@@ -8,7 +8,7 @@ Spiritual goals
 are only obtained
 through physical development.
 
-The soul does not float above the body —
+The soul does not float above the body –
 it grows through it.
 Every revelation has a pulse.
 Every awakening, a heartbeat.
@@ -18,10 +18,9 @@ where awareness lights its flame.
 Without it,
 spirit has no instrument to sing through.
 
-Pause here.
 Feel your breath filling the ribs,
 your weight pressed into the ground.
-This is not distraction —
+This is not distraction –
 it is devotion.
 
 Stretch, sweat, breathe, rest.

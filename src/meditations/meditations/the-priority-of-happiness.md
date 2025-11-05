@@ -19,12 +19,11 @@ if the ground beneath it crumbles.
 A life cannot flourish
 if the heart beneath it is starved.
 
-Pause here.
 Ask yourself:
 What does happiness feel like in my body?
 Not the idea of it,
 not the picture others sold me,
-but the sensation itself—
+but the sensation itself –
 ease in the chest,
 lightness in the eyes,
 a rhythm of breath that feels unburdened.

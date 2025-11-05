@@ -7,7 +7,7 @@
 Relax.
 Feel the pain.
 Relax into it.
-Trust it —
+Trust it –
 and move,
 stretch,
 contract.
@@ -21,8 +21,7 @@ But pain, when met,
 becomes teacher.
 It reveals what resists.
 
-Pause here.
-Find a discomfort —
+Find a discomfort –
 physical or emotional.
 Instead of tightening,
 breathe into it.
@@ -32,6 +31,6 @@ when met with presence.
 Pain dissolves fragility.
 It burns away fear.
 When you relax into pain,
-you do not break —
+you do not break –
 you are refined.
 

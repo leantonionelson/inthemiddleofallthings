@@ -8,7 +8,7 @@ When two souls meet,
 something unseen takes place.
 Not just conversation,
 not just recognition,
-but chemistry —
+but chemistry –
 a subtle exchange of essence
 that changes both,
 whether they notice or not.
@@ -19,14 +19,13 @@ if there is any reaction,
 both are transformed.
 
 No encounter is neutral.
-Every exchange leaves trace —
+Every exchange leaves trace –
 a new thought,
 a softened edge,
 a shifted view of self.
 You are not who you were
 before this very moment.
 
-Pause here.
 Think of the people who have marked you.
 Not only the ones you loved,
 but also those who challenged you,
@@ -38,12 +37,12 @@ They altered your composition.
 Life is a laboratory,
 and relationship its divine experiment.
 Each person you meet
-stirs something latent within —
+stirs something latent within –
 a chemical of emotion,
 a spark of recognition,
 an element you did not know you carried.
 
-Some reactions burn quickly —
+Some reactions burn quickly –
 a flash, a lesson, a goodbye.
 Others combine slowly,
 forming compounds that last a lifetime.
@@ -60,7 +59,7 @@ is to have your elements rearranged
 into something lighter.
 
 When you realise this,
-you begin to meet others consciously —
+you begin to meet others consciously –
 not as adversaries or acquisitions,
 but as mirrors of evolution.
 You become a mindful alchemist,

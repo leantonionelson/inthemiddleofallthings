@@ -17,12 +17,11 @@ But inheritance is not destiny.
 
 I grew up around wolves
 but I'm not a predator.
-This is the freedom of being human—
+This is the freedom of being human –
 the power to choose.
 To carry what served survival,
 and to release what distorts the soul.
 
-Pause here.
 Think of what you inherited.
 The habits,
 the fears,

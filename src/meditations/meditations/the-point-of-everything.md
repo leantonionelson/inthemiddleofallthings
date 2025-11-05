@@ -7,7 +7,7 @@
 The universe is vast.
 Unmeasurable.
 Expanding without edge.
-Yet here you are—
+Yet here you are –
 a single being,
 a single point,
 carrying all of it within.
@@ -22,12 +22,11 @@ Every law of physics,
 every rhythm of life,
 finds expression through you.
 
-Pause here.
 Close your eyes.
 Feel the body sitting,
 breathing.
 It feels small.
-And yet—
+And yet –
 it is composed of everything.
 The breath is not yours alone.
 It belongs to the trees,

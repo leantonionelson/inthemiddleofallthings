@@ -16,7 +16,6 @@ will one day be sustained by us.
 Consciousness closes the loop
 of creation.
 
-Pause here.
 Look around.
 Every breath you take
 feeds the same air

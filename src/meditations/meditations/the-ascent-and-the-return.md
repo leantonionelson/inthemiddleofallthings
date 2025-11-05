@@ -9,7 +9,7 @@ but the view is only a glimpse.
 You cannot live there.
 The air is too thin.
 
-We enjoy getting high—
+We enjoy getting high –
 lifting beyond ourselves,
 beyond weight and wound,
 tasting unity.
@@ -25,15 +25,14 @@ is not meant to replace life below,
 but to remind you
 of what was always within it.
 
-Pause here.
-Remember a time you felt expanded—
+Remember a time you felt expanded –
 through love, art, nature, or medicine.
 Remember the stillness, the awe.
 Now, ask:
 Was it the substance or the seeing?
 Was it the climb or the clarity?
 
-Psychedelics, devotion, discipline—
+Psychedelics, devotion, discipline –
 they open doors.
 But they do not walk you through them.
 They are the spark, not the fire.
@@ -49,7 +48,7 @@ It is in the grounding that follows,
 the embodiment of the light glimpsed above.
 
 You cannot stay on the peak.
-You were made for the valley—
+You were made for the valley –
 to bring heaven down into the soil,
 to make divinity useful,
 human,
@@ -58,6 +57,6 @@ real.
 The journey upward is easy.
 The return is sacred.
 For there you learn
-that enlightenment was never distance—
+that enlightenment was never distance –
 it was depth.
 

@@ -13,9 +13,8 @@ It points toward aliveness.
 But even wonder
 must know when to release.
 
-Pause here.
 Notice what you're drawn to today.
-Ask what lesson it offers —
+Ask what lesson it offers –
 then thank it
 and move on.
 

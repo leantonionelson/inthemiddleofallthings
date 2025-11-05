@@ -12,12 +12,11 @@ between the finite and the infinite.
 
 Walk as if you are kissing the Earth with your feet.
 Move not through the world,
-but with it —
+but with it –
 as lover, not conqueror.
 Each step a gesture of tenderness,
 each touch a whisper of gratitude.
 
-Pause here.
 Feel the ground beneath you.
 Not as surface,
 but as presence.
@@ -29,7 +28,7 @@ beneath every fall.
 
 When you walk consciously,
 the mundane becomes sacred.
-You realise the Earth is not inert —
+You realise the Earth is not inert –
 it listens.
 It feels your pace,
 your tension,
@@ -38,7 +37,7 @@ And it responds,
 silently mirroring your state of being.
 
 To kiss the Earth with your feet
-is to remember belonging —
+is to remember belonging –
 that you are not above this world,
 but of it.
 That the dust you tread upon
@@ -50,7 +49,7 @@ Each step can be prayer.
 Each movement, meditation.
 In walking gently,
 you honour the lineage of all life
-that walked before you —
+that walked before you –
 the animals,
 the ancestors,
 the countless forgotten feet
@@ -68,7 +67,7 @@ one home.
 So slow down.
 Breathe.
 Let each step
-be a kiss —
+be a kiss –
 a quiet act of love
 toward the world that raised you.
 

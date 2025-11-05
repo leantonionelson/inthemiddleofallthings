@@ -12,9 +12,8 @@ corrupts.
 Purpose without presence
 forgets its purpose.
 
-Pause here.
 Think of your greatest goal.
-Now ask —
+Now ask –
 does it uplift others,
 or only you?
 
@@ -23,6 +22,6 @@ through goodness sustained.
 The path to legacy
 is paved with quiet decency.
 
-Be excellent, yes —
+Be excellent, yes –
 but never at the cost of gentle.
 

@@ -4,7 +4,7 @@
 
 ---
 
-Work, borders, laws, money —
+Work, borders, laws, money –
 the matrix of modern life.
 Necessary scaffolds,
 not ultimate purposes.
@@ -15,7 +15,6 @@ Ritualise the repetitive.
 Let machines be machines,
 so humans can be human.
 
-Pause here.
 List the tasks that drain your presence.
 Which can be delegated to code,
 to calendar,

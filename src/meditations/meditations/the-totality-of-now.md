@@ -9,7 +9,7 @@ Not yesterday.
 Not tomorrow.
 Here.
 
-The mind scatters itself—
+The mind scatters itself –
 replaying what has gone,
 rehearsing what might come.
 But life does not scatter.
@@ -25,7 +25,6 @@ Even your thoughts of past and future
 are happening here,
 folded into this moment.
 
-Pause here.
 Breathe deeply.
 Ask yourself:
 What, right now, is lacking?

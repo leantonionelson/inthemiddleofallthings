@@ -14,9 +14,9 @@ the world softens around it.
 Not because you have changed others,
 but because you have stopped projecting conflict into being.
 
-If you become steadfast—
+If you become steadfast –
 not occasionally peaceful,
-not selectively kind—
+not selectively kind –
 but unwavering in your refusal
 to send harm outward,
 even in imagination,
@@ -28,7 +28,6 @@ Strangers feel at ease.
 The unseen field of your being
 turns tranquil.
 
-Pause here.
 Close your eyes.
 Notice the quiet hum beneath your thoughts.
 Each one ripples outward,
@@ -52,7 +51,7 @@ but self-aligned.
 Abstain from harm,
 even in thought,
 and life itself will recognise you.
-Even the smallest creatures will feel it—
+Even the smallest creatures will feel it –
 the way they sense rain,
 or shelter,
 or dawn.

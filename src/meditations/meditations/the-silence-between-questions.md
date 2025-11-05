@@ -5,7 +5,7 @@
 ---
 
 The mind wants conclusion.
-It cannot rest in uncertainty —
+It cannot rest in uncertainty –
 it seeks the answer
 as if knowledge were safety.
 But truth is not found in the quick reply;
@@ -22,7 +22,6 @@ The problem you face
 is not an obstacle to be solved,
 but a mirror to be understood.
 
-Pause here.
 Bring to mind something unresolved in your life.
 Notice how the mind tightens around it,
 rushing toward judgement,
@@ -31,7 +30,7 @@ Now, soften that grasp.
 Let the question breathe.
 Do not demand an answer.
 Simply observe.
-Feel the discomfort of not knowing —
+Feel the discomfort of not knowing –
 and stay.
 
 Understanding does not come from control.
@@ -43,7 +42,7 @@ truth slips in quietly,
 because the space has finally been made for it.
 
 The desire for certainty
-creates noise —
+creates noise –
 the endless chatter of analysis and prediction.
 Freedom from that desire
 creates silence.
@@ -63,7 +62,7 @@ is the beginning of wisdom.
 It transforms confusion into curiosity,
 and struggle into awareness.
 Because the moment you no longer need to solve life,
-you begin to see it —
+you begin to see it –
 not as puzzle,
 but as presence.
 
