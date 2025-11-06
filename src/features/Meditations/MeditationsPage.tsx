@@ -6,7 +6,9 @@ import { loadMeditations, searchMeditations, fallbackMeditations } from '../../d
 import CleanLayout from '../../components/CleanLayout';
 import ReaderNavigation from '../../components/ReaderNavigation';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
-import { Search, X, ChevronRight, Heart, Leaf, Star, Moon, Sun, Waves, Mountain, Compass, Flower2 } from 'lucide-react';
+import { useScrollTracking } from '../../hooks/useScrollTracking';
+import { readingProgressService } from '../../services/readingProgressService';
+import { Search, X, ChevronRight, Heart, Leaf, Star, Moon, Sun, Waves, Mountain, Compass, Flower2, CheckCircle2 } from 'lucide-react';
 
 import UnifiedAudioPlayer from '../../components/UnifiedAudioPlayer';
 import TextSelection from '../../components/TextSelection';
@@ -37,7 +39,13 @@ interface HighlightPin {
 const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }) => {
   const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
-  const [currentMeditationIndex, setCurrentMeditationIndex] = useState(0);
+  // Initialize from localStorage if available, otherwise default to 0
+  const getInitialMeditationIndex = () => {
+    const savedIndex = localStorage.getItem('currentMeditationIndex');
+    return savedIndex ? parseInt(savedIndex, 10) : 0;
+  };
+  const [currentMeditationIndex, setCurrentMeditationIndex] = useState(getInitialMeditationIndex());
+  const hasLoadedSavedIndex = useRef(false);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
   // Use shared text selection hook
   const { selectedText, isTextSelected, clearSelection } = useTextSelection({ contentRef });
@@ -55,9 +63,28 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
   const [highlightedProgress, setHighlightedProgress] = useState(0);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [fontSize, setFontSize] = useState('base');
+  const [readStatusUpdate, setReadStatusUpdate] = useState(0);
   
   // Get user capabilities
   const userCapabilities = useUserCapabilities();
+
+  // Listen for read status changes to update list
+  useEffect(() => {
+    const checkReadStatus = () => {
+      setReadStatusUpdate(prev => prev + 1);
+    };
+    
+    // Check when page becomes visible (user navigates back)
+    document.addEventListener('visibilitychange', checkReadStatus);
+    
+    // Also check periodically while on page (in case read status changes)
+    const interval = setInterval(checkReadStatus, 2000);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', checkReadStatus);
+      clearInterval(interval);
+    };
+  }, []);
 
   // Touch handling state
   const [touchStartX, setTouchStartX] = useState(0);
@@ -170,16 +197,58 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
     const loadMeditationList = async () => {
       try {
         const loadedMeditations = await loadMeditations();
+        console.log('MeditationsPage: Loaded meditations:', loadedMeditations.map(m => ({ id: m.id, title: m.title })));
         setMeditations(loadedMeditations);
         setFilteredMeditations(loadedMeditations);
         
+        // Try to find meditation by ID first (more reliable)
+        const savedMeditationId = localStorage.getItem('currentMeditationId');
         const savedMeditationIndex = localStorage.getItem('currentMeditationIndex');
-        if (savedMeditationIndex) {
-          const index = parseInt(savedMeditationIndex, 10);
-          if (index >= 0 && index < loadedMeditations.length) {
-            setCurrentMeditationIndex(index);
+        
+        console.log('MeditationsPage: Saved ID from localStorage:', savedMeditationId);
+        console.log('MeditationsPage: Saved index from localStorage:', savedMeditationIndex);
+        
+        let targetIndex = -1;
+        
+        // Prefer ID-based lookup if available
+        if (savedMeditationId) {
+          const idIndex = loadedMeditations.findIndex(m => m.id === savedMeditationId);
+          if (idIndex >= 0) {
+            targetIndex = idIndex;
+            console.log('MeditationsPage: Found meditation by ID at index:', targetIndex, 'Title:', loadedMeditations[targetIndex]?.title);
+          } else {
+            console.warn('MeditationsPage: Meditation ID not found:', savedMeditationId);
           }
         }
+        
+        // Fallback to index-based lookup
+        if (targetIndex === -1 && savedMeditationIndex) {
+          const index = parseInt(savedMeditationIndex, 10);
+          console.log('MeditationsPage: Parsed index:', index, 'Total meditations:', loadedMeditations.length);
+          if (index >= 0 && index < loadedMeditations.length) {
+            targetIndex = index;
+            console.log('MeditationsPage: Using index-based lookup:', targetIndex, 'Title:', loadedMeditations[targetIndex]?.title);
+          } else {
+            console.warn('MeditationsPage: Invalid index:', index, 'Max:', loadedMeditations.length - 1);
+          }
+        }
+        
+        if (targetIndex >= 0) {
+          console.log('MeditationsPage: Setting meditation index to:', targetIndex, 'Title:', loadedMeditations[targetIndex]?.title);
+          setCurrentMeditationIndex(targetIndex);
+        } else {
+          // No saved index found, but validate the initial index from state
+          const initialIndex = currentMeditationIndex;
+          if (initialIndex >= 0 && initialIndex < loadedMeditations.length) {
+            console.log('MeditationsPage: Using initial index from state:', initialIndex, 'Title:', loadedMeditations[initialIndex]?.title);
+            setCurrentMeditationIndex(initialIndex);
+          } else {
+            console.log('MeditationsPage: No saved meditation found, defaulting to index 0');
+            setCurrentMeditationIndex(0);
+          }
+        }
+        // Mark as loaded so save effect can run
+        hasLoadedSavedIndex.current = true;
       } catch (error) {
         console.error('Error loading meditations:', error);
         setMeditations(fallbackMeditations);
@@ -238,10 +307,32 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
     return () => window.removeEventListener('resize', handleResize);
   }, [initialLoadComplete, searchQuery, selectedTags, visibleCount, calculateInitialVisibleCount, meditations.length]);
 
-  // Save current meditation index
+  // Save current meditation index and scroll to top when changing meditations
   useEffect(() => {
-    localStorage.setItem('currentMeditationIndex', currentMeditationIndex.toString());
-  }, [currentMeditationIndex]);
+    // Don't save on initial load - wait until we've loaded the saved index
+    if (!hasLoadedSavedIndex.current) {
+      return;
+    }
+    
+    // Only save if meditations are loaded and index is valid
+    if (meditations.length > 0 && currentMeditationIndex >= 0 && currentMeditationIndex < meditations.length) {
+      localStorage.setItem('currentMeditationIndex', currentMeditationIndex.toString());
+      // Also save the ID for redundancy
+      if (meditations[currentMeditationIndex]) {
+        localStorage.setItem('currentMeditationId', meditations[currentMeditationIndex].id);
+      }
+      console.log('MeditationsPage: Saved index to localStorage:', currentMeditationIndex, meditations[currentMeditationIndex]?.title);
+    }
+    
+    // Scroll to top when meditation changes (but not on initial load)
+    if (hasLoadedSavedIndex.current && contentRef.current) {
+      contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    // Also scroll window to top for good measure
+    if (hasLoadedSavedIndex.current) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentMeditationIndex, meditations]);
 
   // Disable body scroll when search is active
   useEffect(() => {
@@ -274,6 +365,20 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
   }, [isSearchFocused, searchQuery]);
 
   const currentMeditation = meditations[currentMeditationIndex];
+
+  // Track reading progress for current meditation
+  useScrollTracking({
+    contentId: currentMeditation?.id || '',
+    contentType: 'meditation',
+    contentRef: contentRef as React.RefObject<HTMLElement>,
+    enabled: !!currentMeditation,
+    onReadComplete: () => {
+      // Meditation marked as read
+      console.log('Meditation marked as read:', currentMeditation?.title);
+      // Trigger list update to show checkmark
+      setReadStatusUpdate(prev => prev + 1);
+    }
+  });
 
   const handleNextMeditation = useCallback(() => {
     if (currentMeditationIndex < meditations.length - 1) {
@@ -552,9 +657,9 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
                         <>
                           {/* First row */}
                           <div className="flex gap-2">
-                            {firstRow.map(tag => (
+                            {firstRow.map((tag, index) => (
                               <button
-                                key={tag}
+                                key={`filter-tag-1-${tag}-${index}`}
                                 onClick={() => toggleTag(tag)}
                                 className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0 ${
                                   selectedTags.includes(tag)
@@ -569,9 +674,9 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
                           
                           {/* Second row */}
                           <div className="flex gap-2">
-                            {secondRow.map(tag => (
+                            {secondRow.map((tag, index) => (
                               <button
-                                key={tag}
+                                key={`filter-tag-2-${tag}-${index}`}
                                 onClick={() => toggleTag(tag)}
                                 className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0 ${
                                   selectedTags.includes(tag)
@@ -599,6 +704,12 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
                     const actualIndex = meditations.findIndex(m => m.id === meditation.id);
                     const isActive = actualIndex === currentMeditationIndex;
                     const IconComponent = getMeditationIcon(meditation, index);
+                    const isRead = readingProgressService.isRead(meditation.id);
+                    
+                    // Debug logging
+                    if (isRead) {
+                      console.log('Meditation marked as read:', meditation.id, meditation.title);
+                    }
                     
                     return (
                       <li
@@ -614,7 +725,7 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
                           <span className="absolute inset-x-0 -top-px bottom-0" />
                           
                           {/* Icon */}
-                          <div className={`flex-none rounded-full p-3 w-12 h-12 flex items-center justify-center ${
+                          <div className={`relative flex-none rounded-full p-3 w-12 h-12 flex items-center justify-center ${
                             isActive 
                               ? 'bg-blue-100 dark:bg-blue-900/30' 
                               : 'bg-ink-muted/10 dark:bg-paper-light/10'
@@ -624,21 +735,33 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
                                 ? 'text-blue-600 dark:text-blue-400' 
                                 : 'text-ink-secondary dark:text-ink-muted'
                             }`} />
+                            {isRead && (
+                              <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-0.5">
+                                <CheckCircle2 className="w-4 h-4 text-white" />
+                              </div>
+                            )}
                           </div>
                           
                           {/* Content */}
                           <div className="min-w-0 flex-auto">
-                            <p className={`text-sm/6 font-semibold ${
-                              isActive 
-                                ? 'text-blue-700 dark:text-blue-300' 
-                                : 'text-ink-primary dark:text-paper-light'
-                            }`}>
-                              {meditation.title}
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className={`text-sm/6 font-semibold ${
+                                isActive 
+                                  ? 'text-blue-700 dark:text-blue-300' 
+                                  : 'text-ink-primary dark:text-paper-light'
+                              }`}>
+                                {meditation.title}
+                              </p>
+                              {isRead && (
+                                <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                                  Read
+                                </span>
+                              )}
+                            </div>
                             <div className="mt-1 flex flex-wrap gap-1 justify-center">
-                              {meditation.tags.slice(0, 3).map(tag => (
+                              {meditation.tags.slice(0, 3).map((tag, tagIndex) => (
                                 <span
-                                  key={tag}
+                                  key={`${meditation.id}-tag-${tagIndex}`}
                                   className={`text-xs px-2 py-0.5 rounded font-medium ${
                                     selectedTags.includes(tag)
                                       ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
@@ -787,9 +910,9 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
             
             {/* Tags */}
             <div className="flex flex-wrap gap-2 mb-6 justify-center">
-              {currentMeditation.tags.map(tag => (
+              {currentMeditation.tags.map((tag, index) => (
                 <span
-                  key={tag}
+                  key={`${tag}-${index}`}
                   className="px-3 py-1 bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted rounded-full text-sm"
                 >
                   {tag}

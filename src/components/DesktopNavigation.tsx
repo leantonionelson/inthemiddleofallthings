@@ -16,8 +16,11 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
   const getActivePage = () => {
     switch (location.pathname) {
       case AppRoute.HOME: return 'home';
+      case '/book': return 'reader';
       case AppRoute.READER: return 'reader';
+      case '/meditations-landing': return 'meditations';
       case AppRoute.MEDITATIONS: return 'meditations';
+      case '/stories-landing': return 'stories';
       case AppRoute.STORIES: return 'stories';
       case AppRoute.SETTINGS: return 'settings';
       default: return '';
@@ -26,12 +29,12 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
 
   const activePage = getActivePage();
 
-  // All navigation items available to all users
+  // All navigation items available to all users - route to landing pages
   const navigationItems = [
     { id: 'home', label: 'Home', icon: Home, route: AppRoute.HOME },
-    { id: 'reader', label: 'Book', icon: BookOpen, route: AppRoute.READER },
-    { id: 'meditations', label: 'Meditations', icon: Scale, route: AppRoute.MEDITATIONS },
-    { id: 'stories', label: 'Stories', icon: Scroll, route: AppRoute.STORIES },
+    { id: 'reader', label: 'Book', icon: BookOpen, route: '/book' },
+    { id: 'meditations', label: 'Meditations', icon: Scale, route: '/meditations-landing' },
+    { id: 'stories', label: 'Stories', icon: Scroll, route: '/stories-landing' },
   ];
 
   return (

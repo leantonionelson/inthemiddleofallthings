@@ -55,6 +55,8 @@ export interface BookChapter {
   part: string;
   chapterNumber: number;
   totalChapters: number;
+  isRead?: boolean;
+  lastPosition?: number;
 }
 
 export interface BookContent {
@@ -69,6 +71,8 @@ export interface Meditation {
   content: string;
   tags: string[];
   filename: string;
+  isRead?: boolean;
+  lastPosition?: number;
 }
 
 export interface Story {
@@ -77,6 +81,8 @@ export interface Story {
   content: string;
   tags: string[];
   filename: string;
+  isRead?: boolean;
+  lastPosition?: number;
 }
 
 export interface ReflectionEntry {

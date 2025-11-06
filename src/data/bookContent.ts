@@ -63,11 +63,12 @@ function parseMarkdownContent(markdown: string): { title: string; subtitle?: str
   };
 }
 
-// Book structure definition
+// Book structure definition with part descriptions
 const bookStructure = [
   {
     part: 'Introduction',
     path: 'introduction',
+    description: 'An orientation to the journey ahead, setting the foundation for exploration.',
     chapters: [
       { id: 'introduction', filename: '0. Introduction: A Centre That Moves.mdx', order: 0 }
     ]
@@ -75,6 +76,7 @@ const bookStructure = [
   {
     part: 'Part I: The Axis of Becoming',
     path: 'Part I: The Axis of Becoming',
+    description: 'Exploring the fundamental forces that shape our existence and the choices that define who we become.',
     chapters: [
       { id: 'part-1-intro', filename: 'intro.md', order: 1 },
       { id: 'chapter-1', filename: '1. The Axis of Consequence.md', order: 2 },
@@ -88,6 +90,7 @@ const bookStructure = [
   {
     part: 'Part II: The Spiral Path',
     path: 'Part II: The Spiral Path',
+    description: 'Understanding the cyclical nature of growth, the return of old patterns, and the sacred pauses that allow integration.',
     chapters: [
       { id: 'part-2-intro', filename: 'intro.md', order: 8 },
       { id: 'chapter-7', filename: '7. The Spiral Path.md', order: 9 },
@@ -101,6 +104,7 @@ const bookStructure = [
   {
     part: 'Part III: The Living Axis',
     path: 'Part III: The Living Axis',
+    description: 'Discovering how to live fully in the present moment, using the body and emotions as guides to authentic being.',
     chapters: [
       { id: 'part-3-intro', filename: 'intro.md', order: 15 },
       { id: 'chapter-13', filename: '13. The Body as Compass.md', order: 16 },
@@ -113,6 +117,7 @@ const bookStructure = [
   {
     part: 'Part IV: The Horizon Beyond',
     path: 'Part IV: The Horizon Beyond',
+    description: 'Contemplating mortality, transcendence, and our place within something larger than ourselves.',
     chapters: [
       { id: 'part-4-intro', filename: 'intro.md', order: 21 },
       { id: 'chapter-18', filename: '18. Echoes and Imprints.md', order: 22 },
@@ -124,6 +129,15 @@ const bookStructure = [
     ]
   }
 ];
+
+// Export part descriptions for use in components
+export const partDescriptions: Record<string, string> = {
+  'Introduction': 'An orientation to the journey ahead, setting the foundation for exploration.',
+  'Part I: The Axis of Becoming': 'Exploring the fundamental forces that shape our existence and the choices that define who we become.',
+  'Part II: The Spiral Path': 'Understanding the cyclical nature of growth, the return of old patterns, and the sacred pauses that allow integration.',
+  'Part III: The Living Axis': 'Discovering how to live fully in the present moment, using the body and emotions as guides to authentic being.',
+  'Part IV: The Horizon Beyond': 'Contemplating mortality, transcendence, and our place within something larger than ourselves.'
+};
 
 // Function to load all book chapters using Vite's import system
 export async function loadBookChapters(): Promise<BookChapter[]> {

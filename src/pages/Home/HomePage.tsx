@@ -1,415 +1,397 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { AppRoute, BookChapter } from '../../types';
+import { AppRoute, BookChapter, Meditation, Story } from '../../types';
 import { loadBookChapters, fallbackChapters } from '../../data/bookContent';
-import { Symbol } from '../../components/Symbol';
-import { generateSymbol, GeneratedSymbol } from '../../services/symbolGenerator';
+import { loadMeditations } from '../../data/meditationContent';
+import { loadStories } from '../../data/storiesContent';
+import { readingProgressService } from '../../services/readingProgressService';
 import CleanLayout from '../../components/CleanLayout';
 import StandardHeader from '../../components/StandardHeader';
+import ContentCarousel from '../../components/ContentCarousel';
+import { BookOpen, Scale, Scroll, ArrowRight } from 'lucide-react';
 
 interface HomePageProps {
   onOpenAI: () => void;
 }
 
-// Define book parts structure
-const bookParts = [
-  { id: 'introduction', title: 'Intro', chapters: [] as BookChapter[] },
-  { id: 'part-1', title: 'Book I', chapters: [] as BookChapter[] },
-  { id: 'part-2', title: 'Book II', chapters: [] as BookChapter[] },
-  { id: 'part-3', title: 'Book III', chapters: [] as BookChapter[] },
-  { id: 'part-4', title: 'Book IV', chapters: [] as BookChapter[] },
-  { id: 'outro', title: 'Outro', chapters: [] as BookChapter[] }
-];
-
 const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
-  const [currentPartIndex, setCurrentPartIndex] = useState(0);
-  const [userSymbol, setUserSymbol] = useState<GeneratedSymbol | null>(null);
-  const [userProgress, setUserProgress] = useState({ currentPart: 0, currentChapter: 1, hasStarted: false });
   const [chapters, setChapters] = useState<BookChapter[]>([]);
+  const [meditations, setMeditations] = useState<Meditation[]>([]);
+  const [stories, setStories] = useState<Story[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingChapters, setIsLoadingChapters] = useState(true);
+  const [isLoadingMeditations, setIsLoadingMeditations] = useState(true);
+  const [isLoadingStories, setIsLoadingStories] = useState(true);
+  const [chaptersVisibleCount, setChaptersVisibleCount] = useState(6);
+  const [meditationsVisibleCount, setMeditationsVisibleCount] = useState(6);
+  const [storiesVisibleCount, setStoriesVisibleCount] = useState(6);
+  const [progressUpdateTrigger, setProgressUpdateTrigger] = useState(0);
+  const [bookCompletion, setBookCompletion] = useState(0);
+  const [meditationsCompletion, setMeditationsCompletion] = useState(0);
+  const [storiesCompletion, setStoriesCompletion] = useState(0);
 
   const navigate = useNavigate();
 
-  // Load chapters from MDX files
+  // Listen for progress updates to refresh completion percentages
+  useEffect(() => {
+    const handleProgressUpdate = () => {
+      setProgressUpdateTrigger(prev => prev + 1);
+    };
+
+    // Listen for custom progress update event (same tab)
+    window.addEventListener('readingProgressUpdated', handleProgressUpdate);
+    
+    // Listen for storage events (other tabs)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'readingProgress') {
+        setProgressUpdateTrigger(prev => prev + 1);
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Check progress when page becomes visible (user navigates back)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        setProgressUpdateTrigger(prev => prev + 1);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Initial check
+    handleProgressUpdate();
+
+    return () => {
+      window.removeEventListener('readingProgressUpdated', handleProgressUpdate);
+      window.removeEventListener('storage', handleStorageChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  // Load chapters progressively
   useEffect(() => {
     const loadChapters = async () => {
       try {
-        setIsLoading(true);
+        setIsLoadingChapters(true);
         const loadedChapters = await loadBookChapters();
         setChapters(loadedChapters);
+        setIsLoadingChapters(false);
       } catch {
         console.error('Error loading chapters');
-        // Fallback to hardcoded chapters if loading fails
         setChapters(fallbackChapters);
-      } finally {
-        setIsLoading(false);
+        setIsLoadingChapters(false);
       }
     };
-
     loadChapters();
   }, []);
 
-  // Organize chapters by parts and load progress
+  // Load meditations progressively
   useEffect(() => {
-    if (chapters.length === 0) return;
-
-    // Clear existing chapters
-    bookParts.forEach(part => part.chapters = []);
-
-    chapters.forEach(chapter => {
-      if (chapter.part === 'Introduction') {
-        bookParts[0].chapters.push(chapter);
-      } else if (chapter.part?.includes('Part I')) {
-        bookParts[1].chapters.push(chapter);
-      } else if (chapter.part?.includes('Part II')) {
-        bookParts[2].chapters.push(chapter);
-      } else if (chapter.part?.includes('Part III')) {
-        bookParts[3].chapters.push(chapter);
-      } else if (chapter.part?.includes('Part IV')) {
-        bookParts[4].chapters.push(chapter);
-      } else if (chapter.part === 'Outro') {
-        bookParts[5].chapters.push(chapter);
-      }
-    });
-
-    // Load current chapter index from reader
-    const savedChapterIndex = localStorage.getItem('currentChapterIndex');
-    if (savedChapterIndex) {
-      const currentIndex = parseInt(savedChapterIndex, 10);
-      if (currentIndex >= 0 && currentIndex < chapters.length) {
-        const currentChapter = chapters[currentIndex];
-        
-        // Find which part this chapter belongs to
-        let partIndex = 0;
-        if (currentChapter.part === 'Introduction') {
-          partIndex = 0;
-        } else if (currentChapter.part?.includes('Part I')) {
-          partIndex = 1;
-        } else if (currentChapter.part?.includes('Part II')) {
-          partIndex = 2;
-        } else if (currentChapter.part?.includes('Part III')) {
-          partIndex = 3;
-        } else if (currentChapter.part?.includes('Part IV')) {
-          partIndex = 4;
-        } else if (currentChapter.part === 'Outro') {
-          partIndex = 5;
-        }
-        
-        // Update progress state
-        const newProgress = {
-          currentPart: partIndex,
-          currentChapter: currentChapter.chapterNumber || 1,
-          hasStarted: true
-        };
-        setUserProgress(newProgress);
-        setCurrentPartIndex(partIndex);
-      }
-    } else {
-      // Load user progress from localStorage as fallback
-      const savedProgress = localStorage.getItem('userProgress');
-      if (savedProgress) {
-        try {
-          const progressData = JSON.parse(savedProgress);
-          setUserProgress(progressData);
-          setCurrentPartIndex(progressData.currentPart);
-        } catch {
-          console.error('Error loading user progress');
-        }
-      }
-    }
-  }, [chapters]);
-
-  const currentPart = bookParts[currentPartIndex];
-  
-  // Get the actual current chapter from the reader's saved index
-  const savedChapterIndex = localStorage.getItem('currentChapterIndex');
-  const actualCurrentChapter = savedChapterIndex && chapters.length > 0 
-    ? chapters[parseInt(savedChapterIndex, 10)] 
-    : null;
-  
-  const currentChapter = actualCurrentChapter || currentPart.chapters.find(ch => ch.chapterNumber === userProgress.currentChapter) || currentPart.chapters[0];
-  
-  // Calculate progress based on actual current chapter index from reader
-  const totalChapters = chapters.length;
-  const currentChapterIndex = savedChapterIndex ? parseInt(savedChapterIndex, 10) : 0;
-  const completedChapters = Math.max(0, currentChapterIndex);
-  const progress = totalChapters > 0 ? Math.min((completedChapters / totalChapters) * 100, 100) : 0;
-
-  useEffect(() => {
-    // Load user's symbol from localStorage with better error handling
-    try {
-      const savedSymbol = localStorage.getItem('userSymbol');
-      if (savedSymbol) {
-        try {
-          const symbolData = JSON.parse(savedSymbol);
-          if (symbolData && symbolData.svgPath) {
-            setUserSymbol(symbolData);
-            return;
-          }
-        } catch (parseError) {
-          console.warn('Failed to parse saved symbol, generating new one:', parseError);
-        }
-      }
-      
-      // Generate a new symbol if none exists or parsing failed
-      const newSymbol = generateSymbol('home');
-      setUserSymbol(newSymbol);
-      
-      // Save the new symbol
+    const loadMeditationsContent = async () => {
       try {
-        localStorage.setItem('userSymbol', JSON.stringify(newSymbol));
-      } catch (storageError) {
-        console.warn('Failed to save symbol to localStorage:', storageError);
+        setIsLoadingMeditations(true);
+        const loadedMeditations = await loadMeditations();
+        setMeditations(loadedMeditations);
+        setIsLoadingMeditations(false);
+      } catch (error) {
+        console.error('Error loading meditations:', error);
+        setIsLoadingMeditations(false);
       }
-    } catch (error) {
-      console.error('Error in symbol initialization:', error);
-      // Set a minimal fallback symbol to prevent crashes
-      setUserSymbol({
-        svgPath: 'M 25 25 L 75 25 L 75 75 L 25 75 Z',
-        metadata: {
-          name: 'Fallback Symbol',
-          description: 'A simple geometric form',
-          meaning: 'Stability and grounding',
-          tags: ['geometric', 'square'],
-          morphHistory: []
-        },
-        colorScheme: { primary: '#000000', secondary: '#666666', accent: '#999999' }
-      });
-    }
+    };
+    loadMeditationsContent();
   }, []);
 
-  const handleReadChapter = () => {
-    // Since this component only renders when user is authenticated and onboarded,
-    // we can directly navigate to the reader
-    const newProgress = { 
-      ...userProgress, 
-      hasStarted: true,
-      currentPart: currentPartIndex,
-      currentChapter: currentChapter?.chapterNumber || 1
+  // Load stories progressively
+  useEffect(() => {
+    const loadStoriesContent = async () => {
+      try {
+        setIsLoadingStories(true);
+        const loadedStories = await loadStories();
+        setStories(loadedStories);
+        setIsLoadingStories(false);
+      } catch (error) {
+        console.error('Error loading stories:', error);
+        setIsLoadingStories(false);
+      }
     };
-    setUserProgress(newProgress);
-    localStorage.setItem('userProgress', JSON.stringify(newProgress));
+    loadStoriesContent();
+  }, []);
+
+  // Update main loading state
+  useEffect(() => {
+    setIsLoading(isLoadingChapters || isLoadingMeditations || isLoadingStories);
+  }, [isLoadingChapters, isLoadingMeditations, isLoadingStories]);
+
+  // Calculate completion percentages for each section when content or progress changes
+  useEffect(() => {
+    if (chapters.length === 0) {
+      setBookCompletion(0);
+    } else {
+      const readCount = chapters.filter(ch => {
+        const isRead = readingProgressService.isRead(ch.id);
+        // Debug logging
+        if (isRead) {
+          console.log(`[HomePage] Chapter marked as read: ${ch.id} - ${ch.title}`);
+        }
+        return isRead;
+      }).length;
+      const percentage = Math.round((readCount / chapters.length) * 100);
+      console.log(`[HomePage] Book completion: ${readCount}/${chapters.length} = ${percentage}%`);
+      setBookCompletion(percentage);
+    }
+  }, [chapters, progressUpdateTrigger]);
+
+  useEffect(() => {
+    if (meditations.length === 0) {
+      setMeditationsCompletion(0);
+    } else {
+      const readCount = meditations.filter(m => {
+        const isRead = readingProgressService.isRead(m.id);
+        // Debug logging
+        if (isRead) {
+          console.log(`[HomePage] Meditation marked as read: ${m.id} - ${m.title}`);
+        }
+        return isRead;
+      }).length;
+      const percentage = Math.round((readCount / meditations.length) * 100);
+      console.log(`[HomePage] Meditations completion: ${readCount}/${meditations.length} = ${percentage}%`);
+      setMeditationsCompletion(percentage);
+    }
+  }, [meditations, progressUpdateTrigger]);
+
+  useEffect(() => {
+    if (stories.length === 0) {
+      setStoriesCompletion(0);
+    } else {
+      const readCount = stories.filter(s => {
+        const isRead = readingProgressService.isRead(s.id);
+        // Debug logging
+        if (isRead) {
+          console.log(`[HomePage] Story marked as read: ${s.id} - ${s.title}`);
+        }
+        return isRead;
+      }).length;
+      const percentage = Math.round((readCount / stories.length) * 100);
+      console.log(`[HomePage] Stories completion: ${readCount}/${stories.length} = ${percentage}%`);
+      setStoriesCompletion(percentage);
+    }
+  }, [stories, progressUpdateTrigger]);
+
+  // Handle loading more chapters
+  const handleLoadMoreChapters = () => {
+    if (chaptersVisibleCount < chapters.length) {
+      setChaptersVisibleCount(prev => Math.min(prev + 6, chapters.length));
+    }
+  };
+
+  // Handle loading more meditations
+  const handleLoadMoreMeditations = () => {
+    if (meditationsVisibleCount < meditations.length) {
+      setMeditationsVisibleCount(prev => Math.min(prev + 6, meditations.length));
+    }
+  };
+
+  // Handle loading more stories
+  const handleLoadMoreStories = () => {
+    if (storiesVisibleCount < stories.length) {
+      setStoriesVisibleCount(prev => Math.min(prev + 6, stories.length));
+    }
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleChapterClick = (item: BookChapter | Meditation | Story, _index: number) => {
+    const chapter = item as BookChapter;
+    const actualIndex = chapters.findIndex(c => c.id === chapter.id);
+    localStorage.setItem('currentChapterIndex', actualIndex.toString());
     navigate(AppRoute.READER);
   };
 
-
-
-  const handleNextPart = () => {
-    if (currentPartIndex < bookParts.length - 1) {
-      setCurrentPartIndex(prev => prev + 1);
-    }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleMeditationClick = (item: BookChapter | Meditation | Story, _index: number) => {
+    const meditation = item as Meditation;
+    const actualIndex = meditations.findIndex(m => m.id === meditation.id);
+    localStorage.setItem('currentMeditationId', meditation.id);
+    localStorage.setItem('currentMeditationIndex', actualIndex.toString());
+    navigate(AppRoute.MEDITATIONS);
   };
 
-  const handlePreviousPart = () => {
-    if (currentPartIndex > 0) {
-      setCurrentPartIndex(prev => prev - 1);
-    }
-  };
-
-  const getReadButtonText = () => {
-    if (!userProgress.hasStarted) {
-      return currentPartIndex === 1 ? 'Begin Book I' : `Begin ${currentPart.title}`;
-    } else {
-      if (currentPartIndex === 0) {
-        return 'Continue Intro';
-      } else {
-        return `Continue ${currentPart.title}, Chapter ${userProgress.currentChapter}`;
-      }
-    }
-  };
-
-  const getChapterDisplayText = () => {
-    if (currentPartIndex === 0 || currentPartIndex === 5) {
-      return currentPart.title;
-          } else {
-        const chapterCount = currentPart.chapters.length;
-        return `${currentPart.title}, Chapter ${userProgress.currentChapter} of ${chapterCount}`;
-      }
-  };
-
-  const getCurrentDescription = () => {
-    if (!currentChapter) {
-      return `Explore the themes and ideas of ${currentPart.title}`;
-    }
-    
-    // Return first few sentences of the chapter content as preview
-    const content = currentChapter.content || '';
-    const preview = content.split('.').slice(0, 2).join('.') + '.';
-    return preview.length > 200 ? preview.substring(0, 200) + '...' : preview;
-  };
-
-  const renderMarkdown = (text: string) => {
-    return text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/`(.*?)`/g, '<code class="bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded text-sm">$1</code>');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleStoryClick = (item: BookChapter | Meditation | Story, _index: number) => {
+    const story = item as Story;
+    const actualIndex = stories.findIndex(s => s.id === story.id);
+    localStorage.setItem('currentStoryIndex', actualIndex.toString());
+    navigate(AppRoute.STORIES);
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-paper-light dark:bg-paper-dark paper-texture flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
-          <p className="text-ink-secondary dark:text-ink-muted">Loading book content...</p>
+      <CleanLayout
+        currentPage="home"
+        onRead={() => navigate(AppRoute.READER)}
+        isReading={false}
+        onOpenAI={onOpenAI}
+      >
+        <div className="min-h-screen bg-paper-light dark:bg-paper-dark paper-texture flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
+            <p className="text-ink-secondary dark:text-ink-muted">Loading content...</p>
+          </div>
         </div>
-      </div>
+      </CleanLayout>
     );
   }
 
   return (
-                     <CleanLayout
-         currentPage="home"
-         onRead={handleReadChapter}
-         isReading={false}
-         onOpenAI={onOpenAI}
-       >
+    <CleanLayout
+      currentPage="home"
+      onRead={() => navigate(AppRoute.READER)}
+      isReading={false}
+      onOpenAI={onOpenAI}
+    >
       <StandardHeader
         title="In the Middle of All Things"
         showSettingsButton={true}
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-10 space-y-8 pt-20 pb-24">
-        {/* Living Axis Symbol */}
-        <motion.div 
-          className="w-32 h-32 flex items-center justify-center"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.8, type: "spring" }}
-        >
-          {userSymbol ? (
-            <Symbol 
-              svgPath={userSymbol.svgPath} 
-              size={128}
-              isAnimating={true}
-              metadata={userSymbol.metadata}
-              colorScheme={userSymbol.colorScheme}
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <svg viewBox="0 0 100 100" className="w-full h-full symbol-glow">
-                <circle 
-                  cx="50" 
-                  cy="50" 
-                  r="30" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2"
-                  className="text-ink-primary dark:text-paper-light animate-breathing"
-                />
-                <circle 
-                  cx="50" 
-                  cy="50" 
-                  r="20" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="1"
-                  className="text-ink-primary dark:text-paper-light opacity-60"
-                />
-                <circle 
-                  cx="50" 
-                  cy="50" 
-                  r="10" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="0.5"
-                  className="text-ink-primary dark:text-paper-light opacity-40"
-                />
-              </svg>
-            </div>
-          )}
-        </motion.div>
-
-        {/* Part Navigation */}
-        <motion.div 
-          className="flex justify-between w-full max-w-md items-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          <button
-            onClick={handlePreviousPart}
-            disabled={currentPartIndex === 0}
-            className="p-2 text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          <span className="text-lg font-medium text-ink-primary dark:text-paper-light">
-            {currentPart.title}
-          </span>
-
-          <button
-            onClick={handleNextPart}
-            disabled={currentPartIndex === bookParts.length - 1}
-            className="p-2 text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </motion.div>
-
-        {/* Chapter Info */}
-        <motion.div 
-          className="text-center max-w-md"
+      <div className="flex-1 flex flex-col p-6 lg:p-10 space-y-8 pt-12 pb-24 max-w-6xl mx-auto w-full">
+        {/* Book Section */}
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="w-full"
         >
-          <p className="text-sm text-ink-muted mb-2">
-            {getChapterDisplayText()}
-          </p>
-          <h2 className="text-2xl font-serif text-ink-primary dark:text-paper-light mb-4">
-            {currentChapter?.title || currentPart.title}
-          </h2>
-          <p 
-            className="text-ink-secondary dark:text-ink-muted font-body leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: renderMarkdown(getCurrentDescription()) }}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <BookOpen className="w-6 h-6 text-ink-primary dark:text-paper-light" />
+              <h2 className="text-2xl lg:text-3xl font-serif text-ink-primary dark:text-paper-light">
+                The Book
+              </h2>
+            </div>
+            <button
+              onClick={() => navigate('/book')}
+              className="flex items-center gap-2 text-sm text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light transition-colors"
+            >
+              View All
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 bg-ink-muted/20 dark:bg-paper-light/20 rounded-full h-2">
+              <div
+                className="bg-blue-500 h-2 rounded-full transition-all"
+                style={{ width: `${bookCompletion}%` }}
+              />
+            </div>
+            <span className="text-sm text-ink-secondary dark:text-ink-muted whitespace-nowrap">
+              {bookCompletion}%
+            </span>
+          </div>
+          <ContentCarousel
+            items={chapters}
+            contentType="chapter"
+            onItemClick={handleChapterClick}
+            showReadStatus={true}
+            isLoading={isLoadingChapters}
+            hasMore={chaptersVisibleCount < chapters.length}
+            onLoadMore={handleLoadMoreChapters}
+            visibleCount={chaptersVisibleCount}
           />
         </motion.div>
 
-        {/* Progress */}
-        <motion.div 
-          className="w-full max-w-md"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+        {/* Meditations Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="w-full"
         >
-          <div className="flex justify-between text-sm text-ink-muted mb-2">
-            <span>Progress</span>
-            <span>{Math.round(progress)}%</span>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <Scale className="w-6 h-6 text-ink-primary dark:text-paper-light" />
+              <h2 className="text-2xl lg:text-3xl font-serif text-ink-primary dark:text-paper-light">
+                Meditations
+              </h2>
+            </div>
+            <button
+              onClick={() => navigate('/meditations-landing')}
+              className="flex items-center gap-2 text-sm text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light transition-colors"
+            >
+              View All
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
-          <div className="w-full bg-ink-muted bg-opacity-20 rounded-full h-2">
-            <motion.div
-              className="bg-ink-primary dark:bg-paper-light h-2 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 1, delay: 0.5 }}
-            />
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 bg-ink-muted/20 dark:bg-paper-light/20 rounded-full h-2">
+              <div
+                className="bg-blue-500 h-2 rounded-full transition-all"
+                style={{ width: `${meditationsCompletion}%` }}
+              />
+            </div>
+            <span className="text-sm text-ink-secondary dark:text-ink-muted whitespace-nowrap">
+              {meditationsCompletion}%
+            </span>
           </div>
+          <ContentCarousel
+            items={meditations}
+            contentType="meditation"
+            onItemClick={handleMeditationClick}
+            showReadStatus={true}
+            isLoading={isLoadingMeditations}
+            hasMore={meditationsVisibleCount < meditations.length}
+            onLoadMore={handleLoadMoreMeditations}
+            visibleCount={meditationsVisibleCount}
+          />
         </motion.div>
 
-        {/* Action Buttons */}
+        {/* Stories Section */}
         <motion.div
-          className="flex flex-col space-y-4 w-full max-w-md"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className="w-full"
         >
-          <button
-            onClick={handleReadChapter}
-            className="w-full px-8 py-4 bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary font-medium rounded-lg hover:opacity-90 transition-opacity ink-shadow"
-          >
-            {getReadButtonText()}
-          </button>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <Scroll className="w-6 h-6 text-ink-primary dark:text-paper-light" />
+              <h2 className="text-2xl lg:text-3xl font-serif text-ink-primary dark:text-paper-light">
+                Stories
+              </h2>
+            </div>
+            <button
+              onClick={() => navigate('/stories-landing')}
+              className="flex items-center gap-2 text-sm text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light transition-colors"
+            >
+              View All
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 bg-ink-muted/20 dark:bg-paper-light/20 rounded-full h-2">
+              <div
+                className="bg-blue-500 h-2 rounded-full transition-all"
+                style={{ width: `${storiesCompletion}%` }}
+              />
+            </div>
+            <span className="text-sm text-ink-secondary dark:text-ink-muted whitespace-nowrap">
+              {storiesCompletion}%
+            </span>
+          </div>
+          <ContentCarousel
+            items={stories}
+            contentType="story"
+            onItemClick={handleStoryClick}
+            showReadStatus={true}
+            isLoading={isLoadingStories}
+            hasMore={storiesVisibleCount < stories.length}
+            onLoadMore={handleLoadMoreStories}
+            visibleCount={storiesVisibleCount}
+          />
         </motion.div>
       </div>
     </CleanLayout>
   );
 };
 
-export default HomePage; 
+export default HomePage;

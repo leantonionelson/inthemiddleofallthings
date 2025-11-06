@@ -6,7 +6,9 @@ import { loadStories, searchStories, fallbackStories } from '../../data/storiesC
 import CleanLayout from '../../components/CleanLayout';
 import ReaderNavigation from '../../components/ReaderNavigation';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
-import { Search, X, ChevronRight, BookOpen, Scroll, Feather, Eye, Brain, Globe, Clock, Sparkles, Zap } from 'lucide-react';
+import { useScrollTracking } from '../../hooks/useScrollTracking';
+import { readingProgressService } from '../../services/readingProgressService';
+import { Search, X, ChevronRight, BookOpen, Scroll, Feather, Eye, Brain, Globe, Clock, Sparkles, Zap, CheckCircle2 } from 'lucide-react';
 
 import UnifiedAudioPlayer from '../../components/UnifiedAudioPlayer';
 import TextSelection from '../../components/TextSelection';
@@ -236,9 +238,16 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, [initialLoadComplete, searchQuery, selectedTags, visibleCount, calculateInitialVisibleCount, stories.length]);
 
-  // Save current story index
+  // Save current story index and scroll to top when changing stories
   useEffect(() => {
     localStorage.setItem('currentStoryIndex', currentStoryIndex.toString());
+    
+    // Scroll to top when story changes
+    if (contentRef.current) {
+      contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    // Also scroll window to top for good measure
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentStoryIndex]);
 
   // Disable body scroll when search is active
@@ -272,6 +281,18 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
   }, [isSearchFocused, searchQuery]);
 
   const currentStory = stories[currentStoryIndex];
+
+  // Track reading progress for current story
+  useScrollTracking({
+    contentId: currentStory?.id || '',
+    contentType: 'story',
+    contentRef: contentRef as React.RefObject<HTMLElement>,
+    enabled: !!currentStory,
+    onReadComplete: () => {
+      // Story marked as read
+      console.log('Story marked as read:', currentStory?.title);
+    }
+  });
 
   const handleNextStory = useCallback(() => {
     if (currentStoryIndex < stories.length - 1) {
@@ -595,6 +616,7 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
                     const actualIndex = stories.findIndex(s => s.id === story.id);
                     const isActive = actualIndex === currentStoryIndex;
                     const IconComponent = getStoryIcon(story, index);
+                    const isRead = readingProgressService.isRead(story.id);
                     
                     return (
                       <li
@@ -610,7 +632,7 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
                           <span className="absolute inset-x-0 -top-px bottom-0" />
                           
                           {/* Icon */}
-                          <div className={`flex-none rounded-full p-3 w-12 h-12 flex items-center justify-center ${
+                          <div className={`relative flex-none rounded-full p-3 w-12 h-12 flex items-center justify-center ${
                             isActive 
                               ? 'bg-blue-100 dark:bg-blue-900/30' 
                               : 'bg-ink-muted/10 dark:bg-paper-light/10'
@@ -620,17 +642,29 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
                                 ? 'text-blue-600 dark:text-blue-400' 
                                 : 'text-ink-secondary dark:text-ink-muted'
                             }`} />
+                            {isRead && (
+                              <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-0.5">
+                                <CheckCircle2 className="w-4 h-4 text-white" />
+                              </div>
+                            )}
                           </div>
                           
                           {/* Content */}
                           <div className="min-w-0 flex-auto">
-                            <p className={`text-sm/6 font-semibold ${
-                              isActive 
-                                ? 'text-blue-700 dark:text-blue-300' 
-                                : 'text-ink-primary dark:text-paper-light'
-                            }`}>
-                              {story.title}
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className={`text-sm/6 font-semibold ${
+                                isActive 
+                                  ? 'text-blue-700 dark:text-blue-300' 
+                                  : 'text-ink-primary dark:text-paper-light'
+                              }`}>
+                                {story.title}
+                              </p>
+                              {isRead && (
+                                <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                                  Read
+                                </span>
+                              )}
+                            </div>
                             <div className="mt-1 flex flex-wrap gap-1 justify-center">
                               {story.tags.slice(0, 3).map(tag => (
                                 <span

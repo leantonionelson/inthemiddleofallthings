@@ -24,7 +24,8 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
   const getActivePage = () => {
     switch (currentPage) {
       case 'home': return 'home';
-      case 'reader': return 'read';
+      case 'reader':
+      case 'book': return 'read';
       case 'meditations': return 'meditations';
       case 'stories': return 'stories';
       default: return 'home';
@@ -51,9 +52,9 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
           <span className="text-xs font-medium">Home</span>
         </motion.button>
 
-        {/* Read Button */}
+        {/* Read Button - routes to book landing page */}
         <motion.button
-          onClick={() => navigate(AppRoute.READER)}
+          onClick={() => navigate('/book')}
           className={`flex flex-col items-center justify-center py-2 px-1 transition-all ${
             activePage === 'read'
               ? 'text-blue-600 dark:text-blue-400'
@@ -66,9 +67,9 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
           <span className="text-xs font-medium">Book</span>
         </motion.button>
 
-        {/* Meditations Navigation */}
+        {/* Meditations Navigation - routes to meditations landing page */}
         <motion.button
-          onClick={() => navigate(AppRoute.MEDITATIONS)}
+          onClick={() => navigate('/meditations-landing')}
           className={`flex flex-col items-center justify-center py-2 px-1 transition-all ${
             activePage === 'meditations'
               ? 'text-blue-600 dark:text-blue-400'
@@ -81,9 +82,9 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
           <span className="text-xs font-medium">Meditations</span>
         </motion.button>
 
-        {/* Stories Navigation */}
+        {/* Stories Navigation - routes to stories landing page */}
         <motion.button
-          onClick={() => navigate(AppRoute.STORIES)}
+          onClick={() => navigate('/stories-landing')}
           className={`flex flex-col items-center justify-center py-2 px-1 transition-all ${
             activePage === 'stories'
               ? 'text-blue-600 dark:text-blue-400'

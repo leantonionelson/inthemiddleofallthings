@@ -7,6 +7,7 @@ import CleanLayout from '../../components/CleanLayout';
 import ReaderNavigation from '../../components/ReaderNavigation';
 import ChapterInfo from '../../components/ChapterInfo';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
+import { useScrollTracking } from '../../hooks/useScrollTracking';
 
 import UnifiedAudioPlayer from '../../components/UnifiedAudioPlayer';
 import TextSelection from '../../components/TextSelection';
@@ -91,14 +92,33 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
     loadChapters();
   }, []);
 
-  // Save chapter index when it changes
+  // Save chapter index when it changes and scroll to top
   useEffect(() => {
     if (chapters.length > 0) {
       localStorage.setItem('currentChapterIndex', currentChapterIndex.toString());
+      
+      // Scroll to top when chapter changes
+      if (contentRef.current) {
+        contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      // Also scroll window to top for good measure
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [currentChapterIndex, chapters.length]);
 
   const currentChapter = chapters[currentChapterIndex] || fallbackChapters[0];
+
+  // Track reading progress for current chapter
+  useScrollTracking({
+    contentId: currentChapter?.id || '',
+    contentType: 'chapter',
+    contentRef: contentRef as React.RefObject<HTMLElement>,
+    enabled: !!currentChapter && !!currentChapter.id,
+    onReadComplete: () => {
+      // Chapter marked as read
+      console.log('Chapter marked as read:', currentChapter?.title);
+    }
+  });
 
   // Load saved highlights and pins from localStorage
   useEffect(() => {

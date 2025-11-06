@@ -233,14 +233,6 @@
       0 1px 3px rgba(255, 255, 255, 0.04);
   }
 
-  .symbol-glow {
-    filter: drop-shadow(0 0 12px rgba(15, 15, 15, 0.15));
-  }
-
-  .dark .symbol-glow {
-    filter: drop-shadow(0 0 12px rgba(250, 250, 250, 0.2));
-  }
-
   .breathing-orb {
     animation: breathing 3s ease-in-out infinite;
     background: radial-gradient(circle, rgba(15, 15, 15, 0.8) 0%, rgba(15, 15, 15, 0.4) 70%, transparent 100%);
@@ -446,4 +438,63 @@
     height: 300px;
     opacity: 0;
   }
+}
+
+/* Slick Carousel Custom Styles - Paper Theme */
+.slick-slider {
+  position: relative;
+}
+
+.slick-list {
+  margin: 0 -8px;
+}
+
+.slick-slide > div {
+  padding: 0 8px;
+}
+
+.slick-dots {
+  bottom: -40px;
+}
+
+.slick-dots li {
+  margin: 0 4px;
+}
+
+.slick-dots li button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+}
+
+.slick-dots li button:before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.2);
+  opacity: 0.3;
+}
+
+.dark .slick-dots li button:before {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.slick-dots li.slick-active button:before {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.dark .slick-dots li.slick-active button:before {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.slick-prev,
+.slick-next {
+  z-index: 1;
+}
+
+.slick-prev:before,
+.slick-next:before {
+  display: none;
 }

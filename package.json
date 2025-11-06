@@ -36,6 +36,8 @@
     "react-dom": "^19.1.0",
     "react-pageflip": "^2.0.3",
     "react-router-dom": "^7.6.2",
+    "react-slick": "^0.31.0",
+    "slick-carousel": "^1.8.1",
     "three": "^0.177.0",
     "vite-plugin-pwa": "^1.0.0",
     "wav": "^1.0.2",

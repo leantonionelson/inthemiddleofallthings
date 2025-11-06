@@ -28,15 +28,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
     setVoicePreference(savedVoicePreference);
   }, []);
 
-  const handleResetSymbol = () => {
-    onSignOut(); // This will clear the symbol and reload
-  };
-
   const clearLocalData = () => {
-    // Clear all app data except the user symbol
-    const keysToRemove = Object.keys(localStorage).filter(key => key !== 'userSymbol' && key !== 'theme');
+    // Clear all app data except theme
+    const keysToRemove = Object.keys(localStorage).filter(key => key !== 'theme');
     keysToRemove.forEach(key => localStorage.removeItem(key));
-    alert('Local data cleared successfully (symbol and theme preserved)');
+    alert('Local data cleared successfully (theme preserved)');
   };
 
   const handleFontSizeChange = (newSize: string) => {
@@ -242,26 +238,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
               <strong>Build:</strong> Development
             </p>
             <p>
-              <strong>Features:</strong> Offline Mode, Symbol Generation, AI Chat
+              <strong>Features:</strong> Offline Mode, AI Chat
             </p>
           </div>
-        </motion.div>
-
-        {/* Reset Symbol */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <button
-            onClick={handleResetSymbol}
-            className="w-full px-6 py-3 bg-accent-ember text-paper-light font-medium rounded-lg hover:opacity-90 transition-opacity"
-          >
-            Generate New Symbol
-          </button>
-          <p className="text-xs text-ink-muted text-center mt-2">
-            This will clear your current symbol and generate a new one
-          </p>
         </motion.div>
 
         {/* Footer */}
