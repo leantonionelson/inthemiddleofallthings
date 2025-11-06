@@ -44,6 +44,7 @@ export default {
         'breathing': 'breathing 3s ease-in-out infinite',
         'fade-in': 'fadeIn 0.5s ease-in',
         'slide-up': 'slideUp 0.3s ease-out',
+        'shimmer-slow': 'shimmer-slow 3s ease-in-out infinite',
       },
       keyframes: {
         breathing: {
@@ -61,6 +62,9 @@ export default {
       },
       backdropBlur: {
         'xs': '2px',
+        'sm': '4px',
+        'md': '8px',
+        'lg': '12px',
       }
     },
   },

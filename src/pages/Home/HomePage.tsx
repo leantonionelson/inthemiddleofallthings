@@ -383,10 +383,12 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
             </button>
           </div>
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex-1 bg-ink-muted/20 dark:bg-paper-light/20 rounded-full h-2">
-              <div
-                className="bg-blue-500 h-2 rounded-full transition-all"
-                style={{ width: `${bookCompletion}%` }}
+            <div className="flex-1 relative bg-ink-muted/10 dark:bg-paper-light/10 rounded-full h-2 overflow-hidden">
+              <motion.div
+                className="relative h-2 rounded-full progress-gradient-subtle"
+                initial={{ width: 0 }}
+                animate={{ width: `${bookCompletion}%` }}
+                transition={{ duration: 1, ease: "easeOut" }}
               />
             </div>
             <span className="text-sm text-ink-secondary dark:text-ink-muted whitespace-nowrap">
@@ -428,10 +430,12 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
             </button>
           </div>
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex-1 bg-ink-muted/20 dark:bg-paper-light/20 rounded-full h-2">
-              <div
-                className="bg-blue-500 h-2 rounded-full transition-all"
-                style={{ width: `${meditationsCompletion}%` }}
+            <div className="flex-1 relative bg-ink-muted/10 dark:bg-paper-light/10 rounded-full h-2 overflow-hidden">
+              <motion.div
+                className="relative h-2 rounded-full progress-gradient-subtle"
+                initial={{ width: 0 }}
+                animate={{ width: `${meditationsCompletion}%` }}
+                transition={{ duration: 1, ease: "easeOut" }}
               />
             </div>
             <span className="text-sm text-ink-secondary dark:text-ink-muted whitespace-nowrap">
@@ -473,10 +477,12 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
             </button>
           </div>
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex-1 bg-ink-muted/20 dark:bg-paper-light/20 rounded-full h-2">
-              <div
-                className="bg-blue-500 h-2 rounded-full transition-all"
-                style={{ width: `${storiesCompletion}%` }}
+            <div className="flex-1 relative bg-ink-muted/10 dark:bg-paper-light/10 rounded-full h-2 overflow-hidden">
+              <motion.div
+                className="relative h-2 rounded-full progress-gradient-subtle"
+                initial={{ width: 0 }}
+                animate={{ width: `${storiesCompletion}%` }}
+                transition={{ duration: 1, ease: "easeOut" }}
               />
             </div>
             <span className="text-sm text-ink-secondary dark:text-ink-muted whitespace-nowrap">
