@@ -40,7 +40,7 @@ const ContentFormatter: React.FC<ContentFormatterProps> = ({
         const sentences = paragraph.split(/(?<=[.!?])\s+/).filter(s => s.trim());
         
         return (
-          <p key={paragraphIndex} className={`mb-6 leading-8 lg:leading-10 text-ink-primary dark:text-paper-light ${
+          <p key={paragraphIndex} className={`mb-6 leading-8 lg:leading-10 text-left text-ink-primary dark:text-paper-light ${
             fontSize === 'sm' ? 'text-sm lg:text-base' : 
             fontSize === 'base' ? 'text-base lg:text-lg' : 
             fontSize === 'lg' ? 'text-lg lg:text-xl' : 

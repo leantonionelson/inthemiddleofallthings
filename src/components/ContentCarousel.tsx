@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { BookChapter, Meditation, Story } from '../types';
 import CarouselCard from './CarouselCard';
 import CarouselCardSkeleton from './CarouselCardSkeleton';
@@ -84,14 +85,14 @@ const ContentCarousel: React.FC<ContentCarouselProps> = ({
   return (
     <div 
       ref={carouselRef}
-      className="w-full overflow-x-auto scrollbar-hide -mx-6 scroll-smooth"
+      className="w-screen overflow-x-auto scrollbar-hide -ml-6 lg:-ml-10 scroll-smooth"
     >
-      <div className="flex gap-2 px-6 py-4 pb-6" style={{ width: 'max-content' }}>
+      <div className="flex gap-2 pl-6 lg:pl-10 pr-6 lg:pr-10 py-4 pb-6" style={{ width: 'max-content' }}>
         {showInitialSkeletons ? (
           // Show skeletons while initial content is loading
           <>
             {[...Array(6)].map((_, i) => (
-              <div key={`skeleton-${i}`} className="flex-shrink-0 w-[200px]">
+              <div key={`skeleton-${i}`} className="flex-shrink-0 w-[210px]">
                 <CarouselCardSkeleton />
               </div>
             ))}
@@ -112,7 +113,25 @@ const ContentCarousel: React.FC<ContentCarouselProps> = ({
               }
 
               return (
-                <div key={item.id} className="flex-shrink-0 w-[200px]">
+                <motion.div 
+                  key={item.id} 
+                  className="flex-shrink-0 w-[210px]"
+                  initial={{ 
+                    opacity: 0,
+                    x: 20,
+                    scale: 0.95
+                  }}
+                  animate={{ 
+                    opacity: 1,
+                    x: 0,
+                    scale: 1
+                  }}
+                  transition={{
+                    duration: 0.4,
+                    delay: index * 0.05,
+                    ease: "easeOut"
+                  }}
+                >
                   <CarouselCard
                     title={item.title}
                     subtitle={subtitle}
@@ -120,14 +139,14 @@ const ContentCarousel: React.FC<ContentCarouselProps> = ({
                     onClick={() => onItemClick(item, index)}
                     contentType={contentType}
                   />
-                </div>
+                </motion.div>
               );
             })}
             {/* Show skeletons at the end while loading more */}
             {showLoadingSkeletons && (
               <>
                 {[...Array(3)].map((_, i) => (
-                  <div key={`skeleton-loading-${i}`} className="flex-shrink-0 w-[200px]">
+                  <div key={`skeleton-loading-${i}`} className="flex-shrink-0 w-[210px]">
                     <CarouselCardSkeleton />
                   </div>
                 ))}

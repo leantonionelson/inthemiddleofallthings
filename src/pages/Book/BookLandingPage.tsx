@@ -7,16 +7,22 @@ import { readingProgressService } from '../../services/readingProgressService';
 import { contentCache } from '../../services/contentCache';
 import CleanLayout from '../../components/CleanLayout';
 import ContentCarousel from '../../components/ContentCarousel';
-import { BookOpen } from 'lucide-react';
+import BookIntroDrawer from '../../components/BookIntroDrawer';
+import { BookOpen, Info } from 'lucide-react';
 
 interface BookLandingPageProps {
   onOpenAI: () => void;
 }
 
+// Full part order (for index lookup)
+const FULL_PART_ORDER = ['Introduction', 'Part I: The Axis of Becoming', 'Part II: The Spiral Path', 'Part III: The Living Axis', 'Part IV: The Horizon Beyond'];
+
 const BookLandingPage: React.FC<BookLandingPageProps> = ({ onOpenAI }) => {
   const [chapters, setChapters] = useState<BookChapter[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [progressUpdateTrigger, setProgressUpdateTrigger] = useState(0);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedPartIndex, setSelectedPartIndex] = useState(0);
   const navigate = useNavigate();
 
   // Listen for storage changes to update completion percentage
@@ -85,12 +91,11 @@ const BookLandingPage: React.FC<BookLandingPageProps> = ({ onOpenAI }) => {
 
   // Get ordered list of parts
   const partOrder = useMemo(() => {
-    const order = ['Introduction', 'Part I: The Axis of Becoming', 'Part II: The Spiral Path', 'Part III: The Living Axis', 'Part IV: The Horizon Beyond'];
-    return order.filter(part => chaptersByPart[part] && chaptersByPart[part].length > 0);
+    return FULL_PART_ORDER.filter(part => chaptersByPart[part] && chaptersByPart[part].length > 0);
   }, [chaptersByPart]);
 
   const handleChapterClick = (item: BookChapter | Meditation | Story, _index: number) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    void _index; // Index provided by ContentCarousel but not used here
     // Type guard: ensure this is a BookChapter
     if (!('chapterNumber' in item)) {
       return; // Not a chapter, ignore
@@ -102,6 +107,11 @@ const BookLandingPage: React.FC<BookLandingPageProps> = ({ onOpenAI }) => {
     navigate(AppRoute.READER);
   };
 
+  const handleNavigateToChapter = (chapterIndex: number) => {
+    localStorage.setItem('currentChapterIndex', chapterIndex.toString());
+    navigate(AppRoute.READER);
+  };
+
   if (isLoading) {
     return (
       <CleanLayout
@@ -110,7 +120,7 @@ const BookLandingPage: React.FC<BookLandingPageProps> = ({ onOpenAI }) => {
         isReading={false}
         onOpenAI={onOpenAI}
       >
-        <div className="min-h-screen bg-paper-light dark:bg-paper-dark paper-texture flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center relative z-10">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
             <p className="text-ink-secondary dark:text-ink-muted">Loading book content...</p>
@@ -188,9 +198,23 @@ const BookLandingPage: React.FC<BookLandingPageProps> = ({ onOpenAI }) => {
                     {part}
                   </h2>
                   {description && (
-                    <p className="text-sm lg:text-base text-ink-secondary dark:text-ink-muted italic max-w-3xl leading-relaxed">
-                      {description}
-                    </p>
+                    <div className="flex items-start gap-3">
+                      <p className="text-sm lg:text-base text-ink-secondary dark:text-ink-muted italic max-w-3xl leading-relaxed flex-1">
+                        {description}
+                      </p>
+                      {/* Info Button for Part Description */}
+                      <button
+                        onClick={() => {
+                          const partIndex = FULL_PART_ORDER.indexOf(part);
+                          setSelectedPartIndex(partIndex);
+                          setIsDrawerOpen(true);
+                        }}
+                        className="p-2 rounded-full bg-ink-muted/10 dark:bg-paper-light/10 border border-ink-muted/20 dark:border-paper-light/20 hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 transition-colors flex-shrink-0"
+                        aria-label={`View ${part} description`}
+                      >
+                        <Info className="w-5 h-5 text-ink-primary dark:text-paper-light" />
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -206,6 +230,15 @@ const BookLandingPage: React.FC<BookLandingPageProps> = ({ onOpenAI }) => {
           })}
         </div>
       </div>
+
+      {/* Book Intro Drawer */}
+      <BookIntroDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        chapters={chapters}
+        onNavigate={handleNavigateToChapter}
+        initialPartIndex={selectedPartIndex}
+      />
     </CleanLayout>
   );
 };

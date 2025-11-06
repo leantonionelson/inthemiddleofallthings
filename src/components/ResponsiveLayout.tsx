@@ -30,14 +30,29 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   });
 
   return (
-    <div className="min-h-screen bg-paper-light dark:bg-paper-dark">
+    <div className="min-h-screen bg-paper-light dark:bg-slate-950/75 relative">
+      {/* Background Video */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-70 dark:opacity-100"
+        >
+          <source src="/media/bg.mp4" type="video/mp4" />
+        </video>
+        {/* Dark overlay for better content readability */}
+        <div className="absolute inset-0 bg-paper-light/50 dark:bg-slate-950/75"></div>
+      </div>
+
       {/* Desktop Navigation - Hidden on mobile */}
-      <div className="hidden lg:block">
+      <div className="hidden lg:block relative z-10">
         <DesktopNavigation onOpenAI={onOpenAI} />
       </div>
 
       {/* Main Content */}
-      <main className={`${
+      <main className={`relative z-10 ${
         // Add top padding for desktop nav, none for mobile
         'lg:pt-20'
       } ${
@@ -48,7 +63,7 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
       </main>
 
       {/* Mobile Navigation - Hidden on desktop */}
-      <div className="lg:hidden">
+      <div className="lg:hidden relative z-50">
         <div 
           className="fixed bottom-0 left-0 right-0 z-50"
           style={isReading ? {

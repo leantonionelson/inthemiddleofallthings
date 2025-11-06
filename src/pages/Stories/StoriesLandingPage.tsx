@@ -166,7 +166,7 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({ onOpenAI }) => 
         isReading={false}
         onOpenAI={onOpenAI}
       >
-        <div className="min-h-screen bg-paper-light dark:bg-paper-dark paper-texture flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center relative z-10">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
             <p className="text-ink-secondary dark:text-ink-muted">Loading stories...</p>
@@ -184,7 +184,7 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({ onOpenAI }) => 
       onOpenAI={onOpenAI}
     >
       {/* Search Bar */}
-      <div className="fixed top-0 left-0 right-0 z-[70] bg-paper-light/95 dark:bg-paper-dark/95 backdrop-blur-md border-b border-ink-muted/10 dark:border-paper-light/10 lg:relative lg:bg-transparent lg:border-b-0 lg:backdrop-blur-none">
+      <div className="fixed top-0 left-0 right-0 z-[70] backdrop-blur-md lg:relative lg:backdrop-blur-md">
         <div className="max-w-2xl lg:max-w-4xl mx-auto px-6 py-4 lg:pt-6">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-ink-secondary dark:text-ink-muted" />
@@ -199,7 +199,7 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({ onOpenAI }) => 
                   setIsSearchFocused(false);
                 }
               }}
-              className="w-full pl-12 pr-12 py-3 bg-paper-light dark:bg-paper-dark border border-ink-muted/20 dark:border-paper-light/20 rounded-xl text-ink-primary dark:text-paper-light placeholder-ink-secondary dark:placeholder-ink-muted focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all"
+              className="w-full pl-12 pr-12 py-3 glass-subtle rounded-xl text-ink-primary dark:text-paper-light placeholder-ink-secondary dark:placeholder-ink-muted focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all"
             />
             {(isSearchFocused || searchQuery.trim()) && (
               <button
@@ -220,15 +220,30 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({ onOpenAI }) => 
       {/* Full Screen Search Overlay */}
       {(isSearchFocused || searchQuery.trim()) && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop with Video Background */}
           <div 
-            className="fixed inset-0 bg-paper-light/95 dark:bg-paper-dark/95 backdrop-blur-lg z-[60]"
+            className="fixed inset-0 z-[60]"
             onClick={() => {
               setSearchQuery('');
               setIsSearchFocused(false);
               setSelectedTags([]);
             }}
-          />
+          >
+            {/* Background Video */}
+            <div className="absolute inset-0 overflow-hidden">
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover opacity-70 dark:opacity-100"
+              >
+                <source src="/media/bg.mp4" type="video/mp4" />
+              </video>
+              {/* Dark overlay for better content readability */}
+              <div className="absolute inset-0 bg-paper-light/50 dark:bg-slate-950/75"></div>
+            </div>
+          </div>
           
           {/* Search Results Full Screen */}
           <div data-search-overlay className="fixed top-20 left-0 right-0 bottom-0 z-[60] overflow-hidden lg:absolute lg:top-full lg:mt-2">

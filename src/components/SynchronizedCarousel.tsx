@@ -109,13 +109,13 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
       {/* Row 1 */}
       <div 
         ref={row1Ref}
-        className="w-full overflow-x-auto scrollbar-hide -mx-6"
+        className="w-screen overflow-x-auto scrollbar-hide -ml-6 lg:-ml-10"
         onScroll={handleRow1Scroll}
       >
-        <div className="flex gap-2 px-6 py-2" style={{ width: 'max-content' }}>
+        <div className="flex gap-2 pl-6 lg:pl-10 pr-6 lg:pr-10 py-2" style={{ width: 'max-content' }}>
           {isLoading && row1Items.length === 0 ? (
             [...Array(6)].map((_, i) => (
-              <div key={`skeleton-row1-${i}`} className="flex-shrink-0 w-[200px]">
+              <div key={`skeleton-row1-${i}`} className="flex-shrink-0 w-[210px]">
                 <CarouselCardSkeleton />
               </div>
             ))
@@ -126,7 +126,7 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
               const subtitle = item.tags?.slice(0, 2).join(', ') || undefined;
 
               return (
-                <div key={item.id} className="flex-shrink-0 w-[200px]">
+                <div key={item.id} className="flex-shrink-0 w-[210px]">
                   <CarouselCard
                     title={item.title}
                     subtitle={subtitle}
@@ -144,13 +144,13 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
       {/* Row 2 */}
       <div 
         ref={row2Ref}
-        className="w-full overflow-x-auto scrollbar-hide -mx-6"
+        className="w-screen overflow-x-auto scrollbar-hide -ml-6 lg:-ml-10"
         onScroll={handleRow2Scroll}
       >
-        <div className="flex gap-2 px-6 py-2" style={{ width: 'max-content' }}>
+        <div className="flex gap-2 pl-6 lg:pl-10 pr-6 lg:pr-10 py-2" style={{ width: 'max-content' }}>
           {isLoading && row2Items.length === 0 ? (
             [...Array(6)].map((_, i) => (
-              <div key={`skeleton-row2-${i}`} className="flex-shrink-0 w-[200px]">
+              <div key={`skeleton-row2-${i}`} className="flex-shrink-0 w-[210px]">
                 <CarouselCardSkeleton />
               </div>
             ))
@@ -161,7 +161,7 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
               const subtitle = item.tags?.slice(0, 2).join(', ') || undefined;
 
               return (
-                <div key={item.id} className="flex-shrink-0 w-[200px]">
+                <div key={item.id} className="flex-shrink-0 w-[210px]">
                   <CarouselCard
                     title={item.title}
                     subtitle={subtitle}
@@ -179,13 +179,13 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
       {/* Row 3 */}
       <div 
         ref={row3Ref}
-        className="w-full overflow-x-auto scrollbar-hide -mx-6"
+        className="w-screen overflow-x-auto scrollbar-hide -ml-6 lg:-ml-10"
         onScroll={handleRow3Scroll}
       >
-        <div className="flex gap-2 px-6 py-2" style={{ width: 'max-content' }}>
+        <div className="flex gap-2 pl-6 lg:pl-10 pr-6 lg:pr-10 py-2" style={{ width: 'max-content' }}>
           {isLoading && row3Items.length === 0 ? (
             [...Array(6)].map((_, i) => (
-              <div key={`skeleton-row3-${i}`} className="flex-shrink-0 w-[200px]">
+              <div key={`skeleton-row3-${i}`} className="flex-shrink-0 w-[210px]">
                 <CarouselCardSkeleton />
               </div>
             ))
@@ -196,7 +196,7 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
               const subtitle = item.tags?.slice(0, 2).join(', ') || undefined;
 
               return (
-                <div key={item.id} className="flex-shrink-0 w-[200px]">
+                <div key={item.id} className="flex-shrink-0 w-[210px]">
                   <CarouselCard
                     title={item.title}
                     subtitle={subtitle}

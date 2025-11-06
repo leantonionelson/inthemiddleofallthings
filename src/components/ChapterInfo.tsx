@@ -10,7 +10,7 @@ const ChapterInfo: React.FC<ChapterInfoProps> = ({
   totalChapters
 }) => {
   return (
-    <div className="bg-paper-light dark:bg-paper-dark border-b border-gray-200 dark:border-gray-700 shadow-sm">
+    <div className="backdrop-blur-md">
       <div className="flex items-center justify-center py-3 px-4">
         <div className="text-center">
           <div className="text-sm font-medium text-gray-700 dark:text-gray-300">

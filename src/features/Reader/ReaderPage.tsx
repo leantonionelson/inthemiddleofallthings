@@ -348,12 +348,20 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
   // Show loading state while chapters are being loaded
   if (chapters.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 text-gray-900 font-serif flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading chapter...</p>
+      <CleanLayout
+        currentPage="reader"
+        onRead={() => navigate(AppRoute.HOME)}
+        isReading={true}
+        onOpenAI={onOpenAI}
+        isAudioPlaying={isAudioPlaying}
+      >
+        <div className="min-h-screen flex items-center justify-center relative z-10">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
+            <p className="text-ink-secondary dark:text-ink-muted">Loading chapter...</p>
+          </div>
         </div>
-      </div>
+      </CleanLayout>
     );
   }
 
@@ -483,7 +491,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
               </div>
             </div>
 
-            <h2 className={`font-bold text-ink-primary dark:text-paper-light mb-4 leading-tight ${
+            <h2 className={`font-bold text-left text-ink-primary dark:text-paper-light mb-4 leading-tight ${
               fontSize === 'sm' ? 'text-2xl lg:text-3xl' : 
               fontSize === 'base' ? 'text-2xl lg:text-3xl' : 
               fontSize === 'lg' ? 'text-3xl lg:text-4xl' : 
@@ -492,7 +500,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
               {currentChapter.title}
             </h2>
             {currentChapter.subtitle && (
-              <p className={`text-ink-secondary dark:text-ink-muted mb-6 leading-relaxed ${
+              <p className={`text-left text-ink-secondary dark:text-ink-muted mb-6 leading-relaxed ${
                 fontSize === 'sm' ? 'text-lg lg:text-xl' : 
                 fontSize === 'base' ? 'text-lg lg:text-xl' : 
                 fontSize === 'lg' ? 'text-xl lg:text-2xl' : 
