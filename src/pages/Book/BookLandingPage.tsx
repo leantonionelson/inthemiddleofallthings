@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { AppRoute, BookChapter, Meditation, Story } from '../../types';
 import { loadBookChapters, fallbackChapters, partDescriptions } from '../../data/bookContent';
 import { readingProgressService } from '../../services/readingProgressService';
+import { contentCache } from '../../services/contentCache';
 import CleanLayout from '../../components/CleanLayout';
 import ContentCarousel from '../../components/ContentCarousel';
 import { BookOpen } from 'lucide-react';
@@ -44,8 +45,13 @@ const BookLandingPage: React.FC<BookLandingPageProps> = ({ onOpenAI }) => {
   useEffect(() => {
     const loadChapters = async () => {
       try {
-        setIsLoading(true);
-        const loadedChapters = await loadBookChapters();
+        // Check if already cached - if so, skip loading state
+        const isCached = contentCache.hasChapters();
+        if (!isCached) {
+          setIsLoading(true);
+        }
+        
+        const loadedChapters = await contentCache.getChapters(loadBookChapters);
         setChapters(loadedChapters);
       } catch (error) {
         console.error('Error loading chapters:', error);

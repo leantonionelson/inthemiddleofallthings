@@ -6,6 +6,7 @@ import { loadBookChapters, fallbackChapters } from '../../data/bookContent';
 import { loadMeditations } from '../../data/meditationContent';
 import { loadStories } from '../../data/storiesContent';
 import { readingProgressService } from '../../services/readingProgressService';
+import { contentCache } from '../../services/contentCache';
 import CleanLayout from '../../components/CleanLayout';
 import StandardHeader from '../../components/StandardHeader';
 import ContentCarousel from '../../components/ContentCarousel';
@@ -69,13 +70,19 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
   }, []);
 
   // Load chapters progressively - load first batch immediately, rest in background
+  // Uses cache to avoid reloading if already loaded
   useEffect(() => {
     let cancelled = false;
     
     const loadChapters = async () => {
       try {
-        setIsLoadingChapters(true);
-        const allChapters = await loadBookChapters();
+        // Check if already cached - if so, skip loading state
+        const isCached = contentCache.hasChapters();
+        if (!isCached) {
+          setIsLoadingChapters(true);
+        }
+        
+        const allChapters = await contentCache.getChapters(loadBookChapters);
         
         if (cancelled) return;
         
@@ -112,13 +119,19 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
   }, []);
 
   // Load meditations progressively - delay to prioritize chapters
+  // Uses cache to avoid reloading if already loaded
   useEffect(() => {
     let cancelled = false;
     
     const loadMeditationsContent = async () => {
       try {
-        setIsLoadingMeditations(true);
-        const allMeditations = await loadMeditations();
+        // Check if already cached - if so, skip loading state
+        const isCached = contentCache.hasMeditations();
+        if (!isCached) {
+          setIsLoadingMeditations(true);
+        }
+        
+        const allMeditations = await contentCache.getMeditations(loadMeditations);
         
         if (cancelled) return;
         
@@ -148,8 +161,9 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
       }
     };
     
-    // Delay meditations loading to prioritize chapters
-    const timer = setTimeout(loadMeditationsContent, 500);
+    // Delay meditations loading to prioritize chapters (only if not cached)
+    const delay = contentCache.hasMeditations() ? 0 : 500;
+    const timer = setTimeout(loadMeditationsContent, delay);
     return () => {
       cancelled = true;
       clearTimeout(timer);
@@ -157,13 +171,19 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
   }, []);
 
   // Load stories progressively - delay further to prioritize other content
+  // Uses cache to avoid reloading if already loaded
   useEffect(() => {
     let cancelled = false;
     
     const loadStoriesContent = async () => {
       try {
-        setIsLoadingStories(true);
-        const allStories = await loadStories();
+        // Check if already cached - if so, skip loading state
+        const isCached = contentCache.hasStories();
+        if (!isCached) {
+          setIsLoadingStories(true);
+        }
+        
+        const allStories = await contentCache.getStories(loadStories);
         
         if (cancelled) return;
         
@@ -193,8 +213,9 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
       }
     };
     
-    // Delay stories loading further
-    const timer = setTimeout(loadStoriesContent, 1000);
+    // Delay stories loading further (only if not cached)
+    const delay = contentCache.hasStories() ? 0 : 1000;
+    const timer = setTimeout(loadStoriesContent, delay);
     return () => {
       cancelled = true;
       clearTimeout(timer);

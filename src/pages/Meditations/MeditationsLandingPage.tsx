@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { AppRoute, Meditation } from '../../types';
 import { loadMeditations, fallbackMeditations } from '../../data/meditationContent';
 import { readingProgressService } from '../../services/readingProgressService';
+import { contentCache } from '../../services/contentCache';
 import CleanLayout from '../../components/CleanLayout';
 import SynchronizedCarousel from '../../components/SynchronizedCarousel';
 import { Search, X, ChevronRight, Heart, Leaf, Star, Moon, Sun, Waves, Mountain, Compass, Flower2, CheckCircle2, Scale } from 'lucide-react';
@@ -49,7 +50,13 @@ const MeditationsLandingPage: React.FC<MeditationsLandingPageProps> = ({ onOpenA
   useEffect(() => {
     const loadMeditationList = async () => {
       try {
-        const loadedMeditations = await loadMeditations();
+        // Check if already cached - if so, skip loading state
+        const isCached = contentCache.hasMeditations();
+        if (!isCached) {
+          setIsLoading(true);
+        }
+        
+        const loadedMeditations = await contentCache.getMeditations(loadMeditations);
         setMeditations(loadedMeditations);
         setFilteredMeditations(loadedMeditations);
       } catch (error) {

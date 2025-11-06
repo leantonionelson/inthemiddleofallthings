@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { AppRoute, Story, BookChapter, Meditation } from '../../types';
 import { loadStories, fallbackStories } from '../../data/storiesContent';
 import { readingProgressService } from '../../services/readingProgressService';
+import { contentCache } from '../../services/contentCache';
 import CleanLayout from '../../components/CleanLayout';
 import ContentCarousel from '../../components/ContentCarousel';
 import { Search, X, ChevronRight, BookOpen, Scroll, Feather, Eye, Brain, Globe, Clock, Sparkles, Zap, CheckCircle2 } from 'lucide-react';
@@ -49,7 +50,13 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({ onOpenAI }) => 
   useEffect(() => {
     const loadStoryList = async () => {
       try {
-        const loadedStories = await loadStories();
+        // Check if already cached - if so, skip loading state
+        const isCached = contentCache.hasStories();
+        if (!isCached) {
+          setIsLoading(true);
+        }
+        
+        const loadedStories = await contentCache.getStories(loadStories);
         setStories(loadedStories);
         setFilteredStories(loadedStories);
       } catch (error) {
