@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useFitText } from 'react-use-fittext';
 import { AppRoute } from '../../types';
 import { loadBookChapters } from '../../data/bookContent';
 import { loadMeditations } from '../../data/meditationContent';
-import { loadStories } from '../../data/storiesContent';
-import { contentCache } from '../../services/contentCache';
+import { progressiveLoader } from '../../services/progressiveLoader';
 import { generateQuoteCards, QuoteCard } from '../../utils/quoteExtractor';
 import { downloadCardAsImage } from '../../utils/cardDownloader';
 import CleanLayout from '../../components/CleanLayout';
 import StandardHeader from '../../components/StandardHeader';
-import { Download, BookOpen, Scale, Scroll, Loader } from 'lucide-react';
+import QuoteCardSkeleton from '../../components/QuoteCardSkeleton';
+import { Download, BookOpen, Scale } from 'lucide-react';
 
 interface HomePageProps {
   onOpenAI: () => void;
@@ -27,6 +28,28 @@ const QuoteCardComponent: React.FC<{
   const rotate = useTransform(x, [-200, 200], [-25, 25]);
   const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0]);
 
+  // Use FitText to make quote text responsive to container
+  const { fontSize, containerRef, textRef } = useFitText({
+    maxFontSize: 25, // Reasonable max for readability and aesthetics
+    minFontSize: 14,
+    resolution: 1,
+    fitMode: 'both',
+    lineMode: 'multi',
+    debounceDelay: 50,
+  });
+
+  // Trigger recalculation when card changes
+  useEffect(() => {
+    // Force a small delay to ensure DOM is updated before recalculation
+    const timer = setTimeout(() => {
+      if (containerRef.current && textRef.current) {
+        // Trigger a resize event to force recalculation
+        window.dispatchEvent(new Event('resize'));
+      }
+    }, 10);
+    return () => clearTimeout(timer);
+  }, [card.quote, containerRef, textRef]);
+
   const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (Math.abs(info.offset.x) > SWIPE_THRESHOLD) {
       onSwipe();
@@ -39,8 +62,8 @@ const QuoteCardComponent: React.FC<{
         return <BookOpen className="w-4 h-4" />;
       case 'meditation':
         return <Scale className="w-4 h-4" />;
-      case 'story':
-        return <Scroll className="w-4 h-4" />;
+      default:
+        return <BookOpen className="w-4 h-4" />;
     }
   };
 
@@ -48,7 +71,7 @@ const QuoteCardComponent: React.FC<{
     if (card.source.type === 'book') {
       return `${card.source.part} • ${card.source.chapter}`;
     }
-    return card.source.type === 'meditation' ? 'Meditation' : 'Story';
+    return 'Meditation';
   };
 
   return (
@@ -58,22 +81,25 @@ const QuoteCardComponent: React.FC<{
         x,
         rotate,
         opacity,
-        ...style
+        ...style,
+        touchAction: 'none'
       }}
       drag="x"
       dragConstraints={{ left: 0, right: 0 }}
       onDragEnd={handleDragEnd}
       whileTap={{ cursor: 'grabbing' }}
+      dragElastic={0.2}
+      dragMomentum={false}
     >
       <div
-        className="w-full h-full rounded-3xl shadow-2xl overflow-hidden flex flex-col relative"
+        className="w-full h-full rounded-3xl shadow-2xl overflow-hidden flex flex-col relative select-none pointer-events-none"
         style={{ background: card.gradient }}
       >
         {/* Artistic background elements */}
         <div className="absolute inset-0 opacity-10 pointer-events-none">
           {/* Subtle noise texture */}
           <div className="absolute inset-0" style={{ 
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulance type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
             backgroundSize: '200px 200px'
           }} />
         </div>
@@ -91,33 +117,44 @@ const QuoteCardComponent: React.FC<{
         }} />
         
         {/* Card Content - Fixed height structure */}
-        <div className="flex-1 flex flex-col justify-between items-center p-8 md:p-12 min-h-0 relative z-10">
+        <div className="flex-1 flex flex-col justify-between items-center p-6 sm:p-8 md:p-10 min-h-0 relative z-10 pointer-events-none">
           {/* Source Icon & Type - Fixed height */}
-          <div className="flex items-center gap-2 text-white/80 text-sm flex-shrink-0 min-h-[24px]" style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)' }}>
+          <div className="flex items-center gap-2 text-white/80 text-xs sm:text-sm flex-shrink-0 min-h-[20px] pointer-events-none" style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)' }}>
             {getSourceIcon()}
             <span className="uppercase tracking-wider">{card.source.type}</span>
           </div>
 
-          {/* Quote - Scrollable area with fixed constraints */}
-          <div className="flex-1 flex items-center justify-center w-full my-6 overflow-y-auto scrollbar-hide">
-            <blockquote className="text-white text-xl md:text-2xl lg:text-3xl font-serif text-center leading-relaxed max-w-2xl whitespace-pre-line" style={{ textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)' }}>
+          {/* Quote - Responsive font size using react-use-fittext */}
+          <div 
+            ref={containerRef as React.RefObject<HTMLDivElement>}
+            className="flex-1 flex items-center justify-center w-full my-4 sm:my-6 px-4 overflow-hidden pointer-events-none"
+          >
+            <blockquote 
+              ref={textRef as React.RefObject<HTMLQuoteElement>}
+              className="text-white font-serif text-center leading-relaxed max-w-2xl whitespace-pre-line pointer-events-none w-full" 
+              style={{ 
+                fontSize: `${fontSize}px`,
+                textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                lineHeight: '1.4'
+              }}
+            >
               {card.quote}
             </blockquote>
           </div>
 
           {/* Source Info - Fixed height with consistent spacing */}
-          <div className="text-center text-white/90 flex-shrink-0 flex flex-col justify-center" style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)' }}>
-            <h3 className="text-lg md:text-xl font-semibold mb-1 line-clamp-2">{card.source.title}</h3>
+          <div className="text-center text-white/90 flex-shrink-0 flex flex-col justify-center pointer-events-none" style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)' }}>
+            <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-1 line-clamp-2">{card.source.title}</h3>
             {card.source.subtitle && (
-              <p className="text-sm md:text-base text-white/70 mb-2 line-clamp-1">{card.source.subtitle}</p>
+              <p className="text-xs sm:text-sm md:text-base text-white/70 mb-2 line-clamp-1">{card.source.subtitle}</p>
             )}
-            <p className="text-xs md:text-sm text-white/60">{getSourceLabel()}</p>
+            <p className="text-xs sm:text-xs md:text-sm text-white/60">{getSourceLabel()}</p>
           </div>
         </div>
 
         {/* Watermark - Fixed height */}
-        <div className="py-4 text-center flex-shrink-0 min-h-[52px] flex items-center justify-center">
-          <p className="text-white/50 text-sm" style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)' }}>@middleofallthings</p>
+        <div className="py-3 sm:py-4 text-center flex-shrink-0 min-h-[44px] flex items-center justify-center pointer-events-none">
+          <p className="text-white/50 text-xs sm:text-sm" style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)' }}>@middleofallthings</p>
         </div>
       </div>
     </motion.div>
@@ -127,36 +164,60 @@ const QuoteCardComponent: React.FC<{
 const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
   const [cards, setCards] = useState<QuoteCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Load all content and generate quote cards
+  // Load content progressively in background - seamless UX with skeleton
   useEffect(() => {
     let cancelled = false;
+    let unsubscribe: (() => void) | undefined;
 
     const loadContent = async () => {
       try {
-        const [chapters, meditations, stories] = await Promise.all([
-          contentCache.getChapters(loadBookChapters),
-          contentCache.getMeditations(loadMeditations),
-          contentCache.getStories(loadStories)
-        ]);
+        // Subscribe to progress updates - only update when loading is complete
+        unsubscribe = progressiveLoader.onProgress((progress) => {
+          if (cancelled) return;
+          
+          // Only update cards once all content is fully loaded to avoid flurry
+          if (progress.isComplete) {
+            const loadedContent = progressiveLoader.getLoadedContent();
+            
+            // Regenerate quote cards with ALL loaded content (chapters and meditations only)
+            const allCards = generateQuoteCards(
+              loadedContent.chapters,
+              loadedContent.meditations,
+              [] // Empty array for stories - they need more context
+            );
+            setCards(allCards);
+          }
+        });
+
+        // Load initial batch quickly (just 5 chapters and 5 meditations)
+        const initialContent = await progressiveLoader.loadInitialContent(
+          loadBookChapters,
+          loadMeditations,
+          async () => [] // Don't load stories
+        );
 
         if (cancelled) return;
 
-        // Generate quote cards from all content
-        const quoteCards = generateQuoteCards(chapters, meditations, stories);
-        setCards(quoteCards);
-        setIsLoading(false);
+        // Generate quote cards from initial batch (chapters and meditations only)
+        const initialCards = generateQuoteCards(
+          initialContent.chapters,
+          initialContent.meditations,
+          [] // Empty array for stories
+        );
+        setCards(initialCards);
+        
+        // Background loading continues silently...
       } catch (error) {
         console.error('Error loading content:', error);
-        setIsLoading(false);
       }
     };
 
     loadContent();
     return () => {
       cancelled = true;
+      unsubscribe?.();
     };
   }, []);
 
@@ -174,7 +235,7 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
     const card = cards[currentIndex];
     if (!card) return;
 
-    // Navigate to appropriate section
+    // Navigate to appropriate section (book or meditation)
     switch (card.source.type) {
       case 'book':
         navigate(AppRoute.READER);
@@ -182,32 +243,15 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
       case 'meditation':
         navigate(AppRoute.MEDITATIONS);
         break;
-      case 'story':
-        navigate(AppRoute.STORIES);
+      default:
+        navigate(AppRoute.READER);
         break;
     }
   };
 
   const currentCard = cards[currentIndex];
   const nextCard = cards[currentIndex + 1];
-
-  if (isLoading) {
-    return (
-      <CleanLayout
-        currentPage="home"
-        onRead={() => navigate(AppRoute.READER)}
-        isReading={false}
-        onOpenAI={onOpenAI}
-      >
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <Loader className="w-12 h-12 animate-spin text-ink-primary dark:text-paper-light mx-auto mb-4" />
-            <p className="text-ink-secondary dark:text-ink-muted">Loading quotes...</p>
-          </div>
-        </div>
-      </CleanLayout>
-    );
-  }
+  const hasCards = cards.length > 0;
 
   return (
     <CleanLayout
@@ -216,29 +260,21 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
       isReading={false}
       onOpenAI={onOpenAI}
     >
-      <StandardHeader title="In the Middle of All Things" showSettingsButton={true} />
+      {/* Fixed viewport layout - accounts for mobile nav (80px) and desktop nav (80px) */}
+      <div className="fixed inset-0 lg:top-20 pb-20 lg:pb-0 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="flex-shrink-0">
+          <StandardHeader title="In the Middle of All Things" showSettingsButton={true} />
+        </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center p-4 md:p-8 pt-10 pb-10">
-        {/* Card Stack - Fixed dimensions for consistent height */}
-        <div className="relative w-full max-w-2xl h-[600px] md:h-[700px] lg:h-[800px] mb-8">
-          {currentIndex >= cards.length ? (
-            <div className="flex items-center justify-center h-full text-center">
-              <div>
-                <h2 className="text-2xl font-serif text-ink-primary dark:text-paper-light mb-4">
-                  You've seen all quotes!
-                </h2>
-                <button
-                  onClick={() => setCurrentIndex(0)}
-                  className="px-6 py-3 bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary rounded-full hover:opacity-90 transition-opacity font-medium"
-                >
-                  Start Over
-                </button>
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* Next card (underneath) */}
-              {nextCard && (
+        {/* Main content area - takes remaining space */}
+        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 min-h-0">
+          {/* Card Stack - Responsive to container height */}
+          <div className="relative w-full max-w-2xl flex-1 max-h-full mb-8 sm:mb-6">
+            {!hasCards ? (
+              /* Show skeleton while content loads */
+              <>
+                {/* Next card skeleton (underneath) */}
                 <div
                   className="absolute inset-0"
                   style={{
@@ -247,59 +283,89 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
                     zIndex: 0
                   }}
                 >
+                  <QuoteCardSkeleton />
+                </div>
+
+                {/* Current card skeleton */}
+                <div className="absolute inset-0" style={{ zIndex: 1 }}>
+                  <QuoteCardSkeleton />
+                </div>
+              </>
+            ) : currentIndex >= cards.length ? (
+              <div className="flex items-center justify-center h-full text-center">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-serif text-ink-primary dark:text-paper-light mb-4">
+                    You've seen all quotes!
+                  </h2>
+                  <button
+                    onClick={() => setCurrentIndex(0)}
+                    className="px-6 py-3 bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary rounded-full hover:opacity-90 transition-opacity font-medium"
+                  >
+                    Start Over
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Next card (underneath) */}
+                {nextCard && (
                   <div
-                    className="w-full h-full rounded-3xl shadow-xl"
-                    style={{ background: nextCard.gradient }}
+                    className="absolute inset-0"
+                    style={{
+                      transform: 'scale(0.95) translateY(20px)',
+                      opacity: 0.5,
+                      zIndex: 0
+                    }}
+                  >
+                    <div
+                      className="w-full h-full rounded-3xl shadow-xl"
+                      style={{ background: nextCard.gradient }}
+                    />
+                  </div>
+                )}
+
+                {/* Current card */}
+                <div className="absolute inset-0" style={{ zIndex: 1 }}>
+                  <QuoteCardComponent
+                    key={currentCard.id}
+                    card={currentCard}
+                    style={{}}
+                    onSwipe={handleSwipe}
                   />
                 </div>
-              )}
-
-              {/* Current card */}
-              <div className="absolute inset-0" style={{ zIndex: 1 }}>
-                <QuoteCardComponent
-                  card={currentCard}
-                  style={{}}
-                  onSwipe={handleSwipe}
-                />
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Action Buttons */}
-        {currentIndex < cards.length && (
-          <div className="flex gap-4 items-center justify-center">
-            <button
-              onClick={handleRead}
-              className="relative flex items-center gap-2 px-6 py-3 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group"
-            >
-              <div className="absolute inset-0 glass-subtle rounded-full" />
-              <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
-              <div className="relative z-10 flex items-center gap-2 text-ink-primary dark:text-paper-light">
-                {currentCard.source.type === 'book' && <BookOpen className="w-5 h-5" />}
-                {currentCard.source.type === 'meditation' && <Scale className="w-5 h-5" />}
-                {currentCard.source.type === 'story' && <Scroll className="w-5 h-5" />}
-                Read {currentCard.source.type === 'book' ? 'Book' : currentCard.source.type === 'meditation' ? 'Meditation' : 'Story'}
-              </div>
-            </button>
-
-            <button
-              onClick={handleDownload}
-              className="relative flex items-center gap-2 px-6 py-3 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group"
-            >
-              <div className="absolute inset-0 glass-subtle rounded-full" />
-              <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
-              <div className="relative z-10 flex items-center gap-2 text-ink-primary dark:text-paper-light">
-                <Download className="w-5 h-5" />
-                Download
-              </div>
-            </button>
+              </>
+            )}
           </div>
-        )}
 
-        {/* Card Counter */}
-        <div className="mt-6 text-center text-ink-secondary dark:text-ink-muted text-sm">
-          {currentIndex + 1} / {cards.length}
+          {/* Action Buttons */}
+          {hasCards && currentIndex < cards.length && (
+            <div className="flex gap-4 items-center justify-center flex-shrink-0">
+              <button
+                onClick={handleRead}
+                className="relative flex items-center gap-2 px-6 py-3 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group text-sm"
+              >
+                <div className="absolute inset-0 glass-subtle rounded-full" />
+                <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
+                <div className="relative z-10 flex items-center gap-2 text-ink-primary dark:text-paper-light">
+                  {currentCard.source.type === 'book' && <BookOpen className="w-4 h-4" />}
+                  {currentCard.source.type === 'meditation' && <Scale className="w-4 h-4" />}
+                  Read {currentCard.source.type === 'book' ? 'Book' : 'Meditation'}
+                </div>
+              </button>
+
+              <button
+                onClick={handleDownload}
+                className="relative flex items-center gap-2 px-6 py-3 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group text-sm"
+              >
+                <div className="absolute inset-0 glass-subtle rounded-full" />
+                <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
+                <div className="relative z-10 flex items-center gap-2 text-ink-primary dark:text-paper-light">
+                  <Download className="w-4 h-4" />
+                  Download
+                </div>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </CleanLayout>

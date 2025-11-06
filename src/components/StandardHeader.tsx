@@ -61,7 +61,7 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
                   </svg>
                 </motion.button>
                 <div className="flex-1">
-                  <h1 className="text-lg font-semibold text-gray-900 dark:text-white truncate leading-tight text-left">
+                  <h1 className="text-md font-semibold text-gray-900 dark:text-white truncate leading-tight text-left">
                     {title}
                   </h1>
                   {subtitle && (
@@ -73,7 +73,7 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
               </>
             ) : (
               <div className="flex-1">
-                <h1 className="text-lg font-semibold text-gray-900 dark:text-white truncate leading-tight text-left">
+                <h1 className="text-md font-semibold text-gray-900 dark:text-white truncate leading-tight text-left">
                   {title}
                 </h1>
                 {subtitle && (

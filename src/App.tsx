@@ -17,6 +17,7 @@ const SettingsPage = lazy(() => import('./pages/Settings/SettingsPage'));
 import ErrorBoundary from './components/ErrorBoundary';
 import AIDrawer from './features/AI/AIDrawer';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
+import WelcomeBanner from './components/WelcomeBanner';
 import ServiceWorkerRegistration from './components/ServiceWorkerRegistration';
 import NativeFeatures from './components/NativeFeatures';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -156,7 +157,10 @@ const App: React.FC = () => {
             user={null}
           />
 
-          {/* PWA Install Prompt */}
+          {/* Welcome Banner - shows on first visit */}
+          <WelcomeBanner />
+
+          {/* PWA Install Prompt - uses browser default */}
           <PWAInstallPrompt />
           
           {/* Service Worker Registration */}

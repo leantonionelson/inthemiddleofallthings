@@ -1,8 +1,10 @@
 import { BookChapter, Meditation, Story } from '../types';
+import { progressiveLoader } from './progressiveLoader';
 
 /**
  * Content cache service to store loaded content in memory
  * Prevents reloading content when navigating back to pages
+ * Now integrates with progressive loader for optimized initial load
  */
 class ContentCacheService {
   private static instance: ContentCacheService;
@@ -26,6 +28,7 @@ class ContentCacheService {
 
   /**
    * Get cached chapters or load them if not cached
+   * Checks progressive loader first for already-loaded content
    */
   public async getChapters(
     loadFn: () => Promise<BookChapter[]>
@@ -33,6 +36,13 @@ class ContentCacheService {
     // Return cached if available
     if (this.chaptersCache !== null) {
       return this.chaptersCache;
+    }
+
+    // Check if progressive loader has content
+    const loadedContent = progressiveLoader.getLoadedContent();
+    if (loadedContent.chapters.length > 0) {
+      this.chaptersCache = loadedContent.chapters;
+      return loadedContent.chapters;
     }
 
     // If already loading, return the existing promise
@@ -52,6 +62,7 @@ class ContentCacheService {
 
   /**
    * Get cached meditations or load them if not cached
+   * Checks progressive loader first for already-loaded content
    */
   public async getMeditations(
     loadFn: () => Promise<Meditation[]>
@@ -59,6 +70,13 @@ class ContentCacheService {
     // Return cached if available
     if (this.meditationsCache !== null) {
       return this.meditationsCache;
+    }
+
+    // Check if progressive loader has content
+    const loadedContent = progressiveLoader.getLoadedContent();
+    if (loadedContent.meditations.length > 0) {
+      this.meditationsCache = loadedContent.meditations;
+      return loadedContent.meditations;
     }
 
     // If already loading, return the existing promise
@@ -78,6 +96,7 @@ class ContentCacheService {
 
   /**
    * Get cached stories or load them if not cached
+   * Checks progressive loader first for already-loaded content
    */
   public async getStories(
     loadFn: () => Promise<Story[]>
@@ -85,6 +104,13 @@ class ContentCacheService {
     // Return cached if available
     if (this.storiesCache !== null) {
       return this.storiesCache;
+    }
+
+    // Check if progressive loader has content
+    const loadedContent = progressiveLoader.getLoadedContent();
+    if (loadedContent.stories.length > 0) {
+      this.storiesCache = loadedContent.stories;
+      return loadedContent.stories;
     }
 
     // If already loading, return the existing promise
