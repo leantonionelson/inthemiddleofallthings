@@ -64,4 +64,20 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Split React and React DOM into separate chunk
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          // Split framer-motion into its own chunk (it's large)
+          'framer-motion': ['framer-motion'],
+          // Split lucide-react icons into separate chunk
+          'icons': ['lucide-react'],
+        }
+      }
+    },
+    // Increase chunk size warning limit since we're splitting properly
+    chunkSizeWarningLimit: 1000,
+  },
 })

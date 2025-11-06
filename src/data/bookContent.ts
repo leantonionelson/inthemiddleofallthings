@@ -139,7 +139,11 @@ export const partDescriptions: Record<string, string> = {
   'Part IV: The Horizon Beyond': 'Contemplating mortality, transcendence, and our place within something larger than ourselves.'
 };
 
+// Helper function to delay execution
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 // Function to load all book chapters using Vite's import system
+// Loads files progressively to avoid blocking
 export async function loadBookChapters(): Promise<BookChapter[]> {
   const chapters: BookChapter[] = [];
   let chapterNumber = 0;
@@ -147,6 +151,7 @@ export async function loadBookChapters(): Promise<BookChapter[]> {
   // Combine all file imports
   const allFiles = { ...mdxFiles, ...mdFiles };
 
+  let fileCount = 0;
   for (const part of bookStructure) {
     for (const chapterDef of part.chapters) {
       const filePath = `../book/${part.path}/${chapterDef.filename}`;
@@ -171,6 +176,12 @@ export async function loadBookChapters(): Promise<BookChapter[]> {
               totalChapters: 27 // Total number of chapters including intros
             });
           }
+        }
+        
+        // Add small delay after first 6 files to allow browser to process
+        fileCount++;
+        if (fileCount > 6 && fileCount % 3 === 0) {
+          await delay(10); // Small delay every 3 files after the first 6
         }
       } catch (error) {
         console.error(`Error loading file ${filePath}:`, error);

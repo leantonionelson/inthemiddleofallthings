@@ -38,7 +38,11 @@ function parseMeditationContent(markdown: string): { title: string; content: str
   };
 }
 
+// Helper function to delay execution
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 // Function to load all meditations
+// Loads files progressively to avoid blocking
 export async function loadMeditations(): Promise<Meditation[]> {
   const meditations: Meditation[] = [];
 
@@ -47,6 +51,7 @@ export async function loadMeditations(): Promise<Meditation[]> {
   
   console.log(`Found ${Object.keys(meditationFiles).length} meditation files to load`);
   
+  let fileCount = 0;
   for (const [path, loader] of Object.entries(meditationFiles)) {
     try {
       const markdown = await loader();
@@ -65,6 +70,12 @@ export async function loadMeditations(): Promise<Meditation[]> {
         });
         
         console.log(`Loaded meditation: ${parsed.title} (${id})`);
+      }
+      
+      // Add small delay after first 6 files to allow browser to process
+      fileCount++;
+      if (fileCount > 6 && fileCount % 3 === 0) {
+        await delay(10); // Small delay every 3 files after the first 6
       }
     } catch (error) {
       console.error(`Error loading meditation file ${path}:`, error);

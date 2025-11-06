@@ -37,7 +37,11 @@ function parseStoryContent(markdown: string): { title: string; content: string; 
   };
 }
 
+// Helper function to delay execution
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 // Function to load all stories
+// Loads files progressively to avoid blocking
 export async function loadStories(): Promise<Story[]> {
   const stories: Story[] = [];
 
@@ -46,6 +50,7 @@ export async function loadStories(): Promise<Story[]> {
   
   console.log(`Found ${Object.keys(storyFiles).length} story files to load`);
   
+  let fileCount = 0;
   for (const [path, loader] of Object.entries(storyFiles)) {
     try {
       const markdown = await loader();
@@ -64,6 +69,12 @@ export async function loadStories(): Promise<Story[]> {
         });
         
         console.log(`Loaded story: ${parsed.title} (${id})`);
+      }
+      
+      // Add small delay after first 6 files to allow browser to process
+      fileCount++;
+      if (fileCount > 6 && fileCount % 3 === 0) {
+        await delay(10); // Small delay every 3 files after the first 6
       }
     } catch (error) {
       console.error(`Error loading story file ${path}:`, error);

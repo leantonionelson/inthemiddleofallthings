@@ -68,53 +68,137 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
     };
   }, []);
 
-  // Load chapters progressively
+  // Load chapters progressively - load first batch immediately, rest in background
   useEffect(() => {
+    let cancelled = false;
+    
     const loadChapters = async () => {
       try {
         setIsLoadingChapters(true);
-        const loadedChapters = await loadBookChapters();
-        setChapters(loadedChapters);
+        const allChapters = await loadBookChapters();
+        
+        if (cancelled) return;
+        
+        // Show first 6 chapters immediately for fast initial render
+        setChapters(allChapters.slice(0, 6));
         setIsLoadingChapters(false);
+        
+        // Load remaining chapters progressively in background
+        if (allChapters.length > 6) {
+          // Use requestIdleCallback if available, otherwise setTimeout
+          const loadRemaining = () => {
+            if (!cancelled) {
+              setChapters(allChapters);
+            }
+          };
+          
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(loadRemaining, { timeout: 1000 });
+          } else {
+            setTimeout(loadRemaining, 200);
+          }
+        }
       } catch {
-        console.error('Error loading chapters');
-        setChapters(fallbackChapters);
-        setIsLoadingChapters(false);
+        if (!cancelled) {
+          console.error('Error loading chapters');
+          setChapters(fallbackChapters);
+          setIsLoadingChapters(false);
+        }
       }
     };
+    
     loadChapters();
+    return () => { cancelled = true; };
   }, []);
 
-  // Load meditations progressively
+  // Load meditations progressively - delay to prioritize chapters
   useEffect(() => {
+    let cancelled = false;
+    
     const loadMeditationsContent = async () => {
       try {
         setIsLoadingMeditations(true);
-        const loadedMeditations = await loadMeditations();
-        setMeditations(loadedMeditations);
+        const allMeditations = await loadMeditations();
+        
+        if (cancelled) return;
+        
+        // Show first 6 meditations immediately
+        setMeditations(allMeditations.slice(0, 6));
         setIsLoadingMeditations(false);
+        
+        // Load remaining in background
+        if (allMeditations.length > 6) {
+          const loadRemaining = () => {
+            if (!cancelled) {
+              setMeditations(allMeditations);
+            }
+          };
+          
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(loadRemaining, { timeout: 1500 });
+          } else {
+            setTimeout(loadRemaining, 400);
+          }
+        }
       } catch (error) {
-        console.error('Error loading meditations:', error);
-        setIsLoadingMeditations(false);
+        if (!cancelled) {
+          console.error('Error loading meditations:', error);
+          setIsLoadingMeditations(false);
+        }
       }
     };
-    loadMeditationsContent();
+    
+    // Delay meditations loading to prioritize chapters
+    const timer = setTimeout(loadMeditationsContent, 500);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, []);
 
-  // Load stories progressively
+  // Load stories progressively - delay further to prioritize other content
   useEffect(() => {
+    let cancelled = false;
+    
     const loadStoriesContent = async () => {
       try {
         setIsLoadingStories(true);
-        const loadedStories = await loadStories();
-        setStories(loadedStories);
+        const allStories = await loadStories();
+        
+        if (cancelled) return;
+        
+        // Show first 6 stories immediately
+        setStories(allStories.slice(0, 6));
         setIsLoadingStories(false);
+        
+        // Load remaining in background
+        if (allStories.length > 6) {
+          const loadRemaining = () => {
+            if (!cancelled) {
+              setStories(allStories);
+            }
+          };
+          
+          if ('requestIdleCallback' in window) {
+            requestIdleCallback(loadRemaining, { timeout: 2000 });
+          } else {
+            setTimeout(loadRemaining, 600);
+          }
+        }
       } catch (error) {
-        console.error('Error loading stories:', error);
-        setIsLoadingStories(false);
+        if (!cancelled) {
+          console.error('Error loading stories:', error);
+          setIsLoadingStories(false);
+        }
       }
     };
-    loadStoriesContent();
+    
+    // Delay stories loading further
+    const timer = setTimeout(loadStoriesContent, 1000);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, []);
 
   // Update main loading state

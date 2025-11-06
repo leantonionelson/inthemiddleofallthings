@@ -1,24 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AppRoute } from './types';
 import './App.css';
 
-// Pages
-import HomePage from './pages/Home/HomePage';
-import BookLandingPage from './pages/Book/BookLandingPage';
-import MeditationsLandingPage from './pages/Meditations/MeditationsLandingPage';
-import StoriesLandingPage from './pages/Stories/StoriesLandingPage';
-import ReaderPage from './features/Reader/ReaderPage';
-import MeditationsPage from './features/Meditations/MeditationsPage';
-import StoriesPage from './features/Stories/StoriesPage';
-import SettingsPage from './pages/Settings/SettingsPage';
+// Lazy load pages for code splitting - only load when needed
+const HomePage = lazy(() => import('./pages/Home/HomePage'));
+const BookLandingPage = lazy(() => import('./pages/Book/BookLandingPage'));
+const MeditationsLandingPage = lazy(() => import('./pages/Meditations/MeditationsLandingPage'));
+const StoriesLandingPage = lazy(() => import('./pages/Stories/StoriesLandingPage'));
+const ReaderPage = lazy(() => import('./features/Reader/ReaderPage'));
+const MeditationsPage = lazy(() => import('./features/Meditations/MeditationsPage'));
+const StoriesPage = lazy(() => import('./features/Stories/StoriesPage'));
+const SettingsPage = lazy(() => import('./pages/Settings/SettingsPage'));
 
-// Components
+// Components - keep these as regular imports since they're needed globally
 import ErrorBoundary from './components/ErrorBoundary';
 import AIDrawer from './features/AI/AIDrawer';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import ServiceWorkerRegistration from './components/ServiceWorkerRegistration';
 import NativeFeatures from './components/NativeFeatures';
+import LoadingSpinner from './components/LoadingSpinner';
 
 const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -54,74 +55,83 @@ const App: React.FC = () => {
     }
   };
 
+  // Loading fallback component
+  const PageLoader = () => (
+    <div className="min-h-screen bg-paper-light dark:bg-paper-dark flex items-center justify-center">
+      <LoadingSpinner />
+    </div>
+  );
+
   return (
     <ErrorBoundary>
       <Router>
         <div className={`app ${isDarkMode ? 'dark' : ''}`}>
-          <Routes>
-            {/* Home route - main navigation hub */}
-            <Route
-              path={AppRoute.HOME}
-              element={<HomePage onOpenAI={() => setIsAIDrawerOpen(true)} />}
-            />
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Home route - main navigation hub */}
+              <Route
+                path={AppRoute.HOME}
+                element={<HomePage onOpenAI={() => setIsAIDrawerOpen(true)} />}
+              />
 
-            {/* Landing pages */}
-            <Route
-              path="/book"
-              element={<BookLandingPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
-            />
+              {/* Landing pages */}
+              <Route
+                path="/book"
+                element={<BookLandingPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
+              />
 
-            <Route
-              path="/meditations-landing"
-              element={<MeditationsLandingPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
-            />
+              <Route
+                path="/meditations-landing"
+                element={<MeditationsLandingPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
+              />
 
-            <Route
-              path="/stories-landing"
-              element={<StoriesLandingPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
-            />
+              <Route
+                path="/stories-landing"
+                element={<StoriesLandingPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
+              />
 
-            {/* Reader pages */}
-            <Route
-              path={AppRoute.READER}
-              element={<ReaderPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
-            />
+              {/* Reader pages */}
+              <Route
+                path={AppRoute.READER}
+                element={<ReaderPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
+              />
 
-            <Route
-              path={AppRoute.MEDITATIONS}
-              element={<MeditationsPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
-            />
+              <Route
+                path={AppRoute.MEDITATIONS}
+                element={<MeditationsPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
+              />
 
-            <Route
-              path={AppRoute.STORIES}
-              element={<StoriesPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
-            />
+              <Route
+                path={AppRoute.STORIES}
+                element={<StoriesPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
+              />
 
-            <Route
-              path={AppRoute.SETTINGS}
-              element={
-                <SettingsPage 
-                  isDarkMode={isDarkMode}
-                  onToggleTheme={toggleTheme}
-                  onSignOut={() => {
-                    window.location.reload();
-                  }}
-                />
-              }
-            />
+              <Route
+                path={AppRoute.SETTINGS}
+                element={
+                  <SettingsPage 
+                    isDarkMode={isDarkMode}
+                    onToggleTheme={toggleTheme}
+                    onSignOut={() => {
+                      window.location.reload();
+                    }}
+                  />
+                }
+              />
 
-            {/* Default redirect - redirect root to home */}
-            <Route
-              path="/"
-              element={<Navigate to={AppRoute.HOME} replace />}
-            />
+              {/* Default redirect - redirect root to home */}
+              <Route
+                path="/"
+                element={<Navigate to={AppRoute.HOME} replace />}
+              />
 
-            {/* Catch all - redirect to home */}
-            <Route
-              path="*"
-              element={<Navigate to={AppRoute.HOME} replace />}
-            />
-          </Routes>
+              {/* Catch all - redirect to home */}
+              <Route
+                path="*"
+                element={<Navigate to={AppRoute.HOME} replace />}
+              />
+            </Routes>
+          </Suspense>
 
           {/* AI Drawer */}
           <AIDrawer 
