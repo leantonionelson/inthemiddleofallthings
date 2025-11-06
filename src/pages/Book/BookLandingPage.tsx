@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AppRoute, BookChapter } from '../../types';
+import { AppRoute, BookChapter, Meditation, Story } from '../../types';
 import { loadBookChapters, fallbackChapters, partDescriptions } from '../../data/bookContent';
 import { readingProgressService } from '../../services/readingProgressService';
 import CleanLayout from '../../components/CleanLayout';
@@ -83,7 +83,13 @@ const BookLandingPage: React.FC<BookLandingPageProps> = ({ onOpenAI }) => {
     return order.filter(part => chaptersByPart[part] && chaptersByPart[part].length > 0);
   }, [chaptersByPart]);
 
-  const handleChapterClick = (chapter: BookChapter, index: number) => {
+  const handleChapterClick = (item: BookChapter | Meditation | Story, _index: number) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // Type guard: ensure this is a BookChapter
+    if (!('chapterNumber' in item)) {
+      return; // Not a chapter, ignore
+    }
+    const chapter = item as BookChapter;
     // Save the chapter index to localStorage for ReaderPage to use
     const actualIndex = chapters.findIndex(c => c.id === chapter.id);
     localStorage.setItem('currentChapterIndex', actualIndex.toString());

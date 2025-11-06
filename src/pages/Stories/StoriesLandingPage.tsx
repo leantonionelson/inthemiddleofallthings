@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AppRoute, Story } from '../../types';
+import { AppRoute, Story, BookChapter, Meditation } from '../../types';
 import { loadStories, fallbackStories } from '../../data/storiesContent';
 import { readingProgressService } from '../../services/readingProgressService';
 import CleanLayout from '../../components/CleanLayout';
@@ -109,7 +109,7 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({ onOpenAI }) => 
 
   // Get story icon based on tags or fallback to index-based icon
   const getStoryIcon = (story: Story, index: number) => {
-    const iconMap: Record<string, React.ComponentType<any>> = {
+    const iconMap: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
       'consciousness': Brain,
       'awareness': Eye,
       'existence': Globe,
@@ -139,7 +139,13 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({ onOpenAI }) => 
     return fallbackIcons[index % fallbackIcons.length];
   };
 
-  const handleStoryClick = (story: Story, index: number) => {
+  const handleStoryClick = (item: BookChapter | Meditation | Story, _index: number) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // Type guard: ensure this is a Story (has tags and filename, but not chapterNumber)
+    if ('chapterNumber' in item) {
+      return; // Not a story, ignore
+    }
+    const story = item as Story;
     const actualIndex = stories.findIndex(s => s.id === story.id);
     localStorage.setItem('currentStoryIndex', actualIndex.toString());
     navigate(AppRoute.STORIES);
