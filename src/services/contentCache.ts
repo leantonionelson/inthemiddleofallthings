@@ -63,20 +63,31 @@ class ContentCacheService {
   /**
    * Get cached meditations or load them if not cached
    * Checks progressive loader first for already-loaded content
+   * If progressive loader has partial content (< 50 items), still loads full set
    */
   public async getMeditations(
     loadFn: () => Promise<Meditation[]>
   ): Promise<Meditation[]> {
-    // Return cached if available
-    if (this.meditationsCache !== null) {
+    // Return cached if available (full cache)
+    if (this.meditationsCache !== null && this.meditationsCache.length > 50) {
       return this.meditationsCache;
     }
 
     // Check if progressive loader has content
     const loadedContent = progressiveLoader.getLoadedContent();
-    if (loadedContent.meditations.length > 0) {
+    // If progressive loader has substantial content (likely full), use it
+    if (loadedContent.meditations.length > 50) {
       this.meditationsCache = loadedContent.meditations;
       return loadedContent.meditations;
+    }
+    
+    // If progressive loader has partial content but we need full, still load full set
+    // This ensures MeditationsPage gets all meditations, not just the initial batch
+    if (loadedContent.meditations.length > 0 && loadedContent.meditations.length <= 50) {
+      // Use partial content as temporary cache, but still load full set
+      if (this.meditationsCache === null) {
+        this.meditationsCache = loadedContent.meditations;
+      }
     }
 
     // If already loading, return the existing promise
@@ -84,7 +95,7 @@ class ContentCacheService {
       return this.meditationsLoading;
     }
 
-    // Start loading
+    // Start loading full set
     this.meditationsLoading = loadFn().then(meditations => {
       this.meditationsCache = meditations;
       this.meditationsLoading = null;

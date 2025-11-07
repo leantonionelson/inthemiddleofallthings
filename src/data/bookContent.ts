@@ -142,50 +142,58 @@ export const partDescriptions: Record<string, string> = {
 // Helper function to delay execution
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Function to load all book chapters using Vite's import system
-// Loads files progressively to avoid blocking
-export async function loadBookChapters(): Promise<BookChapter[]> {
+// Function to load book chapters with optional limit for partial loading
+async function loadBookChaptersInternal(limit?: number): Promise<BookChapter[]> {
   const chapters: BookChapter[] = [];
   let chapterNumber = 0;
 
   // Combine all file imports
   const allFiles = { ...mdxFiles, ...mdFiles };
 
-  let fileCount = 0;
+  // Collect all chapters to load
+  const chaptersToLoad: Array<{ part: typeof bookStructure[0]; chapterDef: typeof bookStructure[0]['chapters'][0] }> = [];
   for (const part of bookStructure) {
     for (const chapterDef of part.chapters) {
-      const filePath = `../book/${part.path}/${chapterDef.filename}`;
-      
-      try {
-        // Try to load the file using Vite's import system
-        const fileLoader = allFiles[filePath];
-        if (fileLoader) {
-          const markdown = await fileLoader();
-          
-          if (markdown) {
-            const parsed = parseMarkdownContent(markdown);
-            chapterNumber++;
-            
-            chapters.push({
-              id: chapterDef.id,
-              title: parsed.title,
-              subtitle: parsed.subtitle,
-              content: parsed.content,
-              part: part.part,
-              chapterNumber,
-              totalChapters: 27 // Total number of chapters including intros
-            });
-          }
-        }
+      chaptersToLoad.push({ part, chapterDef });
+    }
+  }
+
+  // Apply limit if specified
+  const chaptersToProcess = limit ? chaptersToLoad.slice(0, limit) : chaptersToLoad;
+
+  let fileCount = 0;
+  for (const { part, chapterDef } of chaptersToProcess) {
+    const filePath = `../book/${part.path}/${chapterDef.filename}`;
+    
+    try {
+      // Try to load the file using Vite's import system
+      const fileLoader = allFiles[filePath];
+      if (fileLoader) {
+        const markdown = await fileLoader();
         
-        // Add small delay after first 6 files to allow browser to process
-        fileCount++;
-        if (fileCount > 6 && fileCount % 3 === 0) {
-          await delay(10); // Small delay every 3 files after the first 6
+        if (markdown) {
+          const parsed = parseMarkdownContent(markdown);
+          chapterNumber++;
+          
+          chapters.push({
+            id: chapterDef.id,
+            title: parsed.title,
+            subtitle: parsed.subtitle,
+            content: parsed.content,
+            part: part.part,
+            chapterNumber,
+            totalChapters: 27 // Total number of chapters including intros
+          });
         }
-      } catch (error) {
-        console.error(`Error loading file ${filePath}:`, error);
       }
+      
+      // Add small delay after first 6 files to allow browser to process
+      fileCount++;
+      if (fileCount > 6 && fileCount % 3 === 0) {
+        await delay(10); // Small delay every 3 files after the first 6
+      }
+    } catch (error) {
+      console.error(`Error loading file ${filePath}:`, error);
     }
   }
 
@@ -194,6 +202,17 @@ export async function loadBookChapters(): Promise<BookChapter[]> {
     const bOrder = bookStructure.flatMap(p => p.chapters).find(c => c.id === b.id)?.order || 0;
     return aOrder - bOrder;
   });
+}
+
+// Function to load all book chapters using Vite's import system
+// Loads files progressively to avoid blocking
+export async function loadBookChapters(): Promise<BookChapter[]> {
+  return loadBookChaptersInternal();
+}
+
+// Function to load partial chapters (for initial batch)
+export async function loadBookChaptersPartial(count: number = 5): Promise<BookChapter[]> {
+  return loadBookChaptersInternal(count);
 }
 
 // Fallback content for when files can't be loaded

@@ -41,18 +41,20 @@ function parseMeditationContent(markdown: string): { title: string; content: str
 // Helper function to delay execution
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Function to load all meditations
-// Loads files progressively to avoid blocking
-export async function loadMeditations(): Promise<Meditation[]> {
+// Function to load meditations with optional limit for partial loading
+async function loadMeditationsInternal(limit?: number): Promise<Meditation[]> {
   const meditations: Meditation[] = [];
 
   // Get all meditation files dynamically
   const meditationFiles = import.meta.glob('../meditations/meditations/*.md', { as: 'raw', eager: false });
   
-  console.log(`Found ${Object.keys(meditationFiles).length} meditation files to load`);
+  const fileEntries = Object.entries(meditationFiles);
+  const filesToLoad = limit ? fileEntries.slice(0, limit) : fileEntries;
+  
+  console.log(`Loading ${filesToLoad.length} of ${fileEntries.length} meditation files`);
   
   let fileCount = 0;
-  for (const [path, loader] of Object.entries(meditationFiles)) {
+  for (const [path, loader] of filesToLoad) {
     try {
       const markdown = await loader();
       
@@ -69,7 +71,9 @@ export async function loadMeditations(): Promise<Meditation[]> {
           filename
         });
         
-        console.log(`Loaded meditation: ${parsed.title} (${id})`);
+        if (fileCount < 5) {
+          console.log(`Loaded meditation: ${parsed.title} (${id})`);
+        }
       }
       
       // Add small delay after first 6 files to allow browser to process
@@ -86,6 +90,17 @@ export async function loadMeditations(): Promise<Meditation[]> {
   
   // Sort meditations alphabetically by title
   return meditations.sort((a, b) => a.title.localeCompare(b.title));
+}
+
+// Function to load all meditations
+// Loads files progressively to avoid blocking
+export async function loadMeditations(): Promise<Meditation[]> {
+  return loadMeditationsInternal();
+}
+
+// Function to load partial meditations (for initial batch)
+export async function loadMeditationsPartial(count: number = 5): Promise<Meditation[]> {
+  return loadMeditationsInternal(count);
 }
 
 // Function to search meditations by title or tags

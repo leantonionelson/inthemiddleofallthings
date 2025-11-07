@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppRoute, Meditation } from '../../types';
 import { loadMeditations, searchMeditations, fallbackMeditations } from '../../data/meditationContent';
+import { contentCache } from '../../services/contentCache';
 import ReaderNavigation from '../../components/ReaderNavigation';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
 import { useScrollTracking } from '../../hooks/useScrollTracking';
@@ -165,11 +166,12 @@ const MeditationsPage: React.FC = () => {
     return fallbackIcons[index % fallbackIcons.length];
   }, []);
 
-  // Load meditations from MD files
+  // Load meditations from MD files (use cache if available)
   useEffect(() => {
     const loadMeditationList = async () => {
       try {
-        const loadedMeditations = await loadMeditations();
+        // Use content cache to avoid reloading if already loaded
+        const loadedMeditations = await contentCache.getMeditations(loadMeditations);
         console.log('MeditationsPage: Loaded meditations:', loadedMeditations.map(m => ({ id: m.id, title: m.title })));
         setMeditations(loadedMeditations);
         setFilteredMeditations(loadedMeditations);

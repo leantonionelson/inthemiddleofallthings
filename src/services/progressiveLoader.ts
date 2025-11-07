@@ -77,6 +77,7 @@ class ProgressiveLoaderService {
   /**
    * Load initial batch of content quickly
    * Returns a small set of content to display immediately
+   * Uses partial loading functions if available to avoid loading everything upfront
    */
   public async loadInitialContent(
     loadChaptersFn: () => Promise<BookChapter[]>,
@@ -92,23 +93,85 @@ class ProgressiveLoaderService {
       };
     }
     
-    // Start loading all content in parallel, but only return initial batch
-    const [allChapters, allMeditations, allStories] = await Promise.all([
-      loadChaptersFn(),
-      loadMeditationsFn(),
-      loadStoriesFn()
-    ]);
+    // Try to use partial loading functions if available (from dynamic imports)
+    // This allows us to load just the initial batch without waiting for everything
+    let initialChapters: BookChapter[];
+    let initialMeditations: Meditation[];
+    let initialStories: Story[];
+    let totalChapters = 0;
+    let totalMeditations = 0;
+    let totalStories = 0;
     
-    // Take initial batch
-    this.chapters = allChapters.slice(0, this.INITIAL_BATCH_SIZE);
-    this.meditations = allMeditations.slice(0, this.INITIAL_BATCH_SIZE);
-    this.stories = allStories.slice(0, this.INITIAL_BATCH_SIZE);
-    
-    // Notify progress
-    this.notifyProgress(allChapters.length, allMeditations.length, allStories.length);
-    
-    // Start background loading for the rest
-    this.loadRemainingInBackground(allChapters, allMeditations, allStories);
+    try {
+      // Try to import partial loading functions
+      const { loadBookChaptersPartial } = await import('../data/bookContent');
+      const { loadMeditationsPartial } = await import('../data/meditationContent');
+      
+      // Load initial batches in parallel (fast!)
+      [initialChapters, initialMeditations, initialStories] = await Promise.all([
+        loadBookChaptersPartial(this.INITIAL_BATCH_SIZE),
+        loadMeditationsPartial(this.INITIAL_BATCH_SIZE),
+        loadStoriesFn().then(stories => stories.slice(0, this.INITIAL_BATCH_SIZE))
+      ]);
+      
+      // Store initial batch
+      this.chapters = initialChapters;
+      this.meditations = initialMeditations;
+      this.stories = initialStories;
+      
+      // Estimate totals (we'll update when full load completes)
+      // Use reasonable estimates: ~27 chapters, ~187 meditations, ~1 story
+      totalChapters = 27;
+      totalMeditations = 187;
+      totalStories = 1;
+      
+      // Notify progress with estimates
+      this.notifyProgress(totalChapters, totalMeditations, totalStories);
+      
+      // Load remaining content in background (don't await - non-blocking)
+      Promise.all([
+        loadChaptersFn(),
+        loadMeditationsFn(),
+        loadStoriesFn()
+      ]).then(([allChapters, allMeditations, allStories]) => {
+        // Update with actual totals
+        totalChapters = allChapters.length;
+        totalMeditations = allMeditations.length;
+        totalStories = allStories.length;
+        
+        // Notify progress with actual totals
+        this.notifyProgress(totalChapters, totalMeditations, totalStories);
+        
+        // Start background loading for the rest
+        this.loadRemainingInBackground(allChapters, allMeditations, allStories);
+      }).catch(error => {
+        console.error('Error loading full content in background:', error);
+      });
+    } catch (error) {
+      // Fallback to original behavior if partial loading not available
+      console.warn('Partial loading not available, falling back to full load:', error);
+      
+      const [allChapters, allMeditations, allStories] = await Promise.all([
+        loadChaptersFn(),
+        loadMeditationsFn(),
+        loadStoriesFn()
+      ]);
+      
+      totalChapters = allChapters.length;
+      totalMeditations = allMeditations.length;
+      totalStories = allStories.length;
+      
+      // Take initial batch
+      this.chapters = allChapters.slice(0, this.INITIAL_BATCH_SIZE);
+      this.meditations = allMeditations.slice(0, this.INITIAL_BATCH_SIZE);
+      this.stories = allStories.slice(0, this.INITIAL_BATCH_SIZE);
+      
+      // Notify progress
+      this.notifyProgress(totalChapters, totalMeditations, totalStories);
+      
+      // Start background loading for the rest
+      this.loadRemainingInBackground(allChapters, allMeditations, allStories);
+    }
     
     return {
       chapters: this.chapters,

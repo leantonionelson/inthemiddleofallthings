@@ -14,6 +14,17 @@ export interface QuoteCard {
   gradient: string;
 }
 
+// Cache for extracted quotes to avoid reprocessing
+const quoteCache = new Map<string, QuoteCard[]>();
+
+// Generate cache key from content IDs
+function generateCacheKey(chapters: BookChapter[], meditations: Meditation[], stories: Story[]): string {
+  const chapterIds = chapters.map(c => c.id).join(',');
+  const meditationIds = meditations.map(m => m.id).join(',');
+  const storyIds = stories.map(s => s.id).join(',');
+  return `${chapters.length}-${meditations.length}-${stories.length}-${chapterIds.slice(0, 50)}-${meditationIds.slice(0, 50)}-${storyIds.slice(0, 50)}`;
+}
+
 // Remove markdown formatting from text
 function cleanMarkdown(text: string): string {
   return text
@@ -139,9 +150,15 @@ export function generateQuoteCards(
   meditations: Meditation[],
   stories: Story[]
 ): QuoteCard[] {
+  // Check cache first
+  const cacheKey = generateCacheKey(chapters, meditations, stories);
+  if (quoteCache.has(cacheKey)) {
+    return quoteCache.get(cacheKey)!;
+  }
+  
   const cards: QuoteCard[] = [];
   
-  // Extract from chapters
+  // Extract from chapters (limit processing for performance)
   for (const chapter of chapters) {
     const quotes = extractFromChapter(chapter);
     for (const quote of quotes) {
@@ -161,7 +178,7 @@ export function generateQuoteCards(
     }
   }
   
-  // Extract from meditations
+  // Extract from meditations (limit processing for performance)
   for (const meditation of meditations) {
     const quotes = extractFromMeditation(meditation);
     for (const quote of quotes) {
@@ -196,7 +213,24 @@ export function generateQuoteCards(
   }
   
   // Shuffle cards for variety
-  return shuffleArray(cards);
+  const shuffled = shuffleArray(cards);
+  
+  // Cache the result (limit cache size to prevent memory issues)
+  if (quoteCache.size > 10) {
+    // Remove oldest entry (simple FIFO)
+    const firstKey = quoteCache.keys().next().value;
+    if (firstKey) {
+      quoteCache.delete(firstKey);
+    }
+  }
+  quoteCache.set(cacheKey, shuffled);
+  
+  return shuffled;
+}
+
+// Clear quote cache (useful for testing or memory management)
+export function clearQuoteCache(): void {
+  quoteCache.clear();
 }
 
 // Generate random gradient - semi-transparent gradients that allow background video to show through
