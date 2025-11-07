@@ -18,18 +18,15 @@ The variable name must be **`SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES`** (with a
    - Delete the incorrectly named variable (`SECRETS_SCAN_SMART_DETECTION_OMIT_VALUE`)
 4. Add a new environment variable:
    - **Key**: `SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES` (note the "S" at the end)
-   - **Value**: Comma-separated list of all API keys detected by the scanner:
+   - **Value**: Your Firebase API key value:
      ```
-     AIzaSyAW4vyYLQjBGEJDwemF2gz26yLWkj5n2j8,pk_live_51S7ZkEJz7MVRzFNxPh3voOKnepoCrxwBBhYqHD7skmlGv8GIQsn9iGDDaq9pCoHlSrI6EcsVynw6ywYGBuVlHu0u00gdmO9ewj
+     AIzaSyAW4vyYLQjBGEJDwemF2gz26yLWkj5n2j8
      ```
-   - This includes:
-     - Firebase API key (public, safe)
-     - Stripe publishable key (public, safe)
+   - This is the Firebase API key (public, safe)
 5. Save and redeploy
 
 ## Security Notes
 
 ### Safe to Expose (Public Keys):
-- **Firebase API Key**: Public by design. Restricted by domain/referrer in Firebase Console.
-- **Stripe Publishable Key**: Intentionally public. The "publishable" prefix indicates it's meant for client-side use.
+- **Firebase API Key**: Public by design. Restricted by domain/referrer in Firebase Console. This is the only key that needs to be in the omit list.
 
