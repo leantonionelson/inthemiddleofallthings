@@ -5,21 +5,15 @@ import { useScrollTransition } from '../hooks/useScrollTransition';
 
 interface ResponsiveLayoutProps {
   children: ReactNode;
-  currentPage: string;
-  onRead?: () => void;
   isReading?: boolean;
   showShadow?: boolean;
-  onOpenAI?: () => void;
   isAudioPlaying?: boolean;
 }
 
 const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   children,
-  currentPage,
-  onRead,
   isReading = false,
   showShadow = true,
-  onOpenAI,
   isAudioPlaying = false
 }) => {
   const scrollTransition = useScrollTransition({
@@ -102,7 +96,7 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
 
       {/* Desktop Navigation - Hidden on mobile */}
       <div className="hidden lg:block relative z-10" ref={desktopNavRef}>
-        <DesktopNavigation onOpenAI={onOpenAI} />
+        <DesktopNavigation />
       </div>
 
       {/* Main Content */}
@@ -136,11 +130,7 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
           }}
         >
           <StandardNavigation
-            currentPage={currentPage}
-            onRead={onRead}
-            isReading={isReading}
             showShadow={showShadow}
-            onOpenAI={onOpenAI}
           />
         </div>
       </div>

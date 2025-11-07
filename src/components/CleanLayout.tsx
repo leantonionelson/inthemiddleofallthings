@@ -20,10 +20,7 @@ const CleanLayout: React.FC<CleanLayoutProps> = ({
 }) => {
   return (
     <ResponsiveLayout
-      currentPage={currentPage}
-      onRead={onRead}
       isReading={isReading}
-      onOpenAI={onOpenAI}
       showShadow={true}
       isAudioPlaying={isAudioPlaying}
     >
