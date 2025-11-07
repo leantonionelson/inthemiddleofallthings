@@ -331,7 +331,7 @@ const HomePage: React.FC = () => {
                 <div
                   className="absolute inset-0"
                   style={{
-                    transform: 'scale(0.95) translateY(28px)',
+                    transform: 'scale(0.95) translateY(20px)',
                     opacity: 0.5,
                     zIndex: 0
                   }}

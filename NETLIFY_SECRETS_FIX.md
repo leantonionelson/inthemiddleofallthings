@@ -49,7 +49,7 @@ If you prefer not to disable the scanner entirely, you can allowlist specific va
 
 1. In Netlify Environment Variables, add:
    - **Key**: `SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES`
-   - **Value**: Your Firebase API key (e.g., `AIzaSyAW4vyYLQjBGEJDwemF2gz26yLWkj5n2j8`)
+   - **Value**: Your Firebase API key (the value from your `.env` file)
 
 This tells Netlify to ignore that specific value.
 
