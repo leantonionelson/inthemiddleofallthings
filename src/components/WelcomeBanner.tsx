@@ -31,7 +31,7 @@ const WelcomeBanner: React.FC = () => {
           exit={{ opacity: 0, y: 100 }}
           className="fixed bottom-4 left-4 right-4 z-50 max-w-lg mx-auto"
         >
-          <div className="bg-paper-light/95 dark:bg-paper-dark/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6">
+          <div className="bg-paper-light/95 dark:bg-paper-dark/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 p-6">
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
               <div>

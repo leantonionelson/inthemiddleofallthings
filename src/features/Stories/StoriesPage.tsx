@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { AppRoute, Story, TextHighlight } from '../../types';
+import { AppRoute, Story } from '../../types';
 import { loadStories, searchStories, fallbackStories } from '../../data/storiesContent';
-import CleanLayout from '../../components/CleanLayout';
 import ReaderNavigation from '../../components/ReaderNavigation';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
 import { useScrollTracking } from '../../hooks/useScrollTracking';
@@ -11,39 +9,14 @@ import { readingProgressService } from '../../services/readingProgressService';
 import { Search, X, ChevronRight, BookOpen, Scroll, Feather, Eye, Brain, Globe, Clock, Sparkles, Zap, CheckCircle2 } from 'lucide-react';
 
 import UnifiedAudioPlayer from '../../components/UnifiedAudioPlayer';
-import TextSelection from '../../components/TextSelection';
 import ContentFormatter from '../../components/ContentFormatter';
 import { useUserCapabilities } from '../../hooks/useUserCapabilities';
-import { useTextSelection } from '../../hooks/useTextSelection';
 
-interface StoriesPageProps {
-  onOpenAI?: () => void;
-  onCloseAI?: () => void;
-}
-
-interface TextSelectionData {
-  text: string;
-  range: Range;
-  rect: DOMRect;
-  isManualSelection?: boolean;
-}
-
-interface HighlightPin {
-  id: string;
-  side: 'start' | 'end';
-  rect: DOMRect;
-  range: Range;
-  highlightId: string;
-}
-
-const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
+const StoriesPage: React.FC = () => {
   const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
-  // Use shared text selection hook
-  const { selectedText, isTextSelected, clearSelection } = useTextSelection({ contentRef });
-  const [, setSavedHighlights] = useState<TextHighlight[]>([]);
   const [stories, setStories] = useState<Story[]>([]);
   const [filteredStories, setFilteredStories] = useState<Story[]>([]);
   const [isAudioPlayerOpen, setIsAudioPlayerOpen] = useState(false);
@@ -55,6 +28,10 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   const [highlightedProgress, setHighlightedProgress] = useState(0);
+  const searchBarRef = useRef<HTMLDivElement>(null);
+  const [searchBarHeight, setSearchBarHeight] = useState(0);
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+  const [mobileNavHeight, setMobileNavHeight] = useState(0);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [fontSize, setFontSize] = useState('base');
   
@@ -87,6 +64,56 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
       ? 'translateY(80px)'
       : readerNavScrollTransition.style.transform
   };
+
+  // Measure search bar height (mobile: fixed; desktop: relative)
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const updateMq = () => setIsLargeScreen(mq.matches);
+    updateMq();
+    const onChange = () => updateMq();
+    if (mq.addEventListener) {
+      mq.addEventListener('change', onChange);
+    } else {
+      // Safari
+      mq.addListener(onChange);
+    }
+
+    const measure = () => {
+      const h = searchBarRef.current ? searchBarRef.current.getBoundingClientRect().height : 0;
+      setSearchBarHeight(h);
+      const mobileNav = document.getElementById('mobile-nav');
+      const b = mobileNav ? mobileNav.getBoundingClientRect().height : 0;
+      setMobileNavHeight(b);
+    };
+    measure();
+
+    const { ResizeObserver: ResizeObserverCtor } = (window as unknown as {
+      ResizeObserver?: new (callback: ResizeObserverCallback) => ResizeObserver;
+    });
+    const ro = ResizeObserverCtor ? new ResizeObserverCtor(() => measure()) : undefined;
+    const el = searchBarRef.current;
+    if (el && ro) ro.observe(el);
+    const mobileNav = document.getElementById('mobile-nav');
+    if (mobileNav && ro) ro.observe(mobileNav);
+
+    const onResize = () => measure();
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+
+    return () => {
+      if (mq.removeEventListener) {
+        mq.removeEventListener('change', onChange);
+      } else {
+        mq.removeListener(onChange);
+      }
+      if (el && ro) ro.unobserve(el);
+      const mobileNav = document.getElementById('mobile-nav');
+      if (mobileNav && ro) ro.unobserve(mobileNav);
+      if (ro) ro.disconnect?.();
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+    };
+  }, []);
 
   // Get all unique tags from stories
   const getAllTags = useCallback(() => {
@@ -135,7 +162,7 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
 
   // Get story icon based on tags or fallback to index-based icon
   const getStoryIcon = useCallback((story: Story, index: number) => {
-    const iconMap: Record<string, React.ComponentType<any>> = {
+    const iconMap: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
       'consciousness': Brain,
       'awareness': Eye,
       'existence': Globe,
@@ -417,7 +444,6 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
         e.preventDefault();
         handleNextStory();
       } else if (e.key === 'Escape') {
-        clearSelection();
         setSearchQuery('');
         setIsSearchFocused(false);
       }
@@ -425,80 +451,24 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [handleNextStory, handlePreviousStory, clearSelection]);
-
-  const handleSaveHighlight = async (text: string, range: Range) => {
-    // All users can save highlights now
-    if (!userCapabilities.canSaveHighlights) {
-      console.log('Saving highlights...');
-    }
-
-    try {
-      const highlight: TextHighlight = {
-        id: `highlight-${Date.now()}`,
-        chapterId: currentStory.id,
-        chapterTitle: currentStory.title,
-        text: text.trim(),
-        timestamp: new Date(),
-        position: {
-          start: range.startOffset,
-          end: range.endOffset
-        }
-      };
-
-      // Save to localStorage
-      const savedHighlights = JSON.parse(localStorage.getItem('savedHighlights') || '[]');
-      savedHighlights.push(highlight);
-      localStorage.setItem('savedHighlights', JSON.stringify(savedHighlights));
-      
-      console.log('Highlight saved successfully');
-    } catch (error) {
-      console.error('Error saving highlight:', error);
-    }
-  };
-
-  const handleAIChatWithText = (text: string) => {
-    // Store the selected text for AI chat
-    localStorage.setItem('aiChatContext', JSON.stringify({
-      text: text.trim(),
-      story: currentStory.title,
-      timestamp: new Date().toISOString()
-    }));
-    
-    if (onOpenAI) {
-      onOpenAI();
-    }
-  };
+  }, [handleNextStory, handlePreviousStory]);
 
   // Show loading state while stories are being loaded
   if (stories.length === 0) {
     return (
-      <CleanLayout
-        currentPage="stories"
-        onRead={() => navigate(AppRoute.STORIES)}
-        isReading={true}
-        onOpenAI={onOpenAI}
-      >
-        <div className="min-h-screen flex items-center justify-center relative z-10">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
-            <p className="text-ink-secondary dark:text-ink-muted">Loading stories...</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center relative z-10">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
+          <p className="text-ink-secondary dark:text-ink-muted">Loading stories...</p>
         </div>
-      </CleanLayout>
+      </div>
     );
   }
 
   return (
-    <CleanLayout
-      currentPage="stories"
-      onRead={() => navigate(AppRoute.READER)}
-      isReading={true}
-      onOpenAI={onOpenAI}
-      isAudioPlaying={isAudioPlaying}
-    >
+    <>
       {/* Search Bar - Fixed at top on mobile, integrated on desktop */}
-      <div className="fixed top-0 left-0 right-0 z-[70] backdrop-blur-md lg:relative lg:backdrop-blur-md">
+      <div className="fixed top-0 left-0 right-0 z-[70] backdrop-blur-sm lg:relative lg:backdrop-blur-sm" ref={searchBarRef}>
         <div className="max-w-2xl lg:max-w-4xl mx-auto px-6 py-4 lg:pt-6">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-ink-secondary dark:text-ink-muted" />
@@ -561,7 +531,7 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
           </div>
           
           {/* Search Results Full Screen */}
-          <div data-search-overlay className="fixed top-20 left-0 right-0 bottom-0 z-[60] overflow-hidden lg:absolute lg:top-full lg:mt-2">
+          <div data-search-overlay className="fixed left-0 right-0 bottom-0 z-[60] overflow-hidden lg:absolute lg:top-full lg:mt-2" style={!isLargeScreen ? { top: searchBarHeight } as React.CSSProperties : undefined}>
             <div className="max-w-2xl lg:max-w-4xl mx-auto h-full flex flex-col">
               {/* Tag Cloud - Horizontal Scrollable, Two Rows */}
               <div className="px-6 py-4 border-b border-ink-muted/10 dark:border-paper-light/10">
@@ -816,10 +786,18 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
           'lg:pb-32 lg:px-8 lg:max-w-4xl lg:pt-8'
         }`}
         style={{ 
-          // Mobile: Adjusted for search bar, desktop uses responsive classes
-          paddingTop: isAudioPlaying ? '7rem' : '8rem',
-          transform: isAudioPlaying ? 'translateY(80px)' : 'none',
-          transition: 'transform 0.3s ease-out, padding-top 0.3s ease-out'
+          // On mobile, make main a scroll container sized between search and bottom nav/audio
+          position: isLargeScreen ? undefined : 'fixed',
+          top: isLargeScreen ? undefined : searchBarHeight,
+          bottom: isLargeScreen ? undefined : (isAudioPlayerOpen ? Math.max(mobileNavHeight, 192) : mobileNavHeight),
+          left: isLargeScreen ? undefined : 0,
+          right: isLargeScreen ? undefined : 0,
+          overflowY: isLargeScreen ? undefined : 'auto',
+          WebkitOverflowScrolling: isLargeScreen ? undefined : 'touch',
+          paddingTop: isLargeScreen ? undefined : 0,
+          paddingBottom: isLargeScreen ? undefined : 0,
+          transform: undefined,
+          transition: 'bottom 0.2s ease, top 0.2s ease'
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -838,7 +816,7 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
             </h2>
             
             {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-6 justify-center">
+            <div className="flex flex-wrap gap-2 mb-6">
               {currentStory.tags.map(tag => (
                 <span
                   key={tag}
@@ -861,21 +839,6 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
         </div>
       </main>
 
-      {/* Enhanced Text Selection with Pins */}
-      <AnimatePresence>
-        {selectedText && isTextSelected && (
-          <TextSelection
-            selectedText={selectedText.text}
-            range={selectedText.range}
-            rect={selectedText.rect}
-            onSave={handleSaveHighlight}
-            onAIChat={handleAIChatWithText}
-            onDismiss={clearSelection}
-          />
-        )}
-      </AnimatePresence>
-
-
       {/* Click outside handler for overflow menu */}
       {showOverflowMenu && (
         <div 
@@ -885,7 +848,7 @@ const StoriesPage: React.FC<StoriesPageProps> = ({ onOpenAI, onCloseAI }) => {
       )}
 
 
-    </CleanLayout>
+    </>
   );
 };
 

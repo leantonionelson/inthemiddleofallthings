@@ -5,19 +5,14 @@ import { AppRoute, BookChapter, Meditation, Story } from '../../types';
 import { loadBookChapters, fallbackChapters, partDescriptions } from '../../data/bookContent';
 import { readingProgressService } from '../../services/readingProgressService';
 import { contentCache } from '../../services/contentCache';
-import CleanLayout from '../../components/CleanLayout';
 import ContentCarousel from '../../components/ContentCarousel';
 import BookIntroDrawer from '../../components/BookIntroDrawer';
 import { BookOpen, Info } from 'lucide-react';
 
-interface BookLandingPageProps {
-  onOpenAI: () => void;
-}
-
 // Full part order (for index lookup)
 const FULL_PART_ORDER = ['Introduction', 'Part I: The Axis of Becoming', 'Part II: The Spiral Path', 'Part III: The Living Axis', 'Part IV: The Horizon Beyond'];
 
-const BookLandingPage: React.FC<BookLandingPageProps> = ({ onOpenAI }) => {
+const BookLandingPage: React.FC = () => {
   const [chapters, setChapters] = useState<BookChapter[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [progressUpdateTrigger, setProgressUpdateTrigger] = useState(0);
@@ -114,29 +109,17 @@ const BookLandingPage: React.FC<BookLandingPageProps> = ({ onOpenAI }) => {
 
   if (isLoading) {
     return (
-      <CleanLayout
-        currentPage="book"
-        onRead={() => navigate(AppRoute.READER)}
-        isReading={false}
-        onOpenAI={onOpenAI}
-      >
-        <div className="min-h-screen flex items-center justify-center relative z-10">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
-            <p className="text-ink-secondary dark:text-ink-muted">Loading book content...</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center relative z-10">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
+          <p className="text-ink-secondary dark:text-ink-muted">Loading book content...</p>
         </div>
-      </CleanLayout>
+      </div>
     );
   }
 
   return (
-    <CleanLayout
-      currentPage="book"
-      onRead={() => navigate(AppRoute.READER)}
-      isReading={false}
-      onOpenAI={onOpenAI}
-    >
+    <>
       <div className="flex-1 flex flex-col p-6 lg:p-10 pt-6 pb-24 max-w-7xl mx-auto w-full">
         {/* Description */}
         <motion.div
@@ -239,7 +222,7 @@ const BookLandingPage: React.FC<BookLandingPageProps> = ({ onOpenAI }) => {
         onNavigate={handleNavigateToChapter}
         initialPartIndex={selectedPartIndex}
       />
-    </CleanLayout>
+    </>
   );
 };
 

@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { AppRoute, Meditation, TextHighlight } from '../../types';
+import { AppRoute, Meditation } from '../../types';
 import { loadMeditations, searchMeditations, fallbackMeditations } from '../../data/meditationContent';
-import CleanLayout from '../../components/CleanLayout';
 import ReaderNavigation from '../../components/ReaderNavigation';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
 import { useScrollTracking } from '../../hooks/useScrollTracking';
@@ -11,32 +9,10 @@ import { readingProgressService } from '../../services/readingProgressService';
 import { Search, X, ChevronRight, Heart, Leaf, Star, Moon, Sun, Waves, Mountain, Compass, Flower2, CheckCircle2 } from 'lucide-react';
 
 import UnifiedAudioPlayer from '../../components/UnifiedAudioPlayer';
-import TextSelection from '../../components/TextSelection';
 import ContentFormatter from '../../components/ContentFormatter';
 import { useUserCapabilities } from '../../hooks/useUserCapabilities';
-import { useTextSelection } from '../../hooks/useTextSelection';
 
-interface MeditationsPageProps {
-  onOpenAI?: () => void;
-  onCloseAI?: () => void;
-}
-
-interface TextSelectionData {
-  text: string;
-  range: Range;
-  rect: DOMRect;
-  isManualSelection?: boolean;
-}
-
-interface HighlightPin {
-  id: string;
-  side: 'start' | 'end';
-  rect: DOMRect;
-  range: Range;
-  highlightId: string;
-}
-
-const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }) => {
+const MeditationsPage: React.FC = () => {
   const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
   // Initialize from localStorage if available, otherwise default to 0
@@ -47,9 +23,6 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
   const [currentMeditationIndex, setCurrentMeditationIndex] = useState(getInitialMeditationIndex());
   const hasLoadedSavedIndex = useRef(false);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
-  // Use shared text selection hook
-  const { selectedText, isTextSelected, clearSelection } = useTextSelection({ contentRef });
-  const [, setSavedHighlights] = useState<TextHighlight[]>([]);
   const [meditations, setMeditations] = useState<Meditation[]>([]);
   const [filteredMeditations, setFilteredMeditations] = useState<Meditation[]>([]);
   const [isAudioPlayerOpen, setIsAudioPlayerOpen] = useState(false);
@@ -505,7 +478,6 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
         e.preventDefault();
         handleNextMeditation();
       } else if (e.key === 'Escape') {
-        clearSelection();
         setSearchQuery('');
         setIsSearchFocused(false);
       }
@@ -513,80 +485,24 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
 
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [handleNextMeditation, handlePreviousMeditation, clearSelection]);
-
-  const handleSaveHighlight = async (text: string, range: Range) => {
-    // All users can save highlights now
-    if (!userCapabilities.canSaveHighlights) {
-      console.log('Saving highlights...');
-    }
-
-    try {
-      const highlight: TextHighlight = {
-        id: `highlight-${Date.now()}`,
-        chapterId: currentMeditation.id,
-        chapterTitle: currentMeditation.title,
-        text: text.trim(),
-        timestamp: new Date(),
-        position: {
-          start: range.startOffset,
-          end: range.endOffset
-        }
-      };
-
-      // Save to localStorage
-      const savedHighlights = JSON.parse(localStorage.getItem('savedHighlights') || '[]');
-      savedHighlights.push(highlight);
-      localStorage.setItem('savedHighlights', JSON.stringify(savedHighlights));
-      
-      console.log('Highlight saved successfully');
-    } catch (error) {
-      console.error('Error saving highlight:', error);
-    }
-  };
-
-  const handleAIChatWithText = (text: string) => {
-    // Store the selected text for AI chat
-    localStorage.setItem('aiChatContext', JSON.stringify({
-      text: text.trim(),
-      meditation: currentMeditation.title,
-      timestamp: new Date().toISOString()
-    }));
-    
-    if (onOpenAI) {
-      onOpenAI();
-    }
-  };
+  }, [handleNextMeditation, handlePreviousMeditation]);
 
   // Show loading state while meditations are being loaded
   if (meditations.length === 0) {
     return (
-      <CleanLayout
-        currentPage="meditations"
-        onRead={() => navigate(AppRoute.MEDITATIONS)}
-        isReading={true}
-        onOpenAI={onOpenAI}
-      >
-        <div className="min-h-screen flex items-center justify-center relative z-10">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
-            <p className="text-ink-secondary dark:text-ink-muted">Loading meditations...</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center relative z-10">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
+          <p className="text-ink-secondary dark:text-ink-muted">Loading meditations...</p>
         </div>
-      </CleanLayout>
+      </div>
     );
   }
 
   return (
-    <CleanLayout
-      currentPage="meditations"
-      onRead={() => navigate(AppRoute.READER)}
-      isReading={true}
-      onOpenAI={onOpenAI}
-      isAudioPlaying={isAudioPlaying}
-    >
+    <>
       {/* Search Bar - Fixed at top on mobile, integrated on desktop */}
-      <div className="fixed top-0 left-0 right-0 z-[70] backdrop-blur-md lg:relative lg:backdrop-blur-md">
+      <div className="fixed top-0 left-0 right-0 z-[70] backdrop-blur-sm lg:relative lg:backdrop-blur-sm">
         <div className="max-w-2xl lg:max-w-4xl mx-auto px-6 py-4 lg:pt-6">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-ink-secondary dark:text-ink-muted" />
@@ -931,7 +847,7 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
             </h2>
             
             {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-6 justify-center">
+            <div className="flex flex-wrap gap-2 mb-6">
               {currentMeditation.tags.map((tag, index) => (
                 <span
                   key={`${tag}-${index}`}
@@ -954,21 +870,6 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
         </div>
       </main>
 
-      {/* Enhanced Text Selection with Pins */}
-      <AnimatePresence>
-        {selectedText && isTextSelected && (
-          <TextSelection
-            selectedText={selectedText.text}
-            range={selectedText.range}
-            rect={selectedText.rect}
-            onSave={handleSaveHighlight}
-            onAIChat={handleAIChatWithText}
-            onDismiss={clearSelection}
-          />
-        )}
-      </AnimatePresence>
-
-
       {/* Click outside handler for overflow menu */}
       {showOverflowMenu && (
         <div 
@@ -978,7 +879,7 @@ const MeditationsPage: React.FC<MeditationsPageProps> = ({ onOpenAI, onCloseAI }
       )}
 
 
-    </CleanLayout>
+    </>
   );
 };
 

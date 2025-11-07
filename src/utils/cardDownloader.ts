@@ -1,5 +1,109 @@
 import { QuoteCard } from './quoteExtractor';
 
+// Capture an existing DOM element exactly as rendered on screen
+export async function downloadElementAsImage(
+  element: HTMLElement,
+  filename: string
+): Promise<void> {
+  try {
+    const html2canvas = (await import('html2canvas')).default;
+
+    // Measure current element
+    const rect = element.getBoundingClientRect();
+
+    // Create offscreen container
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.left = '-99999px';
+    container.style.top = '0';
+    container.style.width = `${Math.ceil(rect.width)}px`;
+    container.style.height = `${Math.ceil(rect.height)}px`;
+    container.style.background = 'transparent';
+    container.style.overflow = 'visible';
+
+    // Clone the element to avoid capturing transforms/rounded corners
+    const clone = element.cloneNode(true) as HTMLElement;
+    
+    // Recursively remove border-radius and overflow-hidden from all elements
+    const removeClipping = (el: HTMLElement, isRoot = false) => {
+      el.style.borderRadius = '0';
+      el.style.overflow = 'visible';
+      // Also check class-based overflow
+      if (el.classList.contains('overflow-hidden')) {
+        el.classList.remove('overflow-hidden');
+      }
+      if (el.classList.contains('rounded-3xl')) {
+        el.classList.remove('rounded-3xl');
+      }
+      
+      // Boost watermark opacity for better visibility in export
+      const text = el.textContent?.trim();
+      if (text === '@middleofallthings') {
+        el.style.opacity = '0.8';
+        // Make the text darker/more visible
+        const color = window.getComputedStyle(el).color;
+        if (color.includes('rgba') || color.includes('rgb')) {
+          el.style.color = 'rgba(0, 0, 0, 0.6)';
+        }
+      }
+      
+      // Add top margin to the main content container (not the root)
+      // This is the flex-col container with the icon, quote, and source info
+      if (!isRoot && el.classList.contains('flex-col') && el.classList.contains('justify-between')) {
+        el.style.marginTop = '20px';
+        el.style.marginBottom = '8px';
+      }
+      
+      // Recurse through children
+      Array.from(el.children).forEach(child => {
+        if (child instanceof HTMLElement) {
+          removeClipping(child, false);
+        }
+      });
+    };
+    
+    // Apply to clone
+    removeClipping(clone, true);
+    
+    // Neutralize any transforms from animations
+    clone.style.transform = 'none';
+    clone.style.willChange = 'auto';
+    // Ensure the clone uses explicit size
+    clone.style.width = `${Math.ceil(rect.width)}px`;
+    clone.style.height = `${Math.ceil(rect.height)}px`;
+
+    container.appendChild(clone);
+    document.body.appendChild(container);
+
+    const canvas = await html2canvas(container, {
+      backgroundColor: null,
+      scale: 2,
+      logging: false,
+      useCORS: true,
+      width: Math.ceil(rect.width),
+      height: Math.ceil(rect.height)
+    });
+
+    // Cleanup offscreen elements
+    document.body.removeChild(container);
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename.endsWith('.png') ? filename : `${filename}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    });
+  } catch (error) {
+    console.error('Error downloading element:', error);
+    alert('Failed to download card. Please try again.');
+  }
+}
+
 export async function downloadCardAsImage(
   card: QuoteCard
 ): Promise<void> {
@@ -33,138 +137,91 @@ export async function downloadCardAsImage(
       return card.source.type === 'meditation' ? 'Meditation' : 'Story';
     };
     
-    // Create the download version with no rounded corners or padding
+    // Create the download version with basic HTML/CSS for html2canvas compatibility
     downloadContainer.innerHTML = `
-      <div style="
-        width: 100%;
-        height: 100%;
+      <table style="
+        width: 1080px;
+        height: 1080px;
         background: ${card.gradient};
-        display: flex;
-        flex-direction: column;
-        font-family: ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
-        position: relative;
+        font-family: Georgia, serif;
+        border-collapse: collapse;
+        table-layout: fixed;
       ">
-        <!-- Artistic background elements -->
-        <div style="
-          position: absolute;
-          inset: 0;
-          opacity: 0.1;
-          pointer-events: none;
-        ">
-          <div style="
-            position: absolute;
-            inset: 0;
-            background-image: url('data:image/svg+xml,%3Csvg viewBox=\\'0 0 400 400\\' xmlns=\\'http://www.w3.org/2000/svg\\'%3E%3Cfilter id=\\'noiseFilter\\'%3E%3CfeTurbulence type=\\'fractalNoise\\' baseFrequency=\\'0.9\\' numOctaves=\\'4\\' stitchTiles=\\'stitch\\'/%3E%3C/filter%3E%3Crect width=\\'100%25\\' height=\\'100%25\\' filter=\\'url(%23noiseFilter)\\'/%3E%3C/svg%3E');
-            background-size: 200px 200px;
-          "></div>
-        </div>
-        
-        <div style="
-          position: absolute;
-          inset: 0;
-          opacity: 0.05;
-          pointer-events: none;
-          overflow: hidden;
-        ">
-          <div style="position: absolute; top: -80px; right: -80px; width: 320px; height: 320px; border-radius: 50%; background: rgba(255,255,255,0.2); filter: blur(60px);"></div>
-          <div style="position: absolute; bottom: -80px; left: -80px; width: 400px; height: 400px; border-radius: 50%; background: rgba(0,0,0,0.1); filter: blur(60px);"></div>
-          <div style="position: absolute; top: 33%; right: 25%; width: 200px; height: 200px; transform: rotate(45deg); background: rgba(255,255,255,0.1); filter: blur(40px);"></div>
-        </div>
-        
-        <div style="
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
-        "></div>
-        <div style="
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          align-items: center;
-          padding: 60px;
-          position: relative;
-          z-index: 10;
-        ">
-          <div style="
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-          ">
-            <span style="font-size: 20px;">${getSourceIcon()}</span>
-            <span>${card.source.type}</span>
-          </div>
-          
-          <div style="
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            margin: 40px 0;
-          ">
-            <blockquote style="
-              color: white;
-              font-size: 36px;
+        <tr>
+          <td style="padding: 0; margin: 0; vertical-align: top;">
+            <div style="
+              width: 100%;
+              height: 1080px;
+              padding: 60px;
               text-align: center;
-              line-height: 1.6;
-              max-width: 900px;
-              white-space: pre-line;
-              margin: 0;
-              text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            ">${card.quote}</blockquote>
-          </div>
-          
-          <div style="
-            text-align: center;
-            color: rgba(255, 255, 255, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-          ">
-            <h3 style="
-              font-size: 24px;
-              font-weight: 600;
-              margin-bottom: 8px;
-              line-height: 1.3;
-            ">${card.source.title}</h3>
-            ${card.source.subtitle ? `
-              <p style="
-                font-size: 18px;
-                color: rgba(255, 255, 255, 0.7);
-                margin-bottom: 12px;
-              ">${card.source.subtitle}</p>
-            ` : ''}
-            <p style="
-              font-size: 16px;
-              color: rgba(255, 255, 255, 0.6);
-            ">${getSourceLabel()}</p>
-          </div>
-        </div>
-        
-        <div style="
-          padding: 24px;
-          text-align: center;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 72px;
-        ">
-          <p style="
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 16px;
-            margin: 0;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-          ">@middleofallthings</p>
-        </div>
-      </div>
+            ">
+              <!-- Header -->
+              <div style="margin-bottom: 40px;">
+                <span style="
+                  color: rgba(255, 255, 255, 0.8);
+                  font-size: 14px;
+                  text-transform: uppercase;
+                  letter-spacing: 2px;
+                  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+                ">${getSourceIcon()} ${card.source.type}</span>
+              </div>
+              
+              <!-- Spacer for vertical centering -->
+              <div style="height: 240px;"></div>
+              
+              <!-- Quote -->
+              <div style="
+                padding: 0 60px;
+                margin-bottom: 100px;
+              ">
+                <div style="
+                  color: white;
+                  font-size: 36px;
+                  text-align: center;
+                  line-height: 1.6;
+                  max-width: 900px;
+                  margin: 0 auto;
+                  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+                ">${card.quote}</div>
+              </div>
+              
+              <!-- Source Info -->
+              <div style="
+                text-align: center;
+                color: rgba(255, 255, 255, 0.9);
+                margin-bottom: 30px;
+              ">
+                <div style="
+                  font-size: 24px;
+                  font-weight: 600;
+                  margin-bottom: 8px;
+                  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+                ">${card.source.title}</div>
+                ${card.source.subtitle ? `
+                  <div style="
+                    font-size: 18px;
+                    color: rgba(255, 255, 255, 0.7);
+                    margin-bottom: 12px;
+                    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+                  ">${card.source.subtitle}</div>
+                ` : ''}
+                <div style="
+                  font-size: 16px;
+                  color: rgba(255, 255, 255, 0.6);
+                  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+                ">${getSourceLabel()}</div>
+              </div>
+              
+              <!-- Watermark -->
+              <div style="
+                color: rgba(255, 255, 255, 0.5);
+                font-size: 16px;
+                text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+              ">@middleofallthings</div>
+            </div>
+          </td>
+        </tr>
+      </table>
     `;
     
     // Capture the download version

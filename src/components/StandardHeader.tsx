@@ -34,18 +34,18 @@ const StandardHeader: React.FC<StandardHeaderProps> = ({
     navigate(AppRoute.SETTINGS);
   };
 
-  const baseClasses = "backdrop-blur-md";
+  const baseClasses = "";
   const headerClasses = `${baseClasses} ${className}`;
 
   return (
     <motion.header 
-      className={`${headerClasses} sticky top-0 z-50`}
+      className={`${headerClasses}`}
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <div className="">
-        <div className="flex items-center justify-between max-w-4xl mx-auto px-4 py-4">
+        <div className="flex items-center justify-between max-w-4xl mx-auto px-4 py-4 relative z-10">
           {/* Left side - Back button or title */}
           <div className="flex items-center flex-1">
             {showBackButton ? (

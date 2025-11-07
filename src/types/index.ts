@@ -8,13 +8,6 @@ export interface User {
   lastActive: Date;
 }
 
-// Conversation tone types
-export enum ConversationTone {
-  REFLECTIVE = 'reflective',
-  INTERPRETIVE = 'interpretive', 
-  PHILOSOPHICAL = 'philosophical'
-}
-
 // Symbol types
 export interface Symbol {
   id: string;
@@ -101,7 +94,6 @@ export interface ReflectionEntry {
 export interface UserSettings {
   userId: string;
   darkMode: boolean | 'auto';
-  aiToneStyle: string;
   notificationPreferences: NotificationPreferences;
   accessibilityPrefs: AccessibilityPreferences;
 }
@@ -129,15 +121,6 @@ export interface AppState {
   error: string | null;
 }
 
-export interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  tone?: string;
-  isVoice?: boolean;
-}
-
 // Audio types
 export interface AudioState {
   isPlaying: boolean;
@@ -151,7 +134,6 @@ export interface AudioState {
 export interface NavigationState {
   currentPage: string;
   showPersistentTriad: boolean;
-  showLiveAudioOverlay: boolean;
 }
 
 // Highlight and reflection types
@@ -177,16 +159,6 @@ export enum AppRoute {
   STORIES = '/stories',
   SETTINGS = '/settings',
   SYMBOLS = '/symbols'
-}
-
-// Custom element declarations for TypeScript
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'gdm-live-audio': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-      'gdm-live-audio-visuals-3d': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-    }
-  }
 }
 
  

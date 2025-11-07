@@ -25,7 +25,6 @@ const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
   onPreviousChapter,
   onNextChapter,
   onToggleListen,
-  showShadow = true,
   progress = 0,
   contentType = 'chapter',
   contentId,
@@ -40,7 +39,7 @@ const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
     content: content || ''
   });
   return (
-    <div className={`backdrop-blur-md ${showShadow ? 'shadow-md' : ''}`}>
+    <div className={`backdrop-blur-sm`}>
       {/* Progress bar at the top - only show when listening */}
       {isListening && (
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">

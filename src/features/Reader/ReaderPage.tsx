@@ -1,35 +1,21 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { AppRoute, BookChapter, TextHighlight } from '../../types';
+import { AppRoute, BookChapter } from '../../types';
 import { loadBookChapters, fallbackChapters } from '../../data/bookContent';
-import CleanLayout from '../../components/CleanLayout';
 import ReaderNavigation from '../../components/ReaderNavigation';
 import ChapterInfo from '../../components/ChapterInfo';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
 import { useScrollTracking } from '../../hooks/useScrollTracking';
 
 import UnifiedAudioPlayer from '../../components/UnifiedAudioPlayer';
-import TextSelection from '../../components/TextSelection';
 import ContentFormatter from '../../components/ContentFormatter';
 import { useUserCapabilities } from '../../hooks/useUserCapabilities';
-import { useTextSelection } from '../../hooks/useTextSelection';
 
-interface ReaderPageProps {
-  onOpenAI?: () => void;
-  onCloseAI?: () => void;
-}
-
-
-
-const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
+const ReaderPage: React.FC = () => {
   const navigate = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
-  // Use shared text selection hook
-  const { selectedText, isTextSelected, clearSelection } = useTextSelection({ contentRef });
-  const [, setSavedHighlights] = useState<TextHighlight[]>([]);
   const [chapters, setChapters] = useState<BookChapter[]>([]);
   const [isAudioPlayerOpen, setIsAudioPlayerOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -120,36 +106,11 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
     }
   });
 
-  // Load saved highlights and pins from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('highlights');
-    if (saved) {
-      try {
-        setSavedHighlights(JSON.parse(saved));
-      } catch (error) {
-        console.error('Error loading highlights:', error);
-      }
-    }
-
-    // Clear any old highlight pins data
-    localStorage.removeItem('highlightPins');
-  }, []);
-
   // Load font size setting
   useEffect(() => {
     const savedFontSize = localStorage.getItem('fontSize') || 'base';
     setFontSize(savedFontSize);
   }, []);
-
-
-
-  // Expose clearSelection to parent component
-  useEffect(() => {
-    if (onCloseAI) {
-      // Store the clearSelection function so parent can call it
-      (window as typeof window & { clearReaderSelection?: () => void }).clearReaderSelection = clearSelection;
-    }
-  }, [onCloseAI, clearSelection]);
 
 
 
@@ -286,9 +247,6 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
   const handleTouchEnd = () => {
     if (!touchStart || !touchEnd) return;
     
-    // Disable swipe navigation when text is manually selected
-    if (isTextSelected) return;
-    
     const distance = touchStart - touchEnd;
     const isLeftSwipe = distance > 50;
     const isRightSwipe = distance < -50;
@@ -300,79 +258,20 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
     }
   };
 
-  const handleSaveHighlight = async (text: string, range: Range) => {
-    // All users can save highlights now
-    if (!userCapabilities.canSaveHighlights) {
-      console.log('Saving highlights...');
-    }
-
-    try {
-      const highlight: TextHighlight = {
-        id: `highlight-${Date.now()}`,
-        chapterId: chapters[currentChapterIndex].id,
-        chapterTitle: chapters[currentChapterIndex].title,
-        text: text.trim(),
-        timestamp: new Date(),
-        position: {
-          start: range.startOffset,
-          end: range.endOffset
-        }
-      };
-
-      // Save to localStorage
-      const savedHighlights = JSON.parse(localStorage.getItem('savedHighlights') || '[]');
-      savedHighlights.push(highlight);
-      localStorage.setItem('savedHighlights', JSON.stringify(savedHighlights));
-      
-      console.log('Highlight saved successfully');
-    } catch (error) {
-      console.error('Error saving highlight:', error);
-    }
-  };
-
-  const handleAIChatWithText = (text: string) => {
-    // Store the selected text for AI chat
-    localStorage.setItem('aiChatContext', JSON.stringify({
-      text: text.trim(),
-      chapter: chapters[currentChapterIndex].title,
-      timestamp: new Date().toISOString()
-    }));
-    
-    if (onOpenAI) {
-      onOpenAI();
-    }
-  };
-
-
-
   // Show loading state while chapters are being loaded
   if (chapters.length === 0) {
     return (
-      <CleanLayout
-        currentPage="reader"
-        onRead={() => navigate(AppRoute.HOME)}
-        isReading={true}
-        onOpenAI={onOpenAI}
-        isAudioPlaying={isAudioPlaying}
-      >
-        <div className="min-h-screen flex items-center justify-center relative z-10">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
-            <p className="text-ink-secondary dark:text-ink-muted">Loading chapter...</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center relative z-10">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
+          <p className="text-ink-secondary dark:text-ink-muted">Loading chapter...</p>
         </div>
-      </CleanLayout>
+      </div>
     );
   }
 
   return (
-    <CleanLayout
-      currentPage="reader"
-      onRead={() => navigate(AppRoute.HOME)}
-      isReading={true}
-      onOpenAI={onOpenAI}
-      isAudioPlaying={isAudioPlaying}
-    >
+    <>
       {/* ChapterInfo only on mobile - hidden on desktop */}
       <div 
         className="lg:hidden fixed top-0 left-0 right-0 z-40"
@@ -524,21 +423,6 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
         </div>
       </main>
 
-      {/* Enhanced Text Selection with Pins */}
-      <AnimatePresence>
-        {selectedText && isTextSelected && (
-          <TextSelection
-            selectedText={selectedText.text}
-            range={selectedText.range}
-            rect={selectedText.rect}
-            onSave={handleSaveHighlight}
-            onAIChat={handleAIChatWithText}
-            onDismiss={clearSelection}
-          />
-        )}
-      </AnimatePresence>
-
-
       {/* Click outside handler for overflow menu */}
       {showOverflowMenu && (
         <div 
@@ -548,7 +432,7 @@ const ReaderPage: React.FC<ReaderPageProps> = ({ onOpenAI, onCloseAI }) => {
       )}
 
 
-    </CleanLayout>
+    </>
   );
 };
 

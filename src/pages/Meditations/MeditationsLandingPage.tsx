@@ -5,16 +5,11 @@ import { AppRoute, Meditation } from '../../types';
 import { loadMeditations, fallbackMeditations } from '../../data/meditationContent';
 import { readingProgressService } from '../../services/readingProgressService';
 import { contentCache } from '../../services/contentCache';
-import CleanLayout from '../../components/CleanLayout';
 import SynchronizedCarousel from '../../components/SynchronizedCarousel';
 import { Search, X, ChevronRight, Heart, Leaf, Star, Moon, Sun, Waves, Mountain, Compass, Flower2, CheckCircle2, Scale } from 'lucide-react';
 import { searchMeditations } from '../../data/meditationContent';
 
-interface MeditationsLandingPageProps {
-  onOpenAI: () => void;
-}
-
-const MeditationsLandingPage: React.FC<MeditationsLandingPageProps> = ({ onOpenAI }) => {
+const MeditationsLandingPage: React.FC = () => {
   const [meditations, setMeditations] = useState<Meditation[]>([]);
   const [filteredMeditations, setFilteredMeditations] = useState<Meditation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -158,31 +153,19 @@ const MeditationsLandingPage: React.FC<MeditationsLandingPageProps> = ({ onOpenA
 
   if (isLoading) {
     return (
-      <CleanLayout
-        currentPage="meditations"
-        onRead={() => navigate(AppRoute.MEDITATIONS)}
-        isReading={false}
-        onOpenAI={onOpenAI}
-      >
-        <div className="min-h-screen flex items-center justify-center relative z-10">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
-            <p className="text-ink-secondary dark:text-ink-muted">Loading meditations...</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center relative z-10">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
+          <p className="text-ink-secondary dark:text-ink-muted">Loading meditations...</p>
         </div>
-      </CleanLayout>
+      </div>
     );
   }
 
   return (
-    <CleanLayout
-      currentPage="meditations"
-      onRead={() => navigate(AppRoute.MEDITATIONS)}
-      isReading={false}
-      onOpenAI={onOpenAI}
-    >
+    <>
       {/* Search Bar */}
-      <div className="fixed top-0 left-0 right-0 z-[70] backdrop-blur-md lg:relative lg:backdrop-blur-md">
+      <div className="fixed top-0 left-0 right-0 z-[70] backdrop-blur-sm lg:relative lg:backdrop-blur-sm">
         <div className="max-w-2xl lg:max-w-4xl mx-auto px-6 py-4 lg:pt-6">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-ink-secondary dark:text-ink-muted" />
@@ -234,7 +217,7 @@ const MeditationsLandingPage: React.FC<MeditationsLandingPageProps> = ({ onOpenA
                 loop
                 muted
                 playsInline
-                className="absolute inset-0 w-full h-full object-cover opacity-70 dark:opacity-100"
+                className="absolute inset-0 w-full h-full object-cover opacity-100 dark:opacity-100"
               >
                 <source src="/media/bg.mp4" type="video/mp4" />
               </video>
@@ -311,7 +294,7 @@ const MeditationsLandingPage: React.FC<MeditationsLandingPageProps> = ({ onOpenA
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto pb-24">
                 <ul role="list" className="divide-y divide-ink-muted/10 dark:divide-paper-light/10">
                   {filteredMeditations.map((meditation, index) => {
                     const IconComponent = getMeditationIcon(meditation, index);
@@ -454,7 +437,7 @@ const MeditationsLandingPage: React.FC<MeditationsLandingPageProps> = ({ onOpenA
           />
         </motion.div>
       </div>
-    </CleanLayout>
+    </>
   );
 };
 

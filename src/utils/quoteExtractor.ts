@@ -5,6 +5,7 @@ export interface QuoteCard {
   quote: string;
   source: {
     type: 'book' | 'meditation' | 'story';
+    id: string; // Source ID for navigation
     title: string;
     subtitle?: string;
     part?: string; // For book chapters
@@ -149,6 +150,7 @@ export function generateQuoteCards(
         quote,
         source: {
           type: 'book',
+          id: chapter.id,
           title: chapter.title,
           subtitle: chapter.subtitle,
           part: chapter.part,
@@ -168,6 +170,7 @@ export function generateQuoteCards(
         quote,
         source: {
           type: 'meditation',
+          id: meditation.id,
           title: meditation.title,
         },
         gradient: generateGradient()
@@ -184,6 +187,7 @@ export function generateQuoteCards(
         quote,
         source: {
           type: 'story',
+          id: story.id,
           title: story.title,
         },
         gradient: generateGradient()
@@ -195,54 +199,22 @@ export function generateQuoteCards(
   return shuffleArray(cards);
 }
 
-// Generate random gradient - elegant, muted colors with excellent text legibility
+// Generate random gradient - semi-transparent gradients that allow background video to show through
 function generateGradient(): string {
   const gradients = [
-    // Muted blues and purples
-    'linear-gradient(135deg, #4a5568 0%, #2d3748 100%)',
-    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    'linear-gradient(135deg, #5a67d8 0%, #553c9a 100%)',
-    'linear-gradient(135deg, #4c51bf 0%, #434190 100%)',
-    
-    // Elegant earth tones
-    'linear-gradient(135deg, #6b5b4d 0%, #4a4238 100%)',
-    'linear-gradient(135deg, #7c6a5d 0%, #5a4a3c 100%)',
-    'linear-gradient(135deg, #8b7355 0%, #6d5843 100%)',
-    
-    // Sophisticated teals and greens
-    'linear-gradient(135deg, #2c5f6f 0%, #1e4552 100%)',
-    'linear-gradient(135deg, #1f4037 0%, #99f2c8 100%)',
-    'linear-gradient(135deg, #134e5e 0%, #71b280 100%)',
-    'linear-gradient(135deg, #4c6662 0%, #2d4844 100%)',
-    
-    // Deep warm tones
-    'linear-gradient(135deg, #8e5572 0%, #6b3f5c 100%)',
-    'linear-gradient(135deg, #a8616b 0%, #874b56 100%)',
-    'linear-gradient(135deg, #9d6b84 0%, #7a5168 100%)',
-    
-    // Charcoal and slate
-    'linear-gradient(135deg, #434343 0%, #262626 100%)',
-    'linear-gradient(135deg, #4b5563 0%, #374151 100%)',
-    'linear-gradient(135deg, #52525b 0%, #3f3f46 100%)',
-    
-    // Muted navy and indigo
-    'linear-gradient(135deg, #2d3561 0%, #1f2642 100%)',
-    'linear-gradient(135deg, #1e3a5f 0%, #152a47 100%)',
-    'linear-gradient(135deg, #2c3e50 0%, #1a252f 100%)',
-    
-    // Soft olive and sage
-    'linear-gradient(135deg, #6b7c59 0%, #4f5d42 100%)',
-    'linear-gradient(135deg, #5f6f52 0%, #495640 100%)',
-    
-    // Deep rose and mauve
-    'linear-gradient(135deg, #7d5a6f 0%, #614558 100%)',
-    'linear-gradient(135deg, #8b6f7d 0%, #6d5563 100%)',
-    
-    // Smokey blues
-    'linear-gradient(135deg, #4a5f7a 0%, #344558 100%)',
-    'linear-gradient(135deg, #556b82 0%, #3e4f61 100%)',
+    'linear-gradient(135deg, rgba(253, 251, 251, 0.75) 0%, rgba(235, 237, 238, 0.75) 100%)',
+    'linear-gradient(135deg, rgba(255, 241, 235, 0.75) 0%, rgba(172, 224, 249, 0.75) 100%)',
+    'linear-gradient(135deg, rgba(253, 226, 228, 0.75) 0%, rgba(226, 236, 233, 0.75) 100%)',
+    'linear-gradient(135deg, rgba(252, 227, 236, 0.75) 0%, rgba(255, 232, 214, 0.75) 100%)',
+    'linear-gradient(135deg, rgba(224, 247, 250, 0.75) 0%, rgba(232, 245, 233, 0.75) 100%)',
+    'linear-gradient(135deg, rgba(230, 240, 255, 0.75) 0%, rgba(255, 246, 240, 0.75) 100%)',
+    'linear-gradient(135deg, rgba(243, 232, 255, 0.75) 0%, rgba(232, 250, 255, 0.75) 100%)',
+    'linear-gradient(135deg, rgba(232, 222, 248, 0.75) 0%, rgba(243, 232, 255, 0.75) 100%)',
+    'linear-gradient(135deg, rgba(230, 255, 250, 0.75) 0%, rgba(255, 250, 240, 0.75) 100%)',
+    'linear-gradient(135deg, rgba(250, 243, 221, 0.75) 0%, rgba(226, 240, 203, 0.75) 100%)',
+    'linear-gradient(135deg, rgba(255, 229, 236, 0.75) 0%, rgba(226, 240, 255, 0.75) 100%)',
+    'linear-gradient(135deg, rgba(254, 246, 228, 0.75) 0%, rgba(227, 240, 255, 0.75) 100%)',
   ];
-  
   return gradients[Math.floor(Math.random() * gradients.length)];
 }
 

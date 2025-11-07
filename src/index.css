@@ -156,6 +156,11 @@
 }
 
 @layer base {
+  /* Fix for html2canvas text shift issue with Tailwind */
+  img {
+    @apply inline-block;
+  }
+
   html {
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -240,24 +245,6 @@
 
   .dark .breathing-orb {
     background: radial-gradient(circle, rgba(250, 250, 250, 0.8) 0%, rgba(250, 250, 250, 0.4) 70%, transparent 100%);
-  }
-
-  .ai-ripple {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .ai-ripple::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(227, 65, 65, 0.4) 0%, transparent 70%);
-    transform: translate(-50%, -50%);
-    animation: ripple 1.5s ease-out;
   }
 
   .text-highlight {
@@ -377,7 +364,7 @@
   }
 
   .drawer-backdrop {
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(4px);
     background: rgba(15, 15, 15, 0.3);
   }
 
@@ -388,8 +375,8 @@
   /* Subtle glassmorphism - very light, meditative */
   .glass-subtle {
     background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     border: 1px solid rgba(0, 0, 0, 0.04);
   }
 

@@ -1,33 +1,28 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AppRoute } from '../types';
-import { BookOpen, Home, Star, Scale, Scroll } from 'lucide-react';
+import { BookOpen, Home, Scale, Scroll } from 'lucide-react';
 
 interface StandardNavigationProps {
-  currentPage: string;
-  onRead?: () => void; // Made optional since it's no longer used
-  isReading?: boolean;
   showShadow?: boolean;
-  onOpenAI?: () => void;
 }
 
 const StandardNavigation: React.FC<StandardNavigationProps> = ({
-  currentPage,
-  onRead,
-  isReading = false,
-  showShadow = true,
-  onOpenAI
+  showShadow = true
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const getActivePage = () => {
-    switch (currentPage) {
-      case 'home': return 'home';
-      case 'reader':
-      case 'book': return 'read';
-      case 'meditations': return 'meditations';
-      case 'stories': return 'stories';
+    switch (location.pathname) {
+      case AppRoute.HOME: return 'home';
+      case '/book': return 'read';
+      case AppRoute.READER: return 'read';
+      case '/meditations-landing': return 'meditations';
+      case AppRoute.MEDITATIONS: return 'meditations';
+      case '/stories-landing': return 'stories';
+      case AppRoute.STORIES: return 'stories';
       default: return 'home';
     }
   };
@@ -35,7 +30,7 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
   const activePage = getActivePage();
 
   return (
-    <div className={`fixed bottom-0 left-0 right-0 z-50 backdrop-blur-md ${showShadow ? 'shadow-md' : ''}`}>
+    <div className={`fixed bottom-0 left-0 right-0 z-50 backdrop-blur-sm ${showShadow ? 'shadow-md' : ''}`}>
       <div className="flex items-center justify-around px-2 py-3">
         {/* Home Navigation */}
         <motion.button

@@ -15,16 +15,15 @@ const SettingsPage = lazy(() => import('./pages/Settings/SettingsPage'));
 
 // Components - keep these as regular imports since they're needed globally
 import ErrorBoundary from './components/ErrorBoundary';
-import AIDrawer from './features/AI/AIDrawer';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import WelcomeBanner from './components/WelcomeBanner';
 import ServiceWorkerRegistration from './components/ServiceWorkerRegistration';
 import NativeFeatures from './components/NativeFeatures';
 import LoadingSpinner from './components/LoadingSpinner';
+import PersistentLayout from './components/PersistentLayout';
 
 const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isAIDrawerOpen, setIsAIDrawerOpen] = useState(false);
 
   // Initialize app - setup theme
   useEffect(() => {
@@ -85,77 +84,70 @@ const App: React.FC = () => {
         <div className={`app ${isDarkMode ? 'dark' : ''}`}>
           <Suspense fallback={<PageLoader />}>
             <Routes>
-              {/* Home route - main navigation hub */}
-              <Route
-                path={AppRoute.HOME}
-                element={<HomePage onOpenAI={() => setIsAIDrawerOpen(true)} />}
-              />
+              {/* Persistent Layout wraps all routes */}
+              <Route element={<PersistentLayout />}>
+                {/* Home route - main navigation hub */}
+                <Route
+                  path={AppRoute.HOME}
+                  element={<HomePage />}
+                />
 
-              {/* Landing pages */}
-              <Route
-                path="/book"
-                element={<BookLandingPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
-              />
+                {/* Landing pages */}
+                <Route
+                  path="/book"
+                  element={<BookLandingPage />}
+                />
 
-              <Route
-                path="/meditations-landing"
-                element={<MeditationsLandingPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
-              />
+                <Route
+                  path="/meditations-landing"
+                  element={<MeditationsLandingPage />}
+                />
 
-              <Route
-                path="/stories-landing"
-                element={<StoriesLandingPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
-              />
+                <Route
+                  path="/stories-landing"
+                  element={<StoriesLandingPage />}
+                />
 
-              {/* Reader pages */}
-              <Route
-                path={AppRoute.READER}
-                element={<ReaderPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
-              />
+                {/* Reader pages */}
+                <Route
+                  path={AppRoute.READER}
+                  element={<ReaderPage />}
+                />
 
-              <Route
-                path={AppRoute.MEDITATIONS}
-                element={<MeditationsPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
-              />
+                <Route
+                  path={AppRoute.MEDITATIONS}
+                  element={<MeditationsPage />}
+                />
 
-              <Route
-                path={AppRoute.STORIES}
-                element={<StoriesPage onOpenAI={() => setIsAIDrawerOpen(true)} />}
-              />
+                <Route
+                  path={AppRoute.STORIES}
+                  element={<StoriesPage />}
+                />
 
-              <Route
-                path={AppRoute.SETTINGS}
-                element={
-                  <SettingsPage 
-                    isDarkMode={isDarkMode}
-                    onToggleTheme={toggleTheme}
-                    onSignOut={() => {
-                      window.location.reload();
-                    }}
-                  />
-                }
-              />
+                <Route
+                  path={AppRoute.SETTINGS}
+                  element={
+                    <SettingsPage 
+                      isDarkMode={isDarkMode}
+                      onToggleTheme={toggleTheme}
+                    />
+                  }
+                />
 
-              {/* Default redirect - redirect root to home */}
-              <Route
-                path="/"
-                element={<Navigate to={AppRoute.HOME} replace />}
-              />
+                {/* Default redirect - redirect root to home */}
+                <Route
+                  path="/"
+                  element={<Navigate to={AppRoute.HOME} replace />}
+                />
 
-              {/* Catch all - redirect to home */}
-              <Route
-                path="*"
-                element={<Navigate to={AppRoute.HOME} replace />}
-              />
+                {/* Catch all - redirect to home */}
+                <Route
+                  path="*"
+                  element={<Navigate to={AppRoute.HOME} replace />}
+                />
+              </Route>
             </Routes>
           </Suspense>
-
-          {/* AI Drawer */}
-          <AIDrawer 
-            isOpen={isAIDrawerOpen}
-            onClose={() => setIsAIDrawerOpen(false)}
-            user={null}
-          />
 
           {/* Welcome Banner - shows on first visit */}
           <WelcomeBanner />

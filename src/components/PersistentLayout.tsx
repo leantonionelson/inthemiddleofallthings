@@ -1,35 +1,29 @@
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import DesktopNavigation from './DesktopNavigation';
 import StandardNavigation from './StandardNavigation';
 import { useScrollTransition } from '../hooks/useScrollTransition';
+import { AppRoute } from '../types';
 
-interface ResponsiveLayoutProps {
-  children: ReactNode;
-  currentPage: string;
-  onRead?: () => void;
-  isReading?: boolean;
-  showShadow?: boolean;
-  onOpenAI?: () => void;
-  isAudioPlaying?: boolean;
-}
+interface PersistentLayoutProps {}
 
-const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
-  children,
-  currentPage,
-  onRead,
-  isReading = false,
-  showShadow = true,
-  onOpenAI,
-  isAudioPlaying = false
-}) => {
+const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
+  const location = useLocation();
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  
+  // Determine if we're on a reading page
+  const isReading = location.pathname.startsWith(AppRoute.READER) || 
+                    location.pathname.startsWith(AppRoute.MEDITATIONS) || 
+                    location.pathname.startsWith(AppRoute.STORIES);
+  
   const scrollTransition = useScrollTransition({
     threshold: 5,
     sensitivity: 0.8,
     maxOffset: 80,
-    direction: 'down' // Bottom menu moves down when scrolling down
+    direction: 'down'
   });
 
-  // Measure fixed nav heights to prevent content from scrolling under them
+  // Measure fixed nav heights
   const desktopNavRef = useRef<HTMLDivElement | null>(null);
   const mobileNavRef = useRef<HTMLDivElement | null>(null);
   const [topNavHeight, setTopNavHeight] = useState(0);
@@ -44,15 +38,12 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
       setBottomNavHeight(bottom);
     };
 
-    // Initial measure
     measure();
 
-    // Re-measure on resize and orientation changes
     const handleResize = () => measure();
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleResize);
 
-    // Observe nav size changes
     const { ResizeObserver: ResizeObserverCtor } = (window as unknown as {
       ResizeObserver?: new (callback: ResizeObserverCallback) => ResizeObserver;
     });
@@ -72,10 +63,7 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   }, []);
 
   const contentHeightStyle = useMemo<React.CSSProperties>(() => {
-    // For reading pages, keep window scroll semantics as-is to avoid breaking reader interactions
     if (isReading) return {};
-    // Compute available height subtracting fixed navs (desktop top or mobile bottom)
-    // Both may not be present due to responsive visibility; measured values will be 0 accordingly
     return {
       height: `calc(100vh - ${topNavHeight}px - ${bottomNavHeight}px)`,
       overflowY: 'auto',
@@ -85,7 +73,7 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
 
   return (
     <div className="min-h-screen bg-paper-light dark:bg-slate-950/75 relative">
-      {/* Background Video */}
+      {/* Persistent Background Video */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <video
           autoPlay
@@ -96,30 +84,28 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
         >
           <source src="/media/bg.mp4" type="video/mp4" />
         </video>
-        {/* Dark overlay for better content readability */}
         <div className="absolute inset-0 bg-paper-light/50 dark:bg-slate-950/75"></div>
       </div>
 
-      {/* Desktop Navigation - Hidden on mobile */}
+      {/* Persistent Desktop Navigation */}
       <div className="hidden lg:block relative z-10" ref={desktopNavRef}>
-        <DesktopNavigation onOpenAI={onOpenAI} />
+        <DesktopNavigation />
       </div>
 
-      {/* Main Content */}
+      {/* Main Content - This is where page content will render */}
       <main className={`relative z-10`}>
         {isReading ? (
-          // Keep original flow/scroll for reading pages, but offset for desktop nav and mobile bottom nav heights
           <div style={{ marginTop: topNavHeight, paddingBottom: bottomNavHeight }}>
-            {children}
+            <Outlet context={{ isAudioPlaying, setIsAudioPlaying }} />
           </div>
         ) : (
           <div style={contentHeightStyle}>
-            {children}
+            <Outlet context={{ isAudioPlaying, setIsAudioPlaying }} />
           </div>
         )}
       </main>
 
-      {/* Mobile Navigation - Hidden on desktop */}
+      {/* Persistent Mobile Navigation */}
       <div className="lg:hidden relative z-50">
         <div 
           id="mobile-nav"
@@ -128,19 +114,14 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
           style={isReading ? {
             ...scrollTransition.style,
             transform: isAudioPlaying 
-              ? 'translateY(80px)' // Move bottom menu down when audio is playing
+              ? 'translateY(80px)'
               : scrollTransition.style.transform
           } : {
-            // No scroll transition on other pages
             transform: 'none'
           }}
         >
           <StandardNavigation
-            currentPage={currentPage}
-            onRead={onRead}
-            isReading={isReading}
-            showShadow={showShadow}
-            onOpenAI={onOpenAI}
+            showShadow={true}
           />
         </div>
       </div>
@@ -148,4 +129,5 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   );
 };
 
-export default ResponsiveLayout;
+export default PersistentLayout;
+

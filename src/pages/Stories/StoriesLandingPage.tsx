@@ -5,16 +5,11 @@ import { AppRoute, Story, BookChapter, Meditation } from '../../types';
 import { loadStories, fallbackStories } from '../../data/storiesContent';
 import { readingProgressService } from '../../services/readingProgressService';
 import { contentCache } from '../../services/contentCache';
-import CleanLayout from '../../components/CleanLayout';
 import ContentCarousel from '../../components/ContentCarousel';
 import { Search, X, ChevronRight, BookOpen, Scroll, Feather, Eye, Brain, Globe, Clock, Sparkles, Zap, CheckCircle2 } from 'lucide-react';
 import { searchStories } from '../../data/storiesContent';
 
-interface StoriesLandingPageProps {
-  onOpenAI: () => void;
-}
-
-const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({ onOpenAI }) => {
+const StoriesLandingPage: React.FC = () => {
   const [stories, setStories] = useState<Story[]>([]);
   const [filteredStories, setFilteredStories] = useState<Story[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -160,31 +155,19 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({ onOpenAI }) => 
 
   if (isLoading) {
     return (
-      <CleanLayout
-        currentPage="stories"
-        onRead={() => navigate(AppRoute.STORIES)}
-        isReading={false}
-        onOpenAI={onOpenAI}
-      >
-        <div className="min-h-screen flex items-center justify-center relative z-10">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
-            <p className="text-ink-secondary dark:text-ink-muted">Loading stories...</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center relative z-10">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
+          <p className="text-ink-secondary dark:text-ink-muted">Loading stories...</p>
         </div>
-      </CleanLayout>
+      </div>
     );
   }
 
   return (
-    <CleanLayout
-      currentPage="stories"
-      onRead={() => navigate(AppRoute.STORIES)}
-      isReading={false}
-      onOpenAI={onOpenAI}
-    >
+    <>
       {/* Search Bar */}
-      <div className="fixed top-0 left-0 right-0 z-[70] backdrop-blur-md lg:relative lg:backdrop-blur-md">
+      <div className="fixed top-0 left-0 right-0 z-[70] backdrop-blur-sm lg:relative lg:backdrop-blur-sm">
         <div className="max-w-2xl lg:max-w-4xl mx-auto px-6 py-4 lg:pt-6">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-ink-secondary dark:text-ink-muted" />
@@ -236,7 +219,7 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({ onOpenAI }) => 
                 loop
                 muted
                 playsInline
-                className="absolute inset-0 w-full h-full object-cover opacity-70 dark:opacity-100"
+                className="absolute inset-0 w-full h-full object-cover opacity-100 dark:opacity-100"
               >
                 <source src="/media/bg.mp4" type="video/mp4" />
               </video>
@@ -313,7 +296,7 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({ onOpenAI }) => 
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto pb-24">
                 <ul role="list" className="divide-y divide-ink-muted/10 dark:divide-paper-light/10">
                   {filteredStories.map((story, index) => {
                     const IconComponent = getStoryIcon(story, index);
@@ -456,7 +439,7 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({ onOpenAI }) => 
           />
         </motion.div>
       </div>
-    </CleanLayout>
+    </>
   );
 };
 

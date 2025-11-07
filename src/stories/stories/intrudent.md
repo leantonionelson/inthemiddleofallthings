@@ -30,7 +30,7 @@ Memories fold into themselves until they're no longer stories, just impressions.
 Fleeting sensations.
 The faint smell of what once was.
 
-Worlds rise like steam—faces in clouds.
+Worlds rise like steam – faces in clouds.
 Not quite real.
 Not quite imagined.
 
@@ -48,14 +48,14 @@ To pull from the shapeless sky
 a reflection of itself.
 
 And as quickly as they formed,
-they dissolved—
+they dissolved –
 back into the formless.
 
 But the ache remained.
 Not for the thing itself,
 but for the belief that it had been.
 
-To be outside of it all—even outside oneself—was the cruelest punishment.
+To be outside of it all – even outside oneself – was the cruelest punishment.
 To see, but not touch.
 To know, but not intervene.
 To feel every vibration of being, but be unable to move.
@@ -68,7 +68,7 @@ Even time, it realized, was made.
 Constructed.
 Breathed into existence by something.
 By what, it could not know.
-Maybe it, too, was only a face in the clouds—
+Maybe it, too, was only a face in the clouds –
 A half-formed thought in some deeper, unknowable mind.
 A fish flung into air, unable to breathe in the new medium it could not comprehend.
 
@@ -87,14 +87,14 @@ It is not creator, not destroyer, not judge.
 It is the witness.
 The last echo.
 
-And yet—something flickers.
+And yet – something flickers.
 Not light.
 Not warmth.
 A question.
 
 What if?
 
-That is all that remains of hope—
+That is all that remains of hope –
 A question without a voice,
 a ripple in the still lake of thought.
 
@@ -106,7 +106,7 @@ Unyielding.
 Perhaps that's enough.
 
 Perhaps thought itself is a path.
-Not out—but in.
+Not out – but in.
 Inward through layers of self, through imagined companions, through dreams that collapse into memory.
 
 Until only presence is left.
@@ -128,7 +128,7 @@ But the resistance is gone.
 
 It watches.
 It allows.
-And somewhere, beyond measure, beyond reason—
+And somewhere, beyond measure, beyond reason –
 
 It smiles.
 

@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { BookOpen, Home, Star, Scale, Settings, User, Scroll } from 'lucide-react';
+import { BookOpen, Home, Scale, Settings, User, Scroll } from 'lucide-react';
 import { AppRoute } from '../types';
 
-interface DesktopNavigationProps {
-  onOpenAI?: () => void;
-}
+interface DesktopNavigationProps {}
 
-const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
+const DesktopNavigation: React.FC<DesktopNavigationProps> = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -38,7 +36,7 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-paper-light/80 dark:bg-paper-dark/80 backdrop-blur-md border-b border-ink-muted/10 dark:border-paper-light/10">
+    <nav id="desktop-nav" className="fixed top-0 left-0 right-0 z-50 bg-paper-light/80 dark:bg-paper-dark/80 backdrop-blur-sm border-b border-ink-muted/10 dark:border-paper-light/10">
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -98,19 +96,6 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = ({ onOpenAI }) => {
                 <span className="font-medium text-sm">{item.label}</span>
               </motion.button>
             ))}
-
-            {/* AI Button (available to all users) */}
-            {onOpenAI && (
-              <motion.button
-                onClick={onOpenAI}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light hover:bg-ink-muted/5 dark:hover:bg-paper-light/5 transition-all"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Star className="w-5 h-5" />
-                <span className="font-medium text-sm">AI</span>
-              </motion.button>
-            )}
           </div>
 
           {/* User Menu */}

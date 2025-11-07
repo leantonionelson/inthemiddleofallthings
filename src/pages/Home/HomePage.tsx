@@ -1,21 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useFitText } from 'react-use-fittext';
-import { AppRoute } from '../../types';
+import { AppRoute, BookChapter, Meditation } from '../../types';
 import { loadBookChapters } from '../../data/bookContent';
 import { loadMeditations } from '../../data/meditationContent';
 import { progressiveLoader } from '../../services/progressiveLoader';
 import { generateQuoteCards, QuoteCard } from '../../utils/quoteExtractor';
-import { downloadCardAsImage } from '../../utils/cardDownloader';
-import CleanLayout from '../../components/CleanLayout';
+import { downloadCardAsImage, downloadElementAsImage } from '../../utils/cardDownloader';
 import StandardHeader from '../../components/StandardHeader';
 import QuoteCardSkeleton from '../../components/QuoteCardSkeleton';
 import { Download, BookOpen, Scale } from 'lucide-react';
-
-interface HomePageProps {
-  onOpenAI: () => void;
-}
 
 const SWIPE_THRESHOLD = 100;
 
@@ -23,7 +18,8 @@ const QuoteCardComponent: React.FC<{
   card: QuoteCard;
   style: React.CSSProperties;
   onSwipe: () => void;
-}> = ({ card, style, onSwipe }) => {
+  cardRef?: React.RefObject<HTMLDivElement | null>;
+}> = ({ card, style, onSwipe, cardRef }) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-25, 25]);
   const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0]);
@@ -93,33 +89,53 @@ const QuoteCardComponent: React.FC<{
     >
       <div
         className="w-full h-full rounded-3xl shadow-2xl overflow-hidden flex flex-col relative select-none pointer-events-none"
-        style={{ background: card.gradient }}
+        ref={cardRef as React.RefObject<HTMLDivElement | null>}
       >
-        {/* Artistic background elements */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          {/* Subtle noise texture */}
-          <div className="absolute inset-0" style={{ 
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulance type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-            backgroundSize: '200px 200px'
-          }} />
+        {/* Background Video - Bottom layer */}
+        <div className="absolute inset-0 z-0 overflow-hidden rounded-3xl">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ opacity: 1 }}
+          >
+            <source src="/media/bg.mp4" type="video/mp4" />
+          </video>
         </div>
-        
-        {/* Geometric accent shapes */}
-        <div className="absolute inset-0 opacity-5 pointer-events-none overflow-hidden">
-          <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-white/20 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-black/10 blur-3xl" />
-          <div className="absolute top-1/3 right-1/4 w-40 h-40 rotate-45 bg-white/10 blur-2xl" />
-        </div>
-        
-        {/* Subtle gradient overlay for depth */}
-        <div className="absolute inset-0 pointer-events-none" style={{
-          background: 'radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1) 0%, transparent 50%)'
+
+        {/* Gradient Overlay - On top of video */}
+        <div 
+          className="absolute inset-0 z-[1] pointer-events-none"
+          style={{ background: card.gradient, opacity: 0.9 }}
+        />
+        {/* Dark mode deepening overlay for gradients */}
+        <div 
+          className="absolute inset-0 z-[1] pointer-events-none hidden dark:block bg-black/30"
+        />
+
+        {/* Grainy texture overlay - softer grain */}
+        <div className="absolute inset-0 z-[2] pointer-events-none" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='0.4'/%3E%3C/svg%3E")`,
+          backgroundSize: '200px 200px',
+          mixBlendMode: 'overlay',
+          opacity: 0.5
         }} />
+        
+        {/* Additional fine grain layer for texture depth */}
+        <div className="absolute inset-0 z-[2] pointer-events-none" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='fineGrain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23fineGrain)' opacity='0.3'/%3E%3C/svg%3E")`,
+          backgroundSize: '100px 100px',
+          mixBlendMode: 'multiply',
+          opacity: 0.4
+        }} />
+        
         
         {/* Card Content - Fixed height structure */}
         <div className="flex-1 flex flex-col justify-between items-center p-6 sm:p-8 md:p-10 min-h-0 relative z-10 pointer-events-none">
           {/* Source Icon & Type - Fixed height */}
-          <div className="flex items-center gap-2 text-white/80 text-xs sm:text-sm flex-shrink-0 min-h-[20px] pointer-events-none" style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)' }}>
+          <div className="flex items-center gap-2 text-ink-primary/80 dark:text-white/80 text-xs sm:text-sm flex-shrink-0 min-h-[20px] pointer-events-none dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.3)]">
             {getSourceIcon()}
             <span className="uppercase tracking-wider">{card.source.type}</span>
           </div>
@@ -131,10 +147,9 @@ const QuoteCardComponent: React.FC<{
           >
             <blockquote 
               ref={textRef as React.RefObject<HTMLQuoteElement>}
-              className="text-white font-serif text-center leading-relaxed max-w-2xl whitespace-pre-line pointer-events-none w-full" 
+              className="text-ink-primary dark:text-white font-serif text-center leading-relaxed max-w-2xl whitespace-pre-line pointer-events-none w-full dark:[text-shadow:0_2px_8px_rgba(0,0,0,0.3)]" 
               style={{ 
                 fontSize: `${fontSize}px`,
-                textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
                 lineHeight: '1.4'
               }}
             >
@@ -143,28 +158,31 @@ const QuoteCardComponent: React.FC<{
           </div>
 
           {/* Source Info - Fixed height with consistent spacing */}
-          <div className="text-center text-white/90 flex-shrink-0 flex flex-col justify-center pointer-events-none" style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)' }}>
+          <div className="text-center text-ink-primary/90 dark:text-white/90 flex-shrink-0 flex flex-col justify-center pointer-events-none dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.3)]">
             <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-1 line-clamp-2">{card.source.title}</h3>
             {card.source.subtitle && (
-              <p className="text-xs sm:text-sm md:text-base text-white/70 mb-2 line-clamp-1">{card.source.subtitle}</p>
+              <p className="text-xs sm:text-sm md:text-base text-ink-primary/70 dark:text-white/70 mb-2 line-clamp-1">{card.source.subtitle}</p>
             )}
-            <p className="text-xs sm:text-xs md:text-sm text-white/60">{getSourceLabel()}</p>
+            <p className="text-xs sm:text-xs md:text-sm text-ink-primary/60 dark:text-white/60">{getSourceLabel()}</p>
           </div>
         </div>
 
         {/* Watermark - Fixed height */}
-        <div className="py-3 sm:py-4 text-center flex-shrink-0 min-h-[44px] flex items-center justify-center pointer-events-none">
-          <p className="text-white/50 text-xs sm:text-sm" style={{ textShadow: '0 1px 4px rgba(0, 0, 0, 0.3)' }}>@middleofallthings</p>
+        <div className="py-3 sm:py-4 text-center flex-shrink-0 min-h-[44px] flex items-center justify-center pointer-events-none z-30">
+          <p className="text-ink-primary/50 dark:text-white/50 text-xs sm:text-sm dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.3)]">@middleofallthings</p>
         </div>
       </div>
     </motion.div>
   );
 };
 
-const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
+const HomePage: React.FC = () => {
   const [cards, setCards] = useState<QuoteCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [chapters, setChapters] = useState<BookChapter[]>([]);
+  const [meditations, setMeditations] = useState<Meditation[]>([]);
   const navigate = useNavigate();
+  const currentCardRef = useRef<HTMLDivElement>(null);
 
   // Load content progressively in background - seamless UX with skeleton
   useEffect(() => {
@@ -180,6 +198,10 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
           // Only update cards once all content is fully loaded to avoid flurry
           if (progress.isComplete) {
             const loadedContent = progressiveLoader.getLoadedContent();
+            
+            // Store chapters and meditations for navigation
+            setChapters(loadedContent.chapters);
+            setMeditations(loadedContent.meditations);
             
             // Regenerate quote cards with ALL loaded content (chapters and meditations only)
             const allCards = generateQuoteCards(
@@ -199,6 +221,10 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
         );
 
         if (cancelled) return;
+
+        // Store chapters and meditations for navigation
+        setChapters(initialContent.chapters);
+        setMeditations(initialContent.meditations);
 
         // Generate quote cards from initial batch (chapters and meditations only)
         const initialCards = generateQuoteCards(
@@ -228,21 +254,45 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
 
   const handleDownload = async () => {
     if (!cards[currentIndex]) return;
-    await downloadCardAsImage(cards[currentIndex]);
+    const filename = `middle-quote-${cards[currentIndex].source.title.toLowerCase().replace(/\s+/g, '-')}.png`;
+    if (currentCardRef.current) {
+      await downloadElementAsImage(currentCardRef.current, filename);
+    } else {
+      await downloadCardAsImage(cards[currentIndex]);
+    }
   };
 
   const handleRead = () => {
     const card = cards[currentIndex];
     if (!card) return;
 
-    // Navigate to appropriate section (book or meditation)
+    // Navigate to the specific source material
     switch (card.source.type) {
-      case 'book':
-        navigate(AppRoute.READER);
+      case 'book': {
+        // Find the chapter by ID
+        const chapterIndex = chapters.findIndex(ch => ch.id === card.source.id);
+        if (chapterIndex >= 0) {
+          localStorage.setItem('currentChapterIndex', chapterIndex.toString());
+          navigate(AppRoute.READER);
+        } else {
+          // Fallback: navigate to reader without specific chapter
+          navigate(AppRoute.READER);
+        }
         break;
-      case 'meditation':
-        navigate(AppRoute.MEDITATIONS);
+      }
+      case 'meditation': {
+        // Find the meditation by ID
+        const meditationIndex = meditations.findIndex(m => m.id === card.source.id);
+        if (meditationIndex >= 0) {
+          localStorage.setItem('currentMeditationId', card.source.id);
+          localStorage.setItem('currentMeditationIndex', meditationIndex.toString());
+          navigate(AppRoute.MEDITATIONS);
+        } else {
+          // Fallback: navigate to meditations without specific meditation
+          navigate(AppRoute.MEDITATIONS);
+        }
         break;
+      }
       default:
         navigate(AppRoute.READER);
         break;
@@ -254,14 +304,9 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
   const hasCards = cards.length > 0;
 
   return (
-    <CleanLayout
-      currentPage="home"
-      onRead={() => navigate(AppRoute.READER)}
-      isReading={false}
-      onOpenAI={onOpenAI}
-    >
-      {/* Fixed viewport layout - accounts for mobile nav (80px) and desktop nav (80px) */}
-      <div className="fixed inset-0 lg:top-20 pb-20 lg:pb-0 flex flex-col overflow-hidden">
+    <>
+      {/* Fixed viewport layout - accounts for mobile nav and desktop nav */}
+      <div className="fixed inset-0 lg:top-24 pb-24 lg:pb-0 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex-shrink-0">
           <StandardHeader title="In the Middle of All Things" showSettingsButton={true} />
@@ -278,7 +323,7 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
                 <div
                   className="absolute inset-0"
                   style={{
-                    transform: 'scale(0.95) translateY(20px)',
+                    transform: 'scale(0.95) translateY(28px)',
                     opacity: 0.5,
                     zIndex: 0
                   }}
@@ -312,7 +357,7 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
                   <div
                     className="absolute inset-0"
                     style={{
-                      transform: 'scale(0.95) translateY(20px)',
+                      transform: 'scale(0.95) translateY(32px)',
                       opacity: 0.5,
                       zIndex: 0
                     }}
@@ -331,6 +376,7 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
                     card={currentCard}
                     style={{}}
                     onSwipe={handleSwipe}
+                    cardRef={currentCardRef}
                   />
                 </div>
               </>
@@ -368,7 +414,7 @@ const HomePage: React.FC<HomePageProps> = ({ onOpenAI }) => {
           )}
         </div>
       </div>
-    </CleanLayout>
+    </>
   );
 };
 
