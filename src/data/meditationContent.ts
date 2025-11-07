@@ -138,8 +138,8 @@ A reminder that life is not symmetrical.
 Inhale requires effort.
 Exhale is release.
 
-You take twice what you need—
-air, nourishment, experience—
+You take twice what you need–
+air, nourishment, experience–
 and then let it go completely.
 Nothing hoarded.
 Nothing clutched.`,

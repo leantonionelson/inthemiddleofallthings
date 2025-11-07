@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { BookChapter } from '../types';
 import { partDescriptions } from '../data/bookContent';
@@ -22,13 +22,69 @@ const partOrder = [
   'Part IV: The Horizon Beyond'
 ];
 
-// Extended descriptions for the drawer (longer, more detailed versions)
-const extendedPartDescriptions: Record<string, string> = {
-  'Introduction': 'An orientation to the journey ahead, setting the foundation for exploration. This opening section invites you into a space between certainty and doubt, where questions matter more than answers. Here, you\'ll discover how to hold the tension of opposites, finding center not as a fixed point but as a dynamic balance. The introduction prepares you for a philosophical journey that asks you to examine your assumptions, embrace uncertainty, and explore what it means to exist in the middle of all things—neither fully knowing nor fully unknowing, but present to the unfolding moment.',
-  'Part I: The Axis of Becoming': 'Exploring the fundamental forces that shape our existence and the choices that define who we become. This section examines the invisible axes around which our lives revolve—the pull of consequence, the shape of desire, the weight of choice. You\'ll explore how every action creates ripples through time, how our deepest longings reveal our true nature, and how the discipline of becoming requires us to choose ourselves again and again. Through reflection on the axis of consequence, the nature of desire, and the transformative power of committed choice, you\'ll begin to understand how we actively participate in our own becoming.',
-  'Part II: The Spiral Path': 'Understanding the cyclical nature of growth, the return of old patterns, and the sacred pauses that allow integration. Growth is not linear—it spirals. We return to familiar territories but at different elevations, seeing old challenges with new eyes. This part explores how the spiral path honors both progress and return, how old versions of ourselves resurface not as failures but as teachers, and how rest and pause are essential to integration. You\'ll discover the wisdom in repetition, the grace in returning, and the necessity of allowing time for what you\'ve learned to take root.',
-  'Part III: The Living Axis': 'Discovering how to live fully in the present moment, using the body and emotions as guides to authentic being. The body is not separate from consciousness—it is consciousness embodied. This section teaches you to listen to the wisdom of sensation, to honor emotion as messenger rather than master, and to find your center amidst the chaos of daily life. You\'ll explore how the present moment is the only place where life actually happens, how the world itself becomes a field of practice, and how authentic being emerges when we stop performing and start inhabiting ourselves fully.',
-  'Part IV: The Horizon Beyond': 'Contemplating mortality, transcendence, and our place within something larger than ourselves. Every life leaves traces—echoes and imprints that ripple beyond our knowing. This final section invites you to face mortality with courage, to explore transcendence without escape, and to recognize yourself as part of an infinite web of connection. You\'ll contemplate the shape of your mortality, the possibility of transcendence that doesn\'t abandon the world, and the profound belonging that comes from knowing you are held by something larger than yourself. The spiral never truly ends—it continues beyond the horizon of individual existence.'
+// Helper function to render text with markdown-style italics
+const renderTextWithItalics = (text: string): React.ReactNode => {
+  const parts = text.split(/(\*[^*]+\*)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith('*') && part.endsWith('*')) {
+      return <em key={index}>{part.slice(1, -1)}</em>;
+    }
+    return <span key={index}>{part}</span>;
+  });
+};
+
+// Extended descriptions for the drawer (structured with title and prose content)
+interface PartDescription {
+  title: string;
+  content: string;
+}
+
+const extendedPartDescriptions: Record<string, PartDescription> = {
+  'Introduction': {
+    title: 'Prelude – When Stillness Begins to Move',
+    content: `You are not searching for answers.
+You're circling the right questions.
+You've started noticing that silence has a texture –
+that awareness itself feels like motion.
+You don't want escape, only clarity enough to stay.
+This is where you begin: not by doing, but by noticing what already stirs.`
+  },
+  'Part I: The Axis of Becoming': {
+    title: 'Part I – The Weight of Becoming',
+    content: `You are somewhere between what was and what wants to be.
+Change is no longer a choice – it's happening through you.
+Discipline is whispering your name,
+and you're beginning to see that resistance is not the enemy but the edge of growth.
+You are learning to let friction polish rather than punish.
+You are being shaped by your own becoming.`
+  },
+  'Part II: The Spiral Path': {
+    title: 'Part II – The Shape of Return',
+    content: `You've realised that progress sometimes looks like circling back.
+You no longer chase transformation; you trace its rhythm.
+You're beginning to see patterns not as prisons but as teachers.
+You are softer with yourself, but sharper in awareness.
+Your pace slows; your depth widens.
+Here, you begin to trust what repeats.`
+  },
+  'Part III: The Living Axis': {
+    title: 'Part III – The Practice of Presence',
+    content: `You want to live inside your body again – not as a cage, but as a compass.
+You're noticing how breath anchors thought,
+how stillness can hold a storm.
+You don't seek balance as symmetry,
+but as responsiveness – a poised readiness for change.
+Here, you learn to meet life where it happens: in motion, in matter, in now.`
+  },
+  'Part IV: The Horizon Beyond': {
+    title: 'Part IV – The Edge That Opens',
+    content: `You feel the horizon drawing near –
+not as distance, but as invitation.
+You're ready to live with open hands.
+Mortality no longer frightens you; it clarifies you.
+Meaning doesn't need to be found – it unfolds when you stop chasing.
+You are no longer seeking the centre. You are living from it.`
+  }
 };
 
 const BookIntroDrawer: React.FC<BookIntroDrawerProps> = ({
@@ -48,7 +104,7 @@ const BookIntroDrawer: React.FC<BookIntroDrawerProps> = ({
   }, [isOpen, initialPartIndex]);
 
   const currentPart = partOrder[currentPartIndex];
-  const currentPartDescription = extendedPartDescriptions[currentPart] || partDescriptions[currentPart] || '';
+  const currentPartDescription = extendedPartDescriptions[currentPart];
 
   // Get chapters for current part
   const currentPartChapters = chapters.filter(
@@ -119,26 +175,57 @@ const BookIntroDrawer: React.FC<BookIntroDrawerProps> = ({
     return hasStartedChapter ? 'Continue Reading' : 'Start Reading';
   };
 
+  // Drag functionality - same as WelcomeDrawer
+  const y = useMotionValue(0);
+  const backdropOpacity = useTransform(y, [0, 200], [1, 0]);
+  const DRAG_THRESHOLD = 100; // pixels to drag before closing
+
+  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    // If dragged down more than threshold, close drawer
+    if (info.offset.y > DRAG_THRESHOLD || info.velocity.y > 500) {
+      onClose();
+    } else {
+      // Snap back to original position
+      y.set(0);
+    }
+  };
+
   const drawerContent = (
     <AnimatePresence>
       {isOpen && (
         <>
           {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 drawer-backdrop z-[90]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ 
+              type: 'tween',
+              ease: 'easeOut',
+              duration: 0.25
+            }}
+            style={{ opacity: backdropOpacity }}
             onClick={onClose}
+            className="fixed inset-0 bg-black/50 z-40"
           />
 
           {/* Drawer */}
           <motion.div
-            className="fixed bottom-0 left-0 right-0 rounded-t-3xl z-[100] max-h-[85vh] flex flex-col overflow-hidden shadow-2xl"
             initial={{ y: '100%' }}
-            animate={{ y: 0 }}
+            animate={{ y: isOpen ? 0 : '100%' }}
             exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            transition={{ 
+              type: 'tween',
+              ease: [0.25, 0.1, 0.25, 1],
+              duration: 0.3
+            }}
+            drag="y"
+            dragConstraints={{ top: 0 }}
+            dragElastic={{ top: 0, bottom: 0.2 }}
+            dragDirectionLock={true}
+            onDragEnd={handleDragEnd}
+            style={{ y }}
+            className="fixed bottom-0 left-0 right-0 z-50 bg-paper-light dark:bg-paper-dark rounded-t-3xl shadow-2xl border-t border-gray-200 dark:border-gray-700 max-h-[90vh] flex flex-col overflow-hidden"
           >
             {/* Video Background */}
             <div className="absolute inset-0 z-0 overflow-hidden rounded-t-3xl">
@@ -155,56 +242,92 @@ const BookIntroDrawer: React.FC<BookIntroDrawerProps> = ({
               <div className="absolute inset-0 bg-paper-light/50 dark:bg-slate-950/75"></div>
             </div>
 
-            {/* Content */}
-            <div className="relative z-10 flex flex-col h-full">
-              {/* Header */}
-              <div className="flex items-center justify-between p-6 border-b border-ink-muted/20 dark:border-paper-light/20">
-                <h2 className="text-xl font-heading text-ink-primary dark:text-paper-light">
-                  {currentPart}
-                </h2>
-                <button
-                  onClick={onClose}
-                  className="p-2 rounded-full hover:bg-ink-muted/10 dark:hover:bg-paper-light/10 transition-colors"
-                >
-                  <X className="w-5 h-5 text-ink-primary dark:text-paper-light" />
-                </button>
+            {/* Top Bar with Drag Handle and Close Button */}
+            <div className="relative z-10 flex items-center justify-between pt-3 pb-2 px-4">
+              {/* Left spacer for centering drag handle */}
+              <div className="w-10"></div>
+              
+              {/* Drag Handle - visual indicator */}
+              <div className="flex justify-center flex-1 cursor-grab active:cursor-grabbing">
+                <div className="w-12 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full" />
               </div>
+              
+              {/* Close Button */}
+              <button
+                onClick={onClose}
+                className="p-2 rounded-full hover:bg-ink-muted/10 dark:hover:bg-paper-light/10 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-5 h-5 text-ink-muted dark:text-paper-light" />
+              </button>
+            </div>
 
-              {/* Description Content */}
-              <div className="flex-1 overflow-y-auto p-6 pb-8">
-                <p className="text-base lg:text-lg text-ink-secondary dark:text-ink-muted leading-relaxed">
-                  {currentPartDescription}
-                </p>
-              </div>
+            {/* Scrollable Content */}
+            <div 
+              className="relative z-10 flex-1 overflow-y-auto" 
+              style={{ touchAction: 'pan-y' }}
+              onTouchStart={(e) => {
+                // Prevent drag when scrolling content
+                const target = e.target as HTMLElement;
+                if (target.closest('input, textarea, button, a')) {
+                  return;
+                }
+              }}
+            >
+              <div className="p-6">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-semibold font-heading text-ink-primary dark:text-paper-light mb-2">
+                      {currentPartDescription?.title || currentPart}
+                    </h2>
+                  </div>
+                </div>
 
-              {/* Navigation and Action Buttons */}
-              <div className="p-6 border-t border-ink-muted/20 dark:border-paper-light/20">
-                <div className="flex items-center justify-center gap-4">
-                  {/* Previous Part Button */}
-                  <button
-                    onClick={handlePreviousPart}
-                    className="p-2 rounded-full hover:bg-ink-muted/10 dark:hover:bg-paper-light/10 transition-colors"
-                    aria-label="Previous part"
-                  >
-                    <ChevronLeft className="w-6 h-6 text-ink-primary dark:text-paper-light" />
-                  </button>
+                {/* Description Content */}
+                <div className="mb-6">
+                  {currentPartDescription ? (
+                    <div className="space-y-4">
+                      <div className="text-base lg:text-lg text-ink-secondary dark:text-ink-muted leading-relaxed whitespace-pre-line">
+                        {renderTextWithItalics(currentPartDescription.content)}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-base lg:text-lg text-ink-secondary dark:text-ink-muted leading-relaxed">
+                      {partDescriptions[currentPart] || ''}
+                    </p>
+                  )}
+                </div>
 
-                  {/* Start/Continue Reading Button */}
-                  <button
-                    onClick={handleStartReading}
-                    className="px-6 py-3 bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary rounded-full font-medium hover:opacity-90 transition-opacity shadow-lg"
-                  >
-                    {getButtonText()}
-                  </button>
+                {/* Navigation and Action Buttons */}
+                <div className="pt-6 border-t border-ink-muted/20 dark:border-paper-light/20">
+                  <div className="flex items-center justify-center gap-4">
+                    {/* Previous Part Button */}
+                    <button
+                      onClick={handlePreviousPart}
+                      className="p-2 rounded-full hover:bg-ink-muted/10 dark:hover:bg-paper-light/10 transition-colors"
+                      aria-label="Previous part"
+                    >
+                      <ChevronLeft className="w-6 h-6 text-ink-primary dark:text-paper-light" />
+                    </button>
 
-                  {/* Next Part Button */}
-                  <button
-                    onClick={handleNextPart}
-                    className="p-2 rounded-full hover:bg-ink-muted/10 dark:hover:bg-paper-light/10 transition-colors"
-                    aria-label="Next part"
-                  >
-                    <ChevronRight className="w-6 h-6 text-ink-primary dark:text-paper-light" />
-                  </button>
+                    {/* Start/Continue Reading Button */}
+                    <button
+                      onClick={handleStartReading}
+                      className="px-6 py-3 bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary rounded-full font-medium hover:opacity-90 transition-opacity shadow-lg"
+                    >
+                      {getButtonText()}
+                    </button>
+
+                    {/* Next Part Button */}
+                    <button
+                      onClick={handleNextPart}
+                      className="p-2 rounded-full hover:bg-ink-muted/10 dark:hover:bg-paper-light/10 transition-colors"
+                      aria-label="Next part"
+                    >
+                      <ChevronRight className="w-6 h-6 text-ink-primary dark:text-paper-light" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

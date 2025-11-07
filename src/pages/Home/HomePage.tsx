@@ -5,7 +5,6 @@ import { useFitText } from 'react-use-fittext';
 import { AppRoute, BookChapter, Meditation } from '../../types';
 import { loadBookChapters } from '../../data/bookContent';
 import { loadMeditations } from '../../data/meditationContent';
-import { progressiveLoader } from '../../services/progressiveLoader';
 import { generateQuoteCards, QuoteCard } from '../../utils/quoteExtractor';
 import { downloadCardAsImage, downloadElementAsImage } from '../../utils/cardDownloader';
 import StandardHeader from '../../components/StandardHeader';
@@ -181,69 +180,78 @@ const HomePage: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [chapters, setChapters] = useState<BookChapter[]>([]);
   const [meditations, setMeditations] = useState<Meditation[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const currentCardRef = useRef<HTMLDivElement>(null);
+
+  // Minimum number of cards to generate before showing (ensures good variety)
+  const MIN_CARDS_TO_SHOW = 10;
 
   // Load content progressively in background - seamless UX with skeleton
   useEffect(() => {
     let cancelled = false;
-    let unsubscribe: (() => void) | undefined;
 
     const loadContent = async () => {
       try {
-        // Subscribe to progress updates - only update when loading is complete
-        unsubscribe = progressiveLoader.onProgress((progress) => {
-          if (cancelled) return;
-          
-          // Only update cards once all content is fully loaded to avoid flurry
-          if (progress.isComplete) {
-            const loadedContent = progressiveLoader.getLoadedContent();
-            
-            // Store chapters and meditations for navigation
-            setChapters(loadedContent.chapters);
-            setMeditations(loadedContent.meditations);
-            
-            // Regenerate quote cards with ALL loaded content (chapters and meditations only)
-            const allCards = generateQuoteCards(
-              loadedContent.chapters,
-              loadedContent.meditations,
-              [] // Empty array for stories - they need more context
-            );
-            setCards(allCards);
-          }
-        });
+        const startTime = Date.now();
+        const MIN_SKELETON_TIME = 800; // Minimum time to show skeleton (ms)
 
-        // Load initial batch quickly (just 5 chapters and 5 meditations)
-        const initialContent = await progressiveLoader.loadInitialContent(
-          loadBookChapters,
-          loadMeditations,
-          async () => [] // Don't load stories
-        );
+        // Load ALL content first (don't use progressive loading)
+        // This ensures all quotes are generated at once
+        const [allChapters, allMeditations] = await Promise.all([
+          loadBookChapters(),
+          loadMeditations()
+        ]);
 
         if (cancelled) return;
 
         // Store chapters and meditations for navigation
-        setChapters(initialContent.chapters);
-        setMeditations(initialContent.meditations);
+        setChapters(allChapters);
+        setMeditations(allMeditations);
 
-        // Generate quote cards from initial batch (chapters and meditations only)
-        const initialCards = generateQuoteCards(
-          initialContent.chapters,
-          initialContent.meditations,
-          [] // Empty array for stories
-        );
-        setCards(initialCards);
+        // Generate ALL quote cards in background
+        const generateAndShowCards = () => {
+          if (cancelled) return;
+          
+          // Generate all quotes from ALL content at once
+          const allCards = generateQuoteCards(
+            allChapters,
+            allMeditations,
+            [] // Empty array for stories
+          );
+          
+          // Calculate remaining skeleton time
+          const elapsed = Date.now() - startTime;
+          const remainingTime = Math.max(0, MIN_SKELETON_TIME - elapsed);
+          
+          // Wait for minimum skeleton display time before showing cards
+          setTimeout(() => {
+            if (cancelled) return;
+            
+            if (allCards.length >= MIN_CARDS_TO_SHOW) {
+              setCards(allCards);
+              setIsLoading(false);
+            } else {
+              // If we don't have enough cards, show what we have
+              setCards(allCards);
+              setIsLoading(false);
+            }
+          }, remainingTime);
+        };
         
-        // Background loading continues silently...
+        // Start quote generation in next tick to ensure skeleton renders
+        setTimeout(generateAndShowCards, 50);
+        
       } catch (error) {
         console.error('Error loading content:', error);
+        // Even on error, hide skeleton after minimum time
+        setTimeout(() => setIsLoading(false), 800);
       }
     };
 
     loadContent();
     return () => {
       cancelled = true;
-      unsubscribe?.();
     };
   }, []);
 
@@ -316,8 +324,8 @@ const HomePage: React.FC = () => {
         <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 min-h-0">
           {/* Card Stack - Responsive to container height */}
           <div className="relative w-full max-w-2xl flex-1 max-h-full mb-8 sm:mb-6">
-            {!hasCards ? (
-              /* Show skeleton while content loads */
+            {!hasCards || isLoading ? (
+              /* Show skeleton while content loads in background */
               <>
                 {/* Next card skeleton (underneath) */}
                 <div

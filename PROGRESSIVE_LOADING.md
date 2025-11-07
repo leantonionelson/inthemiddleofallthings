@@ -23,12 +23,12 @@ Implemented progressive/lazy loading strategy:
 
 ### 2. Updated HomePage
 - Shows skeleton loaders immediately (no loading screen!)
-- Loads initial content in background (10 items generate ~10-15 quotes initially)
-- Seamlessly replaces skeletons with real quote cards once loaded
-- Rest of content loads silently in background
-- When all content finishes loading, full library of quotes becomes available
+- Loads ALL content in parallel (chapters and meditations)
+- Generates ALL quote cards in background during skeleton display
+- Guarantees minimum 800ms skeleton display time for smooth UX
+- Seamlessly replaces skeleton with real quote cards all at once
+- No incremental updates - all cards appear together
 - No "flurry" or jarring updates - completely smooth UX
-- No visible loading indicators - completely seamless
 - Only generates quotes from book chapters and meditations (stories excluded)
 
 ### 3. Quote Card Component with Responsive Text

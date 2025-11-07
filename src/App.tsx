@@ -2,6 +2,9 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AppRoute } from './types';
 import './App.css';
+import { useAuth } from './hooks/useAuth';
+import { loadProgressFromFirebase, setupProgressSyncListener } from './services/progressSyncService';
+import { readingProgressService } from './services/readingProgressService';
 
 // Lazy load pages for code splitting - only load when needed
 const HomePage = lazy(() => import('./pages/Home/HomePage'));
@@ -16,7 +19,7 @@ const SettingsPage = lazy(() => import('./pages/Settings/SettingsPage'));
 // Components - keep these as regular imports since they're needed globally
 import ErrorBoundary from './components/ErrorBoundary';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
-import WelcomeBanner from './components/WelcomeBanner';
+import WelcomeDrawer from './components/WelcomeDrawer';
 import ServiceWorkerRegistration from './components/ServiceWorkerRegistration';
 import NativeFeatures from './components/NativeFeatures';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -24,6 +27,7 @@ import PersistentLayout from './components/PersistentLayout';
 
 const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const { user } = useAuth();
 
   // Initialize app - setup theme
   useEffect(() => {
@@ -41,6 +45,33 @@ const App: React.FC = () => {
       document.documentElement.classList.remove('dark');
     }
   }, []);
+
+  // Set up Firebase progress sync when user is authenticated
+  useEffect(() => {
+    if (user) {
+      // Load and merge progress from Firebase
+      loadProgressFromFirebase(user)
+        .then(() => {
+          // Set up sync callback for future updates
+          readingProgressService.setUser(user, async (user) => {
+            const { syncOnProgressUpdate } = await import('./services/progressSyncService');
+            await syncOnProgressUpdate(user);
+          });
+
+          // Set up real-time sync listener
+          setupProgressSyncListener(user, () => {
+            // Dispatch event to update UI
+            window.dispatchEvent(new CustomEvent('readingProgressUpdated'));
+          });
+        })
+        .catch((error) => {
+          console.error('Error setting up progress sync:', error);
+        });
+    } else {
+      // Clear user from progress service when logged out
+      readingProgressService.setUser(null);
+    }
+  }, [user]);
 
   // Toggle theme
   const toggleTheme = () => {
@@ -149,8 +180,8 @@ const App: React.FC = () => {
             </Routes>
           </Suspense>
 
-          {/* Welcome Banner - shows on first visit */}
-          <WelcomeBanner />
+          {/* Welcome Drawer - shows on first visit */}
+          <WelcomeDrawer />
 
           {/* PWA Install Prompt - uses browser default */}
           <PWAInstallPrompt />

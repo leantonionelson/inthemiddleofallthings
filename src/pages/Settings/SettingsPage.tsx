@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import StandardHeader from '../../components/StandardHeader';
 import { audioManagerService } from '../../services/audioManager';
 import InstallButton from '../../components/InstallButton';
+import { useAuth } from '../../hooks/useAuth';
+import WelcomeDrawer from '../../components/WelcomeDrawer';
 
 interface SettingsPageProps {
   isDarkMode: boolean;
@@ -14,11 +16,22 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   onToggleTheme
 }) => {
   const [voicePreference, setVoicePreference] = useState<'male' | 'female'>('male');
+  const [showLoginDrawer, setShowLoginDrawer] = useState(false);
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     // Load voice preference setting
     const savedVoicePreference = localStorage.getItem('audioVoicePreference') as 'male' | 'female' || 'male';
     setVoicePreference(savedVoicePreference);
+  }, []);
+
+  // Listen for drawer close event
+  useEffect(() => {
+    const handleDrawerClose = () => {
+      setShowLoginDrawer(false);
+    };
+    window.addEventListener('welcomeDrawerClosed', handleDrawerClose);
+    return () => window.removeEventListener('welcomeDrawerClosed', handleDrawerClose);
   }, []);
 
   const handleVoicePreferenceChange = (newVoice: 'male' | 'female') => {
@@ -54,6 +67,66 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 
       {/* Content */}
       <div className="p-6 max-w-md mx-auto space-y-6">
+        {/* Profile */}
+        <motion.div
+          className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
+            Profile
+          </h2>
+          {user ? (
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-ink-secondary dark:text-ink-muted mb-1">
+                  Name
+                </label>
+                <p className="text-ink-primary dark:text-paper-light">
+                  {user.displayName || 'Not set'}
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-ink-secondary dark:text-ink-muted mb-1">
+                  Email
+                </label>
+                <p className="text-ink-primary dark:text-paper-light">
+                  {user.email}
+                </p>
+              </div>
+              <button
+                onClick={async () => {
+                  try {
+                    await signOut();
+                  } catch (error) {
+                    console.error('Error signing out:', error);
+                  }
+                }}
+                className="w-full mt-4 py-2 px-4 bg-red-600 dark:bg-red-700 text-white rounded-lg hover:bg-red-700 dark:hover:bg-red-800 transition-colors font-medium"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-ink-secondary dark:text-ink-muted text-sm mb-4">
+                Sign up to store your progress and get updates
+              </p>
+              <button
+                onClick={() => {
+                  setShowLoginDrawer(true);
+                  // Trigger drawer to show
+                  window.dispatchEvent(new CustomEvent('showWelcomeDrawer'));
+                }}
+                className="w-full py-2 px-4 bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary rounded-lg hover:opacity-90 transition-opacity font-medium"
+              >
+                Login / Sign Up
+              </button>
+            </div>
+          )}
+        </motion.div>
+
         {/* Appearance */}
         <motion.div
           className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
@@ -184,6 +257,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
         </motion.div>
       </div>
       </div>
+
+      {/* Login Drawer - trigger via event */}
+      {showLoginDrawer && (
+        <WelcomeDrawer />
+      )}
     </div>
   );
 };

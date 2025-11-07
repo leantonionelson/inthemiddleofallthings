@@ -39,10 +39,21 @@ class ReadingProgressService {
     }
   }
 
+  private currentUser: { uid: string } | null = null;
+  private syncCallback: (() => Promise<void>) | null = null;
+
+  /**
+   * Set the current authenticated user for Firebase sync
+   */
+  setUser(user: { uid: string } | null, syncCallback?: () => Promise<void>): void {
+    this.currentUser = user;
+    this.syncCallback = syncCallback || null;
+  }
+
   /**
    * Get all reading progress data
    */
-  private getAllProgress(): Record<string, ReadingProgress> {
+  getAllProgress(): Record<string, ReadingProgress> {
     try {
       const data = localStorage.getItem(STORAGE_KEY);
       return data ? JSON.parse(data) : {};
@@ -55,11 +66,18 @@ class ReadingProgressService {
   /**
    * Save all reading progress data
    */
-  private saveAllProgress(data: Record<string, ReadingProgress>): void {
+  saveAllProgress(data: Record<string, ReadingProgress>): void {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
       // Dispatch update event after saving
       this.dispatchProgressUpdate();
+      
+      // Sync to Firebase if user is authenticated
+      if (this.currentUser && this.syncCallback) {
+        this.syncCallback().catch((error) => {
+          console.error('[ReadingProgressService] Error syncing to Firebase:', error);
+        });
+      }
     } catch (error) {
       console.error('Error saving reading progress:', error);
     }

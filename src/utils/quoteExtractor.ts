@@ -145,87 +145,87 @@ function extractFromStory(story: Story): string[] {
 }
 
 // Generate quote cards from all content
+// Always shuffles fresh for variety, even if content is cached
 export function generateQuoteCards(
   chapters: BookChapter[],
   meditations: Meditation[],
   stories: Story[]
 ): QuoteCard[] {
-  // Check cache first
+  // Check cache for unshuffled cards (to avoid reprocessing)
   const cacheKey = generateCacheKey(chapters, meditations, stories);
+  let cards: QuoteCard[] = [];
+  
   if (quoteCache.has(cacheKey)) {
-    return quoteCache.get(cacheKey)!;
-  }
-  
-  const cards: QuoteCard[] = [];
-  
-  // Extract from chapters (limit processing for performance)
-  for (const chapter of chapters) {
-    const quotes = extractFromChapter(chapter);
-    for (const quote of quotes) {
-      cards.push({
-        id: `${chapter.id}-${cards.length}`,
-        quote,
-        source: {
-          type: 'book',
-          id: chapter.id,
-          title: chapter.title,
-          subtitle: chapter.subtitle,
-          part: chapter.part,
-          chapter: `Chapter ${chapter.chapterNumber}`
-        },
-        gradient: generateGradient()
-      });
+    // Use cached cards but shuffle fresh for variety
+    cards = [...quoteCache.get(cacheKey)!];
+  } else {
+    // Extract from chapters
+    for (const chapter of chapters) {
+      const quotes = extractFromChapter(chapter);
+      for (const quote of quotes) {
+        cards.push({
+          id: `${chapter.id}-${cards.length}`,
+          quote,
+          source: {
+            type: 'book',
+            id: chapter.id,
+            title: chapter.title,
+            subtitle: chapter.subtitle,
+            part: chapter.part,
+            chapter: `Chapter ${chapter.chapterNumber}`
+          },
+          gradient: generateGradient()
+        });
+      }
     }
-  }
-  
-  // Extract from meditations (limit processing for performance)
-  for (const meditation of meditations) {
-    const quotes = extractFromMeditation(meditation);
-    for (const quote of quotes) {
-      cards.push({
-        id: `${meditation.id}-${cards.length}`,
-        quote,
-        source: {
-          type: 'meditation',
-          id: meditation.id,
-          title: meditation.title,
-        },
-        gradient: generateGradient()
-      });
+    
+    // Extract from meditations
+    for (const meditation of meditations) {
+      const quotes = extractFromMeditation(meditation);
+      for (const quote of quotes) {
+        cards.push({
+          id: `${meditation.id}-${cards.length}`,
+          quote,
+          source: {
+            type: 'meditation',
+            id: meditation.id,
+            title: meditation.title,
+          },
+          gradient: generateGradient()
+        });
+      }
     }
-  }
-  
-  // Extract from stories
-  for (const story of stories) {
-    const quotes = extractFromStory(story);
-    for (const quote of quotes) {
-      cards.push({
-        id: `${story.id}-${cards.length}`,
-        quote,
-        source: {
-          type: 'story',
-          id: story.id,
-          title: story.title,
-        },
-        gradient: generateGradient()
-      });
+    
+    // Extract from stories
+    for (const story of stories) {
+      const quotes = extractFromStory(story);
+      for (const quote of quotes) {
+        cards.push({
+          id: `${story.id}-${cards.length}`,
+          quote,
+          source: {
+            type: 'story',
+            id: story.id,
+            title: story.title,
+          },
+          gradient: generateGradient()
+        });
+      }
     }
-  }
-  
-  // Shuffle cards for variety
-  const shuffled = shuffleArray(cards);
-  
-  // Cache the result (limit cache size to prevent memory issues)
-  if (quoteCache.size > 10) {
-    // Remove oldest entry (simple FIFO)
-    const firstKey = quoteCache.keys().next().value;
-    if (firstKey) {
-      quoteCache.delete(firstKey);
+    
+    // Cache the unshuffled cards (limit cache size to prevent memory issues)
+    if (quoteCache.size > 10) {
+      // Remove oldest entry (simple FIFO)
+      const firstKey = quoteCache.keys().next().value;
+      if (firstKey) {
+        quoteCache.delete(firstKey);
+      }
     }
+    quoteCache.set(cacheKey, cards);
   }
-  quoteCache.set(cacheKey, shuffled);
   
-  return shuffled;
+  // Always shuffle fresh for variety - never return cached shuffle order
+  return shuffleArray(cards);
 }
 
 // Clear quote cache (useful for testing or memory management)

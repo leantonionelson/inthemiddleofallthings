@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { MessageCircle, Mic, X, Send, MicOff } from 'lucide-react';
 
 interface AskOverlayProps {
@@ -31,139 +31,194 @@ const AskOverlay: React.FC<AskOverlayProps> = ({
     onVoiceMessage();
   };
 
+  // Drag functionality - same as WelcomeDrawer
+  const y = useMotionValue(0);
+  const backdropOpacity = useTransform(y, [0, 200], [1, 0]);
+  const DRAG_THRESHOLD = 100; // pixels to drag before closing
+
+  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    // If dragged down more than threshold, close drawer
+    if (info.offset.y > DRAG_THRESHOLD || info.velocity.y > 500) {
+      onClose();
+    } else {
+      // Snap back to original position
+      y.set(0);
+    }
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-end"
-        >
+        <>
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            transition={{ 
+              type: 'tween',
+              ease: 'easeOut',
+              duration: 0.25
+            }}
+            style={{ opacity: backdropOpacity }}
             onClick={onClose}
+            className="fixed inset-0 bg-black/50 z-40"
           />
 
-          {/* Bottom Drawer */}
+          {/* Drawer */}
           <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-2xl"
+            initial={{ y: '100%' }}
+            animate={{ y: isOpen ? 0 : '100%' }}
+            exit={{ y: '100%' }}
+            transition={{ 
+              type: 'tween',
+              ease: [0.25, 0.1, 0.25, 1],
+              duration: 0.3
+            }}
+            drag="y"
+            dragConstraints={{ top: 0 }}
+            dragElastic={{ top: 0, bottom: 0.2 }}
+            dragDirectionLock={true}
+            onDragEnd={handleDragEnd}
+            style={{ y }}
+            className="fixed bottom-0 left-0 right-0 z-50 bg-paper-light dark:bg-paper-dark rounded-t-3xl shadow-2xl border-t border-gray-200 dark:border-gray-700 max-h-[90vh] flex flex-col"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                  <MessageCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Ask AI
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Text or voice conversation
-                  </p>
-                </div>
+            {/* Top Bar with Drag Handle and Close Button */}
+            <div className="flex items-center justify-between pt-3 pb-2 px-4">
+              {/* Left spacer for centering drag handle */}
+              <div className="w-10"></div>
+              
+              {/* Drag Handle - visual indicator */}
+              <div className="flex justify-center flex-1 cursor-grab active:cursor-grabbing">
+                <div className="w-12 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-full" />
               </div>
+              
+              {/* Close Button */}
               <button
                 onClick={onClose}
                 className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Close"
               >
-                <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <X className="w-5 h-5 text-ink-muted" />
               </button>
             </div>
 
-            {/* Content */}
-            <div className="p-4 space-y-4 max-w-2xl mx-auto">
-              {/* Voice Button */}
-              <motion.button
-                onClick={handleVoiceToggle}
-                className={`w-full flex items-center justify-center space-x-3 p-4 rounded-xl transition-all ${
-                  isListening
-                    ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border-2 border-red-200 dark:border-red-800'
-                    : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border-2 border-gray-200 dark:border-gray-700'
-                }`}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                {isListening ? (
-                  <MicOff className="w-6 h-6" />
-                ) : (
-                  <Mic className="w-6 h-6" />
-                )}
-                <span className="font-medium">
-                  {isListening ? 'Stop Recording' : 'Start Voice Chat'}
-                </span>
-                {isListening && (
-                  <motion.div
-                    className="w-3 h-3 bg-red-500 rounded-full"
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                  />
-                )}
-              </motion.button>
-
-              {/* Divider */}
-              <div className="flex items-center space-x-4">
-                <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
-                <span className="text-sm text-gray-500 dark:text-gray-400">or</span>
-                <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
-              </div>
-
-              {/* Text Input */}
-              <form onSubmit={handleSubmit} className="space-y-3">
-                <div className="relative">
-                  <textarea
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Type your question..."
-                    className="w-full p-3 pr-12 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows={3}
-                  />
-                  <button
-                    type="submit"
-                    disabled={!message.trim()}
-                    className="absolute bottom-3 right-3 p-2 rounded-lg bg-blue-500 text-white disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
-                  >
-                    <Send className="w-4 h-4" />
-                  </button>
+            {/* Scrollable Content */}
+            <div 
+              className="flex-1 overflow-y-auto" 
+              style={{ touchAction: 'pan-y' }}
+              onTouchStart={(e) => {
+                // Prevent drag when scrolling content
+                const target = e.target as HTMLElement;
+                if (target.closest('input, textarea, button, a')) {
+                  return;
+                }
+              }}
+            >
+              <div className="p-6">
+                {/* Header */}
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
+                        <MessageCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <h3 className="text-2xl font-semibold text-ink-primary dark:text-paper-light">
+                        Ask AI
+                      </h3>
+                    </div>
+                    <p className="text-sm text-ink-secondary dark:text-ink-muted">
+                      Text or voice conversation
+                    </p>
+                  </div>
                 </div>
-              </form>
 
-              {/* Quick Actions */}
-              <div className="space-y-2">
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                  Quick questions:
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "What does this chapter mean?",
-                    "Help me reflect on this",
-                    "Explain this concept",
-                    "How does this relate to my life?"
-                  ].map((suggestion, index) => (
-                    <motion.button
-                      key={index}
-                      onClick={() => setMessage(suggestion)}
-                      className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      {suggestion}
-                    </motion.button>
-                  ))}
+                {/* Content */}
+                <div className="space-y-4 max-w-2xl mx-auto">
+                  {/* Voice Button */}
+                  <motion.button
+                    onClick={handleVoiceToggle}
+                    className={`w-full flex items-center justify-center space-x-3 p-4 rounded-xl transition-all ${
+                      isListening
+                        ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 border-2 border-red-200 dark:border-red-800'
+                        : 'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border-2 border-gray-200 dark:border-gray-700'
+                    }`}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {isListening ? (
+                      <MicOff className="w-6 h-6" />
+                    ) : (
+                      <Mic className="w-6 h-6" />
+                    )}
+                    <span className="font-medium">
+                      {isListening ? 'Stop Recording' : 'Start Voice Chat'}
+                    </span>
+                    {isListening && (
+                      <motion.div
+                        className="w-3 h-3 bg-red-500 rounded-full"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1, repeat: Infinity }}
+                      />
+                    )}
+                  </motion.button>
+
+                  {/* Divider */}
+                  <div className="flex items-center space-x-4">
+                    <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+                    <span className="text-sm text-gray-500 dark:text-gray-400">or</span>
+                    <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+                  </div>
+
+                  {/* Text Input */}
+                  <form onSubmit={handleSubmit} className="space-y-3">
+                    <div className="relative">
+                      <textarea
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder="Type your question..."
+                        className="w-full p-3 pr-12 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        rows={3}
+                      />
+                      <button
+                        type="submit"
+                        disabled={!message.trim()}
+                        className="absolute bottom-3 right-3 p-2 rounded-lg bg-blue-500 text-white disabled:bg-gray-300 dark:disabled:bg-gray-600 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
+                      >
+                        <Send className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </form>
+
+                  {/* Quick Actions */}
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                      Quick questions:
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        "What does this chapter mean?",
+                        "Help me reflect on this",
+                        "Explain this concept",
+                        "How does this relate to my life?"
+                      ].map((suggestion, index) => (
+                        <motion.button
+                          key={index}
+                          onClick={() => setMessage(suggestion)}
+                          className="px-3 py-2 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {suggestion}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </motion.div>
-        </motion.div>
+        </>
       )}
     </AnimatePresence>
   );
