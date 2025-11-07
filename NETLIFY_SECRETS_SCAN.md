@@ -4,7 +4,20 @@
 Netlify's secrets scanner detects the Firebase API key in the build output and flags it as a potential secret. However, Firebase API keys are **intentionally public** and are meant to be included in client-side code.
 
 ## Solution
-Add the Firebase API key value to Netlify's `SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES` environment variable.
+
+Netlify's secrets scanner is detecting placeholder values in Firebase's type definitions (`node_modules`), which are not real secrets. We need to disable smart detection to allow the build to proceed.
+
+### Option 1: Disable Smart Detection (Recommended)
+
+Add this environment variable in Netlify's dashboard:
+- **Key**: `SECRETS_SCAN_SMART_DETECTION_ENABLED`
+- **Value**: `false`
+
+This disables the "smart detection" pass that flags placeholder values in dependencies, while still scanning for actual secrets.
+
+### Option 2: Use Omit Values (Alternative)
+
+If you prefer to keep smart detection enabled, add the Firebase API key value to Netlify's `SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES` environment variable.
 
 ### ⚠️ Important: Variable Name Must Be Plural
 The variable name must be **`SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES`** (with an "S" at the end). 

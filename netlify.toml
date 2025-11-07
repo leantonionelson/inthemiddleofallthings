@@ -2,6 +2,6 @@
   command = "npm run build"
   publish = "dist"
   # Note: Firebase API keys are intentionally public (client-side config)
-  # The SECRETS_SCAN_SMART_DETECTION_OMIT_VALUES environment variable should be set
-  # in Netlify's dashboard to include the Firebase API key value to prevent false positives
+  # Netlify's secrets scanner detects placeholder values in Firebase's node_modules type definitions
+  # To fix: Add SECRETS_SCAN_SMART_DETECTION_ENABLED=false in Netlify dashboard environment variables
 
