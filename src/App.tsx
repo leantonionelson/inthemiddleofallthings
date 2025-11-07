@@ -53,7 +53,8 @@ const App: React.FC = () => {
       loadProgressFromFirebase(user)
         .then(() => {
           // Set up sync callback for future updates
-          readingProgressService.setUser(user, async (user) => {
+          // Use user from outer scope since callback takes no arguments
+          readingProgressService.setUser(user, async () => {
             const { syncOnProgressUpdate } = await import('./services/progressSyncService');
             await syncOnProgressUpdate(user);
           });
