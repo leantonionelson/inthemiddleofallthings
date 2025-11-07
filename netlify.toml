@@ -1,7 +1,15 @@
 [build]
   command = "npm run build"
   publish = "dist"
-  # Note: Firebase API keys are intentionally public (client-side config)
-  # Netlify's secrets scanner detects placeholder values in Firebase's node_modules type definitions
-  # To fix: Add SECRETS_SCAN_SMART_DETECTION_ENABLED=false in Netlify dashboard environment variables
+
+# Firebase client-side API keys are MEANT to be public (they're protected by Firebase security rules)
+# Netlify's secrets scanner detects them in the build output, causing deployment failures
+# 
+# SOLUTION: In Netlify Dashboard → Site settings → Environment variables, add:
+#   SECRETS_SCAN_SMART_DETECTION_ENABLED = false
+#
+# This is safe because:
+# 1. Firebase client keys are designed to be public (used in browsers)
+# 2. Security is enforced by Firebase Security Rules, not by hiding keys
+# 3. These keys only work with your specific Firebase project configuration
 
