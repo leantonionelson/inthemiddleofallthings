@@ -39,35 +39,3 @@
 .read-the-docs {
   color: #888;
 }
-/* Audio highlighting animations */
-@keyframes pulse {
-  0% {
-    background-opacity: 0.3;
-  }
-  50% {
-    background-opacity: 0.7;
-  }
-  100% {
-    background-opacity: 0.3;
-  }
-}
-
-.audio-highlight {
-  background-color: rgba(59, 130, 246, 0.3);
-  transition: all 0.3s ease-in-out;
-  border-radius: 2px;
-  padding: 0 2px;
-}
-
-.dark .audio-highlight {
-  background-color: rgba(59, 130, 246, 0.2);
-}
-
-.audio-highlight-active {
-  background-color: rgba(59, 130, 246, 0.6);
-  animation: pulse 1s ease-in-out infinite;
-}
-
-.dark .audio-highlight-active {
-  background-color: rgba(59, 130, 246, 0.4);
-}

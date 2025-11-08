@@ -6,6 +6,7 @@ import UnifiedAudioPlayer from './UnifiedAudioPlayer';
 import ContentFormatter from './ContentFormatter';
 import ChapterInfo from './ChapterInfo';
 import { BookChapter } from '../types';
+import { audioManagerService, AudioPlaybackState } from '../services/audioManager';
 
 interface ContentReaderLayoutProps {
   content: string;
@@ -20,8 +21,6 @@ interface ContentReaderLayoutProps {
   isListening: boolean;
   isAudioPlayerOpen: boolean;
   onAudioPlayerClose: () => void;
-  highlightedProgress: number;
-  onHighlightProgress: (progress: number) => void;
   onScrollToPosition: (position: number) => void;
   contentType: 'chapter' | 'meditation' | 'story';
   contentId: string;
@@ -46,8 +45,6 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
   isListening,
   isAudioPlayerOpen,
   onAudioPlayerClose,
-  highlightedProgress,
-  onHighlightProgress,
   onScrollToPosition,
   contentType,
   contentId,
@@ -61,6 +58,32 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
   const internalContentRef = useRef<HTMLDivElement>(null);
   const contentRef = externalContentRef || internalContentRef;
   const [isAudioPlaying, setIsAudioPlaying] = React.useState(false);
+  const [playbackState, setPlaybackState] = React.useState<AudioPlaybackState | null>(null);
+
+  // Subscribe to audio playback state changes (polling approach to avoid conflicts with UnifiedAudioPlayer)
+  React.useEffect(() => {
+    if (!isAudioPlayerOpen) {
+      setPlaybackState(null);
+      setIsAudioPlaying(false);
+      return;
+    }
+
+    // Get initial state
+    const currentState = audioManagerService.getPlaybackState();
+    setPlaybackState(currentState);
+    setIsAudioPlaying(currentState.isPlaying);
+
+    // Poll for state updates (audioManager updates state internally)
+    const interval = setInterval(() => {
+      const state = audioManagerService.getPlaybackState();
+      setPlaybackState(state);
+      setIsAudioPlaying(state.isPlaying);
+    }, 100); // Update every 100ms for smooth highlighting
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [isAudioPlayerOpen, chapter?.id]);
 
   // Scroll transition hooks
   const headerScrollTransition = useScrollTransition({
@@ -154,7 +177,6 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
         }}
         isOpen={isAudioPlayerOpen}
         onClose={onAudioPlayerClose}
-        onHighlightProgress={onHighlightProgress}
         onScrollToPosition={onScrollToPosition}
         onNextChapter={onNext}
         onPreviousChapter={onPrevious}
@@ -176,7 +198,6 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
           onNextChapter={onNext}
           onToggleListen={onListen}
           showShadow={!isAudioPlayerOpen}
-          progress={highlightedProgress}
           contentType={contentType}
           contentId={contentId}
           contentTitle={contentTitle}
@@ -275,8 +296,10 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
           <div className="max-w-none">
             <ContentFormatter 
               content={content}
-              highlightedProgress={highlightedProgress}
               fontSize={fontSize}
+              currentTime={playbackState?.currentTime || 0}
+              duration={playbackState?.duration || 0}
+              isPlaying={playbackState?.isPlaying || false}
             />
           </div>
         </div>

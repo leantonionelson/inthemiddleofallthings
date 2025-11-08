@@ -19,7 +19,6 @@ const ReaderPage: React.FC = () => {
   const [isAudioPlayerOpen, setIsAudioPlayerOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
 
-  const [highlightedProgress, setHighlightedProgress] = useState(0); // 0 to 1, representing progress through the text
   const [fontSize, setFontSize] = useState('base');
   
   // Get user capabilities
@@ -109,10 +108,6 @@ const ReaderPage: React.FC = () => {
 
 
 
-  const handleHighlightProgress = (progress: number) => {
-    setHighlightedProgress(progress);
-  };
-
   const handleScrollToPosition = (position: number) => {
     // Find the element at the given character position and scroll to it
     const contentElement = contentRef.current;
@@ -170,9 +165,6 @@ const ReaderPage: React.FC = () => {
         contentRef.current.scrollTop = 0;
       }
       window.scrollTo(0, 0);
-      
-      // Reset audio highlighting progress when changing chapters
-      setHighlightedProgress(0);
     }
   }, [currentChapterIndex, chapters.length]);
 
@@ -184,9 +176,6 @@ const ReaderPage: React.FC = () => {
         contentRef.current.scrollTop = 0;
       }
       window.scrollTo(0, 0);
-      
-      // Reset audio highlighting progress when changing chapters
-      setHighlightedProgress(0);
     }
   }, [currentChapterIndex]);
 
@@ -225,8 +214,6 @@ const ReaderPage: React.FC = () => {
         isListening={isListening}
         isAudioPlayerOpen={isAudioPlayerOpen}
         onAudioPlayerClose={handleAudioPlayerClose}
-        highlightedProgress={highlightedProgress}
-        onHighlightProgress={handleHighlightProgress}
         onScrollToPosition={handleScrollToPosition}
         contentType="chapter"
         contentId={currentChapter.id}

@@ -284,6 +284,18 @@ class AudioManagerService {
         this.callbacks.onComplete?.();
       });
 
+      // Play event - sync state when audio starts playing
+      this.currentAudio.addEventListener('play', () => {
+        console.log('▶️ Audio play event');
+        this.updatePlaybackState({ isPlaying: true });
+      });
+
+      // Pause event - sync state when audio is paused
+      this.currentAudio.addEventListener('pause', () => {
+        console.log('⏸️ Audio pause event');
+        this.updatePlaybackState({ isPlaying: false });
+      });
+
       // Error handling
       this.currentAudio.addEventListener('error', (e) => {
         const error = this.currentAudio?.error;
@@ -321,11 +333,14 @@ class AudioManagerService {
 
     console.log('🎵 Toggle play/pause:', {
       isPlaying: this.playbackState.isPlaying,
+      audioPaused: this.currentAudio.paused,
       readyState: this.currentAudio.readyState,
       src: this.currentAudio.src
     });
 
-    if (this.playbackState.isPlaying) {
+    // Check the actual audio element state instead of internal state
+    if (!this.currentAudio.paused) {
+      // Audio is playing, so pause it
       this.currentAudio.pause();
       this.updatePlaybackState({ isPlaying: false });
       console.log('⏸️ Audio paused');

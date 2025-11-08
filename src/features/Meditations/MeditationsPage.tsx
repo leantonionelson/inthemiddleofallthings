@@ -36,7 +36,6 @@ const MeditationsPage: React.FC = () => {
   const [visibleCount, setVisibleCount] = useState(0);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
-  const [highlightedProgress, setHighlightedProgress] = useState(0);
   const [fontSize] = useState('base');
   
   // Get user capabilities
@@ -326,8 +325,7 @@ const MeditationsPage: React.FC = () => {
     onReadComplete: () => {
       // Meditation marked as read
       console.log('Meditation marked as read:', currentMeditation?.title);
-      // Trigger list update to show checkmark
-      setReadStatusUpdate(prev => prev + 1);
+      // List will update automatically when currentMeditationIndex changes
     }
   });
 
@@ -384,11 +382,6 @@ const MeditationsPage: React.FC = () => {
 
 
 
-
-  // Highlight progress handler
-  const handleHighlightProgress = (progress: number) => {
-    setHighlightedProgress(progress);
-  };
 
   // Scroll to position handler
   const handleScrollToPosition = (position: number) => {
@@ -500,8 +493,6 @@ const MeditationsPage: React.FC = () => {
         isListening={isListening}
         isAudioPlayerOpen={isAudioPlayerOpen}
         onAudioPlayerClose={handleAudioPlayerClose}
-        highlightedProgress={highlightedProgress}
-        onHighlightProgress={handleHighlightProgress}
         onScrollToPosition={handleScrollToPosition}
         contentType="meditation"
         contentId={currentMeditation.id}

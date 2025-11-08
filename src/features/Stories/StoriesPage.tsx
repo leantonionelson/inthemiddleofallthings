@@ -15,6 +15,7 @@ import PageLoadingSpinner from '../../components/PageLoadingSpinner';
 const StoriesPage: React.FC = () => {
   const outletContext = useOutletContext<{ isAudioPlaying?: boolean; setIsAudioPlaying?: (value: boolean) => void; mainScrollRef?: React.RefObject<HTMLElement> }>();
   const mainScrollRef = outletContext?.mainScrollRef;
+  const setIsAudioPlaying = outletContext?.setIsAudioPlaying;
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
@@ -28,7 +29,6 @@ const StoriesPage: React.FC = () => {
   const [visibleCount, setVisibleCount] = useState(0);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
-  const [highlightedProgress, setHighlightedProgress] = useState(0);
   const [fontSize] = useState('base');
 
 
@@ -265,7 +265,7 @@ const StoriesPage: React.FC = () => {
       // If audio player is open, close it
       setIsAudioPlayerOpen(false);
       setIsListening(false);
-      setIsAudioPlaying(false);
+      setIsAudioPlaying?.(false);
     } else {
       // Check if audio is available before opening the media player
       try {
@@ -282,7 +282,7 @@ const StoriesPage: React.FC = () => {
           console.log('✅ Audio available - opening player');
           setIsAudioPlayerOpen(true);
           setIsListening(true);
-          setIsAudioPlaying(true);
+          setIsAudioPlaying?.(true);
           // Enable auto-play when the play button is clicked
           localStorage.setItem('autoPlayAudio', 'true');
         } else {
@@ -298,14 +298,9 @@ const StoriesPage: React.FC = () => {
   const handleAudioPlayerClose = () => {
     setIsAudioPlayerOpen(false);
     setIsListening(false);
-    setIsAudioPlaying(false);
+    setIsAudioPlaying?.(false);
   };
 
-
-  // Highlight progress handler
-  const handleHighlightProgress = (progress: number) => {
-    setHighlightedProgress(progress);
-  };
 
   // Scroll to position handler
   const handleScrollToPosition = (position: number) => {
@@ -417,8 +412,6 @@ const StoriesPage: React.FC = () => {
         isListening={isListening}
         isAudioPlayerOpen={isAudioPlayerOpen}
         onAudioPlayerClose={handleAudioPlayerClose}
-        highlightedProgress={highlightedProgress}
-        onHighlightProgress={handleHighlightProgress}
         onScrollToPosition={handleScrollToPosition}
         contentType="story"
         contentId={currentStory.id}

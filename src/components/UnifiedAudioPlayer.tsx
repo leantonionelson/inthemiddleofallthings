@@ -18,7 +18,6 @@ interface UnifiedAudioPlayerProps {
   chapter: BookChapter;
   isOpen: boolean;
   onClose: () => void;
-  onHighlightProgress?: (progress: number) => void;
   onScrollToPosition?: (position: number) => void;
   onNextChapter?: () => void;
   onPreviousChapter?: () => void;
@@ -31,7 +30,6 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
   chapter,
   isOpen,
   onClose,
-  onHighlightProgress,
   onScrollToPosition,
   onNextChapter,
   onPreviousChapter,
@@ -53,6 +51,7 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
   const [autoPlayNext, setAutoPlayNext] = useState(localStorage.getItem('audioAutoPlayNext') !== 'false');
   const progressRef = useRef<HTMLDivElement>(null);
   const isInitialized = useRef(false);
+  const hasAutoPlayed = useRef(false);
 
   // Initialize audio when component opens or chapter changes
   useEffect(() => {
@@ -60,28 +59,36 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
       // Always initialize when the chapter changes or opens
       initializeAudio();
       isInitialized.current = true;
+      hasAutoPlayed.current = false; // Reset auto-play flag for new chapter
     } else {
       audioManagerService.stopAudio();
       isInitialized.current = false;
+      hasAutoPlayed.current = false;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, chapter.id]); // Use chapter.id as dependency to detect chapter changes
 
-  // Auto-play if enabled
+  // Auto-play if enabled (only once when audio is first loaded)
   useEffect(() => {
-    if (isOpen && autoPlay && playbackState.audioSource && !playbackState.isPlaying && !playbackState.isLoading) {
+    if (
+      isOpen && 
+      autoPlay && 
+      playbackState.audioSource && 
+      !playbackState.isPlaying && 
+      !playbackState.isLoading &&
+      !hasAutoPlayed.current
+    ) {
+      hasAutoPlayed.current = true;
       audioManagerService.togglePlayPause();
     }
-  }, [isOpen, autoPlay, playbackState.audioSource, playbackState.isPlaying, playbackState.isLoading]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, autoPlay, playbackState.audioSource, playbackState.isLoading]);
 
   const initializeAudio = async () => {
     try {
       await audioManagerService.initializeAudio(chapter, {
         onPlaybackStateChange: (state) => {
           setPlaybackState(state);
-        },
-        onProgress: (progress) => {
-          onHighlightProgress?.(progress);
         },
         onError: (error) => {
           console.error('Audio error:', error);
@@ -105,7 +112,10 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
   const handlePlayPause = (e?: React.MouseEvent | React.TouchEvent) => {
     // Prevent event bubbling and default behavior for better mobile experience
     if (e) {
-      e.preventDefault();
+      // Only preventDefault if the event is cancelable (not passive)
+      if (e.cancelable) {
+        e.preventDefault();
+      }
       e.stopPropagation();
     }
     
@@ -304,7 +314,6 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
             ) : (
               <button
                 onClick={handlePlayPause}
-                onTouchStart={handlePlayPause}
                 disabled={playbackState.isLoading}
                 className="p-3 bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary rounded-full hover:bg-opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
                 style={{ WebkitTapHighlightColor: 'transparent' }}
