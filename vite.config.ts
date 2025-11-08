@@ -6,7 +6,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   plugins: [
     react(),
-    VitePWA({
+    // Only enable PWA plugin in production
+    ...(process.env.NODE_ENV === 'production' ? [VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'favicon-16x16.png', 'favicon-32x32.png', 'apple-touch-icon.png', 'logo.png'],
       manifest: {
@@ -62,8 +63,15 @@ export default defineConfig({
           }
         ]
       }
-    })
+    })] : []),
   ],
+  server: {
+    headers: {
+      'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    }
+  },
   build: {
     rollupOptions: {
       output: {

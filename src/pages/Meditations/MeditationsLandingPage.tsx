@@ -188,6 +188,7 @@ const MeditationsLandingPage: React.FC = () => {
         showClearButton={isSearchFocused || !!searchQuery.trim()}
         onClear={handleSearchClear}
         className="lg:relative"
+        isOpen={isSearchFocused || !!searchQuery.trim()}
       />
 
       {/* Search Overlay */}

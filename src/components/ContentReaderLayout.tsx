@@ -187,7 +187,7 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
 
       {/* Reader Navigation - Can move with scroll */}
       <div 
-        className="fixed bottom-20 left-0 right-0 z-40"
+        className="fixed bottom-[85px] left-0 right-0 z-40"
         style={combinedTransitionStyle}
       >
         <ReaderNavigation
@@ -208,10 +208,10 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
       {/* Main Content Area */}
       <main
         ref={contentRef}
-        className={`reader-content relative ${
-          'pb-48 px-6 max-w-2xl mx-auto'
-        } ${
-          'lg:pb-32 lg:px-8 lg:max-w-4xl lg:pt-8'
+        className={`reader-content relative px-6 max-w-2xl mx-auto ${
+          isAudioPlayerOpen ? 'pb-48' : ''
+        } lg:px-8 lg:max-w-4xl lg:pt-8 ${
+          isAudioPlayerOpen ? 'lg:pb-32' : ''
         }`}
         style={{ 
           paddingTop: getPaddingTop(),

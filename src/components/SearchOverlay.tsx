@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Search } from 'lucide-react';
 
 interface SearchOverlayProps<T> {
@@ -45,11 +46,11 @@ function SearchOverlay<T extends { id: string }>({
   const firstRow = allTags.slice(0, midPoint);
   const secondRow = allTags.slice(midPoint);
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop with Video Background */}
       <div 
-        className="fixed inset-0 z-[60]"
+        className="fixed inset-0 z-[9999]"
         onClick={onClose}
       >
         {/* Background Video */}
@@ -69,7 +70,7 @@ function SearchOverlay<T extends { id: string }>({
       </div>
       
       {/* Search Results Full Screen */}
-      <div data-search-overlay className="fixed top-20 left-0 right-0 bottom-0 z-[60] overflow-hidden lg:absolute lg:top-full lg:mt-2">
+      <div data-search-overlay className="fixed top-20 left-0 right-0 bottom-0 z-[9999] overflow-hidden lg:absolute lg:top-full lg:mt-2">
         <div className="max-w-2xl lg:max-w-4xl mx-auto h-full flex flex-col">
           {/* Tag Cloud - Horizontal Scrollable, Two Rows */}
           <div className="px-6 py-4 border-b border-ink-muted/10 dark:border-paper-light/10">
@@ -157,7 +158,8 @@ function SearchOverlay<T extends { id: string }>({
           </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }
 
