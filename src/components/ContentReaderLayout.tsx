@@ -60,7 +60,6 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
 }) => {
   const internalContentRef = useRef<HTMLDivElement>(null);
   const contentRef = externalContentRef || internalContentRef;
-  const [isAudioPlaying, setIsAudioPlaying] = React.useState(false);
 
   // Scroll transition hooks
   const headerScrollTransition = useScrollTransition({
@@ -77,25 +76,26 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
     direction: 'down'
   }, mainScrollRef);
 
-  const combinedTransitionStyle = {
-    ...readerNavScrollTransition.style,
-    transform: isAudioPlaying 
-      ? 'translateY(80px)'
-      : readerNavScrollTransition.style.transform
-  };
-
   // Swipe navigation
   const swipeHandlers = useSwipeNavigation({
     onSwipeLeft: onNext,
     onSwipeRight: onPrevious
   });
 
-  // Determine padding top based on content type and audio state
+  // Determine padding bottom based on audio player state
+  const getPaddingBottom = () => {
+    if (isAudioPlayerOpen) {
+      return '280px'; // Space for audio player (200px) + navigation (80px)
+    }
+    return '80px'; // Just navigation
+  };
+
+  // Determine padding top based on content type
   const getPaddingTop = () => {
     if (contentType === 'chapter') {
-      return isAudioPlaying ? '2rem' : '6rem';
+      return '6rem';
     } else {
-      return isAudioPlaying ? '7rem' : '8rem';
+      return '8rem';
     }
   };
 
@@ -128,12 +128,7 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
       {showMobileHeader && contentType === 'chapter' && (
         <div 
           className="lg:hidden fixed top-0 left-0 right-0 z-40"
-          style={{
-            ...headerScrollTransition.style,
-            transform: isAudioPlaying 
-              ? 'translateY(-120px)'
-              : headerScrollTransition.style.transform
-          }}
+          style={headerScrollTransition.style}
         >
           <ChapterInfo
             currentChapterIndex={currentIndex}
@@ -142,35 +137,35 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
         </div>
       )}
 
-      {/* Combined Navigation and Audio Controls */}
+      {/* Unified Audio Player - Fixed to bottom */}
+      <UnifiedAudioPlayer
+        chapter={chapter || {
+          id: contentId,
+          title: contentTitle,
+          content: content,
+          part: contentType === 'chapter' ? 'Book' : contentType === 'meditation' ? 'Meditation' : 'Story',
+          chapterNumber: currentIndex + 1,
+          totalChapters: totalItems
+        }}
+        isOpen={isAudioPlayerOpen}
+        onClose={onAudioPlayerClose}
+        onHighlightProgress={onHighlightProgress}
+        onScrollToPosition={onScrollToPosition}
+        onNextChapter={onNext}
+        onPreviousChapter={onPrevious}
+        hasNextChapter={currentIndex < totalItems - 1}
+        hasPreviousChapter={currentIndex > 0}
+        autoPlay={localStorage.getItem('autoPlayAudio') === 'true'}
+      />
+      
+      {/* Reader Navigation - Fixed above audio player */}
       <div 
-        className="fixed bottom-20 left-0 right-0 z-40"
-        style={combinedTransitionStyle}
+        className="fixed left-0 right-0 z-50 bg-paper-light/95 dark:bg-paper-dark/95 backdrop-blur-sm border-t border-ink-muted/20 dark:border-paper-light/20"
+        style={{
+          bottom: isAudioPlayerOpen ? '200px' : '0px',
+          ...readerNavScrollTransition.style
+        }}
       >
-        {/* Unified Audio Player */}
-        <div className="flex justify-center mb-2">
-          <UnifiedAudioPlayer
-            chapter={chapter || {
-              id: contentId,
-              title: contentTitle,
-              content: content,
-              part: contentType === 'chapter' ? 'Book' : contentType === 'meditation' ? 'Meditation' : 'Story',
-              chapterNumber: currentIndex + 1,
-              totalChapters: totalItems
-            }}
-            isOpen={isAudioPlayerOpen}
-            onClose={onAudioPlayerClose}
-            onHighlightProgress={onHighlightProgress}
-            onScrollToPosition={onScrollToPosition}
-            onNextChapter={onNext}
-            onPreviousChapter={onPrevious}
-            hasNextChapter={currentIndex < totalItems - 1}
-            hasPreviousChapter={currentIndex > 0}
-            autoPlay={localStorage.getItem('autoPlayAudio') === 'true'}
-          />
-        </div>
-        
-        {/* Reader Navigation */}
         <ReaderNavigation
           currentChapterIndex={currentIndex}
           totalChapters={totalItems}
@@ -190,15 +185,11 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
       {/* Main Content Area */}
       <main
         ref={contentRef}
-        className={`reader-content relative ${
-          'pb-48 px-6 max-w-2xl mx-auto'
-        } ${
-          'lg:pb-32 lg:px-8 lg:max-w-4xl lg:pt-8'
-        }`}
+        className={`reader-content relative px-6 max-w-2xl mx-auto lg:px-8 lg:max-w-4xl lg:pt-8`}
         style={{ 
           paddingTop: getPaddingTop(),
-          transform: isAudioPlaying ? 'translateY(80px)' : 'none',
-          transition: 'transform 0.3s ease-out, padding-top 0.3s ease-out'
+          paddingBottom: getPaddingBottom(),
+          transition: 'padding-bottom 0.3s ease-out'
         }}
         onTouchStart={swipeHandlers.handleTouchStart}
         onTouchMove={swipeHandlers.handleTouchMove}
