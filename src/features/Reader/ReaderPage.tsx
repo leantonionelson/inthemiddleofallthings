@@ -11,6 +11,7 @@ import { useUserCapabilities } from '../../hooks/useUserCapabilities';
 const ReaderPage: React.FC = () => {
   const outletContext = useOutletContext<{ isAudioPlaying?: boolean; setIsAudioPlaying?: (value: boolean) => void; mainScrollRef?: React.RefObject<HTMLElement> }>();
   const mainScrollRef = outletContext?.mainScrollRef;
+  const setIsAudioPlaying = outletContext?.setIsAudioPlaying;
   const contentRef = useRef<HTMLDivElement | null>(null);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
@@ -93,12 +94,12 @@ const ReaderPage: React.FC = () => {
       // If audio player is open, close it
       setIsAudioPlayerOpen(false);
       setIsListening(false);
-      setIsAudioPlaying(false);
+      setIsAudioPlaying?.(false);
     } else {
       // If audio player is closed, open it and enable auto-play
       setIsAudioPlayerOpen(true);
       setIsListening(true);
-      setIsAudioPlaying(true);
+      setIsAudioPlaying?.(true);
       // Enable auto-play when the play button is clicked
       localStorage.setItem('autoPlayAudio', 'true');
     }
@@ -158,7 +159,7 @@ const ReaderPage: React.FC = () => {
   const handleAudioPlayerClose = () => {
     setIsAudioPlayerOpen(false);
     setIsListening(false);
-    setIsAudioPlaying(false);
+    setIsAudioPlaying?.(false);
   };
 
   const handleNextChapter = useCallback(() => {

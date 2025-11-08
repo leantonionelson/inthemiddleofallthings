@@ -153,35 +153,17 @@ class PreGeneratedAudioService {
       const blobUrl = URL.createObjectURL(audioBlob);
       console.log('✅ Direct audio blob created, blob URL:', blobUrl);
 
-      // Create audio element with blob URL
-      const audio = new Audio(blobUrl);
-      const duration = await new Promise<number>((resolve) => {
-        audio.addEventListener('loadedmetadata', () => {
-          console.log('✅ Direct audio metadata loaded successfully');
-          resolve(audio.duration || this.estimateDuration(chapter.content));
-        });
-        audio.addEventListener('error', (e) => {
-          console.error('❌ Direct audio loading error:', e);
-          // Don't revoke blob URL here - let audioManager handle cleanup
-          resolve(this.estimateDuration(chapter.content));
-        });
-        // Set a timeout in case the audio doesn't load
-        setTimeout(() => {
-          console.warn('⏰ Direct audio loading timeout');
-          // Don't revoke blob URL here - let audioManager handle cleanup
-          resolve(this.estimateDuration(chapter.content));
-        }, 5000);
-        console.log('🔄 Loading direct audio element with blob URL...');
-        audio.load();
-      });
+      // Estimate duration based on content length (actual duration will be set by audioManager)
+      // This avoids creating a duplicate Audio element here
+      const estimatedDuration = this.estimateDuration(chapter.content);
 
       // Generate word timings based on estimated reading speed
-      const wordTimings = this.generateWordTimings(chapter.content, duration);
+      const wordTimings = this.generateWordTimings(chapter.content, estimatedDuration);
 
       const audioMetadata: AudioMetadata = {
         audioUrl,
         blobUrl,
-        duration,
+        duration: estimatedDuration, // Will be updated by audioManager when actual duration is known
         wordTimings,
         isPreGenerated: true
       };
@@ -190,7 +172,7 @@ class PreGeneratedAudioService {
       const cacheKey = this.getChapterId(chapter);
       this.audioCache.set(cacheKey, audioMetadata);
 
-      console.log(`✅ Direct audio loaded: ${chapter.title} (${this.userVoicePreference} voice, ${duration.toFixed(1)}s)`);
+      console.log(`✅ Direct audio loaded: ${chapter.title} (${this.userVoicePreference} voice, estimated ${estimatedDuration.toFixed(1)}s)`);
       
       return audioMetadata;
 
@@ -295,30 +277,12 @@ class PreGeneratedAudioService {
       const blobUrl = URL.createObjectURL(audioBlob);
       console.log('✅ Audio blob created, blob URL:', blobUrl);
 
-      // Create audio element with blob URL
-      const audio = new Audio(blobUrl);
-      const duration = await new Promise<number>((resolve) => {
-        audio.addEventListener('loadedmetadata', () => {
-          console.log('✅ Audio metadata loaded successfully');
-          resolve(audio.duration || this.estimateDuration(chapter.content));
-        });
-        audio.addEventListener('error', (e) => {
-          console.error('❌ Audio loading error:', e);
-          // Don't revoke blob URL here - let audioManager handle cleanup
-          resolve(this.estimateDuration(chapter.content));
-        });
-        // Set a timeout in case the audio doesn't load
-        setTimeout(() => {
-          console.warn('⏰ Audio loading timeout');
-          // Don't revoke blob URL here - let audioManager handle cleanup
-          resolve(this.estimateDuration(chapter.content));
-        }, 5000);
-        console.log('🔄 Loading audio element with blob URL...');
-        audio.load();
-      });
+      // Estimate duration based on content length (actual duration will be set by audioManager)
+      // This avoids creating a duplicate Audio element here
+      const estimatedDuration = this.estimateDuration(chapter.content);
 
       // Generate word timings based on estimated reading speed
-      const wordTimings = this.generateWordTimings(chapter.content, duration);
+      const wordTimings = this.generateWordTimings(chapter.content, estimatedDuration);
 
       const audioMetadata: AudioMetadata = {
         audioUrl,
