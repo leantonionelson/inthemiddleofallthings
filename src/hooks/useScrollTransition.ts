@@ -15,7 +15,7 @@ interface ScrollTransitionState {
 
 export const useScrollTransition = (
   options: ScrollTransitionOptions = {},
-  scrollContainerRef?: RefObject<HTMLElement>
+  scrollContainerRef?: RefObject<HTMLElement | null>
 ) => {
   const {
     threshold = 5,
