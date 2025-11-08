@@ -107,3 +107,4 @@ After setting up the rules, test them:
 3. Try accessing another user's data (should fail)
 4. Verify that only the authenticated user can read/write their own data
 
+

@@ -207,7 +207,7 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 100 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="fixed bottom-0 left-0 right-0 z-50 bg-paper-light/95 dark:bg-paper-dark/95 backdrop-blur-sm border-t border-ink-muted/20 dark:border-paper-light/20"
+        className="fixed bottom-[70px] left-0 right-0 z-[60] bg-paper-light/95 dark:bg-paper-dark/95 backdrop-blur-sm border-t border-ink-muted/20 dark:border-paper-light/20 lg:bottom-0"
       >
         <div className="max-w-4xl mx-auto px-4 py-4">
           {/* Header */}

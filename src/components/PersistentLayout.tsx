@@ -10,18 +10,22 @@ interface PersistentLayoutProps {}
 const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
   const location = useLocation();
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
   
   // Determine if we're on a reading page
   const isReading = location.pathname.startsWith(AppRoute.READER) || 
                     location.pathname.startsWith(AppRoute.MEDITATIONS) || 
                     location.pathname.startsWith(AppRoute.STORIES);
   
+  // Disable scroll transition for meditations-landing page
+  const isMeditationsLanding = location.pathname === '/meditations-landing';
+  
   const scrollTransition = useScrollTransition({
     threshold: 5,
     sensitivity: 0.8,
     maxOffset: 80,
     direction: 'down'
-  });
+  }, isReading ? mainRef : undefined);
 
   // Measure fixed nav heights
   const desktopNavRef = useRef<HTMLDivElement | null>(null);
@@ -93,15 +97,22 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
       </div>
 
       {/* Main Content - This is where page content will render */}
-      <main className={`relative z-10`}>
+      <main 
+        ref={mainRef}
+        className={`relative z-10`}
+        style={isReading ? {
+          height: 'calc(100vh - 84px)',
+          overflow: 'scroll',
+          marginTop: topNavHeight,
+          paddingBottom: bottomNavHeight
+        } : {
+          ...contentHeightStyle
+        }}
+      >
         {isReading ? (
-          <div style={{ marginTop: topNavHeight, paddingBottom: bottomNavHeight }}>
-            <Outlet context={{ isAudioPlaying, setIsAudioPlaying }} />
-          </div>
+          <Outlet context={{ isAudioPlaying, setIsAudioPlaying, mainScrollRef: mainRef }} />
         ) : (
-          <div style={contentHeightStyle}>
-            <Outlet context={{ isAudioPlaying, setIsAudioPlaying }} />
-          </div>
+          <Outlet context={{ isAudioPlaying, setIsAudioPlaying }} />
         )}
       </main>
 
@@ -111,7 +122,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
           id="mobile-nav"
           className="fixed bottom-0 left-0 right-0 z-50"
           ref={mobileNavRef}
-          style={isReading ? {
+          style={isReading && !isMeditationsLanding ? {
             ...scrollTransition.style,
             transform: isAudioPlaying 
               ? 'translateY(80px)'

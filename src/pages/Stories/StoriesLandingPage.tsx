@@ -167,7 +167,7 @@ const StoriesLandingPage: React.FC = () => {
   return (
     <>
       {/* Search Bar */}
-      <div className="fixed top-0 left-0 right-0 z-[70] backdrop-blur-sm lg:relative lg:backdrop-blur-sm">
+      <div className="fixed top-0 left-0 right-0 z-[70] lg:relative">
         <div className="max-w-2xl lg:max-w-4xl mx-auto px-6 py-4 lg:pt-6">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-ink-secondary dark:text-ink-muted" />
@@ -182,7 +182,7 @@ const StoriesLandingPage: React.FC = () => {
                   setIsSearchFocused(false);
                 }
               }}
-              className="w-full pl-12 pr-12 py-3 glass-subtle rounded-xl text-ink-primary dark:text-paper-light placeholder-ink-secondary dark:placeholder-ink-muted focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all"
+              className="w-full pl-12 pr-12 py-3 bg-gray-100 dark:bg-gray-800 rounded-full text-ink-primary dark:text-paper-light placeholder-ink-secondary dark:placeholder-ink-muted focus:outline-none border-0 transition-all"
             />
             {(isSearchFocused || searchQuery.trim()) && (
               <button
@@ -383,7 +383,14 @@ const StoriesLandingPage: React.FC = () => {
         </>
       )}
 
-      <div className="flex-1 flex flex-col p-6 lg:p-10 pb-24 max-w-7xl mx-auto w-full" style={{ paddingTop: '6rem' }}>
+      <div 
+        className="flex-1 flex flex-col p-6 lg:p-10 pb-24 max-w-7xl mx-auto w-full" 
+        style={{ 
+          paddingTop: '6rem',
+          height: 'calc(100vh - 84px)',
+          overflow: 'scroll'
+        }}
+      >
         {/* Description */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

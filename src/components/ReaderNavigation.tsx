@@ -39,7 +39,7 @@ const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
     content: content || ''
   });
   return (
-    <div className={`backdrop-blur-sm`}>
+    <div>
       {/* Progress bar at the top - only show when listening */}
       {isListening && (
         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1">
@@ -58,10 +58,10 @@ const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
             <motion.button
               onClick={onToggleListen}
               disabled={isChecking}
-              className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+              className={`flex items-center justify-center w-12 h-12 rounded-full transition-all ${
                 isListening
                   ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-800'
-                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100'
               } ${isChecking ? 'opacity-50 cursor-not-allowed' : ''}`}
               whileHover={!isChecking ? { scale: 1.05 } : {}}
               whileTap={!isChecking ? { scale: 0.95 } : {}}

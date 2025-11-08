@@ -120,7 +120,13 @@ const BookLandingPage: React.FC = () => {
 
   return (
     <>
-      <div className="flex-1 flex flex-col p-6 lg:p-10 pt-6 pb-24 max-w-7xl mx-auto w-full">
+      <div 
+        className="flex-1 flex flex-col p-6 lg:p-10 pt-6 pb-24 max-w-7xl mx-auto w-full"
+        style={{
+          height: 'calc(100vh - 84px)',
+          overflow: 'scroll'
+        }}
+      >
         {/* Description */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

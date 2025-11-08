@@ -5,6 +5,7 @@ interface UseScrollTrackingOptions {
   contentId: string;
   contentType: 'meditation' | 'story' | 'chapter';
   contentRef: React.RefObject<HTMLElement>;
+  scrollContainerRef?: React.RefObject<HTMLElement>; // Optional scroll container ref (for when scroll happens on a parent element)
   onReadComplete?: () => void;
   onProgressUpdate?: (progress: number) => void;
   enabled?: boolean;
@@ -19,6 +20,7 @@ export function useScrollTracking({
   contentId,
   contentType,
   contentRef,
+  scrollContainerRef,
   onReadComplete,
   onProgressUpdate,
   enabled = true,
@@ -34,6 +36,71 @@ export function useScrollTracking({
     if (!contentRef.current) return 0;
 
     const element = contentRef.current;
+    const scrollContainer = scrollContainerRef?.current;
+    
+    // If we have a scroll container, use it for calculations
+    if (scrollContainer) {
+      // Calculate progress based on scroll container's scroll position
+      // and the content element's position within it
+      const containerScrollTop = scrollContainer.scrollTop;
+      const containerClientHeight = scrollContainer.clientHeight;
+      
+      // Get content element's position relative to scroll container
+      const elementRect = element.getBoundingClientRect();
+      const containerRect = scrollContainer.getBoundingClientRect();
+      
+      // Calculate element's position within the scroll container
+      const elementTopInContainer = elementRect.top - containerRect.top + containerScrollTop;
+      const elementBottomInContainer = elementTopInContainer + elementRect.height;
+      
+      // If content is shorter than viewport, check if it's fully visible
+      if (elementRect.height <= containerClientHeight) {
+        // Element is fully visible if it's within the container's viewport
+        if (elementRect.top >= containerRect.top && elementRect.bottom <= containerRect.bottom) {
+          return 100;
+        }
+        return 0;
+      }
+      
+      // Calculate progress: 0% when element top reaches container top, 100% when element bottom reaches container bottom
+      const containerTop = containerScrollTop;
+      const containerBottom = containerScrollTop + containerClientHeight;
+      
+      // Element top reaches container top when: elementTopInContainer = containerTop
+      const elementStartPosition = elementTopInContainer;
+      
+      // Element bottom reaches container bottom when: elementBottomInContainer = containerBottom
+      // So: elementBottomInContainer = containerScrollTop + containerClientHeight
+      const elementEndPosition = elementBottomInContainer - containerClientHeight;
+      
+      // Total scrollable range for this element within the container
+      const scrollableRange = elementEndPosition - elementStartPosition;
+      
+      if (scrollableRange <= 0) {
+        // Element might be fully visible or not yet in viewport
+        if (elementRect.top <= containerRect.top && elementRect.bottom >= containerRect.bottom) {
+          return 100;
+        }
+        if (elementRect.top < containerRect.bottom && elementRect.bottom > containerRect.top) {
+          return 50; // Approximate middle
+        }
+        return 0;
+      }
+      
+      // Calculate progress based on container scroll position
+      if (containerScrollTop < elementStartPosition) {
+        return 0; // Element top hasn't reached container top yet
+      }
+      if (containerScrollTop >= elementEndPosition) {
+        return 100; // Element bottom has reached container bottom
+      }
+      
+      // Linear interpolation
+      const scrolledPast = containerScrollTop - elementStartPosition;
+      const percentage = (scrolledPast / scrollableRange) * 100;
+      
+      return Math.min(100, Math.max(0, percentage));
+    }
     
     // Check if element itself is scrollable
     const isElementScrollable = element.scrollHeight > element.clientHeight;
@@ -115,7 +182,7 @@ export function useScrollTracking({
       
       return Math.min(100, Math.max(0, percentage));
     }
-  }, [contentRef]);
+  }, [contentRef, scrollContainerRef]);
 
   /**
    * Handle scroll event
@@ -226,10 +293,15 @@ export function useScrollTracking({
       }
     };
 
-    // Check if element is scrollable or if we should listen to window scroll
+    // Determine which element to listen to for scroll events
+    const scrollContainer = scrollContainerRef?.current;
     const isElementScrollable = element.scrollHeight > element.clientHeight;
     
-    if (isElementScrollable) {
+    if (scrollContainer) {
+      // Use provided scroll container
+      scrollContainer.addEventListener('scroll', throttledScroll, { passive: true });
+      console.log('Listening to scroll container scroll events');
+    } else if (isElementScrollable) {
       // Element itself is scrollable
       element.addEventListener('scroll', throttledScroll, { passive: true });
       console.log('Listening to element scroll events');
@@ -254,13 +326,15 @@ export function useScrollTracking({
     initialCheck();
 
     return () => {
-      if (isElementScrollable) {
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('scroll', throttledScroll);
+      } else if (isElementScrollable) {
         element.removeEventListener('scroll', throttledScroll);
       } else {
         window.removeEventListener('scroll', throttledScroll);
       }
     };
-  }, [contentRef, enabled, handleScroll, contentId]);
+  }, [contentRef, scrollContainerRef, enabled, handleScroll, contentId]);
 
   // Load initial state and check if content should be marked as read
   useEffect(() => {

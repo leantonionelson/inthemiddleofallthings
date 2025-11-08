@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { AppRoute, BookChapter } from '../../types';
 import { loadBookChapters, fallbackChapters } from '../../data/bookContent';
 import ReaderNavigation from '../../components/ReaderNavigation';
@@ -13,6 +13,8 @@ import { useUserCapabilities } from '../../hooks/useUserCapabilities';
 
 const ReaderPage: React.FC = () => {
   const navigate = useNavigate();
+  const outletContext = useOutletContext<{ isAudioPlaying?: boolean; setIsAudioPlaying?: (value: boolean) => void; mainScrollRef?: React.RefObject<HTMLElement> }>();
+  const mainScrollRef = outletContext?.mainScrollRef;
   const contentRef = useRef<HTMLDivElement>(null);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
@@ -27,13 +29,13 @@ const ReaderPage: React.FC = () => {
   // Get user capabilities
   const userCapabilities = useUserCapabilities();
 
-  // Scroll transition hooks for header and navigation
+  // Scroll transition hooks for header and navigation - use mainScrollRef if available
   const headerScrollTransition = useScrollTransition({
     threshold: 5,
     sensitivity: 0.8,
     maxOffset: 120,
     direction: 'up' // Header moves up when scrolling down
-  });
+  }, mainScrollRef);
 
 
 
@@ -43,7 +45,7 @@ const ReaderPage: React.FC = () => {
     sensitivity: 0.8,
     maxOffset: 80,
     direction: 'down' // Moves down when scrolling down (stays at bottom)
-  });
+  }, mainScrollRef);
 
   // Combined transition style that includes both scroll and audio playing state
   const combinedTransitionStyle = {
@@ -99,6 +101,7 @@ const ReaderPage: React.FC = () => {
     contentId: currentChapter?.id || '',
     contentType: 'chapter',
     contentRef: contentRef as React.RefObject<HTMLElement>,
+    scrollContainerRef: mainScrollRef,
     enabled: !!currentChapter && !!currentChapter.id,
     onReadComplete: () => {
       // Chapter marked as read

@@ -10,8 +10,8 @@ const ChapterInfo: React.FC<ChapterInfoProps> = ({
   totalChapters
 }) => {
   return (
-    <div className="backdrop-blur-sm">
-      <div className="flex items-center justify-center py-3 px-4">
+    <div className="flex items-center justify-center py-3 px-4">
+      <div className="bg-gray-100 dark:bg-gray-800 rounded-full px-4 py-2">
         <div className="text-center">
           <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Chapter {currentChapterIndex + 1} of {totalChapters} • {Math.round(((currentChapterIndex + 1) / totalChapters) * 100)}% complete

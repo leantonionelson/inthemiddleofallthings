@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, RefObject } from 'react';
 
 interface ScrollTransitionOptions {
   threshold?: number; // Minimum scroll amount to trigger transition
@@ -13,7 +13,10 @@ interface ScrollTransitionState {
   transform: string;
 }
 
-export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
+export const useScrollTransition = (
+  options: ScrollTransitionOptions = {},
+  scrollContainerRef?: RefObject<HTMLElement>
+) => {
   const {
     threshold = 5,
     sensitivity = 0.5,
@@ -64,8 +67,13 @@ export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
   }, [maxOffset, direction]);
 
   useEffect(() => {
+    const scrollElement = scrollContainerRef?.current || window;
+    const isWindow = scrollElement === window;
+    
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const currentScrollY = isWindow 
+        ? window.scrollY 
+        : (scrollElement as HTMLElement).scrollTop;
       const scrollDelta = currentScrollY - lastScrollY.current;
       
       // Any scroll movement triggers the transition (automatic mode)
@@ -95,20 +103,26 @@ export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
       }
     };
 
-    window.addEventListener('scroll', throttledScroll, { passive: true });
+    scrollElement.addEventListener('scroll', throttledScroll, { passive: true });
     
     return () => {
-      window.removeEventListener('scroll', throttledScroll);
+      scrollElement.removeEventListener('scroll', throttledScroll);
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
     };
-  }, [updatePosition]);
+  }, [updatePosition, scrollContainerRef]);
 
   // Reset position when scroll position is at top
   useEffect(() => {
+    const scrollElement = scrollContainerRef?.current || window;
+    const isWindow = scrollElement === window;
+    
     const handleScrollReset = () => {
-      if (window.scrollY === 0) {
+      const scrollY = isWindow 
+        ? window.scrollY 
+        : (scrollElement as HTMLElement).scrollTop;
+      if (scrollY === 0) {
         setState({
           isVisible: true,
           opacity: 1,
@@ -117,9 +131,9 @@ export const useScrollTransition = (options: ScrollTransitionOptions = {}) => {
       }
     };
 
-    window.addEventListener('scroll', handleScrollReset, { passive: true });
-    return () => window.removeEventListener('scroll', handleScrollReset);
-  }, []);
+    scrollElement.addEventListener('scroll', handleScrollReset, { passive: true });
+    return () => scrollElement.removeEventListener('scroll', handleScrollReset);
+  }, [scrollContainerRef]);
 
   return {
     ...state,
