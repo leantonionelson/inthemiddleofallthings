@@ -187,9 +187,8 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
     
     // Update row 1 direction (opposite of row 2, since row 2 drives this handler)
     if (lastScrollPosRef.current.row1 !== row1Ref.current.scrollLeft) {
-      const direction = row1Ref.current.scrollLeft > lastScrollPosRef.current.row1 ? 1 : -1;
-      // Row 1 moves opposite to row 2, so invert the direction
-      scrollDirectionRef.current.row1 = -direction;
+      // Row 1 moves opposite to row 2, so use the inverse of row 2's detected direction
+      scrollDirectionRef.current.row1 = -scrollDirectionRef.current.row2;
       lastScrollPosRef.current.row1 = row1Ref.current.scrollLeft;
     }
     
@@ -208,9 +207,8 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
     
     // Update row 3 direction (opposite of row 2, same as row 1)
     if (lastScrollPosRef.current.row3 !== row3Ref.current.scrollLeft) {
-      const direction = row3Ref.current.scrollLeft > lastScrollPosRef.current.row3 ? 1 : -1;
-      // Row 3 moves opposite to row 2, so invert the direction
-      scrollDirectionRef.current.row3 = -direction;
+      // Row 3 moves opposite to row 2, so use the inverse of row 2's detected direction
+      scrollDirectionRef.current.row3 = -scrollDirectionRef.current.row2;
       lastScrollPosRef.current.row3 = row3Ref.current.scrollLeft;
     }
     
