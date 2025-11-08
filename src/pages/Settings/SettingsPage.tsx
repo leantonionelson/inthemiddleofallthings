@@ -5,6 +5,8 @@ import { audioManagerService } from '../../services/audioManager';
 import InstallButton from '../../components/InstallButton';
 import { useAuth } from '../../hooks/useAuth';
 import WelcomeDrawer from '../../components/WelcomeDrawer';
+import { useAppUpdate } from '../../hooks/useAppUpdate';
+import { RefreshCw, Download, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface SettingsPageProps {
   isDarkMode: boolean;
@@ -18,6 +20,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   const [voicePreference, setVoicePreference] = useState<'male' | 'female'>('male');
   const [showLoginDrawer, setShowLoginDrawer] = useState(false);
   const { user, signOut } = useAuth();
+  const {
+    isUpdateAvailable,
+    isUpdating,
+    updateError,
+    checkForUpdates,
+    applyUpdate,
+  } = useAppUpdate();
 
   useEffect(() => {
     // Load voice preference setting
@@ -214,6 +223,58 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
               </div>
               <InstallButton size="sm" />
             </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-ink-secondary dark:text-ink-muted font-medium">
+                  Check for Updates
+                </p>
+                <p className="text-sm text-ink-muted">
+                  {isUpdateAvailable 
+                    ? 'New version available! Click to update.'
+                    : 'Check if a new version is available'}
+                </p>
+              </div>
+              <button
+                onClick={isUpdateAvailable ? applyUpdate : checkForUpdates}
+                disabled={isUpdating}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium ${
+                  isUpdateAvailable
+                    ? 'bg-green-600 dark:bg-green-700 text-white hover:bg-green-700 dark:hover:bg-green-800'
+                    : 'bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary hover:opacity-90'
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {isUpdating ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Checking...</span>
+                  </>
+                ) : isUpdateAvailable ? (
+                  <>
+                    <Download className="w-4 h-4" />
+                    <span>Update Now</span>
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4" />
+                    <span>Check</span>
+                  </>
+                )}
+              </button>
+            </div>
+            
+            {isUpdateAvailable && (
+              <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 mt-2">
+                <CheckCircle className="w-4 h-4" />
+                <span>Update ready to install</span>
+              </div>
+            )}
+            
+            {updateError && (
+              <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 mt-2">
+                <AlertCircle className="w-4 h-4" />
+                <span>{updateError}</span>
+              </div>
+            )}
           </div>
         </motion.div>
 

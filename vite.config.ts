@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     // Only enable PWA plugin in production
     ...(process.env.NODE_ENV === 'production' ? [VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt', // Manual control via Settings button
       includeAssets: ['favicon.ico', 'favicon-16x16.png', 'favicon-32x32.png', 'apple-touch-icon.png', 'logo.png'],
       manifest: {
         name: 'In the Middle of All Things',
