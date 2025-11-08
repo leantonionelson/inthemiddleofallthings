@@ -10,6 +10,13 @@
     overscroll-behavior: none;
     /* Smooth scrolling */
     scroll-behavior: smooth;
+    /* Hide scrollbars globally */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html::-webkit-scrollbar {
+    display: none;
   }
 
   body {
@@ -29,6 +36,24 @@
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    
+    /* Hide scrollbars globally */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  body::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbars on all elements */
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  *::-webkit-scrollbar {
+    display: none;
   }
 
   /* Allow text selection in content areas */
