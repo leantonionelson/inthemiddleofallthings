@@ -287,7 +287,7 @@ class PreGeneratedAudioService {
       const audioMetadata: AudioMetadata = {
         audioUrl,
         blobUrl,
-        duration,
+        duration: estimatedDuration, // Will be updated by audioManager when actual duration is known
         wordTimings,
         isPreGenerated: true
       };
@@ -295,7 +295,7 @@ class PreGeneratedAudioService {
       // Cache for future use
       this.audioCache.set(cacheKey, audioMetadata);
 
-      console.log(`✅ Pre-generated audio loaded: ${chapter.title} (${this.userVoicePreference} voice, ${duration.toFixed(1)}s)`);
+      console.log(`✅ Pre-generated audio loaded: ${chapter.title} (${this.userVoicePreference} voice, estimated ${estimatedDuration.toFixed(1)}s)`);
       
       return audioMetadata;
 
