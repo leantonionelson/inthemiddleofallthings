@@ -64,6 +64,7 @@ const UnifiedAudioPlayer: React.FC<UnifiedAudioPlayerProps> = ({
       audioManagerService.stopAudio();
       isInitialized.current = false;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, chapter.id]); // Use chapter.id as dependency to detect chapter changes
 
   // Auto-play if enabled
