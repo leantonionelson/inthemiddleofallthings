@@ -9,6 +9,7 @@ import { generateQuoteCards, QuoteCard } from '../../utils/quoteExtractor';
 import { downloadElementAsImage } from '../../utils/cardDownloader';
 import StandardHeader from '../../components/StandardHeader';
 import QuoteCardSkeleton from '../../components/QuoteCardSkeleton';
+import GlassButton from '../../components/GlassButton';
 import { Download, BookOpen, Scale } from 'lucide-react';
 
 const SWIPE_THRESHOLD = 100;
@@ -390,30 +391,24 @@ const HomePage: React.FC = () => {
           {/* Action Buttons */}
           {hasCards && currentIndex < cards.length && (
             <div className="flex gap-4 items-center justify-center flex-shrink-0">
-              <button
+              <GlassButton
                 onClick={handleRead}
-                className="relative flex items-center gap-2 px-6 py-3 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group text-sm"
+                icon={
+                  <>
+                    {currentCard.source.type === 'book' && <BookOpen className="w-4 h-4" />}
+                    {currentCard.source.type === 'meditation' && <Scale className="w-4 h-4" />}
+                  </>
+                }
               >
-                <div className="absolute inset-0 glass-subtle rounded-full" />
-                <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
-                <div className="relative z-10 flex items-center gap-2 text-ink-primary dark:text-paper-light">
-                  {currentCard.source.type === 'book' && <BookOpen className="w-4 h-4" />}
-                  {currentCard.source.type === 'meditation' && <Scale className="w-4 h-4" />}
-                  Read {currentCard.source.type === 'book' ? 'Book' : 'Meditation'}
-                </div>
-              </button>
+                Read {currentCard.source.type === 'book' ? 'Book' : 'Meditation'}
+              </GlassButton>
 
-              <button
+              <GlassButton
                 onClick={handleDownload}
-                className="relative flex items-center gap-2 px-6 py-3 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group text-sm"
+                icon={<Download className="w-4 h-4" />}
               >
-                <div className="absolute inset-0 glass-subtle rounded-full" />
-                <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
-                <div className="relative z-10 flex items-center gap-2 text-ink-primary dark:text-paper-light">
-                  <Download className="w-4 h-4" />
-                  Download
-                </div>
-              </button>
+                Download
+              </GlassButton>
             </div>
           )}
         </div>

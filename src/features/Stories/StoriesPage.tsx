@@ -2,19 +2,20 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Story } from '../../types';
 import { loadStories, searchStories, fallbackStories } from '../../data/storiesContent';
-import ReaderNavigation from '../../components/ReaderNavigation';
-import { useScrollTransition } from '../../hooks/useScrollTransition';
 import { useScrollTracking } from '../../hooks/useScrollTracking';
 import { readingProgressService } from '../../services/readingProgressService';
-import { Search, X, ChevronRight, BookOpen, Scroll, Feather, Eye, Brain, Globe, Clock, Sparkles, Zap, CheckCircle2 } from 'lucide-react';
+import { BookOpen, Scroll, Feather, Eye, Brain, Globe, Clock, Sparkles, Zap } from 'lucide-react';
 
-import UnifiedAudioPlayer from '../../components/UnifiedAudioPlayer';
-import ContentFormatter from '../../components/ContentFormatter';
+import SearchBar from '../../components/SearchBar';
+import SearchOverlay from '../../components/SearchOverlay';
+import ContentListItem from '../../components/ContentListItem';
+import ContentReaderLayout from '../../components/ContentReaderLayout';
+import PageLoadingSpinner from '../../components/PageLoadingSpinner';
 
 const StoriesPage: React.FC = () => {
   const outletContext = useOutletContext<{ isAudioPlaying?: boolean; setIsAudioPlaying?: (value: boolean) => void; mainScrollRef?: React.RefObject<HTMLElement> }>();
   const mainScrollRef = outletContext?.mainScrollRef;
-  const contentRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
   const [stories, setStories] = useState<Story[]>([]);
@@ -28,28 +29,7 @@ const StoriesPage: React.FC = () => {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   const [highlightedProgress, setHighlightedProgress] = useState(0);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [fontSize] = useState('base');
-
-  // Touch handling state
-  const [touchStartX, setTouchStartX] = useState(0);
-  const [touchStartY, setTouchStartY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-
-  // Scroll transition hooks for navigation - use mainScrollRef if available
-  const readerNavScrollTransition = useScrollTransition({
-    threshold: 5,
-    sensitivity: 0.8,
-    maxOffset: 80,
-    direction: 'down'
-  }, mainScrollRef);
-
-  const combinedTransitionStyle = {
-    ...readerNavScrollTransition.style,
-    transform: isAudioPlaying 
-      ? 'translateY(80px)'
-      : readerNavScrollTransition.style.transform
-  };
 
 
   // Get all unique tags from stories
@@ -321,48 +301,6 @@ const StoriesPage: React.FC = () => {
     setIsAudioPlaying(false);
   };
 
-  // Touch handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    setTouchStartX(touch.clientX);
-    setTouchStartY(touch.clientY);
-    setIsDragging(false);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!touchStartX || !touchStartY) return;
-    
-    const touch = e.touches[0];
-    const deltaX = Math.abs(touch.clientX - touchStartX);
-    const deltaY = Math.abs(touch.clientY - touchStartY);
-    
-    if (deltaX > 10 || deltaY > 10) {
-      setIsDragging(true);
-    }
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!isDragging && !touchStartX) return;
-    
-    const touch = e.changedTouches[0];
-    const deltaX = touch.clientX - touchStartX;
-    const deltaY = Math.abs(touch.clientY - touchStartY);
-    
-    // Only trigger swipe if horizontal movement is greater than vertical
-    if (Math.abs(deltaX) > 50 && deltaY < 100) {
-      if (deltaX > 0) {
-        // Swipe right - previous story
-        handlePreviousStory();
-      } else {
-        // Swipe left - next story  
-        handleNextStory();
-      }
-    }
-    
-    setTouchStartX(0);
-    setTouchStartY(0);
-    setIsDragging(false);
-  };
 
   // Highlight progress handler
   const handleHighlightProgress = (progress: number) => {
@@ -398,381 +336,97 @@ const StoriesPage: React.FC = () => {
 
   // Show loading state while stories are being loaded
   if (stories.length === 0) {
-    return (
-      <div className="min-h-screen flex items-center justify-center relative z-10">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
-          <p className="text-ink-secondary dark:text-ink-muted">Loading stories...</p>
-        </div>
-      </div>
-    );
+    return <PageLoadingSpinner message="Loading stories..." />;
   }
+
+  const handleSearchClear = () => {
+    setSearchQuery('');
+    setIsSearchFocused(false);
+    setSelectedTags([]);
+  };
+
+  const handleSearchBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (!e.relatedTarget || !e.relatedTarget.closest('[data-search-overlay]')) {
+      setIsSearchFocused(false);
+    }
+  };
+
+  const currentList = searchQuery.trim() || selectedTags.length > 0 ? filteredStories : stories;
 
   return (
     <>
-      {/* Search Bar - Fixed at top on mobile, integrated on desktop */}
-      <div className="fixed top-0 left-0 right-0 z-[70] lg:relative">
-        <div className="max-w-2xl lg:max-w-4xl mx-auto px-6 py-4 lg:pt-6">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-ink-secondary dark:text-ink-muted" />
-            <input
-              type="text"
-              placeholder="Search stories..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={(e) => {
-                // Only blur if not clicking within the search overlay
-                if (!e.relatedTarget || !e.relatedTarget.closest('[data-search-overlay]')) {
-                  setIsSearchFocused(false);
-                }
-              }}
-              className="w-full pl-12 pr-12 py-3 bg-gray-100 dark:bg-gray-800 rounded-full text-ink-primary dark:text-paper-light placeholder-ink-secondary dark:placeholder-ink-muted focus:outline-none border-0 transition-all"
-            />
-            {(isSearchFocused || searchQuery.trim()) && (
-              <button
-                onClick={() => {
-                  setSearchQuery('');
-                  setIsSearchFocused(false);
-                  setSelectedTags([]);
-                }}
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
+      {/* Search Bar */}
+      <SearchBar
+        placeholder="Search stories..."
+        value={searchQuery}
+        onChange={setSearchQuery}
+        onFocus={() => setIsSearchFocused(true)}
+        onBlur={handleSearchBlur}
+        showClearButton={isSearchFocused || !!searchQuery.trim()}
+        onClear={handleSearchClear}
+        className="lg:relative"
+      />
 
-      {/* Full Screen Search Overlay */}
-      {(isSearchFocused || searchQuery.trim()) && (
-        <>
-          {/* Backdrop with Video Background */}
-          <div 
-            className="fixed inset-0 z-[60]"
-            onClick={() => {
-              setSearchQuery('');
-              setIsSearchFocused(false);
-              setSelectedTags([]);
-            }}
-          >
-            {/* Background Video */}
-            <div className="absolute inset-0 overflow-hidden">
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="absolute inset-0 w-full h-full object-cover opacity-70 dark:opacity-100"
-              >
-                <source src="/media/bg.mp4" type="video/mp4" />
-              </video>
-              {/* Dark overlay for better content readability */}
-              <div className="absolute inset-0 bg-paper-light/50 dark:bg-slate-950/75"></div>
-            </div>
-          </div>
+      {/* Search Overlay */}
+      <SearchOverlay
+        isOpen={isSearchFocused || !!searchQuery.trim()}
+        onClose={handleSearchClear}
+        searchQuery={searchQuery}
+        selectedTags={selectedTags}
+        allTags={getAllTags()}
+        onTagToggle={toggleTag}
+        onClearFilters={clearAllFilters}
+        items={currentList}
+        renderItem={(story, index) => {
+          const actualIndex = stories.findIndex(s => s.id === story.id);
+          const isActive = actualIndex === currentStoryIndex;
+          const IconComponent = getStoryIcon(story, index);
+          const isRead = readingProgressService.isRead(story.id);
           
-          {/* Search Results Full Screen */}
-          <div data-search-overlay className="fixed top-20 left-0 right-0 bottom-0 z-[60] overflow-hidden lg:absolute lg:top-full lg:mt-2">
-            <div className="max-w-2xl lg:max-w-4xl mx-auto h-full flex flex-col">
-              {/* Tag Cloud - Horizontal Scrollable, Two Rows */}
-              <div className="px-6 py-4 border-b border-ink-muted/10 dark:border-paper-light/10">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-medium text-ink-secondary dark:text-ink-muted">
-                    Filter by tags
-                  </h3>
-                  {(selectedTags.length > 0 || searchQuery.trim()) && (
-                    <button
-                      onClick={clearAllFilters}
-                      className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
-                    >
-                      Clear all
-                    </button>
-                  )}
-                </div>
-                <div className="overflow-x-auto scrollbar-hide">
-                  <div className="flex flex-col gap-2 pb-2" style={{ minWidth: 'max-content' }}>
-                    {/* Split tags into two rows */}
-                    {(() => {
-                      const allTags = getAllTags();
-                      const midPoint = Math.ceil(allTags.length / 2);
-                      const firstRow = allTags.slice(0, midPoint);
-                      const secondRow = allTags.slice(midPoint);
-                      
-                      return (
-                        <>
-                          {/* First row */}
-                          <div className="flex gap-2">
-                            {firstRow.map(tag => (
-                              <button
-                                key={tag}
-                                onClick={() => toggleTag(tag)}
-                                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0 ${
-                                  selectedTags.includes(tag)
-                                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-600'
-                                    : 'bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 border border-transparent'
-                                }`}
-                              >
-                                {tag}
-                              </button>
-                            ))}
-                          </div>
-                          
-                          {/* Second row */}
-                          <div className="flex gap-2">
-                            {secondRow.map(tag => (
-                              <button
-                                key={tag}
-                                onClick={() => toggleTag(tag)}
-                                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0 ${
-                                  selectedTags.includes(tag)
-                                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-600'
-                                    : 'bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 border border-transparent'
-                                }`}
-                              >
-                                {tag}
-                              </button>
-                            ))}
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto">
-                <ul role="list" className="divide-y divide-ink-muted/10 dark:divide-paper-light/10">
-                  {/* Show visible stories based on pagination */}
-                  {(searchQuery.trim() || selectedTags.length > 0 ? filteredStories : stories)
-                    .slice(0, visibleCount)
-                    .map((story, index) => {
-                    const actualIndex = stories.findIndex(s => s.id === story.id);
-                    const isActive = actualIndex === currentStoryIndex;
-                    const IconComponent = getStoryIcon(story, index);
-                    const isRead = readingProgressService.isRead(story.id);
-                    
-                    return (
-                      <li
-                        key={story.id}
-                        className={`relative flex justify-between gap-x-6 px-6 py-5 hover:bg-ink-primary/5 dark:hover:bg-paper-light/5 transition-colors ${
-                          isActive ? 'bg-blue-50/80 dark:bg-blue-900/20' : ''
-                        }`}
-                      >
-                        <button
-                          onClick={() => goToStory(actualIndex)}
-                          className="flex min-w-0 gap-x-4 w-full text-left"
-                        >
-                          <span className="absolute inset-x-0 -top-px bottom-0" />
-                          
-                          {/* Icon */}
-                          <div className={`relative flex-none rounded-full p-3 w-12 h-12 flex items-center justify-center ${
-                            isActive 
-                              ? 'bg-blue-100 dark:bg-blue-900/30' 
-                              : 'bg-ink-muted/10 dark:bg-paper-light/10'
-                          }`}>
-                            <IconComponent className={`w-6 h-6 ${
-                              isActive 
-                                ? 'text-blue-600 dark:text-blue-400' 
-                                : 'text-ink-secondary dark:text-ink-muted'
-                            }`} />
-                            {isRead && (
-                              <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-0.5">
-                                <CheckCircle2 className="w-4 h-4 text-white" />
-                              </div>
-                            )}
-                          </div>
-                          
-                          {/* Content */}
-                          <div className="min-w-0 flex-auto">
-                            <div className="flex items-center gap-2">
-                              <p className={`text-sm/6 font-semibold ${
-                                isActive 
-                                  ? 'text-blue-700 dark:text-blue-300' 
-                                  : 'text-ink-primary dark:text-paper-light'
-                              }`}>
-                                {story.title}
-                              </p>
-                              {isRead && (
-                                <span className="text-xs text-green-600 dark:text-green-400 font-medium">
-                                  Read
-                                </span>
-                              )}
-                            </div>
-                            <div className="mt-1 flex flex-wrap gap-1 justify-center">
-                              {story.tags.slice(0, 3).map(tag => (
-                                <span
-                                  key={tag}
-                                  className={`text-xs px-2 py-0.5 rounded font-medium ${
-                                    selectedTags.includes(tag)
-                                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                                      : isActive
-                                      ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
-                                      : 'bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted'
-                                  }`}
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                              {story.tags.length > 3 && (
-                                <span className="text-xs text-ink-secondary dark:text-ink-muted">
-                                  +{story.tags.length - 3}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          
-                          {/* Chevron */}
-                          <div className="flex shrink-0 items-center">
-                            <ChevronRight className={`w-5 h-5 ${
-                              isActive 
-                                ? 'text-blue-400 dark:text-blue-500' 
-                                : 'text-ink-muted dark:text-ink-secondary'
-                            }`} />
-                          </div>
-                        </button>
-                      </li>
-                    );
-                  })}
-                  
-                </ul>
-
-                {/* View More Button */}
-                {(() => {
-                  const currentList = searchQuery.trim() || selectedTags.length > 0 ? filteredStories : stories;
-                  const hasMore = visibleCount < currentList.length;
-                  
-                  return hasMore && (
-                    <div className="px-6 py-4 border-t border-ink-muted/10 dark:border-paper-light/10">
-                      <button
-                        onClick={handleViewMore}
-                        className="w-full px-4 py-3 bg-ink-primary/5 dark:bg-paper-light/5 hover:bg-ink-primary/10 dark:hover:bg-paper-light/10 border border-ink-muted/20 dark:border-paper-light/20 rounded-xl text-ink-primary dark:text-paper-light font-medium transition-all duration-200"
-                      >
-                        View More ({currentList.length - visibleCount} remaining)
-                      </button>
-                    </div>
-                  );
-                })()}
-                
-                {(searchQuery.trim() || selectedTags.length > 0) && filteredStories.length === 0 && (
-                  <div className="text-center py-16 px-6">
-                    <Search className="w-16 h-16 mx-auto mb-4 text-ink-muted/50 dark:text-ink-muted/30" />
-                    <h3 className="text-xl font-medium text-ink-primary dark:text-paper-light mb-2">
-                      No stories found
-                    </h3>
-                    <p className="text-ink-secondary dark:text-ink-muted">
-                      Try adjusting your search terms
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-
-
-      {/* Combined Navigation and Audio Controls - positioned with scroll transition */}
-      <div 
-        className="fixed bottom-20 left-0 right-0 z-40"
-        style={combinedTransitionStyle}
-      >
-        {/* Unified Audio Player - positioned above navigation */}
-        <div className="flex justify-center mb-2">
-          <UnifiedAudioPlayer
-            chapter={{
-              id: currentStory.id,
-              title: currentStory.title,
-              content: currentStory.content,
-              part: 'Story',
-              chapterNumber: currentStoryIndex + 1,
-              totalChapters: stories.length
-            }}
-            isOpen={isAudioPlayerOpen}
-            onClose={handleAudioPlayerClose}
-            onHighlightProgress={handleHighlightProgress}
-            onScrollToPosition={handleScrollToPosition}
-            onNextChapter={handleNextStory}
-            onPreviousChapter={handlePreviousStory}
-            hasNextChapter={currentStoryIndex < stories.length - 1}
-            hasPreviousChapter={currentStoryIndex > 0}
-            autoPlay={localStorage.getItem('autoPlayAudio') === 'true'}
-          />
-        </div>
-        
-        {/* Reader Navigation */}
-        <ReaderNavigation
-          currentChapterIndex={currentStoryIndex}
-          totalChapters={stories.length}
-          isListening={isListening}
-          onPreviousChapter={handlePreviousStory}
-          onNextChapter={handleNextStory}
-          onToggleListen={handleListen}
-          showShadow={!isAudioPlayerOpen}
-          progress={highlightedProgress}
-          contentType="story"
-          contentId={stories[currentStoryIndex]?.id}
-          contentTitle={stories[currentStoryIndex]?.title}
-          content={stories[currentStoryIndex]?.content}
-        />
-      </div>
-
-      {/* Main Content Area */}
-      <main 
-        ref={contentRef}
-        className={`reader-content relative ${
-          // Mobile styles - increased bottom padding for audio player
-          'pb-48 px-6 max-w-2xl mx-auto'
-        } ${
-          // Desktop styles - increased bottom padding for audio player
-          'lg:pb-32 lg:px-8 lg:max-w-4xl lg:pt-8'
-        }`}
-        style={{ 
-          // Mobile: Adjusted for search bar, desktop uses responsive classes
-          paddingTop: isAudioPlaying ? '7rem' : '8rem',
-          transform: isAudioPlaying ? 'translateY(80px)' : 'none',
-          transition: 'transform 0.3s ease-out, padding-top 0.3s ease-out'
-        }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div>
-          {/* Story Header */}
-          <div className="mb-8">
-            <h2 className={`font-bold text-left text-ink-primary dark:text-paper-light mb-4 leading-tight ${
-              fontSize === 'sm' ? 'text-2xl' : 
-              fontSize === 'base' ? 'text-2xl' : 
-              fontSize === 'lg' ? 'text-3xl' : 
-              'text-4xl'
-            }`}>
-              {currentStory.title}
-            </h2>
-            
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              {currentStory.tags.map(tag => (
-                <span
-                  key={tag}
-                  className="px-3 py-1 bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted rounded-full text-sm"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Story Content */}
-          <div className="max-w-none">
-            <ContentFormatter 
-              content={currentStory.content}
-              highlightedProgress={highlightedProgress}
-              fontSize={fontSize}
+          return (
+            <ContentListItem
+              key={story.id}
+              id={story.id}
+              title={story.title}
+              tags={story.tags}
+              icon={<IconComponent className="w-6 h-6" />}
+              isActive={isActive}
+              isRead={isRead}
+              onClick={() => goToStory(actualIndex)}
+              selectedTags={selectedTags}
             />
-          </div>
-        </div>
-      </main>
+          );
+        }}
+        visibleCount={visibleCount}
+        totalCount={currentList.length}
+        onViewMore={handleViewMore}
+        emptyStateTitle="No stories found"
+        emptyStateMessage="Try adjusting your search terms"
+      />
+
+      {/* Content Reader Layout */}
+      <ContentReaderLayout
+        content={currentStory.content}
+        title={currentStory.title}
+        tags={currentStory.tags}
+        currentIndex={currentStoryIndex}
+        totalItems={stories.length}
+        onPrevious={handlePreviousStory}
+        onNext={handleNextStory}
+        onListen={handleListen}
+        isListening={isListening}
+        isAudioPlayerOpen={isAudioPlayerOpen}
+        onAudioPlayerClose={handleAudioPlayerClose}
+        highlightedProgress={highlightedProgress}
+        onHighlightProgress={handleHighlightProgress}
+        onScrollToPosition={handleScrollToPosition}
+        contentType="story"
+        contentId={currentStory.id}
+        contentTitle={currentStory.title}
+        fontSize={fontSize}
+        mainScrollRef={mainScrollRef}
+        contentRef={contentRef}
+      />
 
       {/* Click outside handler for overflow menu */}
       {showOverflowMenu && (

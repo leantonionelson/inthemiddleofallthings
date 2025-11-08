@@ -1,21 +1,17 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useOutletContext } from 'react-router-dom';
-import { AppRoute, BookChapter } from '../../types';
+import { useOutletContext } from 'react-router-dom';
+import { BookChapter } from '../../types';
 import { loadBookChapters, fallbackChapters } from '../../data/bookContent';
-import ReaderNavigation from '../../components/ReaderNavigation';
-import ChapterInfo from '../../components/ChapterInfo';
-import { useScrollTransition } from '../../hooks/useScrollTransition';
 import { useScrollTracking } from '../../hooks/useScrollTracking';
 
-import UnifiedAudioPlayer from '../../components/UnifiedAudioPlayer';
-import ContentFormatter from '../../components/ContentFormatter';
+import ContentReaderLayout from '../../components/ContentReaderLayout';
+import PageLoadingSpinner from '../../components/PageLoadingSpinner';
 import { useUserCapabilities } from '../../hooks/useUserCapabilities';
 
 const ReaderPage: React.FC = () => {
-  const navigate = useNavigate();
   const outletContext = useOutletContext<{ isAudioPlaying?: boolean; setIsAudioPlaying?: (value: boolean) => void; mainScrollRef?: React.RefObject<HTMLElement> }>();
   const mainScrollRef = outletContext?.mainScrollRef;
-  const contentRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
   const [chapters, setChapters] = useState<BookChapter[]>([]);
@@ -23,37 +19,10 @@ const ReaderPage: React.FC = () => {
   const [isListening, setIsListening] = useState(false);
 
   const [highlightedProgress, setHighlightedProgress] = useState(0); // 0 to 1, representing progress through the text
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false); // Track when audio is actively playing
   const [fontSize, setFontSize] = useState('base');
   
   // Get user capabilities
-  const userCapabilities = useUserCapabilities();
-
-  // Scroll transition hooks for header and navigation - use mainScrollRef if available
-  const headerScrollTransition = useScrollTransition({
-    threshold: 5,
-    sensitivity: 0.8,
-    maxOffset: 120,
-    direction: 'up' // Header moves up when scrolling down
-  }, mainScrollRef);
-
-
-
-  // Reader navigation moves with bottom menu but stays at bottom of screen
-  const readerNavScrollTransition = useScrollTransition({
-    threshold: 5,
-    sensitivity: 0.8,
-    maxOffset: 80,
-    direction: 'down' // Moves down when scrolling down (stays at bottom)
-  }, mainScrollRef);
-
-  // Combined transition style that includes both scroll and audio playing state
-  const combinedTransitionStyle = {
-    ...readerNavScrollTransition.style,
-    transform: isAudioPlaying 
-      ? 'translateY(80px)' // Force the scroll transition effect when audio is playing
-      : readerNavScrollTransition.style.transform
-  };
+  useUserCapabilities();
 
   // Load chapters from MDX files
   useEffect(() => {
@@ -234,197 +203,39 @@ const ReaderPage: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [handleNextChapter, handlePreviousChapter]);
 
-  // Handle swipe gestures
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe) {
-      handleNextChapter();
-    } else if (isRightSwipe) {
-      handlePreviousChapter();
-    }
-  };
 
   // Show loading state while chapters are being loaded
   if (chapters.length === 0) {
-    return (
-      <div className="min-h-screen flex items-center justify-center relative z-10">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
-          <p className="text-ink-secondary dark:text-ink-muted">Loading chapter...</p>
-        </div>
-      </div>
-    );
+    return <PageLoadingSpinner message="Loading chapter..." />;
   }
 
   return (
     <>
-      {/* ChapterInfo only on mobile - hidden on desktop */}
-      <div 
-        className="lg:hidden fixed top-0 left-0 right-0 z-40"
-        style={{
-          ...headerScrollTransition.style,
-          transform: isAudioPlaying 
-            ? 'translateY(-120px)' // Move chapter info up when audio is playing
-            : headerScrollTransition.style.transform
-        }}
-      >
-        <ChapterInfo
-          currentChapterIndex={currentChapterIndex}
-          totalChapters={chapters.length}
-        />
-      </div>
-
-      {/* Combined Navigation and Audio Controls - positioned with scroll transition */}
-      <div 
-        className="fixed bottom-20 left-0 right-0 z-40"
-        style={combinedTransitionStyle}
-      >
-        {/* Unified Audio Player - positioned above navigation */}
-        <div className="flex justify-center mb-2">
-          <UnifiedAudioPlayer
-            chapter={currentChapter}
-            isOpen={isAudioPlayerOpen}
-            onClose={handleAudioPlayerClose}
-            onHighlightProgress={handleHighlightProgress}
-            onScrollToPosition={handleScrollToPosition}
-            onNextChapter={handleNextChapter}
-            onPreviousChapter={handlePreviousChapter}
-            hasNextChapter={currentChapterIndex < chapters.length - 1}
-            hasPreviousChapter={currentChapterIndex > 0}
-            autoPlay={localStorage.getItem('autoPlayAudio') === 'true'}
-          />
-        </div>
-        
-        {/* Reader Navigation */}
-        <ReaderNavigation
-          currentChapterIndex={currentChapterIndex}
-          totalChapters={chapters.length}
-          isListening={isListening}
-          onPreviousChapter={handlePreviousChapter}
-          onNextChapter={handleNextChapter}
-          onToggleListen={handleListen}
-          showShadow={!isAudioPlayerOpen}
-          progress={highlightedProgress}
-          contentType="chapter"
-          contentId={currentChapter.id}
-          contentTitle={currentChapter.title}
-          content={currentChapter.content}
-        />
-      </div>
-
-      {/* Main Content Area */}
-      <main
-        ref={contentRef}
-        className={`reader-content relative ${
-          // Mobile styles - increased bottom padding for audio player
-          'pb-48 px-6 max-w-2xl mx-auto'
-        } ${
-          // Desktop styles - consistent top padding
-          'lg:pb-32 lg:px-8 lg:max-w-4xl lg:pt-8'
-        }`}
-        style={{ 
-          // Mobile padding top (desktop handled by Tailwind classes)
-          paddingTop: isAudioPlaying ? '2rem' : '6rem',
-          transform: isAudioPlaying ? 'translateY(80px)' : 'none',
-          transition: 'transform 0.3s ease-out, padding-top 0.3s ease-out'
-        }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-
-
-        <div>
-          {/* Desktop Chapter Header with Navigation */}
-          <div className="mb-8">
-            {/* Desktop Chapter Info */}
-            <div className="hidden lg:flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-ink-secondary dark:text-ink-muted">
-                  Chapter {currentChapterIndex + 1} of {chapters.length}
-                </span>
-                <div className="w-px h-4 bg-ink-muted/20 dark:bg-paper-light/20" />
-                <div className="flex items-center gap-2">
-                  <div className="w-32 bg-ink-muted/10 dark:bg-paper-light/10 rounded-full h-1">
-                    <div 
-                      className="h-1 bg-blue-500 rounded-full transition-all duration-300"
-                      style={{ width: `${((currentChapterIndex + 1) / chapters.length) * 100}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-ink-secondary dark:text-ink-muted">
-                    {Math.round(((currentChapterIndex + 1) / chapters.length) * 100)}%
-                  </span>
-                </div>
-              </div>
-              
-              {/* Desktop Navigation Controls */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handlePreviousChapter}
-                  disabled={currentChapterIndex === 0}
-                  className="p-2 rounded-lg bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  ←
-                </button>
-                <button
-                  onClick={handleNextChapter}
-                  disabled={currentChapterIndex === chapters.length - 1}
-                  className="p-2 rounded-lg bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  →
-                </button>
-              </div>
-            </div>
-
-            <h2 className={`font-bold text-left text-ink-primary dark:text-paper-light mb-4 leading-tight ${
-              fontSize === 'sm' ? 'text-2xl lg:text-3xl' : 
-              fontSize === 'base' ? 'text-2xl lg:text-3xl' : 
-              fontSize === 'lg' ? 'text-3xl lg:text-4xl' : 
-              'text-4xl lg:text-5xl'
-            }`}>
-              {currentChapter.title}
-            </h2>
-            {currentChapter.subtitle && (
-              <p className={`text-left text-ink-secondary dark:text-ink-muted mb-6 leading-relaxed ${
-                fontSize === 'sm' ? 'text-lg lg:text-xl' : 
-                fontSize === 'base' ? 'text-lg lg:text-xl' : 
-                fontSize === 'lg' ? 'text-xl lg:text-2xl' : 
-                'text-2xl lg:text-3xl'
-              }`}>
-                {currentChapter.subtitle}
-              </p>
-            )}
-          </div>
-
-          {/* Chapter Content */}
-          <div className="max-w-none">
-            <ContentFormatter 
-              content={currentChapter.content}
-              highlightedProgress={highlightedProgress}
-              fontSize={fontSize}
-            />
-          </div>
-
-
-        </div>
-      </main>
+      {/* Content Reader Layout */}
+      <ContentReaderLayout
+        content={currentChapter.content}
+        title={currentChapter.title}
+        subtitle={currentChapter.subtitle}
+        currentIndex={currentChapterIndex}
+        totalItems={chapters.length}
+        onPrevious={handlePreviousChapter}
+        onNext={handleNextChapter}
+        onListen={handleListen}
+        isListening={isListening}
+        isAudioPlayerOpen={isAudioPlayerOpen}
+        onAudioPlayerClose={handleAudioPlayerClose}
+        highlightedProgress={highlightedProgress}
+        onHighlightProgress={handleHighlightProgress}
+        onScrollToPosition={handleScrollToPosition}
+        contentType="chapter"
+        contentId={currentChapter.id}
+        contentTitle={currentChapter.title}
+        fontSize={fontSize}
+        mainScrollRef={mainScrollRef}
+        contentRef={contentRef}
+        showMobileHeader={true}
+        chapter={currentChapter}
+      />
 
       {/* Click outside handler for overflow menu */}
       {showOverflowMenu && (
