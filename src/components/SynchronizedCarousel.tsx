@@ -33,6 +33,20 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
   const rafIdRef = useRef<number | null>(null);
   const isPausedRef = useRef(false);
   const resumeTimeoutRef = useRef<number | null>(null);
+  
+  // Track scroll direction for each row (1 = right, -1 = left)
+  const scrollDirectionRef = useRef<{ row1: number; row2: number; row3: number }>({
+    row1: 1,  // Default: scroll right (positive)
+    row2: -1, // Default: scroll left (negative, since row2 scrolls opposite)
+    row3: 1   // Default: scroll right (positive)
+  });
+  
+  // Track last scroll position to detect direction
+  const lastScrollPosRef = useRef<{ row1: number; row2: number; row3: number }>({
+    row1: 0,
+    row2: 0,
+    row3: 0
+  });
 
   // Duplicate items 5 times for infinite scroll
   useEffect(() => {
@@ -60,6 +74,14 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
     
     isScrolling.current = true;
     const scrollLeft = row1Ref.current.scrollLeft;
+    
+    // Detect scroll direction
+    if (lastScrollPosRef.current.row1 !== scrollLeft) {
+      const direction = scrollLeft > lastScrollPosRef.current.row1 ? 1 : -1;
+      scrollDirectionRef.current.row1 = direction;
+      lastScrollPosRef.current.row1 = scrollLeft;
+    }
+    
     const scrollWidth = row1Ref.current.scrollWidth;
     const clientWidth = row1Ref.current.clientWidth;
     const setWidth = getRowSetWidth(row1Items);
@@ -90,6 +112,13 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
       row2Ref.current.scrollLeft = row2Scroll;
     }
     
+    // Update row 2 direction (opposite of row 1)
+    if (lastScrollPosRef.current.row2 !== row2Ref.current.scrollLeft) {
+      const direction = row2Ref.current.scrollLeft > lastScrollPosRef.current.row2 ? 1 : -1;
+      scrollDirectionRef.current.row2 = direction;
+      lastScrollPosRef.current.row2 = row2Ref.current.scrollLeft;
+    }
+    
     // Row 3 scrolls left (same direction as row 1)
     const row3MaxScroll = row3Ref.current.scrollWidth - row3Ref.current.clientWidth;
     const row3SetWidth = getRowSetWidth(row3Items);
@@ -104,6 +133,13 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
       row3Ref.current.scrollLeft = row3Scroll;
     }
     
+    // Update row 3 direction (same as row 1)
+    if (lastScrollPosRef.current.row3 !== row3Ref.current.scrollLeft) {
+      const direction = row3Ref.current.scrollLeft > lastScrollPosRef.current.row3 ? 1 : -1;
+      scrollDirectionRef.current.row3 = direction;
+      lastScrollPosRef.current.row3 = row3Ref.current.scrollLeft;
+    }
+    
     requestAnimationFrame(() => {
       isScrolling.current = false;
     });
@@ -114,6 +150,14 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
     
     isScrolling.current = true;
     const scrollLeft = row2Ref.current.scrollLeft;
+    
+    // Detect scroll direction
+    if (lastScrollPosRef.current.row2 !== scrollLeft) {
+      const direction = scrollLeft > lastScrollPosRef.current.row2 ? 1 : -1;
+      scrollDirectionRef.current.row2 = direction;
+      lastScrollPosRef.current.row2 = scrollLeft;
+    }
+    
     const scrollWidth = row2Ref.current.scrollWidth;
     const clientWidth = row2Ref.current.clientWidth;
     const setWidth = getRowSetWidth(row2Items);
@@ -141,6 +185,14 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
       row1Ref.current.scrollLeft = row1Scroll;
     }
     
+    // Update row 1 direction (opposite of row 2, since row 2 drives this handler)
+    if (lastScrollPosRef.current.row1 !== row1Ref.current.scrollLeft) {
+      const direction = row1Ref.current.scrollLeft > lastScrollPosRef.current.row1 ? 1 : -1;
+      // Row 1 moves opposite to row 2, so invert the direction
+      scrollDirectionRef.current.row1 = -direction;
+      lastScrollPosRef.current.row1 = row1Ref.current.scrollLeft;
+    }
+    
     // Row 3 scrolls right (opposite direction)
     const row3MaxScroll = row3Ref.current.scrollWidth - row3Ref.current.clientWidth;
     const row3SetWidth = getRowSetWidth(row3Items);
@@ -154,6 +206,14 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
       row3Ref.current.scrollLeft = row3Scroll;
     }
     
+    // Update row 3 direction (opposite of row 2, same as row 1)
+    if (lastScrollPosRef.current.row3 !== row3Ref.current.scrollLeft) {
+      const direction = row3Ref.current.scrollLeft > lastScrollPosRef.current.row3 ? 1 : -1;
+      // Row 3 moves opposite to row 2, so invert the direction
+      scrollDirectionRef.current.row3 = -direction;
+      lastScrollPosRef.current.row3 = row3Ref.current.scrollLeft;
+    }
+    
     requestAnimationFrame(() => {
       isScrolling.current = false;
     });
@@ -164,6 +224,14 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
     
     isScrolling.current = true;
     const scrollLeft = row3Ref.current.scrollLeft;
+    
+    // Detect scroll direction
+    if (lastScrollPosRef.current.row3 !== scrollLeft) {
+      const direction = scrollLeft > lastScrollPosRef.current.row3 ? 1 : -1;
+      scrollDirectionRef.current.row3 = direction;
+      lastScrollPosRef.current.row3 = scrollLeft;
+    }
+    
     const scrollWidth = row3Ref.current.scrollWidth;
     const clientWidth = row3Ref.current.clientWidth;
     const setWidth = getRowSetWidth(row3Items);
@@ -191,6 +259,13 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
       row1Ref.current.scrollLeft = row1Scroll;
     }
     
+    // Update row 1 direction (same as row 3, since row 3 drives this handler)
+    if (lastScrollPosRef.current.row1 !== row1Ref.current.scrollLeft) {
+      const direction = row1Ref.current.scrollLeft > lastScrollPosRef.current.row1 ? 1 : -1;
+      scrollDirectionRef.current.row1 = direction;
+      lastScrollPosRef.current.row1 = row1Ref.current.scrollLeft;
+    }
+    
     // Row 2 scrolls right (opposite direction)
     const row2MaxScroll = row2Ref.current.scrollWidth - row2Ref.current.clientWidth;
     const row2SetWidth = getRowSetWidth(row2Items);
@@ -202,6 +277,14 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
       row2Ref.current.scrollLeft = row2Scroll - row2SetWidth * 2;
     } else {
       row2Ref.current.scrollLeft = row2Scroll;
+    }
+    
+    // Update row 2 direction (opposite of row 3)
+    if (lastScrollPosRef.current.row2 !== row2Ref.current.scrollLeft) {
+      const direction = row2Ref.current.scrollLeft > lastScrollPosRef.current.row2 ? 1 : -1;
+      // Row 2 moves opposite to row 3, so invert the direction
+      scrollDirectionRef.current.row2 = -direction;
+      lastScrollPosRef.current.row2 = row2Ref.current.scrollLeft;
     }
     
     requestAnimationFrame(() => {
@@ -231,17 +314,20 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
     // Set initial scroll to middle set (2nd set)
     if (row1Ref.current) {
       row1Ref.current.scrollLeft = setWidth1 * 2;
+      lastScrollPosRef.current.row1 = setWidth1 * 2;
     }
     if (row2Ref.current) {
       row2Ref.current.scrollLeft = setWidth2 * 2;
+      lastScrollPosRef.current.row2 = setWidth2 * 2;
     }
     if (row3Ref.current) {
       row3Ref.current.scrollLeft = setWidth3 * 2;
+      lastScrollPosRef.current.row3 = setWidth3 * 2;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [duplicatedItems.length]);
 
-  // Autoscroll effect - drive row 1 and let scroll handlers synchronize rows 2 and 3
+  // Autoscroll effect - drive row 1 in its detected direction, scroll handlers sync rows 2 and 3
   useEffect(() => {
     if (!autoScroll) return;
 
@@ -256,14 +342,18 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
         return;
       }
 
-      // Advance a tiny amount each frame for a gentle motion
-      row1Ref.current.scrollLeft += autoScrollSpeed;
+      // Advance row 1 in its last detected direction
+      const speed = autoScrollSpeed * scrollDirectionRef.current.row1;
+      row1Ref.current.scrollLeft += speed;
+      
       // Explicitly trigger scroll listeners to synchronize other rows
+      // The scroll handlers will detect and update directions for rows 2 and 3
       try {
         row1Ref.current.dispatchEvent(new Event('scroll'));
       } catch {
         // no-op
       }
+      
       rafIdRef.current = requestAnimationFrame(step);
     };
 
