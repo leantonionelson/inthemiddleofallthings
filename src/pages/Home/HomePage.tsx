@@ -6,7 +6,7 @@ import { AppRoute, BookChapter, Meditation } from '../../types';
 import { loadBookChapters } from '../../data/bookContent';
 import { loadMeditations } from '../../data/meditationContent';
 import { generateQuoteCards, QuoteCard } from '../../utils/quoteExtractor';
-import { downloadCardAsImage, downloadElementAsImage } from '../../utils/cardDownloader';
+import { downloadElementAsImage } from '../../utils/cardDownloader';
 import StandardHeader from '../../components/StandardHeader';
 import QuoteCardSkeleton from '../../components/QuoteCardSkeleton';
 import { Download, BookOpen, Scale } from 'lucide-react';
@@ -261,13 +261,9 @@ const HomePage: React.FC = () => {
   };
 
   const handleDownload = async () => {
-    if (!cards[currentIndex]) return;
+    if (!cards[currentIndex] || !currentCardRef.current) return;
     const filename = `middle-quote-${cards[currentIndex].source.title.toLowerCase().replace(/\s+/g, '-')}.png`;
-    if (currentCardRef.current) {
-      await downloadElementAsImage(currentCardRef.current, filename);
-    } else {
-      await downloadCardAsImage(cards[currentIndex]);
-    }
+    await downloadElementAsImage(currentCardRef.current, filename);
   };
 
   const handleRead = () => {
