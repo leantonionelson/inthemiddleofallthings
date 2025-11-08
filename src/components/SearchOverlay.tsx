@@ -60,12 +60,12 @@ function SearchOverlay<T extends { id: string }>({
             loop
             muted
             playsInline
-            className="absolute inset-0 w-full h-full object-cover opacity-70 dark:opacity-100"
+            className="absolute inset-0 w-full h-full object-cover"
           >
             <source src="/media/bg.mp4" type="video/mp4" />
           </video>
-          {/* Dark overlay for better content readability */}
-          <div className="absolute inset-0 bg-paper-light/50 dark:bg-slate-950/75"></div>
+          {/* Overlay for better content readability */}
+          <div className="absolute inset-0 bg-paper-light/75 dark:bg-slate-950/75"></div>
         </div>
       </div>
       
