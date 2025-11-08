@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useOutletContext } from 'react-router-dom';
-import { AppRoute, Story } from '../../types';
+import { useOutletContext } from 'react-router-dom';
+import { Story } from '../../types';
 import { loadStories, searchStories, fallbackStories } from '../../data/storiesContent';
 import ReaderNavigation from '../../components/ReaderNavigation';
 import { useScrollTransition } from '../../hooks/useScrollTransition';
@@ -10,10 +10,8 @@ import { Search, X, ChevronRight, BookOpen, Scroll, Feather, Eye, Brain, Globe, 
 
 import UnifiedAudioPlayer from '../../components/UnifiedAudioPlayer';
 import ContentFormatter from '../../components/ContentFormatter';
-import { useUserCapabilities } from '../../hooks/useUserCapabilities';
 
 const StoriesPage: React.FC = () => {
-  const navigate = useNavigate();
   const outletContext = useOutletContext<{ isAudioPlaying?: boolean; setIsAudioPlaying?: (value: boolean) => void; mainScrollRef?: React.RefObject<HTMLElement> }>();
   const mainScrollRef = outletContext?.mainScrollRef;
   const contentRef = useRef<HTMLDivElement>(null);
@@ -30,29 +28,15 @@ const StoriesPage: React.FC = () => {
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   const [highlightedProgress, setHighlightedProgress] = useState(0);
-  const searchBarRef = useRef<HTMLDivElement>(null);
-  const [searchBarHeight, setSearchBarHeight] = useState(0);
-  const [isLargeScreen, setIsLargeScreen] = useState(false);
-  const [mobileNavHeight, setMobileNavHeight] = useState(0);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [fontSize, setFontSize] = useState('base');
-  
-  // Get user capabilities
-  const userCapabilities = useUserCapabilities();
+  const [fontSize] = useState('base');
 
   // Touch handling state
   const [touchStartX, setTouchStartX] = useState(0);
   const [touchStartY, setTouchStartY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Scroll transition hooks for header and navigation - use mainScrollRef if available
-  const headerScrollTransition = useScrollTransition({
-    threshold: 5,
-    sensitivity: 0.8,
-    maxOffset: 120,
-    direction: 'up'
-  }, mainScrollRef);
-
+  // Scroll transition hooks for navigation - use mainScrollRef if available
   const readerNavScrollTransition = useScrollTransition({
     threshold: 5,
     sensitivity: 0.8,
@@ -67,55 +51,6 @@ const StoriesPage: React.FC = () => {
       : readerNavScrollTransition.style.transform
   };
 
-  // Measure search bar height (mobile: fixed; desktop: relative)
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)');
-    const updateMq = () => setIsLargeScreen(mq.matches);
-    updateMq();
-    const onChange = () => updateMq();
-    if (mq.addEventListener) {
-      mq.addEventListener('change', onChange);
-    } else {
-      // Safari
-      mq.addListener(onChange);
-    }
-
-    const measure = () => {
-      const h = searchBarRef.current ? searchBarRef.current.getBoundingClientRect().height : 0;
-      setSearchBarHeight(h);
-      const mobileNav = document.getElementById('mobile-nav');
-      const b = mobileNav ? mobileNav.getBoundingClientRect().height : 0;
-      setMobileNavHeight(b);
-    };
-    measure();
-
-    const { ResizeObserver: ResizeObserverCtor } = (window as unknown as {
-      ResizeObserver?: new (callback: ResizeObserverCallback) => ResizeObserver;
-    });
-    const ro = ResizeObserverCtor ? new ResizeObserverCtor(() => measure()) : undefined;
-    const el = searchBarRef.current;
-    if (el && ro) ro.observe(el);
-    const mobileNav = document.getElementById('mobile-nav');
-    if (mobileNav && ro) ro.observe(mobileNav);
-
-    const onResize = () => measure();
-    window.addEventListener('resize', onResize);
-    window.addEventListener('orientationchange', onResize);
-
-    return () => {
-      if (mq.removeEventListener) {
-        mq.removeEventListener('change', onChange);
-      } else {
-        mq.removeListener(onChange);
-      }
-      if (el && ro) ro.unobserve(el);
-      const mobileNav = document.getElementById('mobile-nav');
-      if (mobileNav && ro) ro.unobserve(mobileNav);
-      if (ro) ro.disconnect?.();
-      window.removeEventListener('resize', onResize);
-      window.removeEventListener('orientationchange', onResize);
-    };
-  }, []);
 
   // Get all unique tags from stories
   const getAllTags = useCallback(() => {
@@ -346,33 +281,44 @@ const StoriesPage: React.FC = () => {
 
   // Handle Listen button
   const handleListen = async () => {
-    // Check if audio is available before opening the media player
-    try {
-      const { getUnifiedContentService } = await import('../../services/unifiedContentService');
-      const audioService = getUnifiedContentService();
-      
-      const currentStory = stories[currentStoryIndex];
-      if (!currentStory) return;
-      
-      console.log(`🎵 Opening audio player for story: "${currentStory.title}" (${currentStory.id})`);
-      
-      const hasAudio = await audioService.hasAudio(currentStory.id, 'story');
-      if (hasAudio) {
-        console.log('✅ Audio available - opening player');
-        setIsAudioPlayerOpen(true);
-        setIsListening(true);
-      } else {
-        console.log('⚠️  Audio not available for this story');
+    if (isAudioPlayerOpen) {
+      // If audio player is open, close it
+      setIsAudioPlayerOpen(false);
+      setIsListening(false);
+      setIsAudioPlaying(false);
+    } else {
+      // Check if audio is available before opening the media player
+      try {
+        const { getUnifiedContentService } = await import('../../services/unifiedContentService');
+        const audioService = getUnifiedContentService();
+        
+        const currentStory = stories[currentStoryIndex];
+        if (!currentStory) return;
+        
+        console.log(`🎵 Opening audio player for story: "${currentStory.title}" (${currentStory.id})`);
+        
+        const hasAudio = await audioService.hasAudio(currentStory.id, 'story');
+        if (hasAudio) {
+          console.log('✅ Audio available - opening player');
+          setIsAudioPlayerOpen(true);
+          setIsListening(true);
+          setIsAudioPlaying(true);
+          // Enable auto-play when the play button is clicked
+          localStorage.setItem('autoPlayAudio', 'true');
+        } else {
+          console.log('⚠️  Audio not available for this story');
+        }
+      } catch (error) {
+        console.error('❌ Error checking audio availability:', error);
+        // Don't open media player if there's an error
       }
-    } catch (error) {
-      console.error('❌ Error checking audio availability:', error);
-      // Don't open media player if there's an error
     }
   };
 
   const handleAudioPlayerClose = () => {
     setIsAudioPlayerOpen(false);
     setIsListening(false);
+    setIsAudioPlaying(false);
   };
 
   // Touch handlers
@@ -431,12 +377,6 @@ const StoriesPage: React.FC = () => {
     }
   };
 
-  // Pin drag handlers
-  const handlePinDragStart = (pinId: string, e: React.MouseEvent | React.TouchEvent) => {
-    setIsDragging(true);
-    e.preventDefault();
-  };
-
   // Keyboard navigation
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -471,7 +411,7 @@ const StoriesPage: React.FC = () => {
   return (
     <>
       {/* Search Bar - Fixed at top on mobile, integrated on desktop */}
-      <div className="fixed top-0 left-0 right-0 z-[70] lg:relative" ref={searchBarRef}>
+      <div className="fixed top-0 left-0 right-0 z-[70] lg:relative">
         <div className="max-w-2xl lg:max-w-4xl mx-auto px-6 py-4 lg:pt-6">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-ink-secondary dark:text-ink-muted" />
@@ -534,7 +474,7 @@ const StoriesPage: React.FC = () => {
           </div>
           
           {/* Search Results Full Screen */}
-          <div data-search-overlay className="fixed left-0 right-0 bottom-0 z-[60] overflow-hidden lg:absolute lg:top-full lg:mt-2" style={!isLargeScreen ? { top: searchBarHeight } as React.CSSProperties : undefined}>
+          <div data-search-overlay className="fixed top-20 left-0 right-0 bottom-0 z-[60] overflow-hidden lg:absolute lg:top-full lg:mt-2">
             <div className="max-w-2xl lg:max-w-4xl mx-auto h-full flex flex-col">
               {/* Tag Cloud - Horizontal Scrollable, Two Rows */}
               <div className="px-6 py-4 border-b border-ink-muted/10 dark:border-paper-light/10">
@@ -789,18 +729,10 @@ const StoriesPage: React.FC = () => {
           'lg:pb-32 lg:px-8 lg:max-w-4xl lg:pt-8'
         }`}
         style={{ 
-          // On mobile, make main a scroll container sized between search and bottom nav/audio
-          position: isLargeScreen ? undefined : 'fixed',
-          top: isLargeScreen ? undefined : searchBarHeight,
-          bottom: isLargeScreen ? undefined : (isAudioPlayerOpen ? Math.max(mobileNavHeight, 192) : mobileNavHeight),
-          left: isLargeScreen ? undefined : 0,
-          right: isLargeScreen ? undefined : 0,
-          overflowY: isLargeScreen ? undefined : 'auto',
-          WebkitOverflowScrolling: isLargeScreen ? undefined : 'touch',
-          paddingTop: isLargeScreen ? undefined : 0,
-          paddingBottom: isLargeScreen ? undefined : 0,
-          transform: undefined,
-          transition: 'bottom 0.2s ease, top 0.2s ease'
+          // Mobile: Adjusted for search bar, desktop uses responsive classes
+          paddingTop: isAudioPlaying ? '7rem' : '8rem',
+          transform: isAudioPlaying ? 'translateY(80px)' : 'none',
+          transition: 'transform 0.3s ease-out, padding-top 0.3s ease-out'
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
