@@ -220,19 +220,43 @@ class AudioManagerService {
    */
   private async setupPreGeneratedAudio(audioUrl: string, duration: number): Promise<void> {
     return new Promise((resolve, reject) => {
+      console.log(`🎵 Setting up audio with URL: ${audioUrl}`);
       this.currentAudio = new Audio(audioUrl);
       this.currentAudio.playbackRate = this.playbackState.playbackRate;
+      
+      let isResolved = false;
+      const timeout = setTimeout(() => {
+        if (!isResolved) {
+          console.warn('⏰ Audio setup timeout');
+          isResolved = true;
+          resolve(); // Resolve anyway to allow playback attempt
+        }
+      }, 10000); // 10 second timeout
 
       // Audio loaded
       this.currentAudio.addEventListener('loadedmetadata', () => {
-        if (this.currentAudio) {
+        if (this.currentAudio && !isResolved) {
           const actualDuration = this.currentAudio.duration || duration;
           this.updatePlaybackState({ 
             duration: actualDuration,
             isLoading: false 
           });
           console.log(`✅ Audio loaded: ${actualDuration.toFixed(1)}s`);
+          clearTimeout(timeout);
+          isResolved = true;
           resolve();
+        }
+      });
+
+      // Audio can play (ready to play)
+      this.currentAudio.addEventListener('canplay', () => {
+        if (this.currentAudio && !isResolved) {
+          console.log('✅ Audio can play');
+          clearTimeout(timeout);
+          if (!isResolved) {
+            isResolved = true;
+            resolve();
+          }
         }
       });
 
@@ -261,22 +285,27 @@ class AudioManagerService {
       });
 
       // Error handling
-      this.currentAudio.addEventListener('error', () => {
+      this.currentAudio.addEventListener('error', (e) => {
         const error = this.currentAudio?.error;
         const errorMessage = error 
           ? `Audio error: ${error.code} - ${error.message}` 
           : 'Unknown audio error';
-        console.error('❌ Audio playback error:', errorMessage);
-        this.updatePlaybackState({ 
-          isPlaying: false, 
-          isLoading: false,
-          error: errorMessage
-        });
-        this.callbacks.onError?.(errorMessage);
-        reject(new Error(errorMessage));
+        console.error('❌ Audio playback error:', errorMessage, error, e);
+        clearTimeout(timeout);
+        if (!isResolved) {
+          isResolved = true;
+          this.updatePlaybackState({ 
+            isPlaying: false, 
+            isLoading: false,
+            error: errorMessage
+          });
+          this.callbacks.onError?.(errorMessage);
+          reject(new Error(errorMessage));
+        }
       });
 
       // Start loading
+      console.log('🔄 Loading audio element...');
       this.currentAudio.load();
     });
   }
@@ -290,16 +319,52 @@ class AudioManagerService {
       return;
     }
 
+    console.log('🎵 Toggle play/pause:', {
+      isPlaying: this.playbackState.isPlaying,
+      readyState: this.currentAudio.readyState,
+      src: this.currentAudio.src
+    });
+
     if (this.playbackState.isPlaying) {
       this.currentAudio.pause();
       this.updatePlaybackState({ isPlaying: false });
+      console.log('⏸️ Audio paused');
     } else {
-      this.currentAudio.play().then(() => {
-        this.updatePlaybackState({ isPlaying: true });
-      }).catch(error => {
-        console.error('❌ Failed to play audio:', error);
-        this.callbacks.onError?.('Failed to play audio');
-      });
+      // Check if audio is ready
+      if (this.currentAudio.readyState >= 2) { // HAVE_CURRENT_DATA or higher
+        this.currentAudio.play().then(() => {
+          console.log('▶️ Audio playing');
+          this.updatePlaybackState({ isPlaying: true });
+        }).catch(error => {
+          console.error('❌ Failed to play audio:', error);
+          this.updatePlaybackState({ 
+            isPlaying: false,
+            error: `Failed to play: ${error.message}`
+          });
+          this.callbacks.onError?.(`Failed to play audio: ${error.message}`);
+        });
+      } else {
+        // Wait for audio to be ready
+        console.log('⏳ Waiting for audio to be ready...');
+        const checkReady = () => {
+          if (this.currentAudio && this.currentAudio.readyState >= 2) {
+            this.currentAudio.play().then(() => {
+              console.log('▶️ Audio playing (after wait)');
+              this.updatePlaybackState({ isPlaying: true });
+            }).catch(error => {
+              console.error('❌ Failed to play audio:', error);
+              this.updatePlaybackState({ 
+                isPlaying: false,
+                error: `Failed to play: ${error.message}`
+              });
+              this.callbacks.onError?.(`Failed to play audio: ${error.message}`);
+            });
+          } else if (this.currentAudio) {
+            setTimeout(checkReady, 100);
+          }
+        };
+        checkReady();
+      }
     }
   }
 
