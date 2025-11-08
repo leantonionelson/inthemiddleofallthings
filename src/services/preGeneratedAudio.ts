@@ -32,6 +32,7 @@ interface AudioMetadata {
 class PreGeneratedAudioService {
   private audioIndex: AudioIndex | null = null;
   private audioCache: Map<string, AudioMetadata> = new Map();
+  private indexLoadPromise: Promise<void>;
   private readonly AUDIO_BASE_PATHS = {
     chapters: '/media/audio/chapters/',
     meditations: '/media/audio/meditations/',
@@ -46,7 +47,7 @@ class PreGeneratedAudioService {
 
   constructor() {
     this.loadUserVoicePreference();
-    this.loadAudioIndex();
+    this.indexLoadPromise = this.loadAudioIndex();
   }
 
   /**
@@ -203,6 +204,9 @@ class PreGeneratedAudioService {
    * Check if a pre-generated audio file exists for this chapter
    */
   async hasPreGeneratedAudio(chapter: BookChapter): Promise<boolean> {
+    // Wait for index to load before proceeding
+    await this.indexLoadPromise;
+    
     if (!this.audioIndex) {
       return false;
     }
@@ -224,6 +228,10 @@ class PreGeneratedAudioService {
    */
   async getPreGeneratedAudio(chapter: BookChapter): Promise<AudioMetadata | null> {
     console.log(`🔍 Getting pre-generated audio for: ${chapter.title}, voice preference: ${this.userVoicePreference}`);
+    
+    // Wait for index to load before proceeding
+    await this.indexLoadPromise;
+    
     const cacheKey = this.getChapterId(chapter);
 
     // Check memory cache first
@@ -242,6 +250,7 @@ class PreGeneratedAudioService {
 
     // For chapters, use the index-based approach
     if (!this.audioIndex) {
+      console.log('⚠️ Audio index not loaded yet');
       return null;
     }
 
@@ -392,7 +401,8 @@ class PreGeneratedAudioService {
   async refreshIndex(): Promise<void> {
     this.audioIndex = null;
     this.audioCache.clear();
-    await this.loadAudioIndex();
+    this.indexLoadPromise = this.loadAudioIndex();
+    await this.indexLoadPromise;
   }
 
   /**
