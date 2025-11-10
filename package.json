@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/generateQuotes.mjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:quotes": "node scripts/generateQuotes.mjs"
   },
   "dependencies": {
     "@netlify/functions": "^2.8.2",

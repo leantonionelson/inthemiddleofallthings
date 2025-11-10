@@ -253,7 +253,7 @@ const HomePage: React.FC = () => {
   }, []);
 
   // Initial batch size for fast first load
-  const INITIAL_BATCH_SIZE = 5; // Load 5 chapters + 5 meditations first
+  const INITIAL_BATCH_SIZE = 2; // Load only 2 chapters + 2 meditations first (reduced for faster load)
   const INITIAL_CARDS_TO_SHOW = 5; // Show first 5 cards immediately
   const SKELETON_THRESHOLD = 2; // Show skeleton when within 2 cards of the end
 
@@ -330,7 +330,42 @@ const HomePage: React.FC = () => {
 
     const loadContent = async () => {
       try {
-        // Step 1: Check for cached cards first - show immediately if available
+        // Step 1: Try to load pre-generated quotes.json first (fastest option)
+        try {
+          const response = await fetch('/quotes.json');
+          if (response.ok) {
+            const preGeneratedCards = await response.json() as QuoteCard[];
+            if (preGeneratedCards && preGeneratedCards.length > 0) {
+              // Shuffle and show random subset immediately
+              const shuffled = shuffleArray(preGeneratedCards);
+              const cardsToShow = shuffled.slice(0, INITIAL_CARDS_TO_SHOW);
+              setCards(cardsToShow);
+              setIsLoading(false);
+              
+              // Save to cache for future visits
+              quoteCardCache.saveCardsImmediate(preGeneratedCards);
+              
+              // Load full content for navigation (non-blocking)
+              Promise.all([
+                loadBookChapters(),
+                loadMeditations()
+              ]).then(([allChapters, allMeditations]) => {
+                if (!cancelled) {
+                  setChapters(allChapters);
+                  setMeditations(allMeditations);
+                }
+              });
+              
+              // Start background generation in parallel (to update cache with any new content)
+              generateCardsInBackground();
+              return;
+            }
+          }
+        } catch (error) {
+          console.warn('Could not load pre-generated quotes.json, falling back to cache:', error);
+        }
+
+        // Step 2: Check for cached cards in localStorage - show immediately if available
         const cachedCards = quoteCardCache.getCachedCards();
         if (cachedCards && cachedCards.length > 0) {
           // Show random subset from cache immediately
@@ -356,7 +391,7 @@ const HomePage: React.FC = () => {
           }
         }
 
-        // Step 2: Load initial batch quickly (small subset for fast first render)
+        // Step 3: Load initial batch quickly (small subset for fast first render)
         const startTime = Date.now();
         const MIN_SKELETON_TIME = 600; // Reduced since we'll show cards faster
 
@@ -372,7 +407,7 @@ const HomePage: React.FC = () => {
         setChapters(initialChapters);
         setMeditations(initialMeditations);
 
-        // Step 3: Generate initial cards from small batch
+        // Step 4: Generate initial cards from small batch
         const initialCards = generateQuoteCards(
           initialChapters,
           initialMeditations,
@@ -403,7 +438,7 @@ const HomePage: React.FC = () => {
           setIsLoading(false);
         }, remainingTime);
 
-        // Step 4: Start background generation
+        // Step 5: Start background generation
         generateCardsInBackground();
 
       } catch (error) {
