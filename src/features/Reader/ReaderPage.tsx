@@ -7,6 +7,8 @@ import { useScrollTracking } from '../../hooks/useScrollTracking';
 import ContentReaderLayout from '../../components/ContentReaderLayout';
 import PageLoadingSpinner from '../../components/PageLoadingSpinner';
 import { useUserCapabilities } from '../../hooks/useUserCapabilities';
+import SEO from '../../components/SEO';
+import { generateArticleStructuredData, generateBreadcrumbStructuredData } from '../../utils/seoHelpers';
 
 const ReaderPage: React.FC = () => {
   const outletContext = useOutletContext<{ isAudioPlaying?: boolean; setIsAudioPlaying?: (value: boolean) => void; mainScrollRef?: React.RefObject<HTMLElement> }>();
@@ -199,8 +201,39 @@ const ReaderPage: React.FC = () => {
     return <PageLoadingSpinner message="Loading chapter..." />;
   }
 
+  const chapterUrl = `https://inthemiddleofallthings.com/reader?chapter=${currentChapter.id}`;
+  const chapterDescription = currentChapter.subtitle 
+    ? `${currentChapter.title}: ${currentChapter.subtitle}`
+    : `Read ${currentChapter.title} from In the Middle of All Things. ${currentChapter.part || 'Philosophical exploration'}.`;
+
   return (
     <>
+      <SEO
+        title={currentChapter.title}
+        description={chapterDescription}
+        keywords={`${currentChapter.title}, ${currentChapter.part || ''}, philosophy, consciousness, existence, ${currentChapter.tags?.join(', ') || ''}`}
+        type="article"
+        articleAuthor="In the Middle of All Things"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            generateArticleStructuredData(
+              currentChapter.title,
+              chapterDescription,
+              chapterUrl,
+              'In the Middle of All Things',
+              undefined,
+              undefined,
+              currentChapter.part
+            ),
+            generateBreadcrumbStructuredData([
+              { name: 'Home', url: 'https://inthemiddleofallthings.com/' },
+              { name: 'Book', url: 'https://inthemiddleofallthings.com/book' },
+              { name: currentChapter.title, url: chapterUrl },
+            ]),
+          ],
+        }}
+      />
       {/* Content Reader Layout */}
       <ContentReaderLayout
         content={currentChapter.content}

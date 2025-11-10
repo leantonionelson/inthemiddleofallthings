@@ -232,7 +232,7 @@ const StoriesLandingPage: React.FC = () => {
 
 
       <div 
-        className="flex-1 flex flex-col p-6 pb-24 max-w-7xl mx-auto w-full" 
+        className="flex-1 flex flex-col p-6 pb-10 max-w-7xl mx-auto w-full" 
         style={{ 
           paddingTop: '6rem',
           height: 'calc(100vh - 84px)',

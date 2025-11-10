@@ -8,6 +8,8 @@ import { contentCache } from '../../services/contentCache';
 import ContentCarousel from '../../components/ContentCarousel';
 import BookIntroDrawer from '../../components/BookIntroDrawer';
 import { BookOpen, Info } from 'lucide-react';
+import SEO from '../../components/SEO';
+import { generateBookStructuredData, generateBreadcrumbStructuredData } from '../../utils/seoHelpers';
 
 // Full part order (for index lookup)
 const FULL_PART_ORDER = ['Introduction', 'Part I: The Axis of Becoming', 'Part II: The Spiral Path', 'Part III: The Living Axis', 'Part IV: The Horizon Beyond'];
@@ -118,17 +120,43 @@ const BookLandingPage: React.FC = () => {
     );
   }
 
+  const bookDescription = 'A philosophical exploration of existence, consciousness, and the nature of being. Journey through four parts that examine the axis of becoming, the spiral path, the living axis, and the horizon beyond.';
+
   return (
     <>
-      <div 
-        className="flex-1 flex flex-col p-6 pt-6 pb-24 max-w-7xl mx-auto w-full"
+      <SEO
+        title="Book: In the Middle of All Things"
+        description={bookDescription}
+        keywords="philosophical book, consciousness, existence, being, axis of becoming, spiral path, living axis, horizon beyond, philosophy, contemplative reading"
+        type="book"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            generateBookStructuredData(
+              'In the Middle of All Things',
+              bookDescription,
+              'In the Middle of All Things',
+              undefined,
+              undefined,
+              undefined,
+              chapters.length
+            ),
+            generateBreadcrumbStructuredData([
+              { name: 'Home', url: 'https://inthemiddleofallthings.com/' },
+              { name: 'Book', url: 'https://inthemiddleofallthings.com/book' },
+            ]),
+          ],
+        }}
+      />
+      <main 
+        className="flex-1 flex flex-col p-6 pt-6 pb-10 max-w-7xl mx-auto w-full"
         style={{
           height: 'calc(100vh - 84px)',
           overflow: 'scroll'
         }}
       >
         {/* Description */}
-        <motion.div
+        <motion.header
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -141,11 +169,9 @@ const BookLandingPage: React.FC = () => {
             </h1>
           </div>
           <p className="text-lg text-ink-secondary dark:text-ink-muted max-w-2xl leading-relaxed">
-            A philosophical exploration of existence, consciousness, and the nature of being. 
-            Journey through four parts that examine the axis of becoming, the spiral path, 
-            the living axis, and the horizon beyond.
+            {bookDescription}
           </p>
-        </motion.div>
+        </motion.header>
 
         {/* Completion Progress */}
         <motion.div
@@ -168,13 +194,13 @@ const BookLandingPage: React.FC = () => {
         </motion.div>
 
         {/* Chapters by Section */}
-        <div className="space-y-12 mt-8">
+        <section className="space-y-12 mt-8">
           {partOrder.map((part, partIndex) => {
             const partChapters = chaptersByPart[part];
             const description = partDescriptions[part] || '';
             
             return (
-              <motion.div
+              <motion.section
                 key={part}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -182,7 +208,7 @@ const BookLandingPage: React.FC = () => {
                 className="w-full"
               >
                 {/* Section Header */}
-                <div className="mb-4 text-left">
+                <header className="mb-4 text-left">
                   <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-2">
                     {part}
                   </h2>
@@ -205,7 +231,7 @@ const BookLandingPage: React.FC = () => {
                       </button>
                     </div>
                   )}
-                </div>
+                </header>
 
                 {/* Chapters Carousel for this Section */}
                 <ContentCarousel
@@ -214,11 +240,11 @@ const BookLandingPage: React.FC = () => {
                   onItemClick={handleChapterClick}
                   showReadStatus={true}
                 />
-              </motion.div>
+              </motion.section>
             );
           })}
-        </div>
-      </div>
+        </section>
+      </main>
 
       {/* Book Intro Drawer */}
       <BookIntroDrawer

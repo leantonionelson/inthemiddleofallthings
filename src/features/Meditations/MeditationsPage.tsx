@@ -13,6 +13,8 @@ import ContentListItem from '../../components/ContentListItem';
 import ContentReaderLayout from '../../components/ContentReaderLayout';
 import PageLoadingSpinner from '../../components/PageLoadingSpinner';
 import { useUserCapabilities } from '../../hooks/useUserCapabilities';
+import SEO from '../../components/SEO';
+import { generateArticleStructuredData, generateBreadcrumbStructuredData, generateFAQStructuredData } from '../../utils/seoHelpers';
 
 const MeditationsPage: React.FC = () => {
   const outletContext = useOutletContext<{ isAudioPlaying?: boolean; setIsAudioPlaying?: (value: boolean) => void; mainScrollRef?: React.RefObject<HTMLElement> }>();
@@ -430,8 +432,51 @@ const MeditationsPage: React.FC = () => {
 
   const currentList = searchQuery.trim() || selectedTags.length > 0 ? filteredMeditations : meditations;
 
+  const meditationUrl = `https://inthemiddleofallthings.com/meditations?meditation=${currentMeditation.id}`;
+  const meditationDescription = currentMeditation.tags && currentMeditation.tags.length > 0
+    ? `Guided meditation: ${currentMeditation.title}. Tags: ${currentMeditation.tags.join(', ')}. Explore contemplative practice and philosophical reflection.`
+    : `Guided meditation: ${currentMeditation.title}. Explore contemplative practice and philosophical reflection.`;
+
+  const meditationFAQs = [
+    {
+      question: `What is the meditation "${currentMeditation.title}" about?`,
+      answer: `${currentMeditation.title} is a guided meditation${currentMeditation.tags && currentMeditation.tags.length > 0 ? ` focusing on ${currentMeditation.tags.join(', ')}` : ''}. It is part of the In the Middle of All Things collection of contemplative practices designed to support philosophical reflection and self-discovery.`,
+    },
+    {
+      question: 'How do I practice guided meditation?',
+      answer: 'Find a quiet space, sit comfortably, and follow the guided meditation text. You can also use the audio narration feature to listen while reading. Take your time with each section and allow yourself to fully engage with the contemplative practice.',
+    },
+  ];
+
   return (
     <>
+      <SEO
+        title={currentMeditation.title}
+        description={meditationDescription}
+        keywords={`guided meditation, ${currentMeditation.title}, ${currentMeditation.tags?.join(', ') || ''}, contemplative practice, mindfulness, philosophy, self-discovery`}
+        type="article"
+        articleAuthor="In the Middle of All Things"
+        structuredData={{
+          '@context': 'https://schema.org',
+          '@graph': [
+            generateArticleStructuredData(
+              currentMeditation.title,
+              meditationDescription,
+              meditationUrl,
+              'In the Middle of All Things',
+              undefined,
+              undefined,
+              'Guided Meditation'
+            ),
+            generateBreadcrumbStructuredData([
+              { name: 'Home', url: 'https://inthemiddleofallthings.com/' },
+              { name: 'Meditations', url: 'https://inthemiddleofallthings.com/meditations' },
+              { name: currentMeditation.title, url: meditationUrl },
+            ]),
+            generateFAQStructuredData(meditationFAQs),
+          ],
+        }}
+      />
       {/* Search Bar */}
       <SearchBar
         placeholder="Search meditations..."

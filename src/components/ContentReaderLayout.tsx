@@ -206,7 +206,7 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
       </div>
 
       {/* Main Content Area */}
-      <main
+      <article
         ref={contentRef}
         className={`reader-content relative px-6 max-w-2xl mx-auto ${
           isAudioPlayerOpen ? 'pb-48' : ''
@@ -219,39 +219,42 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
         onTouchStart={swipeHandlers.handleTouchStart}
         onTouchMove={swipeHandlers.handleTouchMove}
         onTouchEnd={swipeHandlers.handleTouchEnd}
+        itemScope
+        itemType="https://schema.org/Article"
       >
         <div>
           {/* Header */}
-          <div className="mb-8">
-
+          <header className="mb-8">
             {/* Title */}
-            <h2 className={`font-bold text-left text-ink-primary dark:text-paper-light mb-4 leading-tight ${getTitleSizeClasses()}`}>
+            <h1 className={`font-bold text-left text-ink-primary dark:text-paper-light mb-4 leading-tight ${getTitleSizeClasses()}`} itemProp="headline">
               {title}
-            </h2>
+            </h1>
 
             {/* Subtitle or Tags */}
             {subtitle && (
-              <p className={`text-left text-ink-secondary dark:text-ink-muted mb-6 leading-relaxed ${getSubtitleSizeClasses()}`}>
+              <p className={`text-left text-ink-secondary dark:text-ink-muted mb-6 leading-relaxed ${getSubtitleSizeClasses()}`} itemProp="description">
                 {subtitle}
               </p>
             )}
             
             {tags && tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-6">
+              <div className="flex flex-wrap gap-2 mb-6" role="list" aria-label="Content tags">
                 {tags.map((tag, index) => (
                   <span
                     key={`${tag}-${index}`}
                     className="px-3 py-1 bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted rounded-full text-sm"
+                    role="listitem"
+                    itemProp="keywords"
                   >
                     {tag}
                   </span>
                 ))}
               </div>
             )}
-          </div>
+          </header>
 
           {/* Content */}
-          <div className="max-w-none">
+          <section className="max-w-none" itemProp="articleBody">
             <ContentFormatter 
               content={content}
               fontSize={fontSize}
@@ -259,9 +262,9 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
               duration={playbackState?.duration || 0}
               isPlaying={playbackState?.isPlaying || false}
             />
-          </div>
+          </section>
         </div>
-      </main>
+      </article>
     </>
   );
 };

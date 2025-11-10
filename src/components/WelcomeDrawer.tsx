@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import { X, Mail, Lock, User } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { syncProgressToFirebase, loadProgressFromFirebase } from '../services/progressSyncService';
 import { readingProgressService } from '../services/readingProgressService';
 
 const WelcomeDrawer: React.FC = () => {
+  const location = useLocation();
   const [showDrawer, setShowDrawer] = useState(false);
   const [isSignUp, setIsSignUp] = useState(true);
   const [name, setName] = useState('');
@@ -19,7 +21,16 @@ const WelcomeDrawer: React.FC = () => {
 
   const { user, signUp, signIn } = useAuth();
 
+  // Don't show on desktop landing page
+  const isDesktopPage = location.pathname === '/desktop';
+
   useEffect(() => {
+    // Don't show on desktop page
+    if (isDesktopPage) {
+      setShowDrawer(false);
+      return;
+    }
+
     // Check if user has seen the welcome drawer before
     const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
     
@@ -35,16 +46,19 @@ const WelcomeDrawer: React.FC = () => {
       localStorage.setItem('hasSeenWelcome', 'true');
       window.dispatchEvent(new CustomEvent('welcomeDrawerClosed'));
     }
-  }, [user, showDrawer]);
+  }, [user, showDrawer, isDesktopPage]);
 
   // Allow external control to show drawer (e.g., from Settings page)
   useEffect(() => {
     const handleShowDrawer = () => {
-      setShowDrawer(true);
+      // Don't show on desktop page
+      if (!isDesktopPage) {
+        setShowDrawer(true);
+      }
     };
     window.addEventListener('showWelcomeDrawer', handleShowDrawer);
     return () => window.removeEventListener('showWelcomeDrawer', handleShowDrawer);
-  }, []);
+  }, [isDesktopPage]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -168,6 +182,11 @@ const WelcomeDrawer: React.FC = () => {
       y.set(0);
     }
   };
+
+  // Don't render on desktop landing page
+  if (isDesktopPage) {
+    return null;
+  }
 
   // Allow showing drawer even if user is authenticated (e.g., from Settings)
   // But don't auto-show if user is already authenticated

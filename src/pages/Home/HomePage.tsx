@@ -11,6 +11,8 @@ import StandardHeader from '../../components/StandardHeader';
 import QuoteCardSkeleton from '../../components/QuoteCardSkeleton';
 import GlassButton from '../../components/GlassButton';
 import { Download, BookOpen, Scale } from 'lucide-react';
+import SEO from '../../components/SEO';
+import { generateWebsiteStructuredData, generateFAQStructuredData, getDefaultFAQs } from '../../utils/seoHelpers';
 
 const SWIPE_THRESHOLD = 100;
 
@@ -311,15 +313,24 @@ const HomePage: React.FC = () => {
 
   return (
     <>
+      <SEO
+        title="In the Middle of All Things"
+        description="A contemplative journey through philosophical exploration of existence, consciousness, and the nature of being. Discover quotes, read chapters, and explore guided meditations that examine the axis of becoming, the spiral path, the living axis, and the horizon beyond."
+        keywords="philosophy, meditation, consciousness, existence, being, philosophical quotes, contemplative practice, wisdom, self-discovery, philosophical exploration"
+        structuredData={{
+          ...generateWebsiteStructuredData(),
+          ...generateFAQStructuredData(getDefaultFAQs()),
+        }}
+      />
       {/* Fixed viewport layout - accounts for mobile nav and desktop nav */}
       <div className="fixed inset-0 pb-24 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex-shrink-0">
+        <header className="flex-shrink-0">
           <StandardHeader title="In the Middle of All Things" showSettingsButton={true} />
-        </div>
+        </header>
 
         {/* Main content area - takes remaining space */}
-        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 min-h-0">
+        <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 min-h-0">
           {/* Card Stack - Responsive to container height */}
           <div className="relative w-full max-w-2xl flex-1 max-h-full mb-8 sm:mb-6">
             {!hasCards || isLoading ? (
@@ -346,7 +357,7 @@ const HomePage: React.FC = () => {
               <div className="flex items-center justify-center h-full text-center">
                 <div>
                   <h2 className="text-xl sm:text-2xl font-serif text-ink-primary dark:text-paper-light mb-4">
-                    You've seen all quotes!
+                    You&apos;ve seen all quotes!
                   </h2>
                   <button
                     onClick={() => setCurrentIndex(0)}
@@ -412,7 +423,7 @@ const HomePage: React.FC = () => {
               </GlassButton>
             </div>
           )}
-        </div>
+        </main>
       </div>
     </>
   );

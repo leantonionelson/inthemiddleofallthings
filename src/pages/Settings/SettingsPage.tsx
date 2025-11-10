@@ -52,7 +52,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-paper-light dark:bg-slate-950/75 relative">
+    <div className="h-full bg-paper-light dark:bg-slate-950/75 relative flex flex-col">
       {/* Background Video */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <video
@@ -75,32 +75,40 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
         />
 
       {/* Content */}
-      <div className="p-6 max-w-md mx-auto space-y-6">
+      <div 
+        className="p-6 max-w-2xl mx-auto w-full"
+        style={{
+          height: 'calc(100vh - 158px)',
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch'
+        }}
+      >
+        <div className="space-y-6 pb-6">
         {/* Profile */}
         <motion.div
-          className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
+          className="relative glass-subtle rounded-2xl p-6 shadow-sm"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
         >
-          <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
+          <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-6">
             Profile
           </h2>
           {user ? (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-ink-secondary dark:text-ink-muted mb-1">
+                <label className="block text-sm font-medium text-ink-secondary dark:text-ink-muted mb-2">
                   Name
                 </label>
-                <p className="text-ink-primary dark:text-paper-light">
+                <p className="text-base text-ink-primary dark:text-paper-light">
                   {user.displayName || 'Not set'}
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-ink-secondary dark:text-ink-muted mb-1">
+                <label className="block text-sm font-medium text-ink-secondary dark:text-ink-muted mb-2">
                   Email
                 </label>
-                <p className="text-ink-primary dark:text-paper-light">
+                <p className="text-base text-ink-primary dark:text-paper-light">
                   {user.email}
                 </p>
               </div>
@@ -112,14 +120,16 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                     console.error('Error signing out:', error);
                   }
                 }}
-                className="w-full mt-4 py-2 px-4 bg-red-600 dark:bg-red-700 text-white rounded-lg hover:bg-red-700 dark:hover:bg-red-800 transition-colors font-medium"
+                className="relative w-full mt-6 py-3 px-4 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group"
               >
-                Logout
+                <div className="absolute inset-0 bg-red-600/90 dark:bg-red-700/90 rounded-full" />
+                <div className="absolute inset-0 bg-red-700/0 dark:bg-red-800/0 group-hover:bg-red-700/100 dark:group-hover:bg-red-800/100 transition-all duration-300 rounded-full" />
+                <span className="relative z-10 text-white">Logout</span>
               </button>
             </div>
           ) : (
             <div className="space-y-4">
-              <p className="text-ink-secondary dark:text-ink-muted text-sm mb-4">
+              <p className="text-ink-secondary dark:text-ink-muted text-sm mb-4 leading-relaxed">
                 Sign up to store your progress and get updates
               </p>
               <button
@@ -128,9 +138,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                   // Trigger drawer to show
                   window.dispatchEvent(new CustomEvent('showWelcomeDrawer'));
                 }}
-                className="w-full py-2 px-4 bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary rounded-lg hover:opacity-90 transition-opacity font-medium"
+                className="relative w-full py-3 px-4 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group"
               >
-                Login / Sign Up
+                <div className="absolute inset-0 glass-subtle rounded-full" />
+                <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
+                <span className="relative z-10 text-ink-primary dark:text-paper-light">Login / Sign Up</span>
               </button>
             </div>
           )}
@@ -138,26 +150,31 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 
         {/* Appearance */}
         <motion.div
-          className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
+          className="relative glass-subtle rounded-2xl p-6 shadow-sm"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
         >
-          <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
+          <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-6">
             Appearance
           </h2>
           <div className="flex items-center justify-between">
-            <span className="text-ink-secondary dark:text-ink-muted">
-              Dark Mode
-            </span>
+            <div>
+              <span className="text-base text-ink-primary dark:text-paper-light font-medium">
+                Dark Mode
+              </span>
+              <p className="text-sm text-ink-secondary dark:text-ink-muted mt-1">
+                Toggle between light and dark themes
+              </p>
+            </div>
             <button
               onClick={onToggleTheme}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                isDarkMode ? 'bg-ink-primary' : 'bg-ink-muted bg-opacity-30'
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 ${
+                isDarkMode ? 'bg-ink-primary dark:bg-paper-light' : 'bg-ink-muted/30 dark:bg-paper-light/20'
               }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-paper-light transition-transform ${
+                className={`inline-block h-5 w-5 transform rounded-full bg-paper-light dark:bg-ink-primary transition-transform duration-300 shadow-sm ${
                   isDarkMode ? 'translate-x-6' : 'translate-x-1'
                 }`}
               />
@@ -167,19 +184,21 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 
         {/* Audio */}
         <motion.div
-          className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
+          className="relative glass-subtle rounded-2xl p-6 shadow-sm"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
         >
-          <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
+          <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-6">
             Audio
           </h2>
-          <div className="space-y-3">
-            <span className="text-ink-secondary dark:text-ink-muted">
-              Voice Preference
-            </span>
-            <div className="flex space-x-2">
+          <div className="space-y-4">
+            <div>
+              <span className="text-sm font-medium text-ink-secondary dark:text-ink-muted block mb-3">
+                Voice Preference
+              </span>
+            </div>
+            <div className="flex gap-3">
               {[
                 { value: 'male', label: 'Male Voice', description: 'Deeper, resonant tone' },
                 { value: 'female', label: 'Female Voice', description: 'Smooth, natural tone' }
@@ -187,14 +206,34 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                 <button
                   key={option.value}
                   onClick={() => handleVoicePreferenceChange(option.value as 'male' | 'female')}
-                  className={`flex-1 py-3 px-4 rounded-lg border transition-colors text-left ${
+                  className={`relative flex-1 py-4 px-4 rounded-xl border transition-all text-left overflow-hidden group ${
                     voicePreference === option.value
-                      ? 'border-ink-primary dark:border-paper-light bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary'
-                      : 'border-ink-muted border-opacity-30 text-ink-secondary dark:text-ink-muted hover:border-opacity-50'
+                      ? 'border-ink-primary dark:border-paper-light shadow-md'
+                      : 'border-ink-muted/30 dark:border-paper-light/20 hover:border-ink-muted/50 dark:hover:border-paper-light/40'
                   }`}
                 >
-                  <div className="font-medium">{option.label}</div>
-                  <div className="text-xs opacity-75">{option.description}</div>
+                  {voicePreference === option.value && (
+                    <>
+                      <div className="absolute inset-0 bg-ink-primary dark:bg-paper-light opacity-10" />
+                      <div className="absolute inset-0 gradient-overlay-subtle opacity-50" />
+                    </>
+                  )}
+                  <div className="relative z-10">
+                    <div className={`font-medium mb-1 ${
+                      voicePreference === option.value
+                        ? 'text-ink-primary dark:text-paper-light'
+                        : 'text-ink-secondary dark:text-ink-muted'
+                    }`}>
+                      {option.label}
+                    </div>
+                    <div className={`text-xs ${
+                      voicePreference === option.value
+                        ? 'text-ink-primary/80 dark:text-paper-light/80'
+                        : 'text-ink-muted dark:text-ink-muted'
+                    }`}>
+                      {option.description}
+                    </div>
+                  </div>
                 </button>
               ))}
             </div>
@@ -203,102 +242,119 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 
         {/* App */}
         <motion.div
-          className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
+          className="relative glass-subtle rounded-2xl p-6 shadow-sm"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45 }}
+          transition={{ duration: 0.5, delay: 0.45 }}
         >
-          <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
+          <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-6">
             App
           </h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-ink-secondary dark:text-ink-muted font-medium">
+          <div className="space-y-6">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1">
+                <p className="text-base text-ink-primary dark:text-paper-light font-medium mb-1">
                   Install App
                 </p>
-                <p className="text-sm text-ink-muted">
+                <p className="text-sm text-ink-secondary dark:text-ink-muted leading-relaxed">
                   Get the full experience with offline access and background audio
                 </p>
               </div>
-              <InstallButton size="sm" />
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-ink-secondary dark:text-ink-muted font-medium">
-                  Check for Updates
-                </p>
-                <p className="text-sm text-ink-muted">
-                  {isUpdateAvailable 
-                    ? 'New version available! Click to update.'
-                    : 'Check if a new version is available'}
-                </p>
+              <div className="flex-shrink-0">
+                <InstallButton size="sm" />
               </div>
-              <button
-                onClick={isUpdateAvailable ? applyUpdate : checkForUpdates}
-                disabled={isUpdating}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors font-medium ${
-                  isUpdateAvailable
-                    ? 'bg-green-600 dark:bg-green-700 text-white hover:bg-green-700 dark:hover:bg-green-800'
-                    : 'bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary hover:opacity-90'
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
-              >
-                {isUpdating ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Checking...</span>
-                  </>
-                ) : isUpdateAvailable ? (
-                  <>
-                    <Download className="w-4 h-4" />
-                    <span>Update Now</span>
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4" />
-                    <span>Check</span>
-                  </>
-                )}
-              </button>
             </div>
             
-            {isUpdateAvailable && (
-              <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 mt-2">
-                <CheckCircle className="w-4 h-4" />
-                <span>Update ready to install</span>
+            <div className="pt-4 border-t border-ink-muted/20 dark:border-paper-light/20">
+              <div className="flex items-center justify-between gap-4 mb-3">
+                <div className="flex-1">
+                  <p className="text-base text-ink-primary dark:text-paper-light font-medium mb-1">
+                    Check for Updates
+                  </p>
+                  <p className="text-sm text-ink-secondary dark:text-ink-muted leading-relaxed">
+                    {isUpdateAvailable 
+                      ? 'New version available! Click to update.'
+                      : 'Check if a new version is available'}
+                  </p>
+                </div>
+                <button
+                  onClick={isUpdateAvailable ? applyUpdate : checkForUpdates}
+                  disabled={isUpdating}
+                  className={`relative flex items-center gap-2 px-5 py-2.5 rounded-full transition-all font-medium shadow-sm hover:shadow-md overflow-hidden group flex-shrink-0 ${
+                    isUpdateAvailable
+                      ? ''
+                      : ''
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+                >
+                  {isUpdateAvailable ? (
+                    <>
+                      <div className="absolute inset-0 bg-green-600/90 dark:bg-green-700/90 rounded-full" />
+                      <div className="absolute inset-0 bg-green-700/0 dark:bg-green-800/0 group-hover:bg-green-700/100 dark:group-hover:bg-green-800/100 transition-all duration-300 rounded-full" />
+                      <span className="relative z-10 text-white flex items-center gap-2">
+                        <Download className="w-4 h-4" />
+                        Update Now
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <div className="absolute inset-0 glass-subtle rounded-full" />
+                      <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
+                      <span className="relative z-10 text-ink-primary dark:text-paper-light flex items-center gap-2">
+                        {isUpdating ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                            Checking...
+                          </>
+                        ) : (
+                          <>
+                            <RefreshCw className="w-4 h-4" />
+                            Check
+                          </>
+                        )}
+                      </span>
+                    </>
+                  )}
+                </button>
               </div>
-            )}
-            
-            {updateError && (
-              <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 mt-2">
-                <AlertCircle className="w-4 h-4" />
-                <span>{updateError}</span>
-              </div>
-            )}
+              
+              {isUpdateAvailable && (
+                <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400 mt-3">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Update ready to install</span>
+                </div>
+              )}
+              
+              {updateError && (
+                <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400 mt-3">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>{updateError}</span>
+                </div>
+              )}
+            </div>
           </div>
         </motion.div>
 
         {/* About */}
         <motion.div
-          className="bg-ink-muted bg-opacity-10 rounded-lg p-6"
+          className="relative glass-subtle rounded-2xl p-6 shadow-sm"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.55 }}
         >
-          <h2 className="text-lg font-heading text-ink-primary dark:text-paper-light mb-4">
+          <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-6">
             About
           </h2>
-          <div className="space-y-3 text-ink-secondary dark:text-ink-muted text-sm">
+          <div className="space-y-3 text-ink-secondary dark:text-ink-muted text-sm leading-relaxed">
             <p>
-              <strong>Version:</strong> 1.0.0
+              <strong className="text-ink-primary dark:text-paper-light">Version:</strong> 1.0.0
             </p>
             <p>
-              <strong>Author:</strong>{' '}
+              <strong className="text-ink-primary dark:text-paper-light">Author:</strong>{' '}
               <a 
                 href="https://leantonio.me" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-blue-600 dark:text-blue-400 hover:underline"
+                className="text-blue-600 dark:text-blue-400 hover:underline transition-colors"
               >
                 leantonio.me
               </a>
@@ -311,11 +367,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           className="text-center pt-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.7 }}
         >
-          <p className="text-xs text-ink-muted opacity-60">
-            In the Middle of All Things          </p>
+          <p className="text-xs text-ink-muted dark:text-ink-muted opacity-60">
+            In the Middle of All Things
+          </p>
         </motion.div>
+        </div>
       </div>
       </div>
 
