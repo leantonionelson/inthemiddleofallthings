@@ -15,7 +15,7 @@ export default defineConfig({
         short_name: 'MiddleApp',
         description: 'A poetic, interactive companion to the book In the Middle of All Things',
         theme_color: '#0F0F0F',
-        background_color: '#FAFAFA',
+        background_color: '#eae8e4',
         display: 'standalone',
         categories: ['books', 'education', 'lifestyle'],
         icons: [

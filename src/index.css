@@ -13,6 +13,9 @@
   }
 
   body {
+    /* Initial loading screen background color (matches PWA manifest) */
+    background-color: #eae8e4;
+    
     /* Prevent text selection on UI elements */
     -webkit-user-select: none;
     -moz-user-select: none;
