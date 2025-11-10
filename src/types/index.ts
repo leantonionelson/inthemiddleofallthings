@@ -50,6 +50,7 @@ export interface BookChapter {
   totalChapters: number;
   isRead?: boolean;
   lastPosition?: number;
+  tags?: string[];
 }
 
 export interface BookContent {
