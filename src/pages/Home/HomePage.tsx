@@ -196,14 +196,16 @@ const HomePage: React.FC = () => {
   const [chapters, setChapters] = useState<BookChapter[]>([]);
   const [meditations, setMeditations] = useState<Meditation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const navigate = useNavigate();
   const currentCardRef = useRef<HTMLDivElement>(null);
   const backgroundGenerationRef = useRef<boolean>(false);
 
   // Initial batch size for fast first load
   const INITIAL_BATCH_SIZE = 5; // Load 5 chapters + 5 meditations first
-  const INITIAL_CARDS_TO_SHOW = 15; // Show first 15 cards immediately
+  const INITIAL_CARDS_TO_SHOW = 5; // Show first 5 cards immediately
   const CARDS_PER_BATCH = 20; // Generate 20 cards per batch in background
+  const SKELETON_THRESHOLD = 2; // Show skeleton when within 2 cards of the end
 
   // Load content progressively and generate cards in background
   useEffect(() => {
@@ -259,6 +261,11 @@ const HomePage: React.FC = () => {
             // Add first batch immediately
             const updated = [...current, ...batches[0]];
             
+            // Hide loading skeleton when first batch is added
+            if (updated.length > current.length) {
+              setIsLoadingMore(false);
+            }
+            
             // Add remaining batches with small delays
             batches.slice(1).forEach((batch, index) => {
               setTimeout(() => {
@@ -266,6 +273,9 @@ const HomePage: React.FC = () => {
                   setCards(prev => {
                     const prevIds = new Set(prev.map(c => c.id));
                     const uniqueBatch = batch.filter(c => !prevIds.has(c.id));
+                    if (uniqueBatch.length > 0) {
+                      setIsLoadingMore(false);
+                    }
                     return [...prev, ...uniqueBatch];
                   });
                 }
@@ -277,6 +287,9 @@ const HomePage: React.FC = () => {
           
           return current;
         });
+
+        // Mark background generation as complete
+        backgroundGenerationRef.current = false;
 
       } catch (error) {
         console.error('Error generating cards in background:', error);
@@ -375,9 +388,29 @@ const HomePage: React.FC = () => {
     };
   }, []);
 
+  // Monitor when user reaches near the end and show skeleton if more cards aren't ready
+  useEffect(() => {
+    // Check if user is at or past the last available card
+    const isAtEnd = currentIndex >= cards.length - 1;
+    
+    // If at the end and background generation is running, show skeleton
+    if (isAtEnd && backgroundGenerationRef.current) {
+      setIsLoadingMore(true);
+    } else if (currentIndex < cards.length - SKELETON_THRESHOLD) {
+      // Hide skeleton if we have enough cards ahead
+      setIsLoadingMore(false);
+    }
+  }, [currentIndex, cards.length]);
+
   const handleSwipe = () => {
-    // Move to next card
-    setCurrentIndex((prev) => Math.min(prev + 1, cards.length - 1));
+    // Move to next card - allow going to the end even if loading
+    const nextIndex = currentIndex + 1;
+    setCurrentIndex(nextIndex);
+    
+    // If we're at or past the end and background generation is running, show skeleton
+    if (nextIndex >= cards.length && backgroundGenerationRef.current) {
+      setIsLoadingMore(true);
+    }
   };
 
   const handleDownload = async () => {
@@ -469,7 +502,28 @@ const HomePage: React.FC = () => {
                   <QuoteCardSkeleton />
                 </div>
               </>
-            ) : currentIndex >= cards.length ? (
+            ) : isLoadingMore && currentIndex >= cards.length - 1 ? (
+              /* Show skeleton when user reaches end and more cards are loading */
+              <>
+                {/* Next card skeleton (underneath) */}
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    transform: 'scale(0.95) translateY(20px)',
+                    opacity: 0.5,
+                    zIndex: 0
+                  }}
+                >
+                  <QuoteCardSkeleton />
+                </div>
+
+                {/* Current card skeleton */}
+                <div className="absolute inset-0" style={{ zIndex: 1 }}>
+                  <QuoteCardSkeleton />
+                </div>
+              </>
+            ) : currentIndex >= cards.length && !backgroundGenerationRef.current ? (
+              /* Show "all quotes seen" only if background generation is complete */
               <div className="flex items-center justify-center h-full text-center">
                 <div>
                   <h2 className="text-xl sm:text-2xl font-serif text-ink-primary dark:text-paper-light mb-4">
@@ -503,15 +557,17 @@ const HomePage: React.FC = () => {
                 )}
 
                 {/* Current card */}
-                <div className="absolute inset-0" style={{ zIndex: 1 }}>
-                  <QuoteCardComponent
-                    key={currentCard.id}
-                    card={currentCard}
-                    style={{}}
-                    onSwipe={handleSwipe}
-                    cardRef={currentCardRef}
-                  />
-                </div>
+                {currentCard && (
+                  <div className="absolute inset-0" style={{ zIndex: 1 }}>
+                    <QuoteCardComponent
+                      key={currentCard.id}
+                      card={currentCard}
+                      style={{}}
+                      onSwipe={handleSwipe}
+                      cardRef={currentCardRef}
+                    />
+                  </div>
+                )}
               </>
             )}
           </div>
