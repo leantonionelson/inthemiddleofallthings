@@ -60,7 +60,7 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
   const [isAudioPlaying, setIsAudioPlaying] = React.useState(false);
   const [playbackState, setPlaybackState] = React.useState<AudioPlaybackState | null>(null);
 
-  // Subscribe to audio playback state changes (polling approach to avoid conflicts with UnifiedAudioPlayer)
+  // Subscribe to audio playback state changes (optimized with requestAnimationFrame)
   React.useEffect(() => {
     if (!isAudioPlayerOpen) {
       setPlaybackState(null);
@@ -73,15 +73,34 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
     setPlaybackState(currentState);
     setIsAudioPlaying(currentState.isPlaying);
 
-    // Poll for state updates (audioManager updates state internally)
-    const interval = setInterval(() => {
+    // Use requestAnimationFrame for smoother updates (only when audio is playing)
+    let animationFrameId: number | null = null;
+    let lastUpdateTime = 0;
+    const UPDATE_INTERVAL = 100; // Update every 100ms for smooth highlighting
+
+    const updateState = (timestamp: number) => {
       const state = audioManagerService.getPlaybackState();
-      setPlaybackState(state);
-      setIsAudioPlaying(state.isPlaying);
-    }, 100); // Update every 100ms for smooth highlighting
+      
+      // Throttle updates to every 100ms
+      if (timestamp - lastUpdateTime >= UPDATE_INTERVAL) {
+        setPlaybackState(state);
+        setIsAudioPlaying(state.isPlaying);
+        lastUpdateTime = timestamp;
+      }
+      
+      // Continue polling if audio player is open (check state to see if still playing)
+      if (isAudioPlayerOpen) {
+        animationFrameId = requestAnimationFrame(updateState);
+      }
+    };
+
+    // Start polling
+    animationFrameId = requestAnimationFrame(updateState);
 
     return () => {
-      clearInterval(interval);
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
     };
   }, [isAudioPlayerOpen, chapter?.id]);
 
@@ -269,5 +288,5 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
   );
 };
 
-export default ContentReaderLayout;
+export default React.memo(ContentReaderLayout);
 

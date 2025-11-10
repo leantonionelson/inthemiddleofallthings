@@ -25,14 +25,11 @@ function generateCacheKey(chapters: BookChapter[], meditations: Meditation[], st
   return `${chapters.length}-${meditations.length}-${stories.length}-${chapterIds.slice(0, 50)}-${meditationIds.slice(0, 50)}-${storyIds.slice(0, 50)}`;
 }
 
-// Remove markdown formatting from text
+// Remove markdown formatting from text (optimized single-pass regex)
 function cleanMarkdown(text: string): string {
   return text
-    .replace(/\*\*/g, '') // Remove bold
-    .replace(/\*/g, '') // Remove italics
-    .replace(/^#+\s/gm, '') // Remove headers
-    .replace(/^>\s/gm, '') // Remove blockquote markers
-    .replace(/^-\s/gm, '') // Remove list markers
+    .replace(/\*\*|\*/g, '') // Remove bold and italics in one pass
+    .replace(/^#+\s|^>\s|^-\s/gm, '') // Remove headers, blockquotes, and list markers in one pass
     .trim();
 }
 

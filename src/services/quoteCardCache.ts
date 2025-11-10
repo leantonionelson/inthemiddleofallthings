@@ -7,9 +7,13 @@ const CACHE_VERSION_KEY = 'quoteCardsCacheVersion';
 /**
  * Quote Card Cache Service
  * Persists quote cards to localStorage for fast loading
+ * Optimized with batched writes to reduce localStorage operations
  */
 class QuoteCardCacheService {
   private static instance: QuoteCardCacheService;
+  private pendingWrites: QuoteCard[] | null = null;
+  private writeTimer: NodeJS.Timeout | null = null;
+  private readonly WRITE_DEBOUNCE_MS = 500; // Batch writes every 500ms
 
   private constructor() {}
 
@@ -44,15 +48,56 @@ class QuoteCardCacheService {
   }
 
   /**
-   * Save quote cards to localStorage
+   * Save quote cards to localStorage (batched for performance)
    */
   public saveCards(cards: QuoteCard[]): void {
+    this.pendingWrites = cards;
+    
+    // Debounce writes to batch multiple saves
+    if (this.writeTimer) {
+      clearTimeout(this.writeTimer);
+    }
+    
+    this.writeTimer = setTimeout(() => {
+      if (this.pendingWrites) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(this.pendingWrites));
+          localStorage.setItem(CACHE_VERSION_KEY, String(CACHE_VERSION));
+          this.pendingWrites = null;
+        } catch (error) {
+          console.error('Error saving quote cards to cache:', error);
+          // If quota exceeded, try to clear old cache
+          if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+            this.clearCache();
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(this.pendingWrites));
+              localStorage.setItem(CACHE_VERSION_KEY, String(CACHE_VERSION));
+              this.pendingWrites = null;
+            } catch (retryError) {
+              console.error('Error saving after cache clear:', retryError);
+            }
+          }
+        }
+      }
+      this.writeTimer = null;
+    }, this.WRITE_DEBOUNCE_MS);
+  }
+
+  /**
+   * Force immediate save (bypasses batching)
+   */
+  public saveCardsImmediate(cards: QuoteCard[]): void {
+    if (this.writeTimer) {
+      clearTimeout(this.writeTimer);
+      this.writeTimer = null;
+    }
+    this.pendingWrites = null;
+    
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
       localStorage.setItem(CACHE_VERSION_KEY, String(CACHE_VERSION));
     } catch (error) {
       console.error('Error saving quote cards to cache:', error);
-      // If quota exceeded, try to clear old cache
       if (error instanceof DOMException && error.name === 'QuotaExceededError') {
         this.clearCache();
         try {

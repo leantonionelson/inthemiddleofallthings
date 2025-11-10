@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useFitText } from 'react-use-fittext';
@@ -32,10 +32,12 @@ const QuoteCardComponent: React.FC<{
   style: React.CSSProperties;
   onSwipe: () => void;
   cardRef?: React.RefObject<HTMLDivElement | null>;
-}> = ({ card, style, onSwipe, cardRef }) => {
+  videoRef?: React.RefObject<HTMLVideoElement | null>;
+}> = React.memo(({ card, style, onSwipe, cardRef, videoRef }) => {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-25, 25]);
   const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0]);
+  const localVideoRef = useRef<HTMLVideoElement>(null);
 
   // Use FitText to make quote text responsive to container
   const { fontSize, containerRef, textRef } = useFitText({
@@ -47,25 +49,52 @@ const QuoteCardComponent: React.FC<{
     debounceDelay: 50,
   });
 
-  // Trigger recalculation when card changes
+  // Optimized resize event dispatch using requestAnimationFrame
   useEffect(() => {
-    // Force a small delay to ensure DOM is updated before recalculation
-    const timer = setTimeout(() => {
+    const frameId = requestAnimationFrame(() => {
       if (containerRef.current && textRef.current) {
-        // Trigger a resize event to force recalculation
+        // Use custom event instead of global resize
+        const event = new CustomEvent('fittext-recalculate', { bubbles: false });
+        containerRef.current.dispatchEvent(event);
+        // Fallback to resize if custom event not handled
         window.dispatchEvent(new Event('resize'));
       }
-    }, 10);
-    return () => clearTimeout(timer);
+    });
+    return () => cancelAnimationFrame(frameId);
   }, [card.quote, containerRef, textRef]);
 
-  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  // Intersection Observer for video lazy loading
+  useEffect(() => {
+    const videoElement = videoRef?.current || localVideoRef.current;
+    if (!videoElement) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            videoElement.play().catch(() => {
+              // Ignore autoplay errors
+            });
+          } else {
+            videoElement.pause();
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(videoElement);
+    return () => observer.disconnect();
+  }, [videoRef]);
+
+  const handleDragEnd = useCallback((_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (Math.abs(info.offset.x) > SWIPE_THRESHOLD) {
       onSwipe();
     }
-  };
+  }, [onSwipe]);
 
-  const getSourceIcon = () => {
+  // Memoize source icon
+  const sourceIcon = useMemo(() => {
     switch (card.source.type) {
       case 'book':
         return <BookOpen className="w-4 h-4" />;
@@ -74,14 +103,15 @@ const QuoteCardComponent: React.FC<{
       default:
         return <BookOpen className="w-4 h-4" />;
     }
-  };
+  }, [card.source.type]);
 
-  const getSourceLabel = () => {
+  // Memoize source label
+  const sourceLabel = useMemo(() => {
     if (card.source.type === 'book') {
       return `${card.source.part} • ${card.source.chapter}`;
     }
     return 'Meditation';
-  };
+  }, [card.source.type, card.source.part, card.source.chapter]);
 
   return (
     <motion.div
@@ -107,11 +137,12 @@ const QuoteCardComponent: React.FC<{
         {/* Background Video - Bottom layer */}
         <div className="absolute inset-0 z-0 overflow-hidden rounded-3xl">
           <video
+            ref={videoRef || localVideoRef}
             autoPlay
             loop
             muted
             playsInline
-            preload="auto"
+            preload="metadata"
             className="absolute inset-0 w-full h-full object-cover"
             style={{ opacity: 1 }}
           >
@@ -150,7 +181,7 @@ const QuoteCardComponent: React.FC<{
         <div className="flex-1 flex flex-col justify-between items-center p-6 sm:p-8 md:p-10 min-h-0 relative z-10 pointer-events-none">
           {/* Source Icon & Type - Fixed height */}
           <div className="flex items-center gap-2 text-ink-primary/80 dark:text-white/80 text-xs sm:text-sm flex-shrink-0 min-h-[20px] pointer-events-none dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.3)]">
-            {getSourceIcon()}
+            {sourceIcon}
             <span className="uppercase tracking-wider">{card.source.type}</span>
           </div>
 
@@ -177,7 +208,7 @@ const QuoteCardComponent: React.FC<{
             {card.source.subtitle && (
               <p className="text-xs sm:text-sm md:text-base text-ink-primary/70 dark:text-white/70 mb-2 line-clamp-1">{card.source.subtitle}</p>
             )}
-            <p className="text-xs sm:text-xs md:text-sm text-ink-primary/60 dark:text-white/60">{getSourceLabel()}</p>
+            <p className="text-xs sm:text-xs md:text-sm text-ink-primary/60 dark:text-white/60">{sourceLabel}</p>
           </div>
         </div>
 
@@ -188,7 +219,10 @@ const QuoteCardComponent: React.FC<{
       </div>
     </motion.div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Only re-render if card ID changes
+  return prevProps.card.id === nextProps.card.id;
+});
 
 const HomePage: React.FC = () => {
   const [cards, setCards] = useState<QuoteCard[]>([]);
@@ -199,12 +233,28 @@ const HomePage: React.FC = () => {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const navigate = useNavigate();
   const currentCardRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const backgroundGenerationRef = useRef<boolean>(false);
+
+  // Memoize lookup maps for O(1) access instead of O(n) findIndex
+  const chapterIndexMap = useMemo(() => {
+    return new Map(chapters.map((ch, idx) => [ch.id, idx]));
+  }, [chapters]);
+
+  const meditationIndexMap = useMemo(() => {
+    return new Map(meditations.map((m, idx) => [m.id, idx]));
+  }, [meditations]);
+
+  // Preload video once
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.load();
+    }
+  }, []);
 
   // Initial batch size for fast first load
   const INITIAL_BATCH_SIZE = 5; // Load 5 chapters + 5 meditations first
   const INITIAL_CARDS_TO_SHOW = 5; // Show first 5 cards immediately
-  const CARDS_PER_BATCH = 20; // Generate 20 cards per batch in background
   const SKELETON_THRESHOLD = 2; // Show skeleton when within 2 cards of the end
 
   // Load content progressively and generate cards in background
@@ -229,67 +279,48 @@ const HomePage: React.FC = () => {
         setChapters(allChapters);
         setMeditations(allMeditations);
 
-        // Generate all cards
-        const allCards = generateQuoteCards(
-          allChapters,
-          allMeditations,
-          []
-        );
+        // Use requestIdleCallback for non-critical work
+        const generateAndMergeCards = () => {
+          // Generate all cards
+          const allCards = generateQuoteCards(
+            allChapters,
+            allMeditations,
+            []
+          );
 
-        if (cancelled) return;
+          if (cancelled) return;
 
-        // Merge with cache and save
-        const merged = quoteCardCache.mergeCards(allCards);
-        
-        // Update displayed cards progressively
-        setCards(current => {
-          const currentIds = new Set(current.map(c => c.id));
-          const newCards = merged.filter(c => !currentIds.has(c.id));
+          // Merge with cache and save
+          const merged = quoteCardCache.mergeCards(allCards);
           
-          // If we have new cards, add them progressively
-          if (newCards.length > 0) {
-            // Shuffle new cards for variety
-            const shuffledNew = shuffleArray(newCards);
+          // Batch state update - add all new cards at once instead of progressively
+          setCards(current => {
+            const currentIds = new Set(current.map(c => c.id));
+            const newCards = merged.filter(c => !currentIds.has(c.id));
             
-            // Add in batches to avoid overwhelming the UI
-            const batchSize = CARDS_PER_BATCH;
-            const batches: QuoteCard[][] = [];
-            for (let i = 0; i < shuffledNew.length; i += batchSize) {
-              batches.push(shuffledNew.slice(i, i + batchSize));
-            }
-            
-            // Add first batch immediately
-            const updated = [...current, ...batches[0]];
-            
-            // Hide loading skeleton when first batch is added
-            if (updated.length > current.length) {
+            if (newCards.length > 0) {
+              // Shuffle new cards for variety
+              const shuffledNew = shuffleArray(newCards);
+              
+              // Add all new cards in one update (batched)
+              const updated = [...current, ...shuffledNew];
               setIsLoadingMore(false);
+              return updated;
             }
             
-            // Add remaining batches with small delays
-            batches.slice(1).forEach((batch, index) => {
-              setTimeout(() => {
-                if (!cancelled) {
-                  setCards(prev => {
-                    const prevIds = new Set(prev.map(c => c.id));
-                    const uniqueBatch = batch.filter(c => !prevIds.has(c.id));
-                    if (uniqueBatch.length > 0) {
-                      setIsLoadingMore(false);
-                    }
-                    return [...prev, ...uniqueBatch];
-                  });
-                }
-              }, (index + 1) * 100); // 100ms delay between batches
-            });
-            
-            return updated;
-          }
-          
-          return current;
-        });
+            return current;
+          });
 
-        // Mark background generation as complete
-        backgroundGenerationRef.current = false;
+          // Mark background generation as complete after cards are generated
+          backgroundGenerationRef.current = false;
+        };
+
+        // Use requestIdleCallback if available, otherwise use setTimeout
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(generateAndMergeCards, { timeout: 2000 });
+        } else {
+          setTimeout(generateAndMergeCards, 0);
+        }
 
       } catch (error) {
         console.error('Error generating cards in background:', error);
@@ -402,7 +433,7 @@ const HomePage: React.FC = () => {
     }
   }, [currentIndex, cards.length]);
 
-  const handleSwipe = () => {
+  const handleSwipe = useCallback(() => {
     // Move to next card - allow going to the end even if loading
     const nextIndex = currentIndex + 1;
     setCurrentIndex(nextIndex);
@@ -411,24 +442,24 @@ const HomePage: React.FC = () => {
     if (nextIndex >= cards.length && backgroundGenerationRef.current) {
       setIsLoadingMore(true);
     }
-  };
+  }, [currentIndex, cards.length]);
 
-  const handleDownload = async () => {
+  const handleDownload = useCallback(async () => {
     if (!cards[currentIndex] || !currentCardRef.current) return;
     const filename = `middle-quote-${cards[currentIndex].source.title.toLowerCase().replace(/\s+/g, '-')}.png`;
     await downloadElementAsImage(currentCardRef.current, filename);
-  };
+  }, [cards, currentIndex]);
 
-  const handleRead = () => {
+  const handleRead = useCallback(() => {
     const card = cards[currentIndex];
     if (!card) return;
 
-    // Navigate to the specific source material
+    // Navigate to the specific source material using memoized maps
     switch (card.source.type) {
       case 'book': {
-        // Find the chapter by ID
-        const chapterIndex = chapters.findIndex(ch => ch.id === card.source.id);
-        if (chapterIndex >= 0) {
+        // Use O(1) map lookup instead of O(n) findIndex
+        const chapterIndex = chapterIndexMap.get(card.source.id);
+        if (chapterIndex !== undefined) {
           localStorage.setItem('currentChapterIndex', chapterIndex.toString());
           navigate(AppRoute.READER);
         } else {
@@ -438,9 +469,9 @@ const HomePage: React.FC = () => {
         break;
       }
       case 'meditation': {
-        // Find the meditation by ID
-        const meditationIndex = meditations.findIndex(m => m.id === card.source.id);
-        if (meditationIndex >= 0) {
+        // Use O(1) map lookup instead of O(n) findIndex
+        const meditationIndex = meditationIndexMap.get(card.source.id);
+        if (meditationIndex !== undefined) {
           localStorage.setItem('currentMeditationId', card.source.id);
           localStorage.setItem('currentMeditationIndex', meditationIndex.toString());
           navigate(AppRoute.MEDITATIONS);
@@ -454,7 +485,7 @@ const HomePage: React.FC = () => {
         navigate(AppRoute.READER);
         break;
     }
-  };
+  }, [cards, currentIndex, chapterIndexMap, meditationIndexMap, navigate]);
 
   const currentCard = cards[currentIndex];
   const nextCard = cards[currentIndex + 1];
@@ -565,6 +596,7 @@ const HomePage: React.FC = () => {
                       style={{}}
                       onSwipe={handleSwipe}
                       cardRef={currentCardRef}
+                      videoRef={videoRef}
                     />
                   </div>
                 )}

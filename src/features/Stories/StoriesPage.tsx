@@ -3,6 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import { Story } from '../../types';
 import { loadStories, searchStories, fallbackStories } from '../../data/storiesContent';
 import { useScrollTracking } from '../../hooks/useScrollTracking';
+import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { readingProgressService } from '../../services/readingProgressService';
 import { BookOpen, Scroll, Feather, Eye, Brain, Globe, Clock, Sparkles, Zap } from 'lucide-react';
 
@@ -28,6 +29,9 @@ const StoriesPage: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [visibleCount, setVisibleCount] = useState(0);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  
+  // Debounce search query to reduce filtering overhead
+  const debouncedSearchQuery = useDebouncedValue(searchQuery, 300);
 
   const [fontSize] = useState('base');
 
@@ -135,9 +139,9 @@ const StoriesPage: React.FC = () => {
   }, []);
 
 
-  // Handle search and tag filtering
+  // Handle search and tag filtering (using debounced search query)
   useEffect(() => {
-    let filtered = searchStories(stories, searchQuery);
+    let filtered = searchStories(stories, debouncedSearchQuery);
     
     // Apply tag filtering if tags are selected
     if (selectedTags.length > 0) {
@@ -150,12 +154,12 @@ const StoriesPage: React.FC = () => {
     
     // Reset visible count when filters change
     if (initialLoadComplete) {
-      const newVisibleCount = searchQuery.trim() || selectedTags.length > 0 
+      const newVisibleCount = debouncedSearchQuery.trim() || selectedTags.length > 0 
         ? Math.min(calculateInitialVisibleCount(), filtered.length)
         : calculateInitialVisibleCount();
       setVisibleCount(newVisibleCount);
     }
-  }, [searchQuery, stories, selectedTags, initialLoadComplete, calculateInitialVisibleCount]);
+  }, [debouncedSearchQuery, stories, selectedTags, initialLoadComplete, calculateInitialVisibleCount]);
 
   // Set initial visible count when stories first load
   useEffect(() => {

@@ -4,6 +4,7 @@ import { Meditation } from '../../types';
 import { loadMeditations, searchMeditations, fallbackMeditations } from '../../data/meditationContent';
 import { contentCache } from '../../services/contentCache';
 import { useScrollTracking } from '../../hooks/useScrollTracking';
+import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { readingProgressService } from '../../services/readingProgressService';
 import { Heart, Leaf, Star, Moon, Sun, Waves, Mountain, Compass, Flower2 } from 'lucide-react';
 
@@ -37,6 +38,9 @@ const MeditationsPage: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [visibleCount, setVisibleCount] = useState(0);
   const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+  
+  // Debounce search query to reduce filtering overhead
+  const debouncedSearchQuery = useDebouncedValue(searchQuery, 300);
 
   const [fontSize] = useState('base');
   
@@ -208,12 +212,13 @@ const MeditationsPage: React.FC = () => {
     };
 
     loadMeditationList();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionally empty - only run on mount
 
 
-  // Handle search and tag filtering
+  // Handle search and tag filtering (using debounced search query)
   useEffect(() => {
-    let filtered = searchMeditations(meditations, searchQuery);
+    let filtered = searchMeditations(meditations, debouncedSearchQuery);
     
     // Apply tag filtering if tags are selected
     if (selectedTags.length > 0) {
@@ -226,12 +231,12 @@ const MeditationsPage: React.FC = () => {
     
     // Reset visible count when filters change
     if (initialLoadComplete) {
-      const newVisibleCount = searchQuery.trim() || selectedTags.length > 0 
+      const newVisibleCount = debouncedSearchQuery.trim() || selectedTags.length > 0 
         ? Math.min(calculateInitialVisibleCount(), filtered.length)
         : calculateInitialVisibleCount();
       setVisibleCount(newVisibleCount);
     }
-  }, [searchQuery, meditations, selectedTags, initialLoadComplete, calculateInitialVisibleCount]);
+  }, [debouncedSearchQuery, meditations, selectedTags, initialLoadComplete, calculateInitialVisibleCount]);
 
   // Set initial visible count when meditations first load
   useEffect(() => {

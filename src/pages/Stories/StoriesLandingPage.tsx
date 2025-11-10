@@ -5,6 +5,7 @@ import { AppRoute, Story, BookChapter, Meditation } from '../../types';
 import { loadStories, fallbackStories, searchStories } from '../../data/storiesContent';
 import { readingProgressService } from '../../services/readingProgressService';
 import { contentCache } from '../../services/contentCache';
+import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import ContentCarousel from '../../components/ContentCarousel';
 import SearchBar from '../../components/SearchBar';
 import SearchOverlay from '../../components/SearchOverlay';
@@ -20,6 +21,9 @@ const StoriesLandingPage: React.FC = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const navigate = useNavigate();
+  
+  // Debounce search query to reduce filtering overhead
+  const debouncedSearchQuery = useDebouncedValue(searchQuery, 300);
 
   // Listen for storage changes to update completion percentage
   useEffect(() => {
@@ -78,22 +82,22 @@ const StoriesLandingPage: React.FC = () => {
   }, [stories]);
 
   // Handle tag selection
-  const toggleTag = (tag: string) => {
+  const toggleTag = useCallback((tag: string) => {
     setSelectedTags(prev => 
       prev.includes(tag) 
         ? prev.filter(t => t !== tag)
         : [...prev, tag]
     );
-  };
+  }, []);
 
-  const clearAllFilters = () => {
+  const clearAllFilters = useCallback(() => {
     setSelectedTags([]);
     setSearchQuery('');
-  };
+  }, []);
 
-  // Handle search and tag filtering
+  // Handle search and tag filtering (using debounced search query)
   useEffect(() => {
-    let filtered = searchStories(stories, searchQuery);
+    let filtered = searchStories(stories, debouncedSearchQuery);
     
     // Apply tag filtering if tags are selected
     if (selectedTags.length > 0) {
@@ -103,12 +107,13 @@ const StoriesLandingPage: React.FC = () => {
     }
     
     setFilteredStories(filtered);
-  }, [searchQuery, stories, selectedTags]);
+  }, [debouncedSearchQuery, stories, selectedTags]);
 
   const completion = useMemo(() => {
     if (stories.length === 0) return 0;
     const readCount = stories.filter(s => readingProgressService.isRead(s.id)).length;
     return Math.round((readCount / stories.length) * 100);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stories, progressUpdateTrigger]);
 
   // Get story icon based on tags or fallback to index-based icon
@@ -143,16 +148,36 @@ const StoriesLandingPage: React.FC = () => {
     return fallbackIcons[index % fallbackIcons.length];
   }, []);
 
-  const handleStoryClick = (item: Story | BookChapter | Meditation) => {
+  // Memoize story index map for O(1) lookup
+  const storyIndexMap = useMemo(() => {
+    return new Map(stories.map((s, idx) => [s.id, idx]));
+  }, [stories]);
+
+  const handleStoryClick = useCallback((item: Story | BookChapter | Meditation) => {
     // Type guard: ensure this is a Story
     if ('chapterNumber' in item || !('tags' in item)) {
       return; // Not a story, ignore
     }
     const story = item as Story;
-    const actualIndex = stories.findIndex(s => s.id === story.id);
-    localStorage.setItem('currentStoryIndex', actualIndex.toString());
-    navigate(AppRoute.STORIES);
-  };
+    // Use O(1) map lookup instead of O(n) findIndex
+    const actualIndex = storyIndexMap.get(story.id);
+    if (actualIndex !== undefined) {
+      localStorage.setItem('currentStoryIndex', actualIndex.toString());
+      navigate(AppRoute.STORIES);
+    }
+  }, [storyIndexMap, navigate]);
+
+  const handleSearchClear = useCallback(() => {
+    setSearchQuery('');
+    setIsSearchFocused(false);
+    setSelectedTags([]);
+  }, []);
+
+  const handleSearchBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+    if (!e.relatedTarget || !e.relatedTarget.closest('[data-search-overlay]')) {
+      setIsSearchFocused(false);
+    }
+  }, []);
 
   if (isLoading) {
     return (
@@ -164,18 +189,6 @@ const StoriesLandingPage: React.FC = () => {
       </div>
     );
   }
-
-  const handleSearchClear = () => {
-    setSearchQuery('');
-    setIsSearchFocused(false);
-    setSelectedTags([]);
-  };
-
-  const handleSearchBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    if (!e.relatedTarget || !e.relatedTarget.closest('[data-search-overlay]')) {
-      setIsSearchFocused(false);
-    }
-  };
 
   return (
     <>
@@ -298,5 +311,5 @@ const StoriesLandingPage: React.FC = () => {
   );
 };
 
-export default StoriesLandingPage;
+export default React.memo(StoriesLandingPage);
 

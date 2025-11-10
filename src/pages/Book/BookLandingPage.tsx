@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AppRoute, BookChapter, Meditation, Story } from '../../types';
@@ -71,6 +71,7 @@ const BookLandingPage: React.FC = () => {
     if (chapters.length === 0) return 0;
     const readCount = chapters.filter(ch => readingProgressService.isRead(ch.id)).length;
     return Math.round((readCount / chapters.length) * 100);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapters, progressUpdateTrigger]);
 
   // Group chapters by part
@@ -91,23 +92,30 @@ const BookLandingPage: React.FC = () => {
     return FULL_PART_ORDER.filter(part => chaptersByPart[part] && chaptersByPart[part].length > 0);
   }, [chaptersByPart]);
 
-  const handleChapterClick = (item: BookChapter | Meditation | Story, _index: number) => {
+  // Memoize chapter index map for O(1) lookup
+  const chapterIndexMap = useMemo(() => {
+    return new Map(chapters.map((ch, idx) => [ch.id, idx]));
+  }, [chapters]);
+
+  const handleChapterClick = useCallback((item: BookChapter | Meditation | Story, _index: number) => {
     void _index; // Index provided by ContentCarousel but not used here
     // Type guard: ensure this is a BookChapter
     if (!('chapterNumber' in item)) {
       return; // Not a chapter, ignore
     }
     const chapter = item as BookChapter;
-    // Save the chapter index to localStorage for ReaderPage to use
-    const actualIndex = chapters.findIndex(c => c.id === chapter.id);
-    localStorage.setItem('currentChapterIndex', actualIndex.toString());
-    navigate(AppRoute.READER);
-  };
+    // Use O(1) map lookup instead of O(n) findIndex
+    const actualIndex = chapterIndexMap.get(chapter.id);
+    if (actualIndex !== undefined) {
+      localStorage.setItem('currentChapterIndex', actualIndex.toString());
+      navigate(AppRoute.READER);
+    }
+  }, [chapterIndexMap, navigate]);
 
-  const handleNavigateToChapter = (chapterIndex: number) => {
+  const handleNavigateToChapter = useCallback((chapterIndex: number) => {
     localStorage.setItem('currentChapterIndex', chapterIndex.toString());
     navigate(AppRoute.READER);
-  };
+  }, [navigate]);
 
   if (isLoading) {
     return (
@@ -258,5 +266,5 @@ const BookLandingPage: React.FC = () => {
   );
 };
 
-export default BookLandingPage;
+export default React.memo(BookLandingPage);
 

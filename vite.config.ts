@@ -87,15 +87,46 @@ export default defineConfig({
     }
   },
   build: {
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info'],
+      },
+    },
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Split React and React DOM into separate chunk
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          // Split framer-motion into its own chunk (it's large)
-          'framer-motion': ['framer-motion'],
-          // Split lucide-react icons into separate chunk
-          'icons': ['lucide-react'],
+        manualChunks: (id) => {
+          // Split large dependencies
+          if (id.includes('node_modules')) {
+            if (id.includes('framer-motion')) return 'framer-motion';
+            if (id.includes('lucide-react')) return 'icons';
+            if (id.includes('react') || id.includes('react-dom')) return 'react-vendor';
+            if (id.includes('react-router')) return 'react-vendor';
+            if (id.includes('firebase')) return 'firebase';
+            if (id.includes('html2canvas')) return 'html2canvas';
+            return 'vendor';
+          }
+          
+          // Split by feature/page
+          if (id.includes('/pages/')) {
+            const match = id.match(/\/pages\/([^/]+)/);
+            return match ? `page-${match[1]}` : 'pages';
+          }
+          
+          if (id.includes('/features/')) {
+            const match = id.match(/\/features\/([^/]+)/);
+            return match ? `feature-${match[1]}` : 'features';
+          }
+          
+          if (id.includes('/services/')) {
+            return 'services';
+          }
+          
+          if (id.includes('/components/')) {
+            return 'components';
+          }
         }
       }
     },

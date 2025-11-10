@@ -30,43 +30,65 @@ const ContentCarousel: React.FC<ContentCarouselProps> = ({
   const [internalVisibleCount, setInternalVisibleCount] = React.useState(6);
   const visibleCount = externalVisibleCount ?? internalVisibleCount;
 
-  // Load more items when scrolling near the end
+  // Load more items using Intersection Observer (more efficient than scroll events)
   useEffect(() => {
-    if (!hasMore || isLoading) return;
+    if (!hasMore || isLoading || items.length === 0 || visibleCount >= items.length) return;
 
     const carousel = carouselRef.current;
     if (!carousel) return;
 
-    let timeoutId: NodeJS.Timeout;
-    const handleScroll = () => {
-      // Debounce scroll events
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        const scrollLeft = carousel.scrollLeft;
-        const scrollWidth = carousel.scrollWidth;
-        const clientWidth = carousel.clientWidth;
-        const scrollPercentage = (scrollLeft + clientWidth) / scrollWidth;
+    const container = carousel.querySelector('div');
+    if (!container) return;
 
-        // Load more when scrolled 80% to the right
-        if (scrollPercentage > 0.8) {
-          if (externalVisibleCount === undefined) {
-            // Internal state management
-            setInternalVisibleCount(prev => {
-              const newCount = Math.min(prev + 6, items.length);
-              return newCount;
-            });
-          } else if (onLoadMore && visibleCount < items.length) {
-            // External state management - call parent's load more
-            onLoadMore();
+    // Create sentinel element to observe (positioned near the end of visible items)
+    const sentinel = document.createElement('div');
+    sentinel.style.width = '1px';
+    sentinel.style.height = '1px';
+    sentinel.style.flexShrink = '0';
+    sentinel.style.pointerEvents = 'none';
+    sentinel.style.visibility = 'hidden';
+    sentinel.setAttribute('data-sentinel', 'true');
+
+    // Insert sentinel after visible items
+    const visibleItemsContainer = container;
+    const lastVisibleItem = visibleItemsContainer.children[visibleCount - 1];
+    if (lastVisibleItem && lastVisibleItem.nextSibling) {
+      visibleItemsContainer.insertBefore(sentinel, lastVisibleItem.nextSibling);
+    } else {
+      visibleItemsContainer.appendChild(sentinel);
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            if (externalVisibleCount === undefined) {
+              // Internal state management
+              setInternalVisibleCount(prev => {
+                const newCount = Math.min(prev + 6, items.length);
+                return newCount;
+              });
+            } else if (onLoadMore && visibleCount < items.length) {
+              // External state management - call parent's load more
+              onLoadMore();
+            }
           }
-        }
-      }, 100);
-    };
+        });
+      },
+      {
+        root: carousel,
+        rootMargin: '200px', // Trigger 200px before sentinel is visible
+        threshold: 0.1
+      }
+    );
 
-    carousel.addEventListener('scroll', handleScroll, { passive: true });
+    observer.observe(sentinel);
+
     return () => {
-      carousel.removeEventListener('scroll', handleScroll);
-      clearTimeout(timeoutId);
+      observer.disconnect();
+      if (sentinel.parentNode) {
+        sentinel.remove();
+      }
     };
   }, [visibleCount, items.length, hasMore, isLoading, onLoadMore, externalVisibleCount]);
 
@@ -159,5 +181,5 @@ const ContentCarousel: React.FC<ContentCarouselProps> = ({
   );
 };
 
-export default ContentCarousel;
+export default React.memo(ContentCarousel);
 
