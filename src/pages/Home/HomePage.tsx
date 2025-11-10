@@ -7,6 +7,7 @@ import { loadBookChapters } from '../../data/bookContent';
 import { loadMeditations } from '../../data/meditationContent';
 import { generateQuoteCards, QuoteCard } from '../../utils/quoteExtractor';
 import { downloadElementAsImage } from '../../utils/cardDownloader';
+import { quoteCardCache } from '../../services/quoteCardCache';
 import StandardHeader from '../../components/StandardHeader';
 import QuoteCardSkeleton from '../../components/QuoteCardSkeleton';
 import GlassButton from '../../components/GlassButton';
@@ -15,6 +16,16 @@ import SEO from '../../components/SEO';
 import { generateWebsiteStructuredData, generateFAQStructuredData, getDefaultFAQs } from '../../utils/seoHelpers';
 
 const SWIPE_THRESHOLD = 100;
+
+// Helper function to shuffle array (Fisher-Yates)
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
 
 const QuoteCardComponent: React.FC<{
   card: QuoteCard;
@@ -187,21 +198,24 @@ const HomePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const currentCardRef = useRef<HTMLDivElement>(null);
+  const backgroundGenerationRef = useRef<boolean>(false);
 
-  // Minimum number of cards to generate before showing (ensures good variety)
-  const MIN_CARDS_TO_SHOW = 10;
+  // Initial batch size for fast first load
+  const INITIAL_BATCH_SIZE = 5; // Load 5 chapters + 5 meditations first
+  const INITIAL_CARDS_TO_SHOW = 15; // Show first 15 cards immediately
+  const CARDS_PER_BATCH = 20; // Generate 20 cards per batch in background
 
-  // Load content progressively in background - seamless UX with skeleton
+  // Load content progressively and generate cards in background
   useEffect(() => {
     let cancelled = false;
 
-    const loadContent = async () => {
-      try {
-        const startTime = Date.now();
-        const MIN_SKELETON_TIME = 800; // Minimum time to show skeleton (ms)
+    // Background generation function
+    const generateCardsInBackground = async () => {
+      if (cancelled || backgroundGenerationRef.current) return;
+      backgroundGenerationRef.current = true;
 
-        // Load ALL content first (don't use progressive loading)
-        // This ensures all quotes are generated at once
+      try {
+        // Load ALL content in background
         const [allChapters, allMeditations] = await Promise.all([
           loadBookChapters(),
           loadMeditations()
@@ -209,53 +223,155 @@ const HomePage: React.FC = () => {
 
         if (cancelled) return;
 
-        // Store chapters and meditations for navigation
+        // Update stored content
         setChapters(allChapters);
         setMeditations(allMeditations);
 
-        // Generate ALL quote cards in background
-        const generateAndShowCards = () => {
-          if (cancelled) return;
+        // Generate all cards
+        const allCards = generateQuoteCards(
+          allChapters,
+          allMeditations,
+          []
+        );
+
+        if (cancelled) return;
+
+        // Merge with cache and save
+        const merged = quoteCardCache.mergeCards(allCards);
+        
+        // Update displayed cards progressively
+        setCards(current => {
+          const currentIds = new Set(current.map(c => c.id));
+          const newCards = merged.filter(c => !currentIds.has(c.id));
           
-          // Generate all quotes from ALL content at once
-          const allCards = generateQuoteCards(
-            allChapters,
-            allMeditations,
-            [] // Empty array for stories
-          );
-          
-          // Calculate remaining skeleton time
-          const elapsed = Date.now() - startTime;
-          const remainingTime = Math.max(0, MIN_SKELETON_TIME - elapsed);
-          
-          // Wait for minimum skeleton display time before showing cards
-          setTimeout(() => {
-            if (cancelled) return;
+          // If we have new cards, add them progressively
+          if (newCards.length > 0) {
+            // Shuffle new cards for variety
+            const shuffledNew = shuffleArray(newCards);
             
-            if (allCards.length >= MIN_CARDS_TO_SHOW) {
-              setCards(allCards);
-              setIsLoading(false);
-            } else {
-              // If we don't have enough cards, show what we have
-              setCards(allCards);
-              setIsLoading(false);
+            // Add in batches to avoid overwhelming the UI
+            const batchSize = CARDS_PER_BATCH;
+            const batches: QuoteCard[][] = [];
+            for (let i = 0; i < shuffledNew.length; i += batchSize) {
+              batches.push(shuffledNew.slice(i, i + batchSize));
             }
-          }, remainingTime);
-        };
-        
-        // Start quote generation in next tick to ensure skeleton renders
-        setTimeout(generateAndShowCards, 50);
-        
+            
+            // Add first batch immediately
+            const updated = [...current, ...batches[0]];
+            
+            // Add remaining batches with small delays
+            batches.slice(1).forEach((batch, index) => {
+              setTimeout(() => {
+                if (!cancelled) {
+                  setCards(prev => {
+                    const prevIds = new Set(prev.map(c => c.id));
+                    const uniqueBatch = batch.filter(c => !prevIds.has(c.id));
+                    return [...prev, ...uniqueBatch];
+                  });
+                }
+              }, (index + 1) * 100); // 100ms delay between batches
+            });
+            
+            return updated;
+          }
+          
+          return current;
+        });
+
+      } catch (error) {
+        console.error('Error generating cards in background:', error);
+        backgroundGenerationRef.current = false;
+      }
+    };
+
+    const loadContent = async () => {
+      try {
+        // Step 1: Check for cached cards first - show immediately if available
+        const cachedCards = quoteCardCache.getCachedCards();
+        if (cachedCards && cachedCards.length > 0) {
+          // Show random subset from cache immediately
+          const randomSubset = quoteCardCache.getRandomSubset(INITIAL_CARDS_TO_SHOW);
+          if (randomSubset.length > 0) {
+            setCards(randomSubset);
+            setIsLoading(false);
+            
+            // Load full content for navigation (non-blocking)
+            Promise.all([
+              loadBookChapters(),
+              loadMeditations()
+            ]).then(([allChapters, allMeditations]) => {
+              if (!cancelled) {
+                setChapters(allChapters);
+                setMeditations(allMeditations);
+              }
+            });
+            
+            // Start background generation in parallel
+            generateCardsInBackground();
+            return;
+          }
+        }
+
+        // Step 2: Load initial batch quickly (small subset for fast first render)
+        const startTime = Date.now();
+        const MIN_SKELETON_TIME = 600; // Reduced since we'll show cards faster
+
+        // Load initial small batch
+        const [initialChapters, initialMeditations] = await Promise.all([
+          loadBookChapters().then(chapters => chapters.slice(0, INITIAL_BATCH_SIZE)),
+          loadMeditations().then(meditations => meditations.slice(0, INITIAL_BATCH_SIZE))
+        ]);
+
+        if (cancelled) return;
+
+        // Store initial content
+        setChapters(initialChapters);
+        setMeditations(initialMeditations);
+
+        // Step 3: Generate initial cards from small batch
+        const initialCards = generateQuoteCards(
+          initialChapters,
+          initialMeditations,
+          []
+        );
+
+        // Merge with cache if exists
+        const allCached = quoteCardCache.getCachedCards() || [];
+        const mergedCards = [...allCached, ...initialCards];
+        const uniqueCards = Array.from(
+          new Map(mergedCards.map(card => [card.id, card])).values()
+        );
+
+        // Shuffle and show initial subset
+        const shuffled = shuffleArray(uniqueCards);
+        const cardsToShow = shuffled.slice(0, INITIAL_CARDS_TO_SHOW);
+
+        // Save to cache
+        quoteCardCache.saveCards(uniqueCards);
+
+        // Calculate remaining skeleton time
+        const elapsed = Date.now() - startTime;
+        const remainingTime = Math.max(0, MIN_SKELETON_TIME - elapsed);
+
+        setTimeout(() => {
+          if (cancelled) return;
+          setCards(cardsToShow);
+          setIsLoading(false);
+        }, remainingTime);
+
+        // Step 4: Start background generation
+        generateCardsInBackground();
+
       } catch (error) {
         console.error('Error loading content:', error);
-        // Even on error, hide skeleton after minimum time
-        setTimeout(() => setIsLoading(false), 800);
+        setTimeout(() => setIsLoading(false), 600);
       }
     };
 
     loadContent();
     return () => {
       cancelled = true;
+      backgroundGenerationRef.current = false;
     };
   }, []);
 
