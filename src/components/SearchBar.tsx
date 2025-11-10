@@ -30,10 +30,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const showBackArrow = isOpen;
 
   // On mobile (fixed positioning), render through portal to escape stacking context
-  // On desktop (lg:relative), render normally
   const searchBarContent = (
-    <div className={`fixed top-0 left-0 right-0 z-[10000] lg:relative ${className}`}>
-      <div className="max-w-2xl lg:max-w-4xl mx-auto px-6 py-4 lg:pt-6">
+    <div className={`fixed top-0 left-0 right-0 z-[10000] ${className}`}>
+      <div className="max-w-2xl mx-auto px-6 py-4">
         <div className="relative">
           {/* Back Arrow / Search Icon - Animated */}
           <AnimatePresence mode="wait">

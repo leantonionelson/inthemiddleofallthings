@@ -37,7 +37,7 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         globIgnores: ['**/media/audio/**/*.wav', '**/media/audio/**/*.mp3'],
-        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB limit
+        maximumFileSizeToCacheInBytes: 50 * 1024 * 1024, // 50MB limit to allow video caching
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -58,6 +58,20 @@ export default defineConfig({
               expiration: {
                 maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 * 30 // <== 30 days
+              }
+            }
+          },
+          {
+            urlPattern: /\/media\/bg.*\.mp4$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'video-cache',
+              expiration: {
+                maxEntries: 5,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days - videos are integral to UI
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
               }
             }
           }

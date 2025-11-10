@@ -70,8 +70,8 @@ function SearchOverlay<T extends { id: string }>({
       </div>
       
       {/* Search Results Full Screen */}
-      <div data-search-overlay className="fixed top-20 left-0 right-0 bottom-0 z-[9999] overflow-hidden lg:absolute lg:top-full lg:mt-2">
-        <div className="max-w-2xl lg:max-w-4xl mx-auto h-full flex flex-col">
+      <div data-search-overlay className="fixed top-20 left-0 right-0 bottom-0 z-[9999] overflow-hidden">
+        <div className="max-w-2xl mx-auto h-full flex flex-col">
           {/* Tag Cloud - Horizontal Scrollable, Two Rows */}
           <div className="px-6 py-4 border-b border-ink-muted/10 dark:border-paper-light/10">
             <div className="flex items-center justify-between mb-3">

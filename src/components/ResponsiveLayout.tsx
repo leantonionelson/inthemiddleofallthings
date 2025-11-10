@@ -1,5 +1,4 @@
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import DesktopNavigation from './DesktopNavigation';
 import StandardNavigation from './StandardNavigation';
 import { useScrollTransition } from '../hooks/useScrollTransition';
 
@@ -24,17 +23,12 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   });
 
   // Measure fixed nav heights to prevent content from scrolling under them
-  const desktopNavRef = useRef<HTMLDivElement | null>(null);
   const mobileNavRef = useRef<HTMLDivElement | null>(null);
-  const [topNavHeight, setTopNavHeight] = useState(0);
   const [bottomNavHeight, setBottomNavHeight] = useState(0);
 
   useEffect(() => {
     const measure = () => {
-      const desktopEl = document.getElementById('desktop-nav');
-      const top = desktopEl ? desktopEl.getBoundingClientRect().height : 0;
       const bottom = mobileNavRef.current ? mobileNavRef.current.getBoundingClientRect().height : 0;
-      setTopNavHeight(top);
       setBottomNavHeight(bottom);
     };
 
@@ -51,15 +45,12 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
       ResizeObserver?: new (callback: ResizeObserverCallback) => ResizeObserver;
     });
     const ro = ResizeObserverCtor ? new ResizeObserverCtor(() => measure()) : undefined;
-    const desktopEl = document.getElementById('desktop-nav');
     const mobileEl = mobileNavRef.current;
-    if (desktopEl && ro) ro.observe(desktopEl);
     if (mobileEl && ro) ro.observe(mobileEl);
 
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleResize);
-      if (desktopEl && ro) ro.unobserve(desktopEl);
       if (mobileEl && ro) ro.unobserve(mobileEl);
       if (ro) ro.disconnect?.();
     };
@@ -68,14 +59,13 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
   const contentHeightStyle = useMemo<React.CSSProperties>(() => {
     // For reading pages, keep window scroll semantics as-is to avoid breaking reader interactions
     if (isReading) return {};
-    // Compute available height subtracting fixed navs (desktop top or mobile bottom)
-    // Both may not be present due to responsive visibility; measured values will be 0 accordingly
+    // Compute available height subtracting fixed navs (mobile bottom)
     return {
-      height: `calc(100vh - ${topNavHeight}px - ${bottomNavHeight}px)`,
+      height: `calc(100vh - ${bottomNavHeight}px)`,
       overflowY: 'auto',
       WebkitOverflowScrolling: 'touch'
     } as React.CSSProperties;
-  }, [isReading, topNavHeight, bottomNavHeight]);
+  }, [isReading, bottomNavHeight]);
 
   return (
     <div className="min-h-screen bg-paper-light dark:bg-slate-950/75 relative">
@@ -94,16 +84,12 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
         <div className="absolute inset-0 bg-paper-light/50 dark:bg-slate-950/75"></div>
       </div>
 
-      {/* Desktop Navigation - Hidden on mobile */}
-      <div className="hidden lg:block relative z-10" ref={desktopNavRef}>
-        <DesktopNavigation />
-      </div>
 
       {/* Main Content */}
       <main className={`relative z-10`}>
         {isReading ? (
-          // Keep original flow/scroll for reading pages, but offset for desktop nav and mobile bottom nav heights
-          <div style={{ marginTop: topNavHeight, paddingBottom: bottomNavHeight }}>
+          // Keep original flow/scroll for reading pages, but offset for mobile bottom nav height
+          <div style={{ paddingBottom: bottomNavHeight }}>
             {children}
           </div>
         ) : (
@@ -113,8 +99,8 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
         )}
       </main>
 
-      {/* Mobile Navigation - Hidden on desktop */}
-      <div className="lg:hidden relative z-50">
+      {/* Mobile Navigation */}
+      <div className="relative z-50">
         <div 
           id="mobile-nav"
           className="fixed bottom-0 left-0 right-0 z-50"

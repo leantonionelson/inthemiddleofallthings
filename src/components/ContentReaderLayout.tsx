@@ -125,10 +125,10 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
   // Get title font size classes
   const getTitleSizeClasses = () => {
     if (contentType === 'chapter') {
-      return fontSize === 'sm' ? 'text-2xl lg:text-3xl' : 
-             fontSize === 'base' ? 'text-2xl lg:text-3xl' : 
-             fontSize === 'lg' ? 'text-3xl lg:text-4xl' : 
-             'text-4xl lg:text-5xl';
+      return fontSize === 'sm' ? 'text-2xl' : 
+             fontSize === 'base' ? 'text-2xl' : 
+             fontSize === 'lg' ? 'text-3xl' : 
+             'text-4xl';
     } else {
       return fontSize === 'sm' ? 'text-2xl' : 
              fontSize === 'base' ? 'text-2xl' : 
@@ -139,10 +139,10 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
 
   // Get subtitle font size classes
   const getSubtitleSizeClasses = () => {
-    return fontSize === 'sm' ? 'text-lg lg:text-xl' : 
-           fontSize === 'base' ? 'text-lg lg:text-xl' : 
-           fontSize === 'lg' ? 'text-xl lg:text-2xl' : 
-           'text-2xl lg:text-3xl';
+    return fontSize === 'sm' ? 'text-lg' : 
+           fontSize === 'base' ? 'text-lg' : 
+           fontSize === 'lg' ? 'text-xl' : 
+           'text-2xl';
   };
 
   return (
@@ -150,7 +150,7 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
       {/* Mobile Header - ChapterInfo only for chapters */}
       {showMobileHeader && contentType === 'chapter' && (
         <div 
-          className="lg:hidden fixed top-0 left-0 right-0 z-40"
+          className="fixed top-0 left-0 right-0 z-40"
           style={{
             ...headerScrollTransition.style,
             transform: isAudioPlaying 
@@ -210,8 +210,6 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
         ref={contentRef}
         className={`reader-content relative px-6 max-w-2xl mx-auto ${
           isAudioPlayerOpen ? 'pb-48' : ''
-        } lg:px-8 lg:max-w-4xl lg:pt-8 ${
-          isAudioPlayerOpen ? 'lg:pb-32' : ''
         }`}
         style={{ 
           paddingTop: getPaddingTop(),
@@ -225,46 +223,6 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
         <div>
           {/* Header */}
           <div className="mb-8">
-            {/* Desktop Chapter Info and Navigation - only for chapters */}
-            {contentType === 'chapter' && (
-              <div className="hidden lg:flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Chapter {currentIndex + 1} of {totalItems}
-                  </span>
-                  <div className="w-px h-4 bg-ink-muted/20 dark:bg-paper-light/20" />
-                  <div className="flex items-center gap-2">
-                    <div className="w-32 bg-ink-muted/10 dark:bg-paper-light/10 rounded-full h-1">
-                      <div 
-                        className="h-1 bg-blue-500 rounded-full transition-all duration-300"
-                        style={{ width: `${((currentIndex + 1) / totalItems) * 100}%` }}
-                      />
-                    </div>
-                    <span className="text-xs text-ink-secondary dark:text-ink-muted">
-                      {Math.round(((currentIndex + 1) / totalItems) * 100)}%
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Desktop Navigation Controls */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={onPrevious}
-                    disabled={currentIndex === 0}
-                    className="p-2 rounded-lg bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    ←
-                  </button>
-                  <button
-                    onClick={onNext}
-                    disabled={currentIndex === totalItems - 1}
-                    className="p-2 rounded-lg bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted hover:text-ink-primary dark:hover:text-paper-light disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    →
-                  </button>
-                </div>
-              </div>
-            )}
 
             {/* Title */}
             <h2 className={`font-bold text-left text-ink-primary dark:text-paper-light mb-4 leading-tight ${getTitleSizeClasses()}`}>

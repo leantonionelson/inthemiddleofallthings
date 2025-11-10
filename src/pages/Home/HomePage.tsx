@@ -98,6 +98,7 @@ const QuoteCardComponent: React.FC<{
             loop
             muted
             playsInline
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
             style={{ opacity: 1 }}
           >
@@ -311,7 +312,7 @@ const HomePage: React.FC = () => {
   return (
     <>
       {/* Fixed viewport layout - accounts for mobile nav and desktop nav */}
-      <div className="fixed inset-0 lg:top-24 pb-24 lg:pb-0 flex flex-col overflow-hidden">
+      <div className="fixed inset-0 pb-24 flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex-shrink-0">
           <StandardHeader title="In the Middle of All Things" showSettingsButton={true} />

@@ -1,6 +1,7 @@
 [build]
   command = "npm run build"
   publish = "dist"
+  functions = "netlify/functions"
 
 # Firebase client-side API keys are MEANT to be public (they're protected by Firebase security rules)
 # Netlify's secrets scanner detects them in the build output, causing deployment failures
@@ -12,4 +13,8 @@
 # 1. Firebase client keys are designed to be public (used in browsers)
 # 2. Security is enforced by Firebase Security Rules, not by hiding keys
 # 3. These keys only work with your specific Firebase project configuration
+
+# Environment variables for Netlify Functions
+# Add RESEND_API_KEY in Netlify Dashboard → Site settings → Environment variables
+# The value should be: re_6djHv3CP_DAzCmamCL1wRVx8d5KZZNYK2
 

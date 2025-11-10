@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@netlify/functions": "^2.8.2",
     "autoprefixer": "^10.4.21",
     "firebase": "^12.5.0",
     "flowbite": "^3.1.2",
@@ -19,8 +20,10 @@
     "postcss": "^8.5.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-qr-code": "^2.0.12",
     "react-router-dom": "^7.6.2",
     "react-use-fittext": "^1.0.2",
+    "resend": "^4.8.0",
     "vite-plugin-pwa": "^1.0.0",
     "workbox-window": "^7.3.0"
   },

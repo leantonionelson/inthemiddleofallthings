@@ -1,6 +1,5 @@
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import DesktopNavigation from './DesktopNavigation';
 import StandardNavigation from './StandardNavigation';
 import { useScrollTransition } from '../hooks/useScrollTransition';
 import { AppRoute } from '../types';
@@ -28,17 +27,12 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
   }, isReading ? mainRef : undefined);
 
   // Measure fixed nav heights
-  const desktopNavRef = useRef<HTMLDivElement | null>(null);
   const mobileNavRef = useRef<HTMLDivElement | null>(null);
-  const [topNavHeight, setTopNavHeight] = useState(0);
   const [bottomNavHeight, setBottomNavHeight] = useState(0);
 
   useEffect(() => {
     const measure = () => {
-      const desktopEl = document.getElementById('desktop-nav');
-      const top = desktopEl ? desktopEl.getBoundingClientRect().height : 0;
       const bottom = mobileNavRef.current ? mobileNavRef.current.getBoundingClientRect().height : 0;
-      setTopNavHeight(top);
       setBottomNavHeight(bottom);
     };
 
@@ -52,15 +46,12 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
       ResizeObserver?: new (callback: ResizeObserverCallback) => ResizeObserver;
     });
     const ro = ResizeObserverCtor ? new ResizeObserverCtor(() => measure()) : undefined;
-    const desktopEl = document.getElementById('desktop-nav');
     const mobileEl = mobileNavRef.current;
-    if (desktopEl && ro) ro.observe(desktopEl);
     if (mobileEl && ro) ro.observe(mobileEl);
 
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleResize);
-      if (desktopEl && ro) ro.unobserve(desktopEl);
       if (mobileEl && ro) ro.unobserve(mobileEl);
       if (ro) ro.disconnect?.();
     };
@@ -69,11 +60,11 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
   const contentHeightStyle = useMemo<React.CSSProperties>(() => {
     if (isReading) return {};
     return {
-      height: `calc(100vh - ${topNavHeight}px - ${bottomNavHeight}px)`,
+      height: `calc(100vh - ${bottomNavHeight}px)`,
       overflowY: 'auto',
       WebkitOverflowScrolling: 'touch'
     } as React.CSSProperties;
-  }, [isReading, topNavHeight, bottomNavHeight]);
+  }, [isReading, bottomNavHeight]);
 
   return (
     <div className="min-h-screen bg-paper-light dark:bg-slate-950/75 relative">
@@ -84,6 +75,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
           loop
           muted
           playsInline
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-70 dark:opacity-100"
         >
           <source src="/media/bg.mp4" type="video/mp4" />
@@ -91,10 +83,6 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
         <div className="absolute inset-0 bg-paper-light/50 dark:bg-slate-950/75"></div>
       </div>
 
-      {/* Persistent Desktop Navigation */}
-      <div className="hidden lg:block relative z-10" ref={desktopNavRef}>
-        <DesktopNavigation />
-      </div>
 
       {/* Main Content - This is where page content will render */}
       <main 
@@ -103,7 +91,6 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
         style={isReading ? {
           height: 'calc(100vh - 84px)',
           overflow: 'scroll',
-          marginTop: topNavHeight,
           paddingBottom: bottomNavHeight
         } : {
           ...contentHeightStyle
@@ -117,7 +104,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
       </main>
 
       {/* Persistent Mobile Navigation */}
-      <div className="lg:hidden relative z-50">
+      <div className="relative z-50">
         <div 
           id="mobile-nav"
           className="fixed bottom-0 left-0 right-0 z-50"

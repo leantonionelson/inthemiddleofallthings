@@ -8,6 +8,7 @@ import { readingProgressService } from './services/readingProgressService';
 
 // Lazy load pages for code splitting - only load when needed
 const HomePage = lazy(() => import('./pages/Home/HomePage'));
+const DesktopLandingPage = lazy(() => import('./pages/Desktop/DesktopLandingPage'));
 const BookLandingPage = lazy(() => import('./pages/Book/BookLandingPage'));
 const MeditationsLandingPage = lazy(() => import('./pages/Meditations/MeditationsLandingPage'));
 const StoriesLandingPage = lazy(() => import('./pages/Stories/StoriesLandingPage'));
@@ -24,6 +25,7 @@ import ServiceWorkerRegistration from './components/ServiceWorkerRegistration';
 import NativeFeatures from './components/NativeFeatures';
 import LoadingSpinner from './components/LoadingSpinner';
 import PersistentLayout from './components/PersistentLayout';
+import DesktopRedirect from './components/DesktopRedirect';
 
 const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -116,12 +118,22 @@ const App: React.FC = () => {
         <div className={`app ${isDarkMode ? 'dark' : ''}`}>
           <Suspense fallback={<PageLoader />}>
             <Routes>
-              {/* Persistent Layout wraps all routes */}
+              {/* Desktop Landing Page - no PersistentLayout wrapper */}
+              <Route
+                path="/desktop"
+                element={<DesktopLandingPage />}
+              />
+
+              {/* Persistent Layout wraps all mobile routes */}
               <Route element={<PersistentLayout />}>
-                {/* Home route - main navigation hub */}
+                {/* Home route - redirects desktop users to /desktop */}
                 <Route
                   path={AppRoute.HOME}
-                  element={<HomePage />}
+                  element={
+                    <DesktopRedirect>
+                      <HomePage />
+                    </DesktopRedirect>
+                  }
                 />
 
                 {/* Landing pages */}
@@ -166,7 +178,7 @@ const App: React.FC = () => {
                   }
                 />
 
-                {/* Default redirect - redirect root to home */}
+                {/* Default redirect - redirect root to home (which will redirect desktop to /desktop) */}
                 <Route
                   path="/"
                   element={<Navigate to={AppRoute.HOME} replace />}

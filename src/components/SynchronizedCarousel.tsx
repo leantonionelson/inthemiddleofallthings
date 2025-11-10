@@ -441,10 +441,10 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
       {/* Row 1 */}
       <div 
         ref={row1Ref}
-        className="w-screen overflow-x-auto scrollbar-hide -ml-6 lg:-ml-10"
+        className="w-screen overflow-x-auto scrollbar-hide -ml-6"
         onScroll={handleRow1Scroll}
       >
-        <div className="flex gap-2 pl-6 lg:pl-10 pr-6 lg:pr-10 py-0" style={{ width: 'max-content' }}>
+        <div className="flex gap-2 pl-6 pr-6 py-0" style={{ width: 'max-content' }}>
           {isLoading && row1Items.length === 0 ? (
             [...Array(6)].map((_, i) => (
               <div key={`skeleton-row1-${i}`} className="flex-shrink-0 w-[210px]">
@@ -476,10 +476,10 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
       {/* Row 2 */}
       <div 
         ref={row2Ref}
-        className="w-screen overflow-x-auto scrollbar-hide -ml-6 lg:-ml-10"
+        className="w-screen overflow-x-auto scrollbar-hide -ml-6"
         onScroll={handleRow2Scroll}
       >
-        <div className="flex gap-2 pl-6 lg:pl-10 pr-6 lg:pr-10 py-0" style={{ width: 'max-content' }}>
+        <div className="flex gap-2 pl-6 pr-6 py-0" style={{ width: 'max-content' }}>
           {isLoading && row2Items.length === 0 ? (
             [...Array(6)].map((_, i) => (
               <div key={`skeleton-row2-${i}`} className="flex-shrink-0 w-[210px]">
@@ -511,10 +511,10 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
       {/* Row 3 */}
       <div 
         ref={row3Ref}
-        className="w-screen overflow-x-auto scrollbar-hide -ml-6 lg:-ml-10"
+        className="w-screen overflow-x-auto scrollbar-hide -ml-6"
         onScroll={handleRow3Scroll}
       >
-        <div className="flex gap-2 pl-6 lg:pl-10 pr-6 lg:pr-10 py-0" style={{ width: 'max-content' }}>
+        <div className="flex gap-2 pl-6 pr-6 py-0" style={{ width: 'max-content' }}>
           {isLoading && row3Items.length === 0 ? (
             [...Array(6)].map((_, i) => (
               <div key={`skeleton-row3-${i}`} className="flex-shrink-0 w-[210px]">

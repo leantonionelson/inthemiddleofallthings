@@ -187,7 +187,6 @@ const MeditationsLandingPage: React.FC = () => {
         onBlur={handleSearchBlur}
         showClearButton={isSearchFocused || !!searchQuery.trim()}
         onClear={handleSearchClear}
-        className="lg:relative"
         isOpen={isSearchFocused || !!searchQuery.trim()}
       />
 
@@ -227,7 +226,7 @@ const MeditationsLandingPage: React.FC = () => {
       />
 
 
-      <div className="flex-1 flex flex-col p-6 lg:p-10 pb-24 max-w-7xl mx-auto w-full" style={{ paddingTop: '6rem' }}>
+      <div className="flex-1 flex flex-col p-6 pb-24 max-w-7xl mx-auto w-full" style={{ paddingTop: '6rem' }}>
         {/* Description */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -237,7 +236,7 @@ const MeditationsLandingPage: React.FC = () => {
         >
           <div className="mb-4 flex items-center gap-3">
             <Scale className="w-8 h-8 text-ink-primary dark:text-paper-light flex-shrink-0" />
-            <h1 className="text-3xl lg:text-4xl font-serif text-ink-primary dark:text-paper-light">
+            <h1 className="text-3xl font-serif text-ink-primary dark:text-paper-light">
               Meditations
             </h1>
           </div>

@@ -118,11 +118,11 @@ const ContentFormatter: React.FC<ContentFormatterProps> = ({
         const sentences = paragraph.split(/(?<=[.!?])\s+/).filter(s => s.trim());
         
         return (
-          <p key={paragraphIndex} className={`mb-6 leading-8 lg:leading-10 text-left text-ink-primary dark:text-paper-light ${
-            fontSize === 'sm' ? 'text-sm lg:text-base' : 
-            fontSize === 'base' ? 'text-base lg:text-lg' : 
-            fontSize === 'lg' ? 'text-lg lg:text-xl' : 
-            'text-xl lg:text-2xl'
+          <p key={paragraphIndex} className={`mb-6 leading-8 text-left text-ink-primary dark:text-paper-light ${
+            fontSize === 'sm' ? 'text-sm' : 
+            fontSize === 'base' ? 'text-base' : 
+            fontSize === 'lg' ? 'text-lg' : 
+            'text-xl'
           }`}>
             {sentences.map((sentence, sentenceIndex) => {
               const globalSentenceIndex = currentSentenceIndex++;

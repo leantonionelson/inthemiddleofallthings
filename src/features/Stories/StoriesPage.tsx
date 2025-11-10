@@ -359,7 +359,6 @@ const StoriesPage: React.FC = () => {
         onBlur={handleSearchBlur}
         showClearButton={isSearchFocused || !!searchQuery.trim()}
         onClear={handleSearchClear}
-        className="lg:relative"
         isOpen={isSearchFocused || !!searchQuery.trim()}
       />
 

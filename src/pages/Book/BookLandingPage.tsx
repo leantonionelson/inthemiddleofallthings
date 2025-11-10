@@ -121,7 +121,7 @@ const BookLandingPage: React.FC = () => {
   return (
     <>
       <div 
-        className="flex-1 flex flex-col p-6 lg:p-10 pt-6 pb-24 max-w-7xl mx-auto w-full"
+        className="flex-1 flex flex-col p-6 pt-6 pb-24 max-w-7xl mx-auto w-full"
         style={{
           height: 'calc(100vh - 84px)',
           overflow: 'scroll'
@@ -136,7 +136,7 @@ const BookLandingPage: React.FC = () => {
         >
           <div className="mb-4">
             <BookOpen className="w-8 h-8 text-ink-primary dark:text-paper-light mb-3" />
-            <h1 className="text-3xl lg:text-4xl font-serif text-ink-primary dark:text-paper-light">
+            <h1 className="text-3xl font-serif text-ink-primary dark:text-paper-light">
               In the Middle of All Things
             </h1>
           </div>
@@ -183,12 +183,12 @@ const BookLandingPage: React.FC = () => {
               >
                 {/* Section Header */}
                 <div className="mb-4 text-left">
-                  <h2 className="text-xl lg:text-2xl font-serif text-ink-primary dark:text-paper-light mb-2">
+                  <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-2">
                     {part}
                   </h2>
                   {description && (
                     <div className="flex items-start gap-3">
-                      <p className="text-sm lg:text-base text-ink-secondary dark:text-ink-muted italic max-w-3xl leading-relaxed flex-1">
+                      <p className="text-sm text-ink-secondary dark:text-ink-muted italic max-w-3xl leading-relaxed flex-1">
                         {description}
                       </p>
                       {/* Info Button for Part Description */}

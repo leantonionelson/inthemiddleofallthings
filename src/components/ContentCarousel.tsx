@@ -85,9 +85,9 @@ const ContentCarousel: React.FC<ContentCarouselProps> = ({
   return (
     <div 
       ref={carouselRef}
-      className="w-screen overflow-x-auto scrollbar-hide -ml-6 lg:-ml-10 scroll-smooth"
+      className="w-screen overflow-x-auto scrollbar-hide -ml-6 scroll-smooth"
     >
-      <div className="flex gap-2 pl-6 lg:pl-10 pr-6 lg:pr-10 py-4 pb-6" style={{ width: 'max-content' }}>
+      <div className="flex gap-2 pl-6 pr-6 py-4 pb-6" style={{ width: 'max-content' }}>
         {showInitialSkeletons ? (
           // Show skeletons while initial content is loading
           <>

@@ -288,12 +288,12 @@ const BookIntroDrawer: React.FC<BookIntroDrawerProps> = ({
                 <div className="mb-6">
                   {currentPartDescription ? (
                     <div className="space-y-4">
-                      <div className="text-base lg:text-lg text-ink-secondary dark:text-ink-muted leading-relaxed whitespace-pre-line">
+                      <div className="text-base text-ink-secondary dark:text-ink-muted leading-relaxed whitespace-pre-line">
                         {renderTextWithItalics(currentPartDescription.content)}
                       </div>
                     </div>
                   ) : (
-                    <p className="text-base lg:text-lg text-ink-secondary dark:text-ink-muted leading-relaxed">
+                    <p className="text-base text-ink-secondary dark:text-ink-muted leading-relaxed">
                       {partDescriptions[currentPart] || ''}
                     </p>
                   )}
