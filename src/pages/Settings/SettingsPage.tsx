@@ -6,6 +6,7 @@ import InstallButton from '../../components/InstallButton';
 import { useAuth } from '../../hooks/useAuth';
 import WelcomeDrawer from '../../components/WelcomeDrawer';
 import { useAppUpdate } from '../../hooks/useAppUpdate';
+import { useDesktopDetection } from '../../hooks/useDesktopDetection';
 import { RefreshCw, Download, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface SettingsPageProps {
@@ -20,6 +21,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   const [voicePreference, setVoicePreference] = useState<'male' | 'female'>('male');
   const [showLoginDrawer, setShowLoginDrawer] = useState(false);
   const { user, signOut } = useAuth();
+  const isDesktop = useDesktopDetection();
   const {
     isUpdateAvailable,
     isUpdating,
@@ -360,6 +362,21 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
               </a>
             </p>
           </div>
+          {!isDesktop && (
+            <div className="mt-6 pt-6 border-t border-ink-muted/20 dark:border-paper-light/20">
+              <button
+                onClick={() => {
+                  // Trigger welcome intro to show
+                  window.dispatchEvent(new CustomEvent('showWelcomeIntro'));
+                }}
+                className="relative w-full py-3 px-4 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group"
+              >
+                <div className="absolute inset-0 glass-subtle rounded-full" />
+                <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
+                <span className="relative z-10 text-ink-primary dark:text-paper-light">View Welcome Intro</span>
+              </button>
+            </div>
+          )}
         </motion.div>
 
         {/* Footer */}

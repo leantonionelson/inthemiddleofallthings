@@ -21,15 +21,19 @@ const SettingsPage = lazy(() => import('./pages/Settings/SettingsPage'));
 import ErrorBoundary from './components/ErrorBoundary';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
 import WelcomeDrawer from './components/WelcomeDrawer';
+import WelcomeIntro from './components/WelcomeIntro';
 import ServiceWorkerRegistration from './components/ServiceWorkerRegistration';
 import NativeFeatures from './components/NativeFeatures';
 import LoadingSpinner from './components/LoadingSpinner';
 import PersistentLayout from './components/PersistentLayout';
 import DesktopRedirect from './components/DesktopRedirect';
+import { useDesktopDetection } from './hooks/useDesktopDetection';
 
 const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [showWelcomeIntro, setShowWelcomeIntro] = useState(false);
   const { user } = useAuth();
+  const isDesktop = useDesktopDetection();
 
   // Initialize app - setup theme
   useEffect(() => {
@@ -47,6 +51,34 @@ const App: React.FC = () => {
       document.documentElement.classList.remove('dark');
     }
   }, []);
+
+  // Check if welcome intro should be shown
+  useEffect(() => {
+    // Don't show on desktop
+    if (isDesktop) {
+      return;
+    }
+    
+    const hasSeenIntro = localStorage.getItem('welcomeIntroShown');
+    // Show intro if: hasn't been shown before AND user is not logged in
+    if (!hasSeenIntro && !user) {
+      setShowWelcomeIntro(true);
+    }
+  }, [user, isDesktop]);
+
+  // Listen for manual trigger from Settings page
+  useEffect(() => {
+    // Don't allow manual trigger on desktop
+    if (isDesktop) {
+      return;
+    }
+    
+    const handleShowIntro = () => {
+      setShowWelcomeIntro(true);
+    };
+    window.addEventListener('showWelcomeIntro', handleShowIntro);
+    return () => window.removeEventListener('showWelcomeIntro', handleShowIntro);
+  }, [isDesktop]);
 
   // Set up Firebase progress sync when user is authenticated
   useEffect(() => {
@@ -195,6 +227,12 @@ const App: React.FC = () => {
 
           {/* Welcome Drawer - shows on first visit */}
           <WelcomeDrawer />
+
+          {/* Welcome Intro - shows once per session */}
+          <WelcomeIntro
+            isOpen={showWelcomeIntro}
+            onClose={() => setShowWelcomeIntro(false)}
+          />
 
           {/* PWA Install Prompt - uses browser default */}
           <PWAInstallPrompt />

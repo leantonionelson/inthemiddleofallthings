@@ -441,14 +441,40 @@ const DesktopLandingPage: React.FC = () => {
               className="glass-subtle rounded-3xl p-12"
             >
               <h2 className="text-3xl font-serif text-ink-primary dark:text-paper-light mb-6">
-                WHAT IT IS
+                Welcome
               </h2>
               <div className="space-y-4 text-lg text-ink-secondary dark:text-ink-muted leading-relaxed">
-                <p className="font-medium">
-                  A book you enter, not just read.
+                <p>
+                  Your mind is the lens through which you receive and interpret the universe. This lens is shaped by your "hardcoding" – your beliefs, your experiences, and the patterns passed down to you.
                 </p>
                 <p>
-                  Guided meditations, short essays, and quiet stories designed to return you to yourself. Nothing to perform. Nothing to chase. Just a rhythm you can carry through the day.
+                  When we get stuck in rigid dogma or fear, our lens can "atrophy." We "weight the universe" in one direction for too long, and we lose our connection to the whole pattern. We might live a life of hate, and in that state, not even be able to recognize love when it is given.
+                </p>
+                <p>
+                  This app is a tool for practice. It is not a set of answers, but a way to help you rebalance your lens.
+                </p>
+                <p>
+                  The writings and meditations here are designed to guide you back to the "middle." The middle is not a passive compromise; it is the strongest, most balanced vantage point. It is the active, "flow" state from which you can "receive and interpret all that is."
+                </p>
+                <p>
+                  This is the path of <strong>synthesis</strong>. It is a journey of re-evaluating your old beliefs and integrating them with new perspectives to create a "balance of both sides of the coin."
+                </p>
+                <p>
+                  This practice will show you two ways to see the divine pattern of existence:
+                </p>
+                <ol className="list-decimal list-inside space-y-2 ml-4">
+                  <li>
+                    <strong>Looking In:</strong> To do the work to see your <em>own</em> consciousness as a "complete and fully shaped" piece of the fractal.
+                  </li>
+                  <li>
+                    <strong>Looking Out:</strong> To look at others and see that same divine pattern in "the many faces of God" all around you.
+                  </li>
+                </ol>
+                <p>
+                  The purpose is not to "fix" you, but to help you see the pattern. The goal is to live a life "lead with love." Because to have your lens fully balanced, whole, and capable of seeing all of reality is to have God, or Existence itself, fully and completely within you.
+                </p>
+                <p>
+                  This text is a mirror. Don't just read it. Commune with it. Use it to build the consciousness you wish to inhabit.
                 </p>
               </div>
             </motion.div>
