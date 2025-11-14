@@ -5,9 +5,10 @@ import { audioManagerService } from '../../services/audioManager';
 import InstallButton from '../../components/InstallButton';
 import { useAuth } from '../../hooks/useAuth';
 import WelcomeDrawer from '../../components/WelcomeDrawer';
+import BreathworkDrawer from '../../components/BreathworkDrawer';
 import { useAppUpdate } from '../../hooks/useAppUpdate';
 import { useDesktopDetection } from '../../hooks/useDesktopDetection';
-import { RefreshCw, Download, CheckCircle, AlertCircle } from 'lucide-react';
+import { RefreshCw, Download, CheckCircle, AlertCircle, Wind } from 'lucide-react';
 
 interface SettingsPageProps {
   isDarkMode: boolean;
@@ -20,6 +21,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 }) => {
   const [voicePreference, setVoicePreference] = useState<'male' | 'female'>('male');
   const [showLoginDrawer, setShowLoginDrawer] = useState(false);
+  const [showBreathworkDrawer, setShowBreathworkDrawer] = useState(false);
   const { user, signOut } = useAuth();
   const isDesktop = useDesktopDetection();
   const {
@@ -242,6 +244,39 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           </div>
         </motion.div>
 
+        {/* Breathwork */}
+        <motion.div
+          className="relative glass-subtle rounded-2xl p-6 shadow-sm"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-6">
+            Tools
+          </h2>
+          <div className="space-y-4">
+            <button
+              onClick={() => setShowBreathworkDrawer(true)}
+              className="relative w-full py-4 px-4 rounded-xl border border-ink-muted/30 dark:border-paper-light/20 hover:border-ink-muted/50 dark:hover:border-paper-light/40 transition-all text-left overflow-hidden group"
+            >
+              <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative z-10 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
+                  <Wind className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div className="flex-1">
+                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
+                    Breathwork Tool
+                  </div>
+                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
+                    Guided breathing exercises for focus and calm
+                  </div>
+                </div>
+              </div>
+            </button>
+          </div>
+        </motion.div>
+
         {/* App */}
         <motion.div
           className="relative glass-subtle rounded-2xl p-6 shadow-sm"
@@ -398,6 +433,12 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
       {showLoginDrawer && (
         <WelcomeDrawer />
       )}
+
+      {/* Breathwork Drawer */}
+      <BreathworkDrawer
+        isOpen={showBreathworkDrawer}
+        onClose={() => setShowBreathworkDrawer(false)}
+      />
     </div>
   );
 };
