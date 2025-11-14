@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, PanInfo } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 import { X, Mail, Lock, User } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -170,8 +170,14 @@ const WelcomeDrawer: React.FC = () => {
 
   // Drag functionality - hooks must be called unconditionally
   const y = useMotionValue(0);
-  const backdropOpacity = useTransform(y, [0, 200], [1, 0]);
   const DRAG_THRESHOLD = 100; // pixels to drag before closing
+  
+  // Ensure backdrop is visible when drawer is open
+  const [backdropVisible, setBackdropVisible] = useState(false);
+  
+  useEffect(() => {
+    setBackdropVisible(showDrawer);
+  }, [showDrawer]);
 
   const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     // If dragged down more than threshold, close drawer
@@ -201,16 +207,15 @@ const WelcomeDrawer: React.FC = () => {
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: backdropVisible ? 1 : 0 }}
             exit={{ opacity: 0 }}
             transition={{ 
               type: 'tween',
               ease: 'easeOut',
               duration: 0.25
             }}
-            style={{ opacity: backdropOpacity }}
             onClick={handleDismiss}
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-black/50 backdrop-blur-md z-40"
           />
 
           {/* Drawer */}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, PanInfo } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { BookChapter } from '../types';
 import { partDescriptions } from '../data/bookContent';
@@ -177,8 +177,14 @@ const BookIntroDrawer: React.FC<BookIntroDrawerProps> = ({
 
   // Drag functionality - same as WelcomeDrawer
   const y = useMotionValue(0);
-  const backdropOpacity = useTransform(y, [0, 200], [1, 0]);
   const DRAG_THRESHOLD = 100; // pixels to drag before closing
+  
+  // Ensure backdrop is visible when drawer is open
+  const [backdropVisible, setBackdropVisible] = useState(false);
+  
+  useEffect(() => {
+    setBackdropVisible(isOpen);
+  }, [isOpen]);
 
   const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     // If dragged down more than threshold, close drawer
@@ -197,16 +203,15 @@ const BookIntroDrawer: React.FC<BookIntroDrawerProps> = ({
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: backdropVisible ? 1 : 0 }}
             exit={{ opacity: 0 }}
             transition={{ 
               type: 'tween',
               ease: 'easeOut',
               duration: 0.25
             }}
-            style={{ opacity: backdropOpacity }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-black/50 backdrop-blur-md z-40"
           />
 
           {/* Drawer */}

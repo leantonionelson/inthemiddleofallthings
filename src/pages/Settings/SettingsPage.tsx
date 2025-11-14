@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import StandardHeader from '../../components/StandardHeader';
+import { useNavigate } from 'react-router-dom';
 import { audioManagerService } from '../../services/audioManager';
 import InstallButton from '../../components/InstallButton';
 import { useAuth } from '../../hooks/useAuth';
@@ -8,7 +8,7 @@ import WelcomeDrawer from '../../components/WelcomeDrawer';
 import BreathworkDrawer from '../../components/BreathworkDrawer';
 import { useAppUpdate } from '../../hooks/useAppUpdate';
 import { useDesktopDetection } from '../../hooks/useDesktopDetection';
-import { RefreshCw, Download, CheckCircle, AlertCircle, Wind } from 'lucide-react';
+import { RefreshCw, Download, CheckCircle, AlertCircle, Wind, Sun, Moon, ArrowLeft } from 'lucide-react';
 
 interface SettingsPageProps {
   isDarkMode: boolean;
@@ -19,6 +19,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   isDarkMode,
   onToggleTheme
 }) => {
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<'tools' | 'settings'>('tools');
   const [voicePreference, setVoicePreference] = useState<'male' | 'female'>('male');
   const [showLoginDrawer, setShowLoginDrawer] = useState(false);
   const [showBreathworkDrawer, setShowBreathworkDrawer] = useState(false);
@@ -73,28 +75,127 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
       </div>
 
       <div className="relative z-10">
-        <StandardHeader
-          title="Settings"
-          showBackButton={true}
-        />
+        {/* Custom Header with Back Button, Tabs, and Theme Toggle */}
+        <motion.header
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="sticky top-0 z-20"
+        >
+          <div className="max-w-4xl mx-auto px-4 py-3">
+            <div className="flex items-center gap-3">
+              {/* Back Button */}
+              <motion.button
+                onClick={() => navigate(-1)}
+                className="flex items-center justify-center w-10 h-10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300 flex-shrink-0"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </motion.button>
+
+              {/* Tabs */}
+              <div className="flex-1 border-b border-gray-200 dark:border-white/10">
+                <nav aria-label="Tabs" className="-mb-px flex">
+                  <button
+                    onClick={() => setActiveTab('tools')}
+                    aria-current={activeTab === 'tools' ? 'page' : undefined}
+                    className={`flex-1 border-b-2 px-1 py-4 text-center text-sm font-medium transition-colors ${
+                      activeTab === 'tools'
+                        ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-white/20 dark:hover:text-gray-300'
+                    }`}
+                  >
+                    Tools
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('settings')}
+                    aria-current={activeTab === 'settings' ? 'page' : undefined}
+                    className={`flex-1 border-b-2 px-1 py-4 text-center text-sm font-medium transition-colors ${
+                      activeTab === 'settings'
+                        ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-white/20 dark:hover:text-gray-300'
+                    }`}
+                  >
+                    Settings
+                  </button>
+                </nav>
+              </div>
+
+              {/* Theme Toggle */}
+              <motion.button
+                onClick={onToggleTheme}
+                className="flex items-center justify-center w-10 h-10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300 flex-shrink-0"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {isDarkMode ? (
+                  <Sun className="w-5 h-5" />
+                ) : (
+                  <Moon className="w-5 h-5" />
+                )}
+              </motion.button>
+            </div>
+          </div>
+        </motion.header>
 
       {/* Content */}
       <div 
         className="p-6 max-w-2xl mx-auto w-full"
         style={{
-          height: 'calc(100vh - 158px)',
+          height: 'calc(100vh - 160px)',
           overflowY: 'auto',
           WebkitOverflowScrolling: 'touch'
         }}
       >
+
         <div className="space-y-6 pb-6">
-        {/* Profile */}
-        <motion.div
-          className="relative glass-subtle rounded-2xl p-6 shadow-sm"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.15 }}
-        >
+        {/* Tools Tab Content */}
+        {activeTab === 'tools' && (
+          <>
+            {/* Breathwork */}
+            <motion.div
+              className="relative glass-subtle rounded-2xl p-6 shadow-sm"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+            >
+           
+              <div className="space-y-4">
+                <button
+                  onClick={() => setShowBreathworkDrawer(true)}
+                  className="relative w-full py-4 px-4 rounded-xl border border-ink-muted/30 dark:border-paper-light/20 hover:border-ink-muted/50 dark:hover:border-paper-light/40 transition-all text-left overflow-hidden group"
+                >
+                  <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="relative z-10 flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
+                      <Wind className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
+                        Breathwork Tool
+                      </div>
+                      <div className="text-sm text-ink-secondary dark:text-ink-muted">
+                        Guided breathing exercises for focus and calm
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+
+        {/* Settings Tab Content */}
+        {activeTab === 'settings' && (
+          <>
+            {/* Profile */}
+            <motion.div
+              className="relative glass-subtle rounded-2xl p-6 shadow-sm"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+            >
           <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-6">
             Profile
           </h2>
@@ -152,41 +253,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           )}
         </motion.div>
 
-        {/* Appearance */}
-        <motion.div
-          className="relative glass-subtle rounded-2xl p-6 shadow-sm"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.25 }}
-        >
-          <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-6">
-            Appearance
-          </h2>
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-base text-ink-primary dark:text-paper-light font-medium">
-                Dark Mode
-              </span>
-              <p className="text-sm text-ink-secondary dark:text-ink-muted mt-1">
-                Toggle between light and dark themes
-              </p>
-            </div>
-            <button
-              onClick={onToggleTheme}
-              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors duration-300 ${
-                isDarkMode ? 'bg-ink-primary dark:bg-paper-light' : 'bg-ink-muted/30 dark:bg-paper-light/20'
-              }`}
-            >
-              <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-paper-light dark:bg-ink-primary transition-transform duration-300 shadow-sm ${
-                  isDarkMode ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Audio */}
+            {/* Audio */}
         <motion.div
           className="relative glass-subtle rounded-2xl p-6 shadow-sm"
           initial={{ opacity: 0, y: 20 }}
@@ -244,40 +311,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           </div>
         </motion.div>
 
-        {/* Breathwork */}
-        <motion.div
-          className="relative glass-subtle rounded-2xl p-6 shadow-sm"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-6">
-            Tools
-          </h2>
-          <div className="space-y-4">
-            <button
-              onClick={() => setShowBreathworkDrawer(true)}
-              className="relative w-full py-4 px-4 rounded-xl border border-ink-muted/30 dark:border-paper-light/20 hover:border-ink-muted/50 dark:hover:border-paper-light/40 transition-all text-left overflow-hidden group"
-            >
-              <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative z-10 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
-                  <Wind className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="flex-1">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Breathwork Tool
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Guided breathing exercises for focus and calm
-                  </div>
-                </div>
-              </div>
-            </button>
-          </div>
-        </motion.div>
-
-        {/* App */}
+            {/* App */}
         <motion.div
           className="relative glass-subtle rounded-2xl p-6 shadow-sm"
           initial={{ opacity: 0, y: 20 }}
@@ -413,6 +447,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
             </div>
           )}
         </motion.div>
+          </>
+        )}
 
         {/* Footer */}
         <motion.div

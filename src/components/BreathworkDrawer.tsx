@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
-import { X, Play, Square, ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence, useMotionValue, PanInfo } from 'framer-motion';
+import { X, Play, Square } from 'lucide-react';
+import { useSwipeNavigation } from '../hooks/useSwipeNavigation';
 
 interface BreathingTechnique {
   id: string;
@@ -130,8 +131,14 @@ const BreathworkDrawer: React.FC<BreathworkDrawerProps> = ({
 
   // Drag functionality
   const y = useMotionValue(0);
-  const backdropOpacity = useTransform(y, [0, 200], [1, 0]);
   const DRAG_THRESHOLD = 100;
+  
+  // Ensure backdrop is visible when drawer is open
+  const [backdropVisible, setBackdropVisible] = useState(false);
+  
+  useEffect(() => {
+    setBackdropVisible(isOpen);
+  }, [isOpen]);
 
   const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (info.offset.y > DRAG_THRESHOLD || info.velocity.y > 500) {
@@ -189,8 +196,8 @@ const BreathworkDrawer: React.FC<BreathworkDrawerProps> = ({
       const activePhase = currentPhaseRef.current;
       
       let phaseDuration = 0;
-      let startScale = previousPhaseEndScaleRef.current;
-      let startOpacity = previousPhaseEndOpacityRef.current;
+      const startScale = previousPhaseEndScaleRef.current;
+      const startOpacity = previousPhaseEndOpacityRef.current;
       let targetScale = 0;
       let targetOpacity = 0;
 
@@ -389,6 +396,19 @@ const BreathworkDrawer: React.FC<BreathworkDrawerProps> = ({
     return cleanup;
   }, [isActive, currentTechnique, maxScale]);
 
+  // Stop breathwork session when drawer closes
+  useEffect(() => {
+    if (!isOpen && isActive) {
+      setIsActive(false);
+      cleanup();
+      setCurrentPhase('idle');
+      setCircleScale(0);
+      setCircleOpacity(0);
+      setPulseScale(1);
+      setColorIntensity(1);
+    }
+  }, [isOpen, isActive]);
+
   // Cleanup on unmount or close
   useEffect(() => {
     return () => {
@@ -425,6 +445,13 @@ const BreathworkDrawer: React.FC<BreathworkDrawerProps> = ({
     handleTechniqueChange(newIndex);
   };
 
+  // Swipe navigation for techniques
+  const swipeNavigation = useSwipeNavigation({
+    onSwipeLeft: handleNextTechnique,
+    onSwipeRight: handlePreviousTechnique,
+    threshold: 50
+  });
+
   const getPhaseText = () => {
     switch (currentPhase) {
       case 'inhale':
@@ -447,16 +474,15 @@ const BreathworkDrawer: React.FC<BreathworkDrawerProps> = ({
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: backdropVisible ? 1 : 0 }}
             exit={{ opacity: 0 }}
             transition={{ 
               type: 'tween',
               ease: 'easeOut',
               duration: 0.25
             }}
-            style={{ opacity: backdropOpacity }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-[55]"
+            className="fixed inset-0 bg-black/50 backdrop-blur-md z-[55]"
           />
 
           {/* Drawer */}
@@ -507,20 +533,14 @@ const BreathworkDrawer: React.FC<BreathworkDrawerProps> = ({
               </button>
             </div>
 
-            {/* Scrollable Content */}
+            {/* Content */}
             <div 
-              className="relative z-10 flex-1 overflow-y-auto flex flex-col" 
-              style={{ touchAction: 'pan-y' }}
-              onTouchStart={(e) => {
-                const target = e.target as HTMLElement;
-                if (target.closest('input, textarea, button, a')) {
-                  return;
-                }
-              }}
+              className="relative z-10 flex-1 overflow-hidden flex flex-col" 
+              style={{ touchAction: 'none' }}
             >
-              <div className="flex-1 flex flex-col p-4 sm:p-6">
+              <div className="flex-1 flex flex-col p-4 sm:p-6 pb-12 sm:pb-16">
                 {/* Header - transitions between "Breathwork" and phase text */}
-                <div className="text-center mb-3 sm:mb-4 flex-shrink-0 min-h-[3.5rem] sm:min-h-[4rem] flex items-center justify-center">
+                <div className="text-center mb-1 flex-shrink-0 flex items-center justify-center">
                   <AnimatePresence mode="wait">
                     {isActive ? (
                       <motion.h3
@@ -548,19 +568,24 @@ const BreathworkDrawer: React.FC<BreathworkDrawerProps> = ({
                   </AnimatePresence>
                 </div>
                 <div className="text-center mb-3 sm:mb-4 flex-shrink-0">
-                  <p className="text-xs sm:text-sm text-ink-secondary dark:text-ink-muted">
+                  <p className="text-sm sm:text-sm text-ink-secondary dark:text-ink-muted">
                     Focus on the dot and breath
                   </p>
                 </div>
 
                 {/* Breathing Visualization */}
-                <div className="flex-1 flex flex-col items-center justify-center mb-4 sm:mb-6 min-h-0">
+                <div className="flex-1 flex flex-col items-center justify-center mb-4 sm:mb-6 min-h-0" style={{ maxHeight: 'calc(40vh - 2rem)' }}>
 
                   {/* Breathing Circle Container - responsive */}
                   <div 
                     ref={containerRef}
-                    className="relative flex items-center justify-center flex-1 w-full max-w-full aspect-square"
-                    style={{ minWidth: '200px', minHeight: '200px' }}
+                    className="relative flex items-center justify-center aspect-square w-full max-w-[400px]"
+                    style={{ 
+                      minWidth: '150px', 
+                      minHeight: '150px',
+                      maxHeight: '35vh',
+                      maxWidth: '35vh'
+                    }}
                   >
                     {/* Animated Circle - expands from center dot with wave effect */}
                     <motion.div
@@ -632,30 +657,23 @@ const BreathworkDrawer: React.FC<BreathworkDrawerProps> = ({
                   </div>
                   
                   {/* Carousel Container */}
-                  <div className="relative">
-                    {/* Navigation Buttons */}
-                    <button
-                      onClick={handlePreviousTechnique}
-                      className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-1.5 sm:p-2 rounded-full bg-white dark:bg-gray-800 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                      aria-label="Previous technique"
-                    >
-                      <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-ink-primary dark:text-paper-light" />
-                    </button>
-                    
-                    <button
-                      onClick={handleNextTechnique}
-                      className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-1.5 sm:p-2 rounded-full bg-white dark:bg-gray-800 shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                      aria-label="Next technique"
-                    >
-                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-ink-primary dark:text-paper-light" />
-                    </button>
-
+                  <div 
+                    className="relative overflow-hidden"
+                    onTouchStart={swipeNavigation.handleTouchStart}
+                    onTouchMove={swipeNavigation.handleTouchMove}
+                    onTouchEnd={swipeNavigation.handleTouchEnd}
+                  >
                     {/* Technique Cards Container */}
-                    <div className="overflow-hidden px-8 sm:px-10">
-                      <div 
-                        className="flex transition-transform duration-300 ease-in-out"
-                        style={{
-                          transform: `translateX(-${currentTechniqueIndex * 100}%)`
+                    <div className="overflow-hidden px-10 sm:px-12">
+                      <motion.div 
+                        className="flex"
+                        animate={{
+                          x: `-${currentTechniqueIndex * 100}%`
+                        }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 30
                         }}
                       >
                         {breathingTechniques.map((technique, index) => (
@@ -669,7 +687,6 @@ const BreathworkDrawer: React.FC<BreathworkDrawerProps> = ({
                                   ? 'border-blue-500 dark:border-blue-400 bg-blue-50 dark:bg-blue-900/20'
                                   : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800'
                               }`}
-                              style={{ minHeight: '120px' }}
                               whileHover={index === currentTechniqueIndex ? {} : { scale: 1.02 }}
                               onClick={() => handleTechniqueChange(index)}
                             >
@@ -737,7 +754,7 @@ const BreathworkDrawer: React.FC<BreathworkDrawerProps> = ({
                             </motion.div>
                           </div>
                         ))}
-                      </div>
+                      </motion.div>
                     </div>
 
                     {/* Dots Indicator */}

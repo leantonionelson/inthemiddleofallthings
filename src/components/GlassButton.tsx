@@ -21,7 +21,7 @@ const GlassButton: React.FC<GlassButtonProps> = ({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`relative flex items-center gap-2 px-6 py-3 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group text-sm ${
+      className={`relative flex items-center gap-2 px-5 py-2.5 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group text-sm ${
         disabled ? 'opacity-50 cursor-not-allowed' : ''
       } ${className}`}
     >
