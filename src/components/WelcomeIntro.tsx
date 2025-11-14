@@ -170,7 +170,7 @@ This text is a mirror. Don't just read it. Commune with it. Use it to build the 
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[100] overflow-hidden"
+          className="fixed inset-0 z-[100] overflow-hidden bg-paper-light dark:bg-slate-950/75"
         >
           {/* Background Video */}
           <div className="absolute inset-0 z-0 overflow-hidden">

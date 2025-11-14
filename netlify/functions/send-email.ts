@@ -11,16 +11,20 @@ interface EmailRequest {
   text?: string;
 }
 
+// CORS headers helper
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Content-Type': 'application/json',
+};
+
 export const handler: Handler = async (event, context) => {
   // Handle CORS preflight
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      },
+      headers: corsHeaders,
       body: '',
     };
   }
@@ -29,9 +33,7 @@ export const handler: Handler = async (event, context) => {
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-      },
+      headers: corsHeaders,
       body: JSON.stringify({ error: 'Method not allowed' }),
     };
   }
@@ -45,15 +47,21 @@ export const handler: Handler = async (event, context) => {
     if (!email || !email.includes('@')) {
       return {
         statusCode: 400,
+        headers: corsHeaders,
         body: JSON.stringify({ error: 'Valid email address is required' }),
       };
     }
 
     // Check if API key is configured
     if (!process.env.RESEND_API_KEY) {
+      console.error('RESEND_API_KEY is not configured');
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: 'Email service not configured' }),
+        headers: corsHeaders,
+        body: JSON.stringify({ 
+          error: 'Email service not configured. Please contact support.',
+          details: 'RESEND_API_KEY environment variable is missing'
+        }),
       };
     }
 
@@ -113,18 +121,17 @@ Find the middle. Live from it.
       console.error('Resend error:', error);
       return {
         statusCode: 500,
-        body: JSON.stringify({ error: error.message || 'Failed to send email' }),
+        headers: corsHeaders,
+        body: JSON.stringify({ 
+          error: error.message || 'Failed to send email',
+          details: 'Resend API error'
+        }),
       };
     }
 
     return {
       statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      },
+      headers: corsHeaders,
       body: JSON.stringify({
         success: true,
         message: 'Email sent successfully',
@@ -135,8 +142,10 @@ Find the middle. Live from it.
     console.error('Error sending email:', error);
     return {
       statusCode: 500,
+      headers: corsHeaders,
       body: JSON.stringify({
         error: error instanceof Error ? error.message : 'An unexpected error occurred',
+        details: 'Function execution error'
       }),
     };
   }
