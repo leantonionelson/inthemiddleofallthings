@@ -1,4 +1,4 @@
-# **Lens**
+# Lens
 
 **Tags:** consciousness, awareness, identity, perception, unity, separation, wholeness, mirror, fractal, becoming, love, lens, reflection, transformation, self-knowledge, recognition
 

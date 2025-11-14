@@ -57,6 +57,8 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
 }) => {
   const internalContentRef = useRef<HTMLDivElement>(null);
   const contentRef = externalContentRef || internalContentRef;
+  const tagsContainerRef = useRef<HTMLDivElement>(null);
+  const touchStartedInTagsRef = useRef<boolean>(false);
   const [isAudioPlaying, setIsAudioPlaying] = React.useState(false);
   const [playbackState, setPlaybackState] = React.useState<AudioPlaybackState | null>(null);
 
@@ -131,6 +133,43 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
     onSwipeLeft: onNext,
     onSwipeRight: onPrevious
   });
+
+  // Check if touch event is within tags container
+  const isTouchInTagsContainer = React.useCallback((e: React.TouchEvent) => {
+    if (!tagsContainerRef.current) return false;
+    const touch = e.touches[0] || e.changedTouches[0];
+    if (!touch) return false;
+    const rect = tagsContainerRef.current.getBoundingClientRect();
+    return (
+      touch.clientX >= rect.left &&
+      touch.clientX <= rect.right &&
+      touch.clientY >= rect.top &&
+      touch.clientY <= rect.bottom
+    );
+  }, []);
+
+  // Wrapped touch handlers that ignore touches in tags container
+  const handleTouchStart = React.useCallback((e: React.TouchEvent) => {
+    // Check if touch started in tags container
+    touchStartedInTagsRef.current = isTouchInTagsContainer(e);
+    if (!touchStartedInTagsRef.current) {
+      swipeHandlers.handleTouchStart(e);
+    }
+  }, [isTouchInTagsContainer, swipeHandlers]);
+
+  const handleTouchMove = React.useCallback((e: React.TouchEvent) => {
+    if (!touchStartedInTagsRef.current) {
+      swipeHandlers.handleTouchMove(e);
+    }
+  }, [swipeHandlers]);
+
+  const handleTouchEnd = React.useCallback((e: React.TouchEvent) => {
+    if (!touchStartedInTagsRef.current) {
+      swipeHandlers.handleTouchEnd(e);
+    }
+    // Reset flag after touch ends
+    touchStartedInTagsRef.current = false;
+  }, [swipeHandlers]);
 
   // Determine padding top based on content type and audio state
   const getPaddingTop = () => {
@@ -235,9 +274,9 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
           transform: isAudioPlaying ? 'translateY(80px)' : 'none',
           transition: 'transform 0.3s ease-out, padding-top 0.3s ease-out'
         }}
-        onTouchStart={swipeHandlers.handleTouchStart}
-        onTouchMove={swipeHandlers.handleTouchMove}
-        onTouchEnd={swipeHandlers.handleTouchEnd}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         itemScope
         itemType="https://schema.org/Article"
       >
@@ -257,17 +296,27 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
             )}
             
             {tags && tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-6" role="list" aria-label="Content tags">
-                {tags.map((tag, index) => (
-                  <span
-                    key={`${tag}-${index}`}
-                    className="px-3 py-1 bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted rounded-full text-sm"
-                    role="listitem"
-                    itemProp="keywords"
-                  >
-                    {tag}
-                  </span>
-                ))}
+              <div className="mb-6 -mx-6 px-6">
+                <div 
+                  ref={tagsContainerRef}
+                  className="overflow-x-auto scrollbar-hide" 
+                  role="list" 
+                  aria-label="Content tags"
+                  style={{ touchAction: 'pan-x' }}
+                >
+                  <div className="flex gap-2" style={{ width: 'max-content' }}>
+                    {tags.map((tag, index) => (
+                      <span
+                        key={`${tag}-${index}`}
+                        className="px-3 py-1 bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted rounded-full text-sm whitespace-nowrap flex-shrink-0"
+                        role="listitem"
+                        itemProp="keywords"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
           </header>

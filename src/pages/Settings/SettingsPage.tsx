@@ -6,9 +6,11 @@ import InstallButton from '../../components/InstallButton';
 import { useAuth } from '../../hooks/useAuth';
 import WelcomeDrawer from '../../components/WelcomeDrawer';
 import BreathworkDrawer from '../../components/BreathworkDrawer';
+import EyeToolsDrawer from '../../components/EyeToolsDrawer';
+import OpticalIllusionDrawer from '../../components/OpticalIllusionDrawer';
 import { useAppUpdate } from '../../hooks/useAppUpdate';
 import { useDesktopDetection } from '../../hooks/useDesktopDetection';
-import { RefreshCw, Download, CheckCircle, AlertCircle, Wind, Sun, Moon, ArrowLeft } from 'lucide-react';
+import { RefreshCw, Download, CheckCircle, AlertCircle, Wind, Eye, Sparkles, Sun, Moon, ArrowLeft } from 'lucide-react';
 
 interface SettingsPageProps {
   isDarkMode: boolean;
@@ -24,6 +26,8 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   const [voicePreference, setVoicePreference] = useState<'male' | 'female'>('male');
   const [showLoginDrawer, setShowLoginDrawer] = useState(false);
   const [showBreathworkDrawer, setShowBreathworkDrawer] = useState(false);
+  const [showEyeToolsDrawer, setShowEyeToolsDrawer] = useState(false);
+  const [showOpticalIllusionDrawer, setShowOpticalIllusionDrawer] = useState(false);
   const { user, signOut } = useAuth();
   const isDesktop = useDesktopDetection();
   const {
@@ -152,38 +156,77 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
         <div className="space-y-6 pb-6">
         {/* Tools Tab Content */}
         {activeTab === 'tools' && (
-          <>
-            {/* Breathwork */}
-            <motion.div
-              className="relative glass-subtle rounded-2xl p-6 shadow-sm"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15 }}
-            >
-           
-              <div className="space-y-4">
-                <button
-                  onClick={() => setShowBreathworkDrawer(true)}
-                  className="relative w-full py-4 px-4 rounded-xl border border-ink-muted/30 dark:border-paper-light/20 hover:border-ink-muted/50 dark:hover:border-paper-light/40 transition-all text-left overflow-hidden group"
-                >
-                  <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  <div className="relative z-10 flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
-                      <Wind className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          <motion.div
+            className="relative glass-subtle rounded-2xl p-6 shadow-sm"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+          >
+            <div className="space-y-4">
+              {/* Breathwork */}
+              <button
+                onClick={() => setShowBreathworkDrawer(true)}
+                className="relative w-full py-4 px-4 rounded-xl border border-ink-muted/30 dark:border-paper-light/20 hover:border-ink-muted/50 dark:hover:border-paper-light/40 transition-all text-left overflow-hidden group"
+              >
+                <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
+                    <Wind className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
+                      Breathwork Tool
                     </div>
-                    <div className="flex-1">
-                      <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                        Breathwork Tool
-                      </div>
-                      <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                        Guided breathing exercises for focus and calm
-                      </div>
+                    <div className="text-sm text-ink-secondary dark:text-ink-muted">
+                      Guided breathing exercises for focus and calm
                     </div>
                   </div>
-                </button>
-              </div>
-            </motion.div>
-          </>
+                </div>
+              </button>
+
+              {/* Eye Tools */}
+              <button
+                onClick={() => setShowEyeToolsDrawer(true)}
+                className="relative w-full py-4 px-4 rounded-xl border border-ink-muted/30 dark:border-paper-light/20 hover:border-ink-muted/50 dark:hover:border-paper-light/40 transition-all text-left overflow-hidden group"
+              >
+                <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center flex-shrink-0">
+                    <Eye className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
+                      Eye Tools
+                    </div>
+                    <div className="text-sm text-ink-secondary dark:text-ink-muted">
+                      Visual exercises for eye health and calm
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              {/* Optical Illusions */}
+              <button
+                onClick={() => setShowOpticalIllusionDrawer(true)}
+                className="relative w-full py-4 px-4 rounded-xl border border-ink-muted/30 dark:border-paper-light/20 hover:border-ink-muted/50 dark:hover:border-paper-light/40 transition-all text-left overflow-hidden group"
+              >
+                <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
+                      Optical Illusions
+                    </div>
+                    <div className="text-sm text-ink-secondary dark:text-ink-muted">
+                      Visual meditation through optical illusions
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </motion.div>
         )}
 
         {/* Settings Tab Content */}
@@ -474,6 +517,18 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
       <BreathworkDrawer
         isOpen={showBreathworkDrawer}
         onClose={() => setShowBreathworkDrawer(false)}
+      />
+
+      {/* Eye Tools Drawer */}
+      <EyeToolsDrawer
+        isOpen={showEyeToolsDrawer}
+        onClose={() => setShowEyeToolsDrawer(false)}
+      />
+
+      {/* Optical Illusion Drawer */}
+      <OpticalIllusionDrawer
+        isOpen={showOpticalIllusionDrawer}
+        onClose={() => setShowOpticalIllusionDrawer(false)}
       />
     </div>
   );

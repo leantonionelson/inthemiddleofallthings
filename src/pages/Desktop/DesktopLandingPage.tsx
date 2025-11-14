@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFitText } from 'react-use-fittext';
-import { BookOpen, Scale, Scroll, ArrowLeft, ArrowRight, Headphones, Mail } from 'lucide-react';
+import { BookOpen, Scale, Scroll, ArrowLeft, ArrowRight, Headphones, Mail, Eye, Sparkles } from 'lucide-react';
 import { generateQuoteCards, QuoteCard } from '../../utils/quoteExtractor';
 import { loadBookChapters } from '../../data/bookContent';
 import { loadMeditations } from '../../data/meditationContent';
@@ -493,12 +493,14 @@ const DesktopLandingPage: React.FC = () => {
             >
               INSIDE THE APP
             </motion.h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
                 { icon: Scale, title: 'Meditations', desc: 'Gentle practices to bring awareness back to body, breath, and presence.' },
                 { icon: BookOpen, title: 'The Book', desc: 'Read In the Middle of All Things in its intended form – four parts, one living thread.' },
                 { icon: Scroll, title: 'Stories', desc: 'Philosophical tales that illuminate the deeper questions of being.' },
                 { icon: Headphones, title: 'Audio', desc: 'Every chapter and meditation voiced with a calm, resonant tone.' },
+                { icon: Eye, title: 'Eye Tools', desc: 'Visual exercises to regulate, restore, and expand your vision. Ten exercises for eye health, calm, and grounding.' },
+                { icon: Sparkles, title: 'Optical Illusions', desc: 'Visual meditation through breathing tunnels and warping patterns. Soften your gaze and let perception shift.' },
               ].map((item, index) => (
                 <motion.div
                   key={item.title}
