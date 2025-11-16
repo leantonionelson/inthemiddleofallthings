@@ -617,9 +617,23 @@ input[type="range"]::-webkit-slider-runnable-track {
   height: 8px;
   border-radius: 4px;
   margin: 5px 0;
+  background: rgb(229, 231, 235);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark input[type="range"]::-webkit-slider-runnable-track {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 input[type="range"]::-moz-range-track {
   height: 8px;
   border-radius: 4px;
+  background: rgb(229, 231, 235);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dark input[type="range"]::-moz-range-track {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }

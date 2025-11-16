@@ -104,10 +104,26 @@ const ContentCarousel: React.FC<ContentCarouselProps> = ({
     );
   }
 
+  // Prevent swipe navigation when interacting with carousel
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation();
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.stopPropagation();
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <div 
       ref={carouselRef}
       className="w-screen overflow-x-auto scrollbar-hide -ml-6 scroll-smooth"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       <div className="flex gap-2 pl-6 pr-6 py-4 pb-6" style={{ width: 'max-content' }}>
         {showInitialSkeletons ? (

@@ -5,6 +5,7 @@ import BookLandingPage from '../Book/BookLandingPage';
 import MeditationsLandingPage from '../Meditations/MeditationsLandingPage';
 import StoriesLandingPage from '../Stories/StoriesLandingPage';
 import SearchBar from '../../components/SearchBar';
+import { useSwipeNavigation } from '../../hooks/useSwipeNavigation';
 
 type TabType = 'book' | 'meditations' | 'stories';
 
@@ -57,6 +58,24 @@ const ReadPage: React.FC = () => {
       setMeditationsSearchFocused(false);
     }
   };
+
+  // Swipe navigation for tabs
+  const tabs: TabType[] = ['book', 'meditations', 'stories'];
+  const currentTabIndex = tabs.indexOf(activeTab);
+  
+  const { handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeNavigation({
+    onSwipeLeft: () => {
+      if (currentTabIndex < tabs.length - 1) {
+        setActiveTab(tabs[currentTabIndex + 1]);
+      }
+    },
+    onSwipeRight: () => {
+      if (currentTabIndex > 0) {
+        setActiveTab(tabs[currentTabIndex - 1]);
+      }
+    },
+    threshold: 50
+  });
 
 
   return (
@@ -132,6 +151,9 @@ const ReadPage: React.FC = () => {
           marginTop: '54px',
           height: 'calc(100vh - 140px)',
         }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
           {activeTab === 'book' && (
             <motion.div

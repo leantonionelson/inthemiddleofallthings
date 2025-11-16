@@ -436,8 +436,27 @@ const SynchronizedCarousel: React.FC<SynchronizedCarouselProps> = ({
     );
   }
 
+  // Prevent swipe navigation when interacting with carousel
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.stopPropagation();
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    e.stopPropagation();
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div ref={containerRef} className="flex flex-col gap-2">
+    <div 
+      ref={containerRef} 
+      className="flex flex-col gap-2"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Row 1 */}
       <div 
         ref={row1Ref}

@@ -7,6 +7,7 @@ import { useAuth } from '../../hooks/useAuth';
 import WelcomeDrawer from '../../components/WelcomeDrawer';
 import { useAppUpdate } from '../../hooks/useAppUpdate';
 import { useDesktopDetection } from '../../hooks/useDesktopDetection';
+import { useSwipeNavigation } from '../../hooks/useSwipeNavigation';
 import { RefreshCw, Download, CheckCircle, AlertCircle, Sun, Moon, ArrowLeft } from 'lucide-react';
 
 interface SettingsPageProps {
@@ -31,6 +32,21 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
     checkForUpdates,
     applyUpdate,
   } = useAppUpdate();
+
+  // Swipe navigation for tabs
+  const { handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeNavigation({
+    onSwipeLeft: () => {
+      if (activeTab === 'profile') {
+        setActiveTab('settings');
+      }
+    },
+    onSwipeRight: () => {
+      if (activeTab === 'settings') {
+        setActiveTab('profile');
+      }
+    },
+    threshold: 50
+  });
 
   useEffect(() => {
     // Load voice preference setting
@@ -145,6 +161,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           overflowY: 'auto',
           WebkitOverflowScrolling: 'touch'
         }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
 
         <div className="space-y-6 pb-6">

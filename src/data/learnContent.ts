@@ -52,8 +52,8 @@ function generateSlug(title: string): string {
 const allModules: Omit<LearnModule, 'moduleNumber' | 'totalModules'>[] = [
   // Section 1: Gauge Theory & Field Theory
   {
-    id: 'gauge-theory-coherence-across-freedom',
-    title: 'Gauge Theory – Coherence Across Freedom',
+    id: 'gauge-theory',
+    title: 'Gauge Theory – Coherence Across Difference',
     content: 'Placeholder content for Gauge Theory module. This module explores how symmetry principles give rise to fundamental forces.',
     section: 'Gauge Theory & Field Theory',
     tags: ['physics', 'symmetry', 'fields', 'forces']
