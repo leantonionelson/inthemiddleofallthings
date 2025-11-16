@@ -12,7 +12,19 @@ import SearchOverlay from '../../components/SearchOverlay';
 import ContentListItem from '../../components/ContentListItem';
 import { Heart, Leaf, Star, Moon, Sun, Waves, Mountain, Compass, Flower2, Scale } from 'lucide-react';
 
-const MeditationsLandingPage: React.FC = () => {
+interface MeditationsLandingPageProps {
+  externalSearchQuery?: string;
+  externalSearchFocused?: boolean;
+  onExternalSearchClear?: () => void;
+  hideSearchBar?: boolean;
+}
+
+const MeditationsLandingPage: React.FC<MeditationsLandingPageProps> = ({
+  externalSearchQuery,
+  externalSearchFocused,
+  onExternalSearchClear,
+  hideSearchBar = false
+}) => {
   const [meditations, setMeditations] = useState<Meditation[]>([]);
   const [filteredMeditations, setFilteredMeditations] = useState<Meditation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,8 +34,14 @@ const MeditationsLandingPage: React.FC = () => {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const navigate = useNavigate();
   
+  // Use external search query if provided, otherwise use internal state
+  const effectiveSearchQuery = externalSearchQuery !== undefined ? externalSearchQuery : searchQuery;
+  
+  // Use external search focused state if provided, otherwise use internal state
+  const effectiveSearchFocused = externalSearchFocused !== undefined ? externalSearchFocused : isSearchFocused;
+  
   // Debounce search query to reduce filtering overhead
-  const debouncedSearchQuery = useDebouncedValue(searchQuery, 300);
+  const debouncedSearchQuery = useDebouncedValue(effectiveSearchQuery, 300);
 
   // Listen for storage changes to update completion percentage
   useEffect(() => {
@@ -84,7 +102,11 @@ const MeditationsLandingPage: React.FC = () => {
   const clearAllFilters = useCallback(() => {
     setSelectedTags([]);
     setSearchQuery('');
-  }, []);
+    // If using external search, also clear it
+    if (onExternalSearchClear) {
+      onExternalSearchClear();
+    }
+  }, [onExternalSearchClear]);
 
   // Handle search and tag filtering (using debounced search query)
   useEffect(() => {
@@ -169,7 +191,11 @@ const MeditationsLandingPage: React.FC = () => {
     setSearchQuery('');
     setIsSearchFocused(false);
     setSelectedTags([]);
-  }, []);
+    // If using external search, also clear it
+    if (onExternalSearchClear) {
+      onExternalSearchClear();
+    }
+  }, [onExternalSearchClear]);
 
   const handleSearchBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     if (!e.relatedTarget || !e.relatedTarget.closest('[data-search-overlay]')) {
@@ -190,23 +216,25 @@ const MeditationsLandingPage: React.FC = () => {
 
   return (
     <>
-      {/* Search Bar */}
-      <SearchBar
-        placeholder="Search meditations..."
-        value={searchQuery}
-        onChange={setSearchQuery}
-        onFocus={() => setIsSearchFocused(true)}
-        onBlur={handleSearchBlur}
-        showClearButton={isSearchFocused || !!searchQuery.trim()}
-        onClear={handleSearchClear}
-        isOpen={isSearchFocused || !!searchQuery.trim()}
-      />
+      {/* Search Bar - Only show if not hidden */}
+      {!hideSearchBar && (
+        <SearchBar
+          placeholder="Search meditations..."
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onFocus={() => setIsSearchFocused(true)}
+          onBlur={handleSearchBlur}
+          showClearButton={isSearchFocused || !!searchQuery.trim()}
+          onClear={handleSearchClear}
+          isOpen={isSearchFocused || !!searchQuery.trim()}
+        />
+      )}
 
       {/* Search Overlay */}
       <SearchOverlay
-        isOpen={isSearchFocused || !!searchQuery.trim()}
+        isOpen={effectiveSearchFocused || !!effectiveSearchQuery.trim()}
         onClose={handleSearchClear}
-        searchQuery={searchQuery}
+        searchQuery={effectiveSearchQuery}
         selectedTags={selectedTags}
         allTags={getAllTags()}
         onTagToggle={toggleTag}
@@ -238,7 +266,12 @@ const MeditationsLandingPage: React.FC = () => {
       />
 
 
-      <div className="flex-1 flex flex-col p-6 pb-10 max-w-7xl mx-auto w-full" style={{ paddingTop: '6rem' }}>
+      <div 
+        className="flex-1 flex flex-col p-6 pb-10 pt-0 max-w-7xl mx-auto w-full" 
+        style={{ 
+          paddingTop: hideSearchBar ? '0rem' : '1rem',
+        }}
+      >
         {/* Description */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

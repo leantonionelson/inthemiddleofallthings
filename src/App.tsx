@@ -12,6 +12,10 @@ const DesktopLandingPage = lazy(() => import('./pages/Desktop/DesktopLandingPage
 const BookLandingPage = lazy(() => import('./pages/Book/BookLandingPage'));
 const MeditationsLandingPage = lazy(() => import('./pages/Meditations/MeditationsLandingPage'));
 const StoriesLandingPage = lazy(() => import('./pages/Stories/StoriesLandingPage'));
+const ReadPage = lazy(() => import('./pages/Read/ReadPage'));
+const DoPage = lazy(() => import('./pages/Do/DoPage'));
+const LearnPage = lazy(() => import('./pages/Learn/LearnPage'));
+const LearnModulePage = lazy(() => import('./pages/Learn/LearnModulePage'));
 const ReaderPage = lazy(() => import('./features/Reader/ReaderPage'));
 const MeditationsPage = lazy(() => import('./features/Meditations/MeditationsPage'));
 const StoriesPage = lazy(() => import('./features/Stories/StoriesPage'));
@@ -28,6 +32,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import PersistentLayout from './components/PersistentLayout';
 import DesktopRedirect from './components/DesktopRedirect';
 import { useDesktopDetection } from './hooks/useDesktopDetection';
+import { videoPreloader } from './services/videoPreloader';
 
 const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -35,7 +40,7 @@ const App: React.FC = () => {
   const { user } = useAuth();
   const isDesktop = useDesktopDetection();
 
-  // Initialize app - setup theme
+  // Initialize app - setup theme and preload videos
   useEffect(() => {
     // Check for saved theme preference
     const savedTheme = localStorage.getItem('theme');
@@ -50,6 +55,11 @@ const App: React.FC = () => {
     } else {
       document.documentElement.classList.remove('dark');
     }
+
+    // Preload background videos early for instant playback
+    videoPreloader.preloadVideos().catch((error) => {
+      console.warn('Video preloading failed:', error);
+    });
   }, []);
 
   // Check if welcome intro should be shown
@@ -131,6 +141,7 @@ const App: React.FC = () => {
           loop
           muted
           playsInline
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-70 dark:opacity-100"
         >
           <source src="/media/bg.mp4" type="video/mp4" />
@@ -182,6 +193,30 @@ const App: React.FC = () => {
                 <Route
                   path="/stories-landing"
                   element={<StoriesLandingPage />}
+                />
+
+                {/* Read page with tabs */}
+                <Route
+                  path={AppRoute.READ}
+                  element={<ReadPage />}
+                />
+
+                {/* Do page */}
+                <Route
+                  path={AppRoute.DO}
+                  element={<DoPage />}
+                />
+
+                {/* Learn page */}
+                <Route
+                  path={AppRoute.LEARN}
+                  element={<LearnPage />}
+                />
+
+                {/* Learn module page */}
+                <Route
+                  path="/learn/:moduleSlug"
+                  element={<LearnModulePage />}
                 />
 
                 {/* Reader pages */}

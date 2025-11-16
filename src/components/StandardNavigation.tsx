@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AppRoute } from '../types';
-import { BookOpen, Home, Scale, Scroll } from 'lucide-react';
+import { BookOpen, Home, GraduationCap, Activity } from 'lucide-react';
 
 interface StandardNavigationProps {
   showShadow?: boolean;
@@ -14,20 +14,15 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const getActivePage = () => {
-    switch (location.pathname) {
-      case AppRoute.HOME: return 'home';
-      case '/book': return 'read';
-      case AppRoute.READER: return 'read';
-      case '/meditations-landing': return 'meditations';
-      case AppRoute.MEDITATIONS: return 'meditations';
-      case '/stories-landing': return 'stories';
-      case AppRoute.STORIES: return 'stories';
-      default: return 'home';
-    }
-  };
-
-  const activePage = getActivePage();
+  // Memoize active page calculation to prevent unnecessary re-renders
+  const activePage = useMemo(() => {
+    const path = location.pathname;
+    if (path === AppRoute.HOME) return 'home';
+    if (path === AppRoute.LEARN || path.startsWith(AppRoute.LEARN)) return 'learn';
+    if (path === AppRoute.DO || path.startsWith(AppRoute.DO)) return 'do';
+    if (path === AppRoute.READ || path.startsWith(AppRoute.READ) || path === AppRoute.READER || path.startsWith(AppRoute.READER) || path === '/book' || path === '/meditations-landing' || path === '/stories-landing' || path === AppRoute.MEDITATIONS || path === AppRoute.STORIES) return 'read';
+    return 'home';
+  }, [location.pathname]);
 
   return (
     <div className={`fixed bottom-0 left-0 right-0 z-50 backdrop-blur-sm ${showShadow ? 'shadow-md' : ''}`}>
@@ -47,9 +42,39 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
           <span className="text-xs font-medium">Home</span>
         </motion.button>
 
-        {/* Read Button - routes to book landing page */}
+        {/* Learn Navigation */}
         <motion.button
-          onClick={() => navigate('/book')}
+          onClick={() => navigate(AppRoute.LEARN)}
+          className={`flex flex-col items-center justify-center py-2 px-1 transition-all ${
+            activePage === 'learn'
+              ? 'text-blue-600 dark:text-blue-400'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+          }`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <GraduationCap className="w-6 h-6 mb-1" />
+          <span className="text-xs font-medium">Learn</span>
+        </motion.button>
+
+        {/* Do Navigation */}
+        <motion.button
+          onClick={() => navigate(AppRoute.DO)}
+          className={`flex flex-col items-center justify-center py-2 px-1 transition-all ${
+            activePage === 'do'
+              ? 'text-blue-600 dark:text-blue-400'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+          }`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Activity className="w-6 h-6 mb-1" />
+          <span className="text-xs font-medium">Do</span>
+        </motion.button>
+
+        {/* Read Navigation */}
+        <motion.button
+          onClick={() => navigate(AppRoute.READ)}
           className={`flex flex-col items-center justify-center py-2 px-1 transition-all ${
             activePage === 'read'
               ? 'text-blue-600 dark:text-blue-400'
@@ -59,37 +84,7 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
           whileTap={{ scale: 0.95 }}
         >
           <BookOpen className="w-6 h-6 mb-1" />
-          <span className="text-xs font-medium">Book</span>
-        </motion.button>
-
-        {/* Meditations Navigation - routes to meditations landing page */}
-        <motion.button
-          onClick={() => navigate('/meditations-landing')}
-          className={`flex flex-col items-center justify-center py-2 px-1 transition-all ${
-            activePage === 'meditations'
-              ? 'text-blue-600 dark:text-blue-400'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-          }`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Scale className="w-6 h-6 mb-1" />
-          <span className="text-xs font-medium">Meditations</span>
-        </motion.button>
-
-        {/* Stories Navigation - routes to stories landing page */}
-        <motion.button
-          onClick={() => navigate('/stories-landing')}
-          className={`flex flex-col items-center justify-center py-2 px-1 transition-all ${
-            activePage === 'stories'
-              ? 'text-blue-600 dark:text-blue-400'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-          }`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Scroll className="w-6 h-6 mb-1" />
-          <span className="text-xs font-medium">Stories</span>
+          <span className="text-xs font-medium">Read</span>
         </motion.button>
       </div>
     </div>

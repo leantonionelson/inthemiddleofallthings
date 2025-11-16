@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { BookOpen, Home, Scale, Settings, User, Scroll } from 'lucide-react';
+import { BookOpen, Home, GraduationCap, Activity, Settings, User } from 'lucide-react';
 import { AppRoute } from '../types';
 
 interface DesktopNavigationProps {}
@@ -12,27 +12,23 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const getActivePage = () => {
-    switch (location.pathname) {
-      case AppRoute.HOME: return 'home';
-      case '/book': return 'reader';
-      case AppRoute.READER: return 'reader';
-      case '/meditations-landing': return 'meditations';
-      case AppRoute.MEDITATIONS: return 'meditations';
-      case '/stories-landing': return 'stories';
-      case AppRoute.STORIES: return 'stories';
-      case AppRoute.SETTINGS: return 'settings';
-      default: return '';
-    }
+    const path = location.pathname;
+    if (path === AppRoute.HOME) return 'home';
+    if (path === AppRoute.LEARN || path.startsWith(AppRoute.LEARN)) return 'learn';
+    if (path === AppRoute.DO || path.startsWith(AppRoute.DO)) return 'do';
+    if (path === AppRoute.READ || path.startsWith(AppRoute.READ) || path === AppRoute.READER || path.startsWith(AppRoute.READER) || path === '/book' || path === '/meditations-landing' || path === '/stories-landing' || path === AppRoute.MEDITATIONS || path === AppRoute.STORIES) return 'read';
+    if (path === AppRoute.SETTINGS) return 'settings';
+    return '';
   };
 
   const activePage = getActivePage();
 
-  // All navigation items available to all users - route to landing pages
+  // All navigation items available to all users - route to new pages
   const navigationItems = [
     { id: 'home', label: 'Home', icon: Home, route: AppRoute.HOME },
-    { id: 'reader', label: 'Book', icon: BookOpen, route: '/book' },
-    { id: 'meditations', label: 'Meditations', icon: Scale, route: '/meditations-landing' },
-    { id: 'stories', label: 'Stories', icon: Scroll, route: '/stories-landing' },
+    { id: 'learn', label: 'Learn', icon: GraduationCap, route: AppRoute.LEARN },
+    { id: 'do', label: 'Do', icon: Activity, route: AppRoute.DO },
+    { id: 'read', label: 'Read', icon: BookOpen, route: AppRoute.READ },
   ];
 
   return (

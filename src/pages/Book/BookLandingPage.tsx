@@ -158,10 +158,6 @@ const BookLandingPage: React.FC = () => {
       />
       <main 
         className="flex-1 flex flex-col p-6 pt-6 pb-10 max-w-7xl mx-auto w-full"
-        style={{
-          height: 'calc(100vh - 84px)',
-          overflow: 'scroll'
-        }}
       >
         {/* Description */}
         <motion.header

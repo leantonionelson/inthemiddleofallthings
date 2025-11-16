@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
 import { BookChapter } from '../../types';
 import { loadBookChapters, fallbackChapters } from '../../data/bookContent';
 import { useScrollTracking } from '../../hooks/useScrollTracking';
@@ -20,11 +20,17 @@ const ReaderPage: React.FC = () => {
   const [chapters, setChapters] = useState<BookChapter[]>([]);
   const [isAudioPlayerOpen, setIsAudioPlayerOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const navigate = useNavigate();
 
   const [fontSize, setFontSize] = useState('base');
   
   // Get user capabilities
   useUserCapabilities();
+
+  // Handle back navigation to Read page with book tab
+  const handleBack = useCallback(() => {
+    navigate('/read?tab=book');
+  }, [navigate]);
 
   // Load chapters from MDX files
   useEffect(() => {
@@ -256,6 +262,7 @@ const ReaderPage: React.FC = () => {
         contentRef={contentRef}
         showMobileHeader={true}
         chapter={currentChapter}
+        onBack={handleBack}
       />
 
       {/* Click outside handler for overflow menu */}

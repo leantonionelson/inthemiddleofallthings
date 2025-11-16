@@ -79,6 +79,24 @@ export interface Story {
   lastPosition?: number;
 }
 
+export interface LearnModule {
+  id: string;
+  title: string;
+  content: string;
+  section: string;
+  moduleNumber: number;
+  totalModules: number;
+  tags: string[];
+  isRead?: boolean;
+  lastPosition?: number;
+}
+
+export interface LearnSection {
+  name: string;
+  description: string;
+  order: number;
+}
+
 export interface ReflectionEntry {
   id: string;
   title: string;
@@ -155,9 +173,12 @@ export interface TextHighlight {
 export enum AppRoute {
   HOME = '/',
   AUTH = '/auth',
-  READER = '/read',
+  READ = '/read',
+  READER = '/reader',
   MEDITATIONS = '/meditations',
   STORIES = '/stories',
+  DO = '/do',
+  LEARN = '/learn',
   SETTINGS = '/settings',
   SYMBOLS = '/symbols'
 }

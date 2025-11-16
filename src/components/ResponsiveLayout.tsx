@@ -76,6 +76,7 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
           loop
           muted
           playsInline
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover opacity-70 dark:opacity-100"
         >
           <source src="/media/bg.mp4" type="video/mp4" />

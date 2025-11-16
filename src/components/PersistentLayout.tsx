@@ -12,9 +12,11 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
   const mainRef = useRef<HTMLElement>(null);
   
   // Determine if we're on a reading page
+  const isLearnModulePage = location.pathname.startsWith('/learn/') && location.pathname !== AppRoute.LEARN;
   const isReading = location.pathname.startsWith(AppRoute.READER) || 
                     location.pathname.startsWith(AppRoute.MEDITATIONS) || 
-                    location.pathname.startsWith(AppRoute.STORIES);
+                    location.pathname.startsWith(AppRoute.STORIES) ||
+                    isLearnModulePage;
   
   // Disable scroll transition for meditations-landing page
   const isMeditationsLanding = location.pathname === '/meditations-landing';
@@ -91,7 +93,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
         style={isReading ? {
           height: 'calc(100vh - 84px)',
           overflow: 'scroll',
-          paddingBottom: bottomNavHeight
+          paddingBottom: 0
         } : {
           ...contentHeightStyle
         }}
@@ -109,7 +111,7 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
           id="mobile-nav"
           className="fixed bottom-0 left-0 right-0 z-50"
           ref={mobileNavRef}
-          style={isReading && !isMeditationsLanding ? {
+          style={isReading && !isMeditationsLanding && !isLearnModulePage ? {
             ...scrollTransition.style,
             transform: isAudioPlaying 
               ? 'translateY(80px)'

@@ -4,6 +4,7 @@ const STATIC_CACHE = 'middle-static-v2';
 const DYNAMIC_CACHE = 'middle-dynamic-v2';
 const OFFLINE_CACHE = 'middle-offline-v2';
 const AUDIO_CACHE = 'middle-audio-v2';
+const VIDEO_CACHE = 'middle-video-v2';
 
 // Files to cache for offline functionality
 const STATIC_FILES = [
@@ -45,6 +46,30 @@ self.addEventListener('install', (event) => {
       caches.open(AUDIO_CACHE).then((cache) => {
         console.log('Audio cache initialized');
         return cache;
+      }),
+      // Initialize video cache and preload background videos
+      caches.open(VIDEO_CACHE).then(async (cache) => {
+        console.log('Video cache initialized');
+        // Preload background videos during install
+        try {
+          const videoUrls = ['/media/bg.mp4', '/media/bg-desktop.mp4'];
+          await Promise.all(
+            videoUrls.map(async (url) => {
+              try {
+                const response = await fetch(url);
+                if (response.ok) {
+                  await cache.put(url, response.clone());
+                  console.log('Precached video:', url);
+                }
+              } catch (error) {
+                console.warn('Failed to precache video:', url, error);
+              }
+            })
+          );
+        } catch (error) {
+          console.warn('Video precaching failed:', error);
+        }
+        return cache;
       })
     ])
     .then(() => {
@@ -68,7 +93,8 @@ self.addEventListener('activate', (event) => {
             if (cacheName !== STATIC_CACHE && 
                 cacheName !== DYNAMIC_CACHE && 
                 cacheName !== OFFLINE_CACHE && 
-                cacheName !== AUDIO_CACHE) {
+                cacheName !== AUDIO_CACHE &&
+                cacheName !== VIDEO_CACHE) {
               console.log('Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
@@ -106,6 +132,11 @@ self.addEventListener('fetch', (event) => {
 async function handleFetch(request) {
   const url = new URL(request.url);
   
+  // Handle video files with special caching (CacheFirst strategy)
+  if (url.pathname.match(/\/media\/bg.*\.mp4$/i)) {
+    return handleVideoFetch(request);
+  }
+  
   // Handle audio files with special caching
   if (url.pathname.startsWith('/media/audio/')) {
     return handleAudioFetch(request);
@@ -118,6 +149,34 @@ async function handleFetch(request) {
   
   // Handle regular requests
   return handleRegularFetch(request);
+}
+
+// Handle video file requests - CacheFirst strategy for instant loading
+async function handleVideoFetch(request) {
+  const videoCache = await caches.open(VIDEO_CACHE);
+  const cachedVideo = await videoCache.match(request);
+  
+  if (cachedVideo) {
+    // Return cached video immediately
+    return cachedVideo;
+  }
+  
+  // Try network and cache for future use
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      // Cache successful video responses
+      const responseToCache = response.clone();
+      await videoCache.put(request, responseToCache);
+    }
+    return response;
+  } catch (error) {
+    // If network fails and no cache, return error
+    return new Response('Video not available', {
+      status: 404,
+      statusText: 'Not Found'
+    });
+  }
 }
 
 // Handle audio file requests
@@ -299,6 +358,10 @@ async function handleBackgroundSync() {
 // Handle app updates
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
+    // Acknowledge the message if a port is provided
+    if (event.ports && event.ports[0]) {
+      event.ports[0].postMessage({ type: 'SKIP_WAITING_ACK' });
+    }
     self.skipWaiting();
   }
 });

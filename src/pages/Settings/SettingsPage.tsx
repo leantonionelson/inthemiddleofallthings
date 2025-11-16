@@ -5,12 +5,9 @@ import { audioManagerService } from '../../services/audioManager';
 import InstallButton from '../../components/InstallButton';
 import { useAuth } from '../../hooks/useAuth';
 import WelcomeDrawer from '../../components/WelcomeDrawer';
-import BreathworkDrawer from '../../components/BreathworkDrawer';
-import EyeToolsDrawer from '../../components/EyeToolsDrawer';
-import OpticalIllusionDrawer from '../../components/OpticalIllusionDrawer';
 import { useAppUpdate } from '../../hooks/useAppUpdate';
 import { useDesktopDetection } from '../../hooks/useDesktopDetection';
-import { RefreshCw, Download, CheckCircle, AlertCircle, Wind, Eye, Sparkles, Sun, Moon, ArrowLeft } from 'lucide-react';
+import { RefreshCw, Download, CheckCircle, AlertCircle, Sun, Moon, ArrowLeft } from 'lucide-react';
 
 interface SettingsPageProps {
   isDarkMode: boolean;
@@ -22,12 +19,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   onToggleTheme
 }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'tools' | 'settings'>('tools');
+  const [activeTab, setActiveTab] = useState<'profile' | 'settings'>('profile');
   const [voicePreference, setVoicePreference] = useState<'male' | 'female'>('male');
   const [showLoginDrawer, setShowLoginDrawer] = useState(false);
-  const [showBreathworkDrawer, setShowBreathworkDrawer] = useState(false);
-  const [showEyeToolsDrawer, setShowEyeToolsDrawer] = useState(false);
-  const [showOpticalIllusionDrawer, setShowOpticalIllusionDrawer] = useState(false);
   const { user, signOut } = useAuth();
   const isDesktop = useDesktopDetection();
   const {
@@ -102,15 +96,15 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
               <div className="flex-1 border-b border-gray-200 dark:border-white/10">
                 <nav aria-label="Tabs" className="-mb-px flex">
                   <button
-                    onClick={() => setActiveTab('tools')}
-                    aria-current={activeTab === 'tools' ? 'page' : undefined}
+                    onClick={() => setActiveTab('profile')}
+                    aria-current={activeTab === 'profile' ? 'page' : undefined}
                     className={`flex-1 border-b-2 px-1 py-4 text-center text-sm font-medium transition-colors ${
-                      activeTab === 'tools'
+                      activeTab === 'profile'
                         ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
                         : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-white/20 dark:hover:text-gray-300'
                     }`}
                   >
-                    Tools
+                    Profile
                   </button>
                   <button
                     onClick={() => setActiveTab('settings')}
@@ -154,147 +148,75 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
       >
 
         <div className="space-y-6 pb-6">
-        {/* Tools Tab Content */}
-        {activeTab === 'tools' && (
+        {/* Profile Tab Content */}
+        {activeTab === 'profile' && (
           <motion.div
             className="relative glass-subtle rounded-2xl p-6 shadow-sm"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.15 }}
           >
-            <div className="space-y-4">
-              {/* Breathwork */}
-              <button
-                onClick={() => setShowBreathworkDrawer(true)}
-                className="relative w-full py-4 px-4 rounded-xl border border-ink-muted/30 dark:border-paper-light/20 hover:border-ink-muted/50 dark:hover:border-paper-light/40 transition-all text-left overflow-hidden group"
-              >
-                <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10 flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center flex-shrink-0">
-                    <Wind className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                      Breathwork Tool
-                    </div>
-                    <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                      Guided breathing exercises for focus and calm
-                    </div>
-                  </div>
+            <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-6">
+              Profile
+            </h2>
+            {user ? (
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-ink-secondary dark:text-ink-muted mb-2">
+                    Name
+                  </label>
+                  <p className="text-base text-ink-primary dark:text-paper-light">
+                    {user.displayName || 'Not set'}
+                  </p>
                 </div>
-              </button>
-
-              {/* Eye Tools */}
-              <button
-                onClick={() => setShowEyeToolsDrawer(true)}
-                className="relative w-full py-4 px-4 rounded-xl border border-ink-muted/30 dark:border-paper-light/20 hover:border-ink-muted/50 dark:hover:border-paper-light/40 transition-all text-left overflow-hidden group"
-              >
-                <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10 flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center flex-shrink-0">
-                    <Eye className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                      Eye Tools
-                    </div>
-                    <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                      Visual exercises for eye health and calm
-                    </div>
-                  </div>
+                <div>
+                  <label className="block text-sm font-medium text-ink-secondary dark:text-ink-muted mb-2">
+                    Email
+                  </label>
+                  <p className="text-base text-ink-primary dark:text-paper-light">
+                    {user.email}
+                  </p>
                 </div>
-              </button>
-
-              {/* Optical Illusions */}
-              <button
-                onClick={() => setShowOpticalIllusionDrawer(true)}
-                className="relative w-full py-4 px-4 rounded-xl border border-ink-muted/30 dark:border-paper-light/20 hover:border-ink-muted/50 dark:hover:border-paper-light/40 transition-all text-left overflow-hidden group"
-              >
-                <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10 flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                      Optical Illusions
-                    </div>
-                    <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                      Visual meditation through optical illusions
-                    </div>
-                  </div>
-                </div>
-              </button>
-            </div>
+                <button
+                  onClick={async () => {
+                    try {
+                      await signOut();
+                    } catch (error) {
+                      console.error('Error signing out:', error);
+                    }
+                  }}
+                  className="relative w-full mt-6 py-3 px-4 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group"
+                >
+                  <div className="absolute inset-0 bg-red-600/90 dark:bg-red-700/90 rounded-full" />
+                  <div className="absolute inset-0 bg-red-700/0 dark:bg-red-800/0 group-hover:bg-red-700/100 dark:group-hover:bg-red-800/100 transition-all duration-300 rounded-full" />
+                  <span className="relative z-10 text-white">Logout</span>
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-ink-secondary dark:text-ink-muted text-sm mb-4 leading-relaxed">
+                  Sign up to store your progress and get updates
+                </p>
+                <button
+                  onClick={() => {
+                    setShowLoginDrawer(true);
+                    // Trigger drawer to show
+                    window.dispatchEvent(new CustomEvent('showWelcomeDrawer'));
+                  }}
+                  className="relative w-full py-3 px-4 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group"
+                >
+                  <div className="absolute inset-0 glass-subtle rounded-full" />
+                  <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
+                  <span className="relative z-10 text-ink-primary dark:text-paper-light">Login / Sign Up</span>
+                </button>
+              </div>
+            )}
           </motion.div>
         )}
 
         {/* Settings Tab Content */}
         {activeTab === 'settings' && (
           <>
-            {/* Profile */}
-            <motion.div
-              className="relative glass-subtle rounded-2xl p-6 shadow-sm"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15 }}
-            >
-          <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-6">
-            Profile
-          </h2>
-          {user ? (
-            <div className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-ink-secondary dark:text-ink-muted mb-2">
-                  Name
-                </label>
-                <p className="text-base text-ink-primary dark:text-paper-light">
-                  {user.displayName || 'Not set'}
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-ink-secondary dark:text-ink-muted mb-2">
-                  Email
-                </label>
-                <p className="text-base text-ink-primary dark:text-paper-light">
-                  {user.email}
-                </p>
-              </div>
-              <button
-                onClick={async () => {
-                  try {
-                    await signOut();
-                  } catch (error) {
-                    console.error('Error signing out:', error);
-                  }
-                }}
-                className="relative w-full mt-6 py-3 px-4 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group"
-              >
-                <div className="absolute inset-0 bg-red-600/90 dark:bg-red-700/90 rounded-full" />
-                <div className="absolute inset-0 bg-red-700/0 dark:bg-red-800/0 group-hover:bg-red-700/100 dark:group-hover:bg-red-800/100 transition-all duration-300 rounded-full" />
-                <span className="relative z-10 text-white">Logout</span>
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <p className="text-ink-secondary dark:text-ink-muted text-sm mb-4 leading-relaxed">
-                Sign up to store your progress and get updates
-              </p>
-              <button
-                onClick={() => {
-                  setShowLoginDrawer(true);
-                  // Trigger drawer to show
-                  window.dispatchEvent(new CustomEvent('showWelcomeDrawer'));
-                }}
-                className="relative w-full py-3 px-4 rounded-full font-medium shadow-sm hover:shadow-md transition-all overflow-hidden group"
-              >
-                <div className="absolute inset-0 glass-subtle rounded-full" />
-                <div className="absolute inset-0 gradient-overlay-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
-                <span className="relative z-10 text-ink-primary dark:text-paper-light">Login / Sign Up</span>
-              </button>
-            </div>
-          )}
-        </motion.div>
 
             {/* Audio */}
         <motion.div
@@ -512,24 +434,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
       {showLoginDrawer && (
         <WelcomeDrawer />
       )}
-
-      {/* Breathwork Drawer */}
-      <BreathworkDrawer
-        isOpen={showBreathworkDrawer}
-        onClose={() => setShowBreathworkDrawer(false)}
-      />
-
-      {/* Eye Tools Drawer */}
-      <EyeToolsDrawer
-        isOpen={showEyeToolsDrawer}
-        onClose={() => setShowEyeToolsDrawer(false)}
-      />
-
-      {/* Optical Illusion Drawer */}
-      <OpticalIllusionDrawer
-        isOpen={showOpticalIllusionDrawer}
-        onClose={() => setShowOpticalIllusionDrawer(false)}
-      />
     </div>
   );
 };

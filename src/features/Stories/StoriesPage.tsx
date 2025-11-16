@@ -1,15 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import { Story } from '../../types';
-import { loadStories, searchStories, fallbackStories } from '../../data/storiesContent';
+import { loadStories, fallbackStories } from '../../data/storiesContent';
 import { useScrollTracking } from '../../hooks/useScrollTracking';
-import { useDebouncedValue } from '../../hooks/useDebouncedValue';
-import { readingProgressService } from '../../services/readingProgressService';
-import { BookOpen, Scroll, Feather, Eye, Brain, Globe, Clock, Sparkles, Zap } from 'lucide-react';
-
-import SearchBar from '../../components/SearchBar';
-import SearchOverlay from '../../components/SearchOverlay';
-import ContentListItem from '../../components/ContentListItem';
+import { useScrollTransition } from '../../hooks/useScrollTransition';
 import ContentReaderLayout from '../../components/ContentReaderLayout';
 import PageLoadingSpinner from '../../components/PageLoadingSpinner';
 
@@ -18,100 +14,19 @@ const StoriesPage: React.FC = () => {
   const mainScrollRef = outletContext?.mainScrollRef;
   const setIsAudioPlaying = outletContext?.setIsAudioPlaying;
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const navigate = useNavigate();
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
   const [showOverflowMenu, setShowOverflowMenu] = useState(false);
   const [stories, setStories] = useState<Story[]>([]);
-  const [filteredStories, setFilteredStories] = useState<Story[]>([]);
   const [isAudioPlayerOpen, setIsAudioPlayerOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [visibleCount, setVisibleCount] = useState(0);
-  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
-  
-  // Debounce search query to reduce filtering overhead
-  const debouncedSearchQuery = useDebouncedValue(searchQuery, 300);
 
   const [fontSize] = useState('base');
 
-
-  // Get all unique tags from stories
-  const getAllTags = useCallback(() => {
-    const allTags = new Set<string>();
-    stories.forEach(story => {
-      story.tags.forEach(tag => allTags.add(tag));
-    });
-    return Array.from(allTags).sort();
-  }, [stories]);
-
-  // Handle tag selection
-  const toggleTag = useCallback((tag: string) => {
-    setSelectedTags(prev => 
-      prev.includes(tag) 
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
-    );
-  }, []);
-
-  const clearAllFilters = useCallback(() => {
-    setSelectedTags([]);
-    setSearchQuery('');
-  }, []);
-
-  // Calculate initial visible count based on viewport height
-  const calculateInitialVisibleCount = useCallback(() => {
-    const viewportHeight = window.innerHeight;
-    const searchBarHeight = 80; // Search bar + padding
-    const tagCloudHeight = 120; // Tag cloud area
-    const itemHeight = 80; // Approximate height per story item
-    const bottomPadding = 200; // Navigation + audio controls
-    
-    const availableHeight = viewportHeight - searchBarHeight - tagCloudHeight - bottomPadding;
-    const maxItems = Math.floor(availableHeight / itemHeight);
-    
-    // Ensure at least 3 items, max 15 for initial load
-    return Math.max(3, Math.min(15, maxItems));
-  }, []);
-
-  // Handle "View More" functionality
-  const handleViewMore = useCallback(() => {
-    const increment = 10; // Load 10 more at a time
-    const newCount = Math.min(visibleCount + increment, filteredStories.length);
-    setVisibleCount(newCount);
-  }, [visibleCount, filteredStories.length]);
-
-  // Get story icon based on tags or fallback to index-based icon
-  const getStoryIcon = useCallback((story: Story, index: number) => {
-    const iconMap: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
-      'consciousness': Brain,
-      'awareness': Eye,
-      'existence': Globe,
-      'time': Clock,
-      'eternity': Sparkles,
-      'being': BookOpen,
-      'identity': Scroll,
-      'writing': Feather,
-      'fiction': BookOpen,
-      'philosophy': Brain,
-      'narrative': Scroll,
-      'mystery': Eye,
-      'transcendence': Sparkles,
-      'imagination': Zap,
-    };
-
-    // Try to find icon based on tags
-    for (const tag of story.tags) {
-      const lowerTag = tag.toLowerCase();
-      if (iconMap[lowerTag]) {
-        return iconMap[lowerTag];
-      }
-    }
-
-    // Fallback to index-based icon cycling
-    const fallbackIcons = [BookOpen, Scroll, Feather, Eye, Brain, Globe, Clock, Sparkles, Zap];
-    return fallbackIcons[index % fallbackIcons.length];
-  }, []);
+  // Handle back navigation to Read page with stories tab
+  const handleBack = useCallback(() => {
+    navigate('/read?tab=stories');
+  }, [navigate]);
 
   // Load stories from MD files
   useEffect(() => {
@@ -119,7 +34,6 @@ const StoriesPage: React.FC = () => {
       try {
         const loadedStories = await loadStories();
         setStories(loadedStories);
-        setFilteredStories(loadedStories);
         
         const savedStoryIndex = localStorage.getItem('currentStoryIndex');
         if (savedStoryIndex) {
@@ -131,60 +45,11 @@ const StoriesPage: React.FC = () => {
       } catch (error) {
         console.error('Error loading stories:', error);
         setStories(fallbackStories);
-        setFilteredStories(fallbackStories);
       }
     };
 
     loadStoryList();
   }, []);
-
-
-  // Handle search and tag filtering (using debounced search query)
-  useEffect(() => {
-    let filtered = searchStories(stories, debouncedSearchQuery);
-    
-    // Apply tag filtering if tags are selected
-    if (selectedTags.length > 0) {
-      filtered = filtered.filter(story => 
-        selectedTags.every(tag => story.tags.includes(tag))
-      );
-    }
-    
-    setFilteredStories(filtered);
-    
-    // Reset visible count when filters change
-    if (initialLoadComplete) {
-      const newVisibleCount = debouncedSearchQuery.trim() || selectedTags.length > 0 
-        ? Math.min(calculateInitialVisibleCount(), filtered.length)
-        : calculateInitialVisibleCount();
-      setVisibleCount(newVisibleCount);
-    }
-  }, [debouncedSearchQuery, stories, selectedTags, initialLoadComplete, calculateInitialVisibleCount]);
-
-  // Set initial visible count when stories first load
-  useEffect(() => {
-    if (stories.length > 0 && !initialLoadComplete) {
-      const initialCount = calculateInitialVisibleCount();
-      setVisibleCount(Math.min(initialCount, stories.length));
-      setInitialLoadComplete(true);
-    }
-  }, [stories.length, initialLoadComplete, calculateInitialVisibleCount]);
-
-  // Handle viewport resize
-  useEffect(() => {
-    const handleResize = () => {
-      if (initialLoadComplete && !searchQuery.trim() && selectedTags.length === 0) {
-        const newInitialCount = calculateInitialVisibleCount();
-        // Only adjust if we're still at the initial load count
-        if (visibleCount <= newInitialCount) {
-          setVisibleCount(Math.min(newInitialCount, stories.length));
-        }
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [initialLoadComplete, searchQuery, selectedTags, visibleCount, calculateInitialVisibleCount, stories.length]);
 
   // Save current story index and scroll to top when changing stories
   useEffect(() => {
@@ -197,36 +62,6 @@ const StoriesPage: React.FC = () => {
     // Also scroll window to top for good measure
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentStoryIndex]);
-
-  // Disable body scroll when search is active
-  useEffect(() => {
-    const isSearchActive = isSearchFocused || searchQuery.trim();
-    
-    if (isSearchActive) {
-      // Save current scroll position
-      const scrollY = window.scrollY;
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
-      document.body.style.overflow = 'hidden';
-    } else {
-      // Restore scroll position
-      const scrollY = parseInt(document.body.style.top || '0', 10);
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.overflow = '';
-      window.scrollTo(0, Math.abs(scrollY));
-    }
-
-    // Cleanup on unmount
-    return () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.overflow = '';
-    };
-  }, [isSearchFocused, searchQuery]);
 
   const currentStory = stories[currentStoryIndex];
 
@@ -243,6 +78,14 @@ const StoriesPage: React.FC = () => {
     }
   });
 
+  // Scroll transition for header (back button and search bar)
+  const headerScrollTransition = useScrollTransition({
+    threshold: 5,
+    sensitivity: 0.8,
+    maxOffset: 120,
+    direction: 'up'
+  }, mainScrollRef);
+
   const handleNextStory = useCallback(() => {
     if (currentStoryIndex < stories.length - 1) {
       setCurrentStoryIndex(currentStoryIndex + 1);
@@ -254,14 +97,6 @@ const StoriesPage: React.FC = () => {
       setCurrentStoryIndex(currentStoryIndex - 1);
     }
   }, [currentStoryIndex]);
-
-  const goToStory = useCallback((index: number) => {
-    setCurrentStoryIndex(index);
-    // Close overlay immediately
-    setSearchQuery('');
-    setIsSearchFocused(false);
-    setSelectedTags([]);
-  }, []);
 
   // Handle Listen button
   const handleListen = async () => {
@@ -323,9 +158,6 @@ const StoriesPage: React.FC = () => {
       } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         e.preventDefault();
         handleNextStory();
-      } else if (e.key === 'Escape') {
-        setSearchQuery('');
-        setIsSearchFocused(false);
       }
     };
 
@@ -338,70 +170,25 @@ const StoriesPage: React.FC = () => {
     return <PageLoadingSpinner message="Loading stories..." />;
   }
 
-  const handleSearchClear = () => {
-    setSearchQuery('');
-    setIsSearchFocused(false);
-    setSelectedTags([]);
-  };
-
-  const handleSearchBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    if (!e.relatedTarget || !e.relatedTarget.closest('[data-search-overlay]')) {
-      setIsSearchFocused(false);
-    }
-  };
-
-  const currentList = searchQuery.trim() || selectedTags.length > 0 ? filteredStories : stories;
-
   return (
     <>
-      {/* Search Bar */}
-      <SearchBar
-        placeholder="Search stories..."
-        value={searchQuery}
-        onChange={setSearchQuery}
-        onFocus={() => setIsSearchFocused(true)}
-        onBlur={handleSearchBlur}
-        showClearButton={isSearchFocused || !!searchQuery.trim()}
-        onClear={handleSearchClear}
-        isOpen={isSearchFocused || !!searchQuery.trim()}
-      />
+      {/* Back Button - Fixed at top with scroll transition (search bar hidden) */}
+      <div 
+        className="fixed top-0 left-0 right-0 z-[10001]"
+        style={headerScrollTransition.style}
+      >
+        <div className="max-w-2xl mx-auto px-4 py-2">
+          <motion.button
+            onClick={handleBack}
+            className="flex items-center justify-center w-12 h-12 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300 flex-shrink-0 bg-gray-100 dark:bg-gray-800 rounded-full"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </motion.button>
+        </div>
+      </div>
 
-      {/* Search Overlay */}
-      <SearchOverlay
-        isOpen={isSearchFocused || !!searchQuery.trim()}
-        onClose={handleSearchClear}
-        searchQuery={searchQuery}
-        selectedTags={selectedTags}
-        allTags={getAllTags()}
-        onTagToggle={toggleTag}
-        onClearFilters={clearAllFilters}
-        items={currentList}
-        renderItem={(story, index) => {
-          const actualIndex = stories.findIndex(s => s.id === story.id);
-          const isActive = actualIndex === currentStoryIndex;
-          const IconComponent = getStoryIcon(story, index);
-          const isRead = readingProgressService.isRead(story.id);
-          
-          return (
-            <ContentListItem
-              key={story.id}
-              id={story.id}
-              title={story.title}
-              tags={story.tags}
-              icon={<IconComponent className="w-6 h-6" />}
-              isActive={isActive}
-              isRead={isRead}
-              onClick={() => goToStory(actualIndex)}
-              selectedTags={selectedTags}
-            />
-          );
-        }}
-        visibleCount={visibleCount}
-        totalCount={currentList.length}
-        onViewMore={handleViewMore}
-        emptyStateTitle="No stories found"
-        emptyStateMessage="Try adjusting your search terms"
-      />
 
       {/* Content Reader Layout */}
       <ContentReaderLayout

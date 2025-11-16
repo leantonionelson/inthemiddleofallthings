@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useOutletContext, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
 import { Meditation } from '../../types';
 import { loadMeditations, searchMeditations, fallbackMeditations } from '../../data/meditationContent';
 import { contentCache } from '../../services/contentCache';
 import { useScrollTracking } from '../../hooks/useScrollTracking';
+import { useScrollTransition } from '../../hooks/useScrollTransition';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { readingProgressService } from '../../services/readingProgressService';
 import { Heart, Leaf, Star, Moon, Sun, Waves, Mountain, Compass, Flower2 } from 'lucide-react';
@@ -21,6 +24,7 @@ const MeditationsPage: React.FC = () => {
   const outletContext = useOutletContext<{ isAudioPlaying?: boolean; setIsAudioPlaying?: (value: boolean) => void; mainScrollRef?: React.RefObject<HTMLElement> }>();
   const mainScrollRef = outletContext?.mainScrollRef;
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const navigate = useNavigate();
   // Initialize from localStorage if available, otherwise default to 0
   const getInitialMeditationIndex = () => {
     const savedIndex = localStorage.getItem('currentMeditationIndex');
@@ -46,6 +50,11 @@ const MeditationsPage: React.FC = () => {
   
   // Get user capabilities
   useUserCapabilities();
+
+  // Handle back navigation to Read page with meditations tab
+  const handleBack = useCallback(() => {
+    navigate('/read?tab=meditations');
+  }, [navigate]);
 
   // Listen for read status changes to update list
   useEffect(() => {
@@ -204,6 +213,9 @@ const MeditationsPage: React.FC = () => {
         }
         // Mark as loaded so save effect can run
         hasLoadedSavedIndex.current = true;
+        
+        // Don't scroll on initial load - let the browser handle scroll position naturally
+        // This prevents layout shifts and page jumps
       } catch (error) {
         console.error('Error loading meditations:', error);
         setMeditations(fallbackMeditations);
@@ -263,6 +275,9 @@ const MeditationsPage: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [initialLoadComplete, searchQuery, selectedTags, visibleCount, calculateInitialVisibleCount, meditations.length]);
 
+  // Track if this is the first meditation index change after initial load
+  const isFirstIndexChange = useRef(true);
+
   // Save current meditation index and scroll to top when changing meditations
   useEffect(() => {
     // Don't save on initial load - wait until we've loaded the saved index
@@ -280,44 +295,69 @@ const MeditationsPage: React.FC = () => {
       console.log('MeditationsPage: Saved index to localStorage:', currentMeditationIndex, meditations[currentMeditationIndex]?.title);
     }
     
-    // Scroll to top when meditation changes (but not on initial load)
-    if (hasLoadedSavedIndex.current && contentRef.current) {
-      contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    // Only scroll to top when meditation index changes (not on initial load)
+    // Skip the first change which happens during initial load
+    if (isFirstIndexChange.current) {
+      isFirstIndexChange.current = false;
+      return;
     }
-    // Also scroll window to top for good measure
-    if (hasLoadedSavedIndex.current) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    
+    // Use requestAnimationFrame to ensure layout is stable before scrolling
+    // This prevents the page from jumping up
+    const scrollFrame = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (contentRef.current) {
+          contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        if (mainScrollRef?.current) {
+          mainScrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+    });
+    
+    return () => cancelAnimationFrame(scrollFrame);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMeditationIndex, meditations]);
 
   // Disable body scroll when search is active
+  // Only apply this on the main window, not on reading pages
   useEffect(() => {
     const isSearchActive = isSearchFocused || searchQuery.trim();
+    const hasMainScrollRef = !!mainScrollRef?.current;
     
-    if (isSearchActive) {
+    // Don't apply body scroll lock on reading pages - use mainScrollRef instead
+    if (isSearchActive && !hasMainScrollRef) {
       // Save current scroll position
       const scrollY = window.scrollY;
       document.body.style.position = 'fixed';
       document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
       document.body.style.overflow = 'hidden';
-    } else {
-      // Restore scroll position
-      const scrollY = parseInt(document.body.style.top || '0', 10);
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.overflow = '';
-      window.scrollTo(0, Math.abs(scrollY));
+    } else if (!isSearchActive) {
+      // Restore scroll position only if we modified it
+      if (document.body.style.position === 'fixed') {
+        const scrollY = parseInt(document.body.style.top || '0', 10);
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+        // Use requestAnimationFrame to prevent layout shift
+        requestAnimationFrame(() => {
+          window.scrollTo(0, Math.abs(scrollY));
+        });
+      }
     }
 
     // Cleanup on unmount
     return () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      document.body.style.overflow = '';
+      if (document.body.style.position === 'fixed') {
+        document.body.style.position = '';
+        document.body.style.top = '';
+        document.body.style.width = '';
+        document.body.style.overflow = '';
+      }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSearchFocused, searchQuery]);
 
   const currentMeditation = meditations[currentMeditationIndex];
@@ -335,6 +375,14 @@ const MeditationsPage: React.FC = () => {
       // List will update automatically when currentMeditationIndex changes
     }
   });
+
+  // Scroll transition for header (back button and search bar)
+  const headerScrollTransition = useScrollTransition({
+    threshold: 5,
+    sensitivity: 0.8,
+    maxOffset: 120,
+    direction: 'up'
+  }, mainScrollRef);
 
   const handleNextMeditation = useCallback(() => {
     if (currentMeditationIndex < meditations.length - 1) {
@@ -482,17 +530,35 @@ const MeditationsPage: React.FC = () => {
           ],
         }}
       />
-      {/* Search Bar */}
-      <SearchBar
-        placeholder="Search meditations..."
-        value={searchQuery}
-        onChange={setSearchQuery}
-        onFocus={() => setIsSearchFocused(true)}
-        onBlur={handleSearchBlur}
-        showClearButton={isSearchFocused || !!searchQuery.trim()}
-        onClear={handleSearchClear}
-        isOpen={isSearchFocused || !!searchQuery.trim()}
-      />
+      {/* Back Button and Search Bar - Fixed at top with scroll transition */}
+      <div 
+        className="fixed top-0 left-0 right-0 z-[10001]"
+        style={headerScrollTransition.style}
+      >
+        <div className="max-w-2xl mx-auto px-4 py-2 flex items-center gap-3">
+          <motion.button
+            onClick={handleBack}
+            className="flex items-center justify-center w-12 h-12 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300 flex-shrink-0 bg-gray-100 dark:bg-gray-800 rounded-full"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </motion.button>
+          <div className="flex-1">
+            <SearchBar
+              placeholder="Search meditations..."
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={handleSearchBlur}
+              showClearButton={isSearchFocused || !!searchQuery.trim()}
+              onClear={handleSearchClear}
+              isOpen={isSearchFocused || !!searchQuery.trim()}
+              className="!relative !top-0"
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Search Overlay */}
       <SearchOverlay

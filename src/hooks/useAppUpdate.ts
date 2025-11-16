@@ -132,8 +132,63 @@ export function useAppUpdate() {
         return;
       }
 
-      // Send skip waiting message to service worker
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      // Send skip waiting message to service worker with error handling
+      try {
+        // Use MessageChannel for reliable communication
+        const channel = new MessageChannel();
+        let portClosed = false;
+        let timeoutId: NodeJS.Timeout | null = null;
+        
+        // Set up response handler
+        channel.port1.onmessage = (event) => {
+          if (event.data && event.data.type === 'SKIP_WAITING_ACK') {
+            console.log('Service worker acknowledged skip waiting');
+            // Close port after receiving response
+            if (!portClosed) {
+              portClosed = true;
+              channel.port1.close();
+              if (timeoutId) {
+                clearTimeout(timeoutId);
+              }
+            }
+          }
+        };
+        
+        // Handle port errors
+        channel.port1.onerror = (error) => {
+          console.warn('MessageChannel port error:', error);
+          if (!portClosed) {
+            portClosed = true;
+            channel.port1.close();
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+            }
+          }
+        };
+        
+        // Send message with port
+        registration.waiting.postMessage(
+          { type: 'SKIP_WAITING' },
+          [channel.port2]
+        );
+        
+        // Set timeout to prevent hanging (longer timeout to allow response)
+        timeoutId = setTimeout(() => {
+          if (!portClosed) {
+            console.warn('MessageChannel timeout - closing port');
+            portClosed = true;
+            channel.port1.close();
+          }
+        }, 3000); // Increased to 3 seconds to allow service worker to respond
+      } catch (messageError) {
+        // Fallback: try simple postMessage without channel
+        console.warn('MessageChannel failed, using simple postMessage:', messageError);
+        try {
+          registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+        } catch (simpleError) {
+          console.error('Simple postMessage also failed:', simpleError);
+        }
+      }
       
       // Reload will happen automatically via 'controlling' event
       // But add a fallback reload after a short delay

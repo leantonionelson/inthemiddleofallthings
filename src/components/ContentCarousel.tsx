@@ -1,14 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { BookChapter, Meditation, Story } from '../types';
+import { BookChapter, Meditation, Story, LearnModule } from '../types';
 import CarouselCard from './CarouselCard';
 import CarouselCardSkeleton from './CarouselCardSkeleton';
 import { readingProgressService } from '../services/readingProgressService';
 
 interface ContentCarouselProps {
-  items: (BookChapter | Meditation | Story)[];
-  contentType: 'chapter' | 'meditation' | 'story';
-  onItemClick: (item: BookChapter | Meditation | Story, index: number) => void;
+  items: (BookChapter | Meditation | Story | LearnModule)[];
+  contentType: 'chapter' | 'meditation' | 'story' | 'module';
+  onItemClick: (item: BookChapter | Meditation | Story | LearnModule, index: number) => void;
   showReadStatus?: boolean;
   isLoading?: boolean;
   hasMore?: boolean;
@@ -132,6 +132,9 @@ const ContentCarousel: React.FC<ContentCarouselProps> = ({
               } else if (contentType === 'meditation' || contentType === 'story') {
                 const content = item as Meditation | Story;
                 subtitle = content.tags?.slice(0, 2).join(', ') || undefined;
+              } else if (contentType === 'module') {
+                const module = item as LearnModule;
+                subtitle = module.section || module.tags?.slice(0, 2).join(', ') || undefined;
               }
 
               return (
@@ -159,7 +162,7 @@ const ContentCarousel: React.FC<ContentCarouselProps> = ({
                     subtitle={subtitle}
                     isRead={isRead}
                     onClick={() => onItemClick(item, index)}
-                    contentType={contentType}
+                    contentType={contentType === 'module' ? 'story' : contentType}
                   />
                 </motion.div>
               );

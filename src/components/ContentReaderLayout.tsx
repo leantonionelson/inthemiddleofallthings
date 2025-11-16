@@ -1,4 +1,6 @@
 import React, { useRef } from 'react';
+import { ArrowLeft } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useScrollTransition } from '../hooks/useScrollTransition';
 import { useSwipeNavigation } from '../hooks/useSwipeNavigation';
 import ReaderNavigation from './ReaderNavigation';
@@ -30,6 +32,7 @@ interface ContentReaderLayoutProps {
   showMobileHeader?: boolean;
   chapter?: BookChapter;
   contentRef?: React.RefObject<HTMLDivElement | null>;
+  onBack?: () => void;
 }
 
 const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
@@ -53,14 +56,25 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
   mainScrollRef,
   showMobileHeader = false,
   chapter,
-  contentRef: externalContentRef
+  contentRef: externalContentRef,
+  onBack
 }) => {
   const internalContentRef = useRef<HTMLDivElement>(null);
   const contentRef = externalContentRef || internalContentRef;
   const tagsContainerRef = useRef<HTMLDivElement>(null);
   const touchStartedInTagsRef = useRef<boolean>(false);
+  const isInitialMount = React.useRef(true);
   const [isAudioPlaying, setIsAudioPlaying] = React.useState(false);
   const [playbackState, setPlaybackState] = React.useState<AudioPlaybackState | null>(null);
+
+  // Mark initial mount as complete after first render
+  React.useEffect(() => {
+    // Use a small timeout to ensure the initial render is complete
+    const timer = setTimeout(() => {
+      isInitialMount.current = false;
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   // Subscribe to audio playback state changes (optimized with requestAnimationFrame)
   React.useEffect(() => {
@@ -172,13 +186,27 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
   }, [swipeHandlers]);
 
   // Determine padding top based on content type and audio state
-  const getPaddingTop = () => {
+  // Use stable initial value to prevent layout shift on mount
+  const [paddingTop, setPaddingTop] = React.useState(() => {
     if (contentType === 'chapter') {
-      return isAudioPlaying ? '2rem' : '6rem';
+      return '6rem';
     } else {
-      return isAudioPlaying ? '7rem' : '8rem';
+      return '6rem';
     }
-  };
+  });
+
+  // Update padding when audio state changes (but not on initial mount)
+  React.useEffect(() => {
+    if (isInitialMount.current) {
+      return;
+    }
+    
+    if (contentType === 'chapter') {
+      setPaddingTop(isAudioPlaying ? '2rem' : '6rem');
+    } else {
+      setPaddingTop(isAudioPlaying ? '5rem' : '6rem');
+    }
+  }, [isAudioPlaying, contentType]);
 
   // Get title font size classes
   const getTitleSizeClasses = () => {
@@ -216,10 +244,24 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
               : headerScrollTransition.style.transform
           }}
         >
-          <ChapterInfo
-            currentChapterIndex={currentIndex}
-            totalChapters={totalItems}
-          />
+          <div className="flex items-center gap-3 px-4 py-2">
+            {onBack && (
+              <motion.button
+                onClick={onBack}
+                className="flex items-center justify-center w-10 h-10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300 flex-shrink-0"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </motion.button>
+            )}
+            <div className="flex-1">
+              <ChapterInfo
+                currentChapterIndex={currentIndex}
+                totalChapters={totalItems}
+              />
+            </div>
+          </div>
         </div>
       )}
 
@@ -270,9 +312,11 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
           isAudioPlayerOpen ? 'pb-48' : ''
         }`}
         style={{ 
-          paddingTop: getPaddingTop(),
+          paddingTop: paddingTop,
           transform: isAudioPlaying ? 'translateY(80px)' : 'none',
-          transition: 'transform 0.3s ease-out, padding-top 0.3s ease-out'
+          transition: isInitialMount.current 
+            ? 'none' 
+            : 'transform 0.3s ease-out, padding-top 0.3s ease-out'
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
