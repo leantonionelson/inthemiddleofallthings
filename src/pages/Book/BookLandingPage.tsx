@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AppRoute, BookChapter, Meditation, Story } from '../../types';
+import { AppRoute, BookChapter, Meditation, Story, LearnModule } from '../../types';
 import { loadBookChapters, fallbackChapters, partDescriptions } from '../../data/bookContent';
 import { readingProgressService } from '../../services/readingProgressService';
 import { contentCache } from '../../services/contentCache';
@@ -97,7 +97,7 @@ const BookLandingPage: React.FC = () => {
     return new Map(chapters.map((ch, idx) => [ch.id, idx]));
   }, [chapters]);
 
-  const handleChapterClick = useCallback((item: BookChapter | Meditation | Story, _index: number) => {
+  const handleChapterClick = useCallback((item: BookChapter | Meditation | Story | LearnModule, _index: number) => {
     void _index; // Index provided by ContentCarousel but not used here
     // Type guard: ensure this is a BookChapter
     if (!('chapterNumber' in item)) {

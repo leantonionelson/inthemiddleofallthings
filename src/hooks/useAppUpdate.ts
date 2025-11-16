@@ -155,8 +155,8 @@ export function useAppUpdate() {
         };
         
         // Handle port errors
-        channel.port1.onerror = (error) => {
-          console.warn('MessageChannel port error:', error);
+        channel.port1.onmessageerror = (event: MessageEvent) => {
+          console.warn('MessageChannel port error:', event);
           if (!portClosed) {
             portClosed = true;
             channel.port1.close();

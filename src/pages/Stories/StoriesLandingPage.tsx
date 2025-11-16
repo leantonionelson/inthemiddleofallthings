@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AppRoute, Story, BookChapter, Meditation } from '../../types';
+import { AppRoute, Story, BookChapter, Meditation, LearnModule } from '../../types';
 import { loadStories, fallbackStories, searchStories } from '../../data/storiesContent';
 import { readingProgressService } from '../../services/readingProgressService';
 import { contentCache } from '../../services/contentCache';
@@ -175,7 +175,7 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({
     return new Map(stories.map((s, idx) => [s.id, idx]));
   }, [stories]);
 
-  const handleStoryClick = useCallback((item: Story | BookChapter | Meditation) => {
+  const handleStoryClick = useCallback((item: Story | BookChapter | Meditation | LearnModule) => {
     // Type guard: ensure this is a Story
     if ('chapterNumber' in item || !('tags' in item)) {
       return; // Not a story, ignore
