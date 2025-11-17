@@ -32,6 +32,7 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [visibleCount, setVisibleCount] = useState(20);
   const navigate = useNavigate();
   
   // Use external search query if provided, otherwise use internal state
@@ -129,6 +130,8 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({
     }
     
     setFilteredStories(filtered);
+    // Reset visible count when filters change
+    setVisibleCount(20);
   }, [debouncedSearchQuery, stories, selectedTags]);
 
   const completion = useMemo(() => {
@@ -205,6 +208,10 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({
     }
   }, []);
 
+  const handleViewMore = useCallback(() => {
+    setVisibleCount(prev => prev + 20);
+  }, []);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center relative z-10">
@@ -264,9 +271,9 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({
             />
           );
         }}
-        visibleCount={filteredStories.length}
+        visibleCount={visibleCount}
         totalCount={filteredStories.length}
-        onViewMore={() => {}}
+        onViewMore={handleViewMore}
         emptyStateTitle="No stories found"
         emptyStateMessage="Try adjusting your search terms"
       />

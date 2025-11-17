@@ -32,6 +32,7 @@ const MeditationsLandingPage: React.FC<MeditationsLandingPageProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [visibleCount, setVisibleCount] = useState(20);
   const navigate = useNavigate();
   
   // Use external search query if provided, otherwise use internal state
@@ -120,6 +121,8 @@ const MeditationsLandingPage: React.FC<MeditationsLandingPageProps> = ({
     }
     
     setFilteredMeditations(filtered);
+    // Reset visible count when filters change
+    setVisibleCount(20);
   }, [debouncedSearchQuery, meditations, selectedTags]);
 
   const completion = useMemo(() => {
@@ -203,6 +206,10 @@ const MeditationsLandingPage: React.FC<MeditationsLandingPageProps> = ({
     }
   }, []);
 
+  const handleViewMore = useCallback(() => {
+    setVisibleCount(prev => prev + 20);
+  }, []);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center relative z-10">
@@ -258,9 +265,9 @@ const MeditationsLandingPage: React.FC<MeditationsLandingPageProps> = ({
             />
           );
         }}
-        visibleCount={filteredMeditations.length}
+        visibleCount={visibleCount}
         totalCount={filteredMeditations.length}
-        onViewMore={() => {}}
+        onViewMore={handleViewMore}
         emptyStateTitle="No meditations found"
         emptyStateMessage="Try adjusting your search terms"
       />
