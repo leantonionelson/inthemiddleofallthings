@@ -32,6 +32,9 @@
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    
+    /* Prevent overflow */
+    overflow: hidden;
   }
 
   /* Allow text selection in content areas */
