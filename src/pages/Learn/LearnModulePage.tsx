@@ -12,6 +12,13 @@ import PotentialLandscapeSimulation from '../../components/PotentialLandscapeSim
 import FramesOfReferenceSimulation from '../../components/FramesOfReferenceSimulation';
 import TimeDilationSimulation from '../../components/TimeDilationSimulation';
 import SpacetimeCurvatureSimulation from '../../components/SpacetimeCurvatureSimulation';
+import ConservationOfEnergySimulation from '../../components/ConservationOfEnergySimulation';
+import ConservationMomentumSimulation from '../../components/ConservationMomentumSimulation';
+import ConservationInformationSimulation from '../../components/ConservationInformationSimulation';
+import GameOfLifeSimulation from '../../components/GameOfLifeSimulation';
+import ChaosTheorySimulation from '../../components/ChaosTheorySimulation';
+import SelfOrganisedCriticalitySimulation from '../../components/SelfOrganisedCriticalitySimulation';
+import ReactionDiffusionSimulation from '../../components/ReactionDiffusionSimulation';
 import Accordion from '../../components/Accordion';
 import SimulationInstructionDrawer from '../../components/SimulationInstructionDrawer';
 
@@ -73,8 +80,6 @@ const LearnModulePage: React.FC = () => {
     return null;
   }
 
-  // Special handling for Game of Life - show placeholder with note
-  const isGameOfLife = module.id === 'game-of-life';
   const isGaugeTheory = module.id === 'gauge-theory';
   const isElectromagneticFields = module.id === 'electromagnetic-fields-forces-as-corrections';
   const isGeodesics = module.id === 'geodesics-following-the-deepest-path';
@@ -83,6 +88,13 @@ const LearnModulePage: React.FC = () => {
   const isFramesOfReference = module.id === 'frames-of-reference-perspective-as-reality';
   const isTimeDilation = module.id === 'time-dilation-gravity-as-slow-time';
   const isSpacetimeCurvature = module.id === 'spacetime-curvature-centres-as-time-wells';
+  const isConservationOfEnergy = module.id === 'conservation-of-energy-transformation-not-loss';
+  const isConservationMomentum = module.id === 'conservation-of-momentum-behavioural-continuation';
+  const isConservationOfInformation = module.id === 'conservation-of-information-nothing-truly-vanishes';
+  const isGameOfLife = module.id === 'conways-game-of-life-emergence-from-simplicity';
+  const isChaosTheory = module.id === 'chaos-theory-sensitive-dependence';
+  const isSelfOrganisedCriticality = module.id === 'self-organised-criticality-the-avalanche-principle';
+  const isReactionDiffusion = module.id === 'reaction-diffusion-patterns-born-from-opposites';
 
   // Custom layout for Gauge Theory module
   if (isGaugeTheory) {
@@ -894,81 +906,7 @@ const LearnModulePage: React.FC = () => {
               <FramesOfReferenceSimulation />
             </motion.section>
 
-            {/* What it does Section */}
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15 }}
-              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
-            >
-              <h2 className="text-xl font-semibold text-ink-primary dark:text-paper-light mb-4">
-                What it does
-              </h2>
-              <ul className="space-y-2 text-ink-secondary dark:text-ink-muted">
-                <li className="flex items-start">
-                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
-                  <span>This simulation shows how motion depends entirely on where you stand.</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
-                  <span>Two observers watch the same moving ship, but because one observer is also in motion, each sees a different path, speed, and timing.</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
-                  <span>Switching frames reveals that motion is not absolute — it is relational.</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
-                  <span>In Relativistic mode, time and velocity transform using Lorentz equations, revealing how deeply perspective shapes physical reality.</span>
-                </li>
-              </ul>
-            </motion.section>
 
-            {/* How to interact Section */}
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
-            >
-              <h2 className="text-xl font-semibold text-ink-primary dark:text-paper-light mb-4">
-                How to interact
-              </h2>
-              <div className="space-y-3">
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Toggle the frame of reference
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Switch between Observer A and Observer B to see how the same motion appears from different perspectives.
-                  </div>
-                </div>
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Adjust the velocities
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Use the sliders to change the ship's speed and Observer B's speed. Each frame interprets the movement differently.
-                  </div>
-                </div>
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Switch between Classical and Relativistic modes
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Classical uses simple velocity differences. Relativistic uses Lorentz transformations (velocity addition + time dilation).
-                  </div>
-                </div>
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Reset Simulation
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Reset both observers and the ship to their starting positions.
-                  </div>
-                </div>
-              </div>
-            </motion.section>
 
             {/* Accordions Section */}
             <motion.section
@@ -1110,97 +1048,7 @@ const LearnModulePage: React.FC = () => {
               <TimeDilationSimulation />
             </motion.section>
 
-            {/* What it does Section */}
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15 }}
-              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
-            >
-              <h2 className="text-xl font-semibold text-ink-primary dark:text-paper-light mb-4">
-                What it does
-              </h2>
-              <ul className="space-y-2 text-ink-secondary dark:text-ink-muted">
-                <li className="flex items-start">
-                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
-                  <span>This simulation shows how gravity emerges from differences in the flow of time.</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
-                  <span>Each mass slows the passage of time in its vicinity, forming a "time well."</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
-                  <span>The particle doesn't fall because it is pulled — it falls because time flows more slowly beneath it, curving its natural path.</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
-                  <span>Clocks near masses tick more slowly, revealing how time dilation shapes motion.</span>
-                </li>
-              </ul>
-            </motion.section>
 
-            {/* How to interact Section */}
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
-            >
-              <h2 className="text-xl font-semibold text-ink-primary dark:text-paper-light mb-4">
-                How to interact
-              </h2>
-              <div className="space-y-3">
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Tap to add mass
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Each mass creates a local region where time flows more slowly.
-                  </div>
-                </div>
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Long press to remove
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Remove a mass by holding your finger on it.
-                  </div>
-                </div>
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Time Strength slider
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Controls how strongly masses slow time and how deeply the wells become.
-                  </div>
-                </div>
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Damping slider
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Stabilises the particle's motion and shows the structure of time wells more clearly.
-                  </div>
-                </div>
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Reset Particle
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Returns the particle to the center with zero velocity.
-                  </div>
-                </div>
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Clear Masses
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Removes all masses from the simulation, resetting the time field.
-                  </div>
-                </div>
-              </div>
-            </motion.section>
 
             {/* Accordions Section */}
             <motion.section
@@ -1350,89 +1198,7 @@ const LearnModulePage: React.FC = () => {
               <SpacetimeCurvatureSimulation />
             </motion.section>
 
-            {/* What it does Section */}
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.15 }}
-              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
-            >
-              <h2 className="text-xl font-semibold text-ink-primary dark:text-paper-light mb-4">
-                What it does
-              </h2>
-              <ul className="space-y-2 text-ink-secondary dark:text-ink-muted">
-                <li className="flex items-start">
-                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
-                  <span>This simulation shows how a massive object bends spacetime.</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
-                  <span>The grid represents the geometry of space. A mass at the centre pulls this geometry downward, creating a curvature.</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
-                  <span>When you launch the particle, it follows the straightest possible path within this curved geometry — a geodesic.</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
-                  <span>Increasing the mass deepens the curvature, creating tighter bends and orbital paths.</span>
-                </li>
-              </ul>
-            </motion.section>
 
-            {/* How to interact Section */}
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
-            >
-              <h2 className="text-xl font-semibold text-ink-primary dark:text-paper-light mb-4">
-                How to interact
-              </h2>
-              <div className="space-y-3">
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Drag to launch
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Touch the particle and drag to set its initial direction and speed.
-                  </div>
-                </div>
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Mass / Curvature slider
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Increase this to deepen the well and exaggerate curvature.
-                  </div>
-                </div>
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Damping slider
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Controls how quickly the particle slows or settles.
-                  </div>
-                </div>
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Visualization mode
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Switch between Fabric, Contour map, and Refractive distortion.
-                  </div>
-                </div>
-                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-3 border border-ink-muted/20 dark:border-paper-light/20">
-                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
-                    Reset
-                  </div>
-                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
-                    Reset the particle or the curvature field to start fresh.
-                  </div>
-                </div>
-              </div>
-            </motion.section>
 
             {/* Accordions Section */}
             <motion.section
@@ -1505,6 +1271,1285 @@ const LearnModulePage: React.FC = () => {
     );
   }
 
+  // Custom layout for Conservation of Energy module
+  if (isConservationOfEnergy) {
+    return (
+      <>
+        {/* Content */}
+        <main className="min-h-screen pt-6 pb-10 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Header with back arrow on left */}
+            <motion.header
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8"
+            >
+              <div className="flex items-start gap-4">
+                <motion.button
+                  onClick={handleBack}
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/70 transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 flex-shrink-0 mt-1"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </motion.button>
+                <div className="flex-1">
+                  {(() => {
+                    const parts = module.title.split(' – ');
+                    const mainTitle = parts[0];
+                    const subtitle = parts[1] || '';
+                    return (
+                      <>
+                        <h1 className="text-xl sm:text-2xl font-serif text-ink-primary dark:text-paper-light text-left">
+                          {mainTitle}
+                        </h1>
+                        {subtitle && (
+                          <p className="text-sm sm:text-base text-ink-secondary dark:text-ink-muted text-left">
+                            {subtitle}
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </motion.header>
+
+            {/* How to play chip - above simulation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-4"
+            >
+              <motion.button
+                onClick={() => setIsInstructionDrawerOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-ink-muted/10 dark:bg-paper-light/10 hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 text-sm text-ink-secondary dark:text-ink-muted transition-colors border border-ink-muted/20 dark:border-paper-light/20"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Info className="w-4 h-4" />
+                <span>How to play</span>
+              </motion.button>
+            </motion.div>
+
+            {/* Simulation Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
+            >
+              <ConservationOfEnergySimulation />
+            </motion.section>
+
+
+
+            {/* Accordions Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="space-y-4"
+            >
+              <Accordion title="What is conservation of energy?">
+                <div className="space-y-4">
+                  <p>
+                    Energy is a way of tracking the capacity for change. In a closed system, total energy stays constant, even while it moves between forms: kinetic (motion), potential (position), thermal (heat), and others.
+                  </p>
+                  <p>
+                    The simulation shows this principle in action. As the particle moves, energy flows between kinetic and potential forms. When friction acts, some kinetic energy appears to "disappear," but it actually transforms into dissipated energy (heat, sound, deformation) that we track separately.
+                  </p>
+                  <p>
+                    Tiny numerical drift in the simulation is due to approximation in the integration method, not a real violation of conservation. In reality, energy is perfectly conserved.
+                  </p>
+                </div>
+              </Accordion>
+
+              <Accordion title="Why 'lost' energy isn't really lost">
+                <div className="space-y-4">
+                  <p>
+                    Everyday experiences seem to show energy disappearing: swings slow down, rolling balls stop, cars need constant fuel. But energy doesn't vanish – it transforms into less obvious forms.
+                  </p>
+                  <p>
+                    When a ball rolls to a stop, its kinetic energy goes into heat (friction with the ground), sound (vibrations), and subtle deformations. The energy is still there, just spread out and harder to gather back into neat motion.
+                  </p>
+                  <p>
+                    The "E_loss" bar in the simulation is a visual metaphor for this hidden store. It grows as motion fades, making visible what usually seems invisible. This connects to entropy: as energy spreads out, it becomes harder to use for organized work.
+                  </p>
+                </div>
+              </Accordion>
+            </motion.section>
+          </div>
+        </main>
+
+        {/* Instruction Drawer */}
+        <SimulationInstructionDrawer
+          isOpen={isInstructionDrawerOpen}
+          onClose={() => setIsInstructionDrawerOpen(false)}
+          title="Conservation of Energy Simulation"
+          instructions={[
+            'Shows how one fixed "budget" of energy splits into kinetic, potential, and dissipated forms as a particle moves.',
+            'Lets you see why objects speed up downhill and slow down uphill without any extra push.',
+            'Makes so-called "lost" energy visible as a growing store instead of something that just vanishes.',
+            'Demonstrates how friction changes motion while the deeper rule – total energy conservation – still holds.',
+            'Helps you think in terms of energy landscapes, not just forces and accelerations.'
+          ]}
+          interactions={[
+            {
+              action: 'Tap on the track',
+              description: 'Click or tap on the track to move the particle to that position and set its velocity to zero. Recalculate energies from that configuration.'
+            },
+            {
+              action: 'Drag to launch',
+              description: 'Press and drag the particle along the track to give it an initial push. The drag distance determines the initial speed and kinetic energy.'
+            },
+            {
+              action: 'Initial energy slider',
+              description: 'Sets how much energy the particle starts with. Higher values allow the particle to climb taller hills. Try different values to see which hills are reachable.'
+            },
+            {
+              action: 'Friction slider (γ)',
+              description: 'Controls the friction coefficient. At zero, energy exchanges cleanly between kinetic and potential. Higher values cause motion to fade as energy moves into the dissipated bucket.'
+            },
+            {
+              action: 'Gravity slider (g)',
+              description: 'Scales the strength of gravity, affecting the depth and steepness of the potential energy landscape.'
+            },
+            {
+              action: 'Track shape selector',
+              description: 'Choose from four track shapes: Flat (no potential), Single hill (Gaussian bump), Double well (quartic potential), or Steep drop (piecewise ramp). Each creates a different energy landscape.'
+            },
+            {
+              action: 'Visualization mode toggle',
+              description: 'Switch between three views: Bars (stacked energy bars with total budget line), Time graph (scrolling time-series of energy components), or Energy phase (energy vs position with potential curve background).'
+            },
+            {
+              action: 'Play/Pause button',
+              description: 'Start or pause the simulation. Useful for examining the particle at a specific moment.'
+            },
+            {
+              action: 'Step button',
+              description: 'Advance the simulation by one fixed timestep. Useful for slow inspection and debugging.'
+            },
+            {
+              action: 'Reset buttons',
+              description: 'Reset particle: returns particle to initial position with current settings. Reset All: resets all sliders and settings to defaults.'
+            }
+          ]}
+        />
+      </>
+    );
+  }
+
+  // Custom layout for Conservation of Momentum module
+  if (isConservationMomentum) {
+    return (
+      <>
+        {/* Content */}
+        <main className="min-h-screen pt-6 pb-10 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Header with back arrow on left */}
+            <motion.header
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8"
+            >
+              <div className="flex items-start gap-4">
+                <motion.button
+                  onClick={handleBack}
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/70 transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 flex-shrink-0 mt-1"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </motion.button>
+                <div className="flex-1">
+                  {(() => {
+                    const parts = module.title.split(' – ');
+                    const mainTitle = parts[0];
+                    const subtitle = parts[1] || '';
+                    return (
+                      <>
+                        <h1 className="text-xl sm:text-2xl font-serif text-ink-primary dark:text-paper-light text-left">
+                          {mainTitle}
+                        </h1>
+                        {subtitle && (
+                          <p className="text-sm sm:text-base text-ink-secondary dark:text-ink-muted text-left">
+                            {subtitle}
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </motion.header>
+
+            {/* How to play chip - above simulation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-4"
+            >
+              <motion.button
+                onClick={() => setIsInstructionDrawerOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-ink-muted/10 dark:bg-paper-light/10 hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 text-sm text-ink-secondary dark:text-ink-muted transition-colors border border-ink-muted/20 dark:border-paper-light/20"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Info className="w-4 h-4" />
+                <span>How to play</span>
+              </motion.button>
+            </motion.div>
+
+            {/* Simulation Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
+            >
+              <ConservationMomentumSimulation />
+            </motion.section>
+
+
+
+            {/* Accordions Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="space-y-4"
+            >
+              <Accordion title="Momentum as stubbornness">
+                <div className="space-y-4">
+                  <p>
+                    Momentum is "how hard something is to stop or divert," not just speed. A small fast object can have the same momentum as a large slow one – both require the same effort to change their motion.
+                  </p>
+                  <p>
+                    In a closed system with no external forces, the vector sum of all momenta cannot change. When two objects collide, they exchange momentum through the collision force, but the total remains constant. Individual speeds and directions can change violently, but the system's overall motion budget stays fixed.
+                  </p>
+                  <p>
+                    This is why momentum conservation is so powerful: it's a constraint that must be satisfied, regardless of how complex the interactions become.
+                  </p>
+                </div>
+              </Accordion>
+
+              <Accordion title="The centre of mass never lies">
+                <div className="space-y-4">
+                  <p>
+                    The centre of mass is the weighted average position of all mass in a system. For two bodies, it sits somewhere on the line connecting them, closer to the heavier body.
+                  </p>
+                  <p>
+                    Internal forces – like collisions between the bodies – cannot change the centre of mass path. Only external forces can do that. So even as the two bodies zig-zag, bounce, and collide, their centre of mass moves in a straight line at constant velocity (or follows a simple path if external forces act).
+                  </p>
+                  <p>
+                    This connects to real-world systems: ice skaters pushing off each other, rockets throwing mass backwards, or any system where parts rearrange internally. The system's "behaviour" continues smoothly even while its parts swirl and change.
+                  </p>
+                  <p>
+                    Watch the crosshair in System View – it's the system's true motion, the behavioural continuation that never breaks stride.
+                  </p>
+                </div>
+              </Accordion>
+            </motion.section>
+          </div>
+        </main>
+
+        {/* Instruction Drawer */}
+        <SimulationInstructionDrawer
+          isOpen={isInstructionDrawerOpen}
+          onClose={() => setIsInstructionDrawerOpen(false)}
+          title="Conservation of Momentum Simulation"
+          instructions={[
+            'Shows how momentum (p = m v) behaves like a shared motion budget between bodies.',
+            'Lets you see that when two objects collide, individual speeds and directions change but the total momentum vector stays fixed.',
+            'Reveals the centre of mass as the "average body" whose path is smooth and stubborn, even during violent interactions.',
+            'Lets you explore how changing mass and elasticity alters who moves more after impact.',
+            'Builds intuition for momentum as a vector quantity: direction matters as much as magnitude.'
+          ]}
+          interactions={[
+            {
+              action: 'Slingshot launch',
+              description: 'While paused, drag from a body to set its initial velocity. The drag direction sets the direction, and the length sets the speed.'
+            },
+            {
+              action: 'Drag bodies',
+              description: 'While paused, click and drag a body to move it to a new position. Set up head-on collisions, glancing blows, or corner impacts.'
+            },
+            {
+              action: 'Elasticity slider',
+              description: 'Controls how bouncy collisions are. 0 = perfectly inelastic (bodies stick together), 1 = perfectly elastic (billiard balls). Real-world collisions are typically 0.5-0.9.'
+            },
+            {
+              action: 'Mass sliders',
+              description: 'Adjust the mass of each body (0.5 to 5). Heavier bodies are harder to move and have more momentum for the same speed. Notice how the lighter body "gives way" more after collisions.'
+            },
+            {
+              action: 'Time scale toggle',
+              description: 'Switch between Normal speed and Slow Motion (0.25x) to inspect collisions in detail. Slow motion helps see the exact moment of impact and how velocities change.'
+            },
+            {
+              action: 'Visual mode toggle',
+              description: 'Standard: Shows bodies and COM crosshair. Vector: Shows velocity (cyan/blue) and momentum (orange/red) vectors for each body. System: Shows total momentum vector and COM trail.'
+            },
+            {
+              action: 'Play/Pause button',
+              description: 'Start or pause the simulation. Useful for setting up initial conditions or examining the system at a specific moment.'
+            },
+            {
+              action: 'Reset buttons',
+              description: 'Reset Scenario: Returns bodies to default positions and velocities while keeping current masses and elasticity. Reset All: Restores all settings to defaults.'
+            }
+          ]}
+        />
+      </>
+    );
+  }
+
+  // Custom layout for Conservation of Information module
+  if (isConservationOfInformation) {
+    return (
+      <>
+        {/* Content */}
+        <main className="min-h-screen pt-6 pb-10 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Header with back arrow on left */}
+            <motion.header
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8"
+            >
+              <div className="flex items-start gap-4">
+                <motion.button
+                  onClick={handleBack}
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/70 transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 flex-shrink-0 mt-1"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </motion.button>
+                <div className="flex-1">
+                  {(() => {
+                    const parts = module.title.split(' – ');
+                    const mainTitle = parts[0];
+                    const subtitle = parts[1] || '';
+                    return (
+                      <>
+                        <h1 className="text-xl sm:text-2xl font-serif text-ink-primary dark:text-paper-light text-left">
+                          {mainTitle}
+                        </h1>
+                        {subtitle && (
+                          <p className="text-sm sm:text-base text-ink-secondary dark:text-ink-muted text-left">
+                            {subtitle}
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </motion.header>
+
+            {/* How to play chip - above simulation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-4"
+            >
+              <motion.button
+                onClick={() => setIsInstructionDrawerOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-ink-muted/10 dark:bg-paper-light/10 hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 text-sm text-ink-secondary dark:text-ink-muted transition-colors border border-ink-muted/20 dark:border-paper-light/20"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Info className="w-4 h-4" />
+                <span>How to play</span>
+              </motion.button>
+            </motion.div>
+
+            {/* Simulation Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
+            >
+              <ConservationInformationSimulation />
+            </motion.section>
+
+
+
+            {/* Accordions Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="space-y-4"
+            >
+              <Accordion title="Is the past still here?">
+                <div className="space-y-4">
+                  <p>
+                    In many fundamental theories – classical Hamiltonian mechanics, quantum unitary evolution – the mapping from state to state is reversible. If you knew the present state <em>perfectly</em> and the exact rules, you could, in principle, reconstruct the past.
+                  </p>
+                  <p>
+                    The simulation's perfect rewind (with zero noise) is a toy model of that idea. When the flow is deterministic and closed, running it backwards undoes every step. The apparent chaos is just a scrambled version of the original pattern, and the scrambling can be reversed.
+                  </p>
+                  <p>
+                    This connects to deep questions in physics: Is information truly conserved? Can we, in principle, recover the past from the present? The simulation shows that in an ideal closed system, the answer is yes.
+                  </p>
+                </div>
+              </Accordion>
+
+              <Accordion title="Noise and true information loss">
+                <div className="space-y-4">
+                  <p>
+                    Noise here represents untracked interactions with an environment. Once the system leaks information into degrees of freedom you don't track, many different past microstates can lead to the same macro appearance.
+                  </p>
+                  <p>
+                    Think of burning a book: in principle, the smoke and photons carry the information, but it's practically unrecoverable. Or the black hole information problem: do black holes destroy information or only scramble it beyond recognition?
+                  </p>
+                  <p>
+                    The key insight is that "entropy increase" is often about <strong>forgetting details</strong>, not magic destruction of reality. Information doesn't vanish – it spreads into degrees of freedom we can't easily track or reconstruct. The simulation makes this visible: with noise, the reverse flow can't perfectly recover the original shape because the exact microstate has been lost to the environment.
+                  </p>
+                </div>
+              </Accordion>
+            </motion.section>
+          </div>
+        </main>
+
+        {/* Instruction Drawer */}
+        <SimulationInstructionDrawer
+          isOpen={isInstructionDrawerOpen}
+          onClose={() => setIsInstructionDrawerOpen(false)}
+          title="Conservation of Information Simulation"
+          instructions={[
+            'Shows how a clear, structured pattern can be stretched and folded into something that looks like random noise.',
+            'Demonstrates that in a closed, deterministic system, this apparent randomness is still reversible: if you reverse the flow, the pattern reappears.',
+            'Introduces noise as a stand-in for the environment: tiny random kicks that destroy the ability to reconstruct the exact past.',
+            'Gives a visual intuition for the difference between scrambled and lost.',
+            'Connects "information" to the uniqueness of a microstate, not just the visible shape.'
+          ]}
+          interactions={[
+            {
+              action: 'Shape preset selector',
+              description: 'Choose from three initial shapes: Square (block), Circle (disc), or Letter I. Each shape demonstrates the same mixing behavior under the same flow law.'
+            },
+            {
+              action: 'Play/Pause button',
+              description: 'Start or pause the simulation. When playing, time advances with the current direction (forward or reverse).'
+            },
+            {
+              action: 'Direction toggle',
+              description: 'Switch between Forward (mixing) and Reverse (unwinding). With zero noise, reversing perfectly reconstructs the original shape. With noise, recovery is imperfect.'
+            },
+            {
+              action: 'Noise slider',
+              description: 'Controls the amount of random noise injected each frame (0-100%). At 0%, the flow is effectively reversible. Higher values break reversibility as information leaks into untracked degrees of freedom.'
+            },
+            {
+              action: 'Speed slider',
+              description: 'Adjusts the time scale of the flow (0.25x to 2x). Slower speeds help see the onset of mixing and the details of reversal.'
+            },
+            {
+              action: 'Visualization mode toggle',
+              description: 'Particles: Shows the particle cloud with color-coded particles based on initial position. Entropy: Same view plus entropy meter and optional grid overlay showing the coarse-grained bins.'
+            },
+            {
+              action: 'Reset buttons',
+              description: 'Reset Shape: Resets to the current shape\'s initial state with t=0, keeping current noise and direction settings. Reset All: Resets everything to defaults (Square shape, Forward direction, 0% noise, 1x speed).'
+            }
+          ]}
+        />
+      </>
+    );
+  }
+
+  // Custom layout for Game of Life module
+  if (isGameOfLife) {
+    return (
+      <>
+        {/* Content */}
+        <main className="min-h-screen pt-6 pb-10 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Header with back arrow on left */}
+            <motion.header
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8"
+            >
+              <div className="flex items-start gap-4">
+                <motion.button
+                  onClick={handleBack}
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/70 transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 flex-shrink-0 mt-1"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </motion.button>
+                <div className="flex-1">
+                  {(() => {
+                    const parts = module.title.split(' – ');
+                    const mainTitle = parts[0];
+                    const subtitle = parts[1] || '';
+                    return (
+                      <>
+                        <h1 className="text-xl sm:text-2xl font-serif text-ink-primary dark:text-paper-light text-left">
+                          {mainTitle}
+                        </h1>
+                        {subtitle && (
+                          <p className="text-sm sm:text-base text-ink-secondary dark:text-ink-muted text-left">
+                            {subtitle}
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </motion.header>
+
+            {/* How to play chip - above simulation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-4"
+            >
+              <motion.button
+                onClick={() => setIsInstructionDrawerOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-ink-muted/10 dark:bg-paper-light/10 hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 text-sm text-ink-secondary dark:text-ink-muted transition-colors border border-ink-muted/20 dark:border-paper-light/20"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Info className="w-4 h-4" />
+                <span>How to play</span>
+              </motion.button>
+            </motion.div>
+
+            {/* Simulation Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
+            >
+              <GameOfLifeSimulation />
+            </motion.section>
+
+            {/* What it does section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="mb-8"
+            >
+              <h2 className="text-lg font-semibold text-ink-primary dark:text-paper-light mb-4">
+                What it does
+              </h2>
+              <ul className="space-y-2 text-ink-secondary dark:text-ink-muted">
+                <li className="flex items-start">
+                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
+                  <span>Simulates a zero-player universe whose entire future is encoded in its starting pattern.</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
+                  <span>Shows how four simple local rules create still lifes, oscillators, moving "ships", and endless chaos.</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
+                  <span>Uses colour and age to reveal which structures are stable elders and which are newborn sparks.</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
+                  <span>Lets you explore how richness of behaviour sits on the knife-edge between overcrowding and emptiness.</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
+                  <span>Gives a hands-on feel for <strong>emergence</strong>: complex stories arising from simple rules.</span>
+                </li>
+              </ul>
+            </motion.section>
+
+            {/* How to interact section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="mb-8"
+            >
+              <h2 className="text-lg font-semibold text-ink-primary dark:text-paper-light mb-4">
+                How to interact
+              </h2>
+              <div className="space-y-3">
+                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-4 border border-ink-muted/20 dark:border-paper-light/20">
+                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
+                    Paint life
+                  </div>
+                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
+                    Click and drag on the grid in Pen mode to create your own starting organisms. Use Erase mode to carve away parts of the world.
+                  </div>
+                </div>
+                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-4 border border-ink-muted/20 dark:border-paper-light/20">
+                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
+                    Plant famous seeds
+                  </div>
+                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
+                    Use the presets to drop in gliders, pulsars, and the Gosper glider gun. See how each pattern has its own personality and rhythm.
+                  </div>
+                </div>
+                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-4 border border-ink-muted/20 dark:border-paper-light/20">
+                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
+                    Watch it evolve
+                  </div>
+                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
+                    Press Play and adjust the speed slider. Look for regions that stabilise and regions that keep boiling.
+                  </div>
+                </div>
+                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-4 border border-ink-muted/20 dark:border-paper-light/20">
+                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
+                    Switch to Biological Mode
+                  </div>
+                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
+                    Turn on age-based colouring. Old cells fade into deep blues and purples; newborns flash bright.
+                  </div>
+                </div>
+                <div className="bg-ink-muted/5 dark:bg-paper-light/5 rounded-lg p-4 border border-ink-muted/20 dark:border-paper-light/20">
+                  <div className="font-medium text-ink-primary dark:text-paper-light mb-1">
+                    Step through the story
+                  </div>
+                  <div className="text-sm text-ink-secondary dark:text-ink-muted">
+                    Pause and use the Step button to move one generation at a time. Study how each tiny local decision adds up to a global change.
+                  </div>
+                </div>
+              </div>
+            </motion.section>
+
+            {/* Accordions Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="space-y-4"
+            >
+              <Accordion title="The four rules of life">
+                <div className="space-y-4">
+                  <p>
+                    Conway's Game of Life follows four simple rules that govern each cell's fate based on its eight neighbours:
+                  </p>
+                  <ul className="space-y-2 list-disc list-inside text-ink-secondary dark:text-ink-muted">
+                    <li><strong>Too few neighbours</strong> (less than 2): A living cell dies from isolation.</li>
+                    <li><strong>Just enough</strong> (2 or 3): A living cell survives to the next generation.</li>
+                    <li><strong>Too many</strong> (more than 3): A living cell dies from overcrowding.</li>
+                    <li><strong>Exactly three neighbours</strong>: A dead cell comes to life through reproduction.</li>
+                  </ul>
+                  <p>
+                    These rules create a delicate balance at the <strong>edge of chaos</strong>. Too sparse, and everything dies out. Too dense, and everything collapses. But at just the right density, patterns can persist, move, and evolve in endlessly surprising ways.
+                  </p>
+                </div>
+              </Accordion>
+
+              <Accordion title="Is it alive?">
+                <div className="space-y-4">
+                  <p>
+                    Game of Life patterns exhibit behaviours that feel remarkably lifelike:
+                  </p>
+                  <ul className="space-y-2 list-disc list-inside text-ink-secondary dark:text-ink-muted">
+                    <li>They <strong>consume space and potential</strong> like resources, growing or shrinking based on their environment.</li>
+                    <li>They <strong>reproduce</strong> – gliders create copies of themselves as they move, and breeders spawn new patterns continuously.</li>
+                    <li>They <strong>evolve</strong> complex structures from simple seeds, with some patterns stabilising while others remain in constant flux.</li>
+                  </ul>
+                  <p>
+                    Remarkably, Game of Life is <strong>Turing complete</strong>: in principle, you can build a computer inside this grid. Patterns can perform calculations, store data, and execute programs. This raises profound questions: when does pattern become "behaviour", and when does behaviour feel like a self?
+                  </p>
+                  <p>
+                    The simulation invites you to explore this boundary. Watch a glider move across the grid – is it an organism? A wave? Or just pixels following rules? The answer might depend on how you look at it.
+                  </p>
+                </div>
+              </Accordion>
+            </motion.section>
+          </div>
+        </main>
+
+        {/* Instruction Drawer */}
+        <SimulationInstructionDrawer
+          isOpen={isInstructionDrawerOpen}
+          onClose={() => setIsInstructionDrawerOpen(false)}
+          title="Conway's Game of Life Simulation"
+          instructions={[
+            'Simulates a zero-player universe where the entire future is determined by the starting pattern.',
+            'Shows how four simple local rules create still lifes, oscillators, moving "ships", and endless chaos.',
+            'Uses colour and age to reveal which structures are stable elders and which are newborn sparks.',
+            'Lets you explore how richness of behaviour sits on the knife-edge between overcrowding and emptiness.',
+            'Gives a hands-on feel for emergence: complex stories arising from simple rules.',
+            '',
+            'Things to look for:',
+            '• Gliders: Small patterns that move diagonally across the grid',
+            '• Oscillators: Patterns that repeat in cycles (like the Pulsar)',
+            '• Stable islands: Still lifes that remain unchanged',
+            '• Chaotic seas: Regions of constant activity and change'
+          ]}
+          interactions={[
+            {
+              action: 'Play/Pause button',
+              description: 'Starts or pauses the simulation. When running, the grid evolves generation by generation according to Conway\'s rules.'
+            },
+            {
+              action: 'Step button',
+              description: 'When paused, advances the simulation by exactly one generation. Useful for studying how patterns evolve step by step.'
+            },
+            {
+              action: 'Speed slider',
+              description: 'Controls how many generations per second the simulation runs (1-60 gen/s). Higher speeds show evolution faster, while slower speeds help you see the details.'
+            },
+            {
+              action: 'Visual Mode toggle',
+              description: 'Standard: White alive cells with grey ghost trails. Biological: Age-based colour gradients where newborns are bright white/cyan and old cells fade to deep purple/blue.'
+            },
+            {
+              action: 'Draw Mode toggle',
+              description: 'Pen: Click and drag on the canvas to create living cells. Erase: Click and drag to remove cells. Great for creating custom starting patterns.'
+            },
+            {
+              action: 'Presets',
+              description: 'Random: Fills the grid with random cells (~35% density). Glider: Places a 5-cell pattern that moves diagonally. Pulsar: A period-3 oscillator. Glider Gun: The famous Gosper glider gun that continuously produces gliders.'
+            },
+            {
+              action: 'Clear button',
+              description: 'Resets the entire grid to all dead cells, sets generation to 0, and clears all age and fade data.'
+            }
+          ]}
+        />
+      </>
+    );
+  }
+
+  // Custom layout for Chaos Theory module
+  if (isChaosTheory) {
+    return (
+      <>
+        {/* Content */}
+        <main className="min-h-screen pt-6 pb-10 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Header with back arrow on left */}
+            <motion.header
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8"
+            >
+              <div className="flex items-start gap-4">
+                <motion.button
+                  onClick={handleBack}
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/70 transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 flex-shrink-0 mt-1"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </motion.button>
+                <div className="flex-1">
+                  {(() => {
+                    const parts = module.title.split(' – ');
+                    const mainTitle = parts[0];
+                    const subtitle = parts[1] || '';
+                    return (
+                      <>
+                        <h1 className="text-xl sm:text-2xl font-serif text-ink-primary dark:text-paper-light text-left">
+                          {mainTitle}
+                        </h1>
+                        {subtitle && (
+                          <p className="text-sm sm:text-base text-ink-secondary dark:text-ink-muted text-left">
+                            {subtitle}
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </motion.header>
+
+            {/* How to play chip - above simulation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-4"
+            >
+              <motion.button
+                onClick={() => setIsInstructionDrawerOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-ink-muted/10 dark:bg-paper-light/10 hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 text-sm text-ink-secondary dark:text-ink-muted transition-colors border border-ink-muted/20 dark:border-paper-light/20"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Info className="w-4 h-4" />
+                <span>How to play</span>
+              </motion.button>
+            </motion.div>
+
+            {/* Simulation Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
+            >
+              <ChaosTheorySimulation />
+            </motion.section>
+
+
+
+            {/* Accordions Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="space-y-4"
+            >
+              <Accordion title="The Butterfly Effect">
+                <div className="space-y-4">
+                  <p>
+                    The story of chaos theory begins with Edward Lorenz, a meteorologist who was running weather simulations on an early computer in the 1960s. One day, he wanted to rerun a simulation from the middle, so he entered the values from a previous printout. But instead of entering <code className="bg-ink-muted/10 dark:bg-paper-light/10 px-1 rounded">.506127</code>, he entered <code className="bg-ink-muted/10 dark:bg-paper-light/10 px-1 rounded">.506</code> – a difference of less than 0.1%.
+                  </p>
+                  <p>
+                    To his surprise, the simulation diverged completely from the original run. What started as a tiny rounding error grew exponentially, until the two forecasts were completely different. This led Lorenz to realize that in chaotic systems, <strong>small differences grow exponentially</strong>.
+                  </p>
+                  <p>
+                    The system is completely deterministic – the same equations, the same rules. But beyond a certain time horizon, prediction becomes practically impossible because we can never know the initial conditions with infinite precision. This is why weather forecasts become unreliable beyond about two weeks, no matter how powerful our computers become.
+                  </p>
+                </div>
+              </Accordion>
+
+              <Accordion title="Why chaos is deterministic">
+                <div className="space-y-4">
+                  <p>
+                    It's important to understand that chaos is not randomness. There is no randomness in the Lorenz equations themselves. Each state uniquely determines the next state through the equations:
+                  </p>
+                  <ul className="space-y-2 list-disc list-inside text-ink-secondary dark:text-ink-muted">
+                    <li><code className="bg-ink-muted/10 dark:bg-paper-light/10 px-1 rounded">dx/dt = σ(y - x)</code></li>
+                    <li><code className="bg-ink-muted/10 dark:bg-paper-light/10 px-1 rounded">dy/dt = x(ρ - z) - y</code></li>
+                    <li><code className="bg-ink-muted/10 dark:bg-paper-light/10 px-1 rounded">dz/dt = xy - βz</code></li>
+                  </ul>
+                  <p>
+                    The unpredictability comes from <strong>sensitivity</strong> and <strong>finite precision</strong>. We can never measure or represent the state of the system with infinite accuracy. Even the smallest error – whether from measurement, rounding, or numerical computation – will eventually grow large enough to dominate the system's behavior.
+                  </p>
+                  <p>
+                    This connects directly to weather forecasting: we never know the atmosphere's state with infinite precision. Every measurement has uncertainty, and that uncertainty compounds over time. This is why long-range weather forecasts are inherently unreliable, even though the underlying physics is completely deterministic.
+                  </p>
+                </div>
+              </Accordion>
+            </motion.section>
+          </div>
+        </main>
+
+        {/* Instruction Drawer */}
+        <SimulationInstructionDrawer
+          isOpen={isInstructionDrawerOpen}
+          onClose={() => setIsInstructionDrawerOpen(false)}
+          title="Chaos Theory Simulation"
+          instructions={[
+            'Runs the simplified weather equations Edward Lorenz used to study convection.',
+            'Shows two realities – A and B – following the same rules with almost identical starting points.',
+            'Reveals how they shadow each other for a while, then suddenly peel off in different directions.',
+            'Lets you see how changing ρ moves the system from calm, predictable flow to chaotic motion.',
+            'Makes the idea of a prediction horizon tangible: beyond a certain time, tiny errors dominate.'
+          ]}
+          interactions={[
+            {
+              action: 'Play/Pause button',
+              description: 'Starts or pauses the simulation. When running, both trajectories evolve according to the Lorenz equations.'
+            },
+            {
+              action: 'Restart button',
+              description: 'Resets both trajectories to their initial conditions using the current ε and ρ values. Use this after changing parameters.'
+            },
+            {
+              action: 'Initial difference (ε) slider',
+              description: 'Controls how different the starting points are. Smaller values (like 1e-6) show more dramatic divergence, while larger values diverge faster. Changes only take effect when you press Restart.'
+            },
+            {
+              action: 'Speed slider',
+              description: 'Controls the time scale of the simulation. Higher speeds show the divergence faster, but slower speeds help you see the details of how the trajectories evolve.'
+            },
+            {
+              action: 'ρ (Rho) slider',
+              description: 'Controls the Lorenz system parameter. At ρ = 28 (default), the system is chaotic. Lower values (below ~24) lead to non-chaotic behavior with fixed points or simple oscillations. Changes automatically trigger a restart.'
+            },
+            {
+              action: 'View Mode toggle',
+              description: 'Attractor view: Shows the 3D butterfly-shaped attractor with both trajectories. Separation view: Shows a graph of how the distance between the two trajectories grows over time (log scale).'
+            }
+          ]}
+        />
+      </>
+    );
+  }
+
+  // Custom layout for Self-Organised Criticality module
+  if (isSelfOrganisedCriticality) {
+    return (
+      <>
+        {/* Content */}
+        <main className="min-h-screen pt-6 pb-10 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Header with back arrow on left */}
+            <motion.header
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8"
+            >
+              <div className="flex items-start gap-4">
+                <motion.button
+                  onClick={handleBack}
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/70 transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 flex-shrink-0 mt-1"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </motion.button>
+                <div className="flex-1">
+                  {(() => {
+                    const parts = module.title.split(' – ');
+                    const mainTitle = parts[0];
+                    const subtitle = parts[1] || '';
+                    return (
+                      <>
+                        <h1 className="text-xl sm:text-2xl font-serif text-ink-primary dark:text-paper-light text-left">
+                          {mainTitle}
+                        </h1>
+                        {subtitle && (
+                          <p className="text-sm sm:text-base text-ink-secondary dark:text-ink-muted text-left">
+                            {subtitle}
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </motion.header>
+
+            {/* How to play chip - above simulation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-4"
+            >
+              <motion.button
+                onClick={() => setIsInstructionDrawerOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-ink-muted/10 dark:bg-paper-light/10 hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 text-sm text-ink-secondary dark:text-ink-muted transition-colors border border-ink-muted/20 dark:border-paper-light/20"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Info className="w-4 h-4" />
+                <span>How to play</span>
+              </motion.button>
+            </motion.div>
+
+            {/* Simulation Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
+            >
+              <SelfOrganisedCriticalitySimulation />
+            </motion.section>
+
+
+
+            {/* Accordions Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="space-y-4"
+            >
+              <Accordion title="What is a critical state?">
+                <div className="space-y-4">
+                  <p>
+                    A critical state is where the system is balanced between two extremes:
+                  </p>
+                  <ul className="space-y-2 list-disc list-inside text-ink-secondary dark:text-ink-muted">
+                    <li>
+                      <strong>Too ordered:</strong> Nothing interesting happens. The system is too stable, too predictable.
+                    </li>
+                    <li>
+                      <strong>Too disordered:</strong> Everything collapses immediately. The system can't maintain any structure.
+                    </li>
+                  </ul>
+                  <p>
+                    In Self-Organised Criticality, the system <strong>drifts</strong> to this critical state by itself under slow driving and fast relaxation. You don't need to fine-tune anything – just add grains slowly, and the system naturally finds the edge where small triggers can cause large effects.
+                  </p>
+                  <p>
+                    This is remarkable because it means criticality isn't a rare, carefully tuned condition. It's what happens naturally when you have a system that builds up stress slowly and releases it quickly.
+                  </p>
+                </div>
+              </Accordion>
+
+              <Accordion title="Why disasters are unavoidable">
+                <div className="space-y-4">
+                  <p>
+                    In a critical system, big events don't need big triggers. A single grain, trade, spark, or tremor can cascade into a system-spanning avalanche.
+                  </p>
+                  <p>
+                    This isn't a bug – it's a feature of how these systems work. The same mechanism that allows tiny releases also allows massive ones. The system is poised at the edge, where the difference between a small event and a large one isn't in the trigger, but in how the cascade unfolds.
+                  </p>
+                  <p>
+                    This principle appears across nature and human systems:
+                  </p>
+                  <ul className="space-y-2 list-disc list-inside text-ink-secondary dark:text-ink-muted">
+                    <li>
+                      <strong>Earthquakes:</strong> Tectonic plates build stress slowly. A small slip can trigger a massive quake.
+                    </li>
+                    <li>
+                      <strong>Market crashes:</strong> Markets accumulate imbalances. A single trade can cascade into a crash.
+                    </li>
+                    <li>
+                      <strong>Forest fires:</strong> Forests accumulate fuel. A small spark can become a wildfire.
+                    </li>
+                    <li>
+                      <strong>Brain avalanches:</strong> Neural networks build up activity. A small trigger can cascade into a large-scale neural event.
+                    </li>
+                  </ul>
+                  <p>
+                    Different materials, different scales, but the same underlying logic: systems that build stress slowly and release it quickly naturally organize at the edge of chaos, where disasters are not anomalies but inevitable features of the system's structure.
+                  </p>
+                </div>
+              </Accordion>
+            </motion.section>
+          </div>
+        </main>
+
+        {/* Instruction Drawer */}
+        <SimulationInstructionDrawer
+          isOpen={isInstructionDrawerOpen}
+          onClose={() => setIsInstructionDrawerOpen(false)}
+          title="Self-Organised Criticality Simulation"
+          instructions={[
+            'Represents complex systems (tectonic plates, forests, markets, neural tissue) as a grid of slowly building stress.',
+            'Shows how the system self-organises to a critical state – no fine-tuning, just add grains.',
+            'Demonstrates that the same rule produces both tiny flickers and system-spanning avalanches.',
+            'Reveals a power-law pattern in avalanche sizes: many small releases, few rare, massive collapses.',
+            'Gives intuition for why "disasters" are a feature of critical systems, not freak anomalies.'
+          ]}
+          interactions={[
+            {
+              action: 'Play/Pause button',
+              description: 'Starts or pauses automatic grain dropping. When playing, grains are added at the set drop speed.'
+            },
+            {
+              action: 'Drop Grain button',
+              description: 'Manually adds one grain to the grid and resolves any resulting avalanche. Works even when paused.'
+            },
+            {
+              action: 'Click on canvas',
+              description: 'Click anywhere on the grid to drop a grain at that specific location. Useful for targeted exploration.'
+            },
+            {
+              action: 'Drop Speed slider',
+              description: 'Controls how many grains per second are automatically added (0-50). Set to 0 for manual-only mode.'
+            },
+            {
+              action: 'Drop Mode toggle',
+              description: 'Center: Grains always added to the center cell. Random: Grains added to random cells. Center mode helps build up stress in one region.'
+            },
+            {
+              action: 'View Mode toggle',
+              description: 'Height Map: Shows cell heights with color coding (black=0, blue=1-2, cyan=3, yellow/green=4+, white=unstable). Avalanche View: Highlights only cells that toppled in the current frame (bright green), others dim.'
+            },
+            {
+              action: 'Reset button',
+              description: 'Clears the entire grid (all cells to 0), resets avalanche history, and resets the drop counter.'
+            },
+            {
+              action: 'Avalanche Analytics Panel',
+              description: 'Shows the last avalanche size, total number of drops, and a mini graph of avalanche sizes over time. Notice the power-law pattern: many small events, few large ones.'
+            }
+          ]}
+        />
+      </>
+    );
+  }
+
+  // Custom layout for Reaction-Diffusion module
+  if (isReactionDiffusion) {
+    return (
+      <>
+        {/* Content */}
+        <main className="min-h-screen pt-6 pb-10 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Header with back arrow on left */}
+            <motion.header
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8"
+            >
+              <div className="flex items-start gap-4">
+                <motion.button
+                  onClick={handleBack}
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/70 transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 flex-shrink-0 mt-1"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </motion.button>
+                <div className="flex-1">
+                  {(() => {
+                    const parts = module.title.split(' – ');
+                    const mainTitle = parts[0];
+                    const subtitle = parts[1] || '';
+                    return (
+                      <>
+                        <h1 className="text-xl sm:text-2xl font-serif text-ink-primary dark:text-paper-light text-left">
+                          {mainTitle}
+                        </h1>
+                        {subtitle && (
+                          <p className="text-sm sm:text-base text-ink-secondary dark:text-ink-muted text-left">
+                            {subtitle}
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </motion.header>
+
+            {/* How to play chip - above simulation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-4"
+            >
+              <motion.button
+                onClick={() => setIsInstructionDrawerOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-ink-muted/10 dark:bg-paper-light/10 hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 text-sm text-ink-secondary dark:text-ink-muted transition-colors border border-ink-muted/20 dark:border-paper-light/20"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Info className="w-4 h-4" />
+                <span>How to play</span>
+              </motion.button>
+            </motion.div>
+
+            {/* Simulation Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
+            >
+              <ReactionDiffusionSimulation />
+            </motion.section>
+
+
+
+            {/* Accordions Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="space-y-4"
+            >
+              <Accordion title="How the Leopard Got Its Spots">
+                <div className="space-y-4">
+                  <p>
+                    In 1952, Alan Turing asked: how do biological patterns form? How do leopards get their spots, zebras their stripes, seashells their spirals?
+                  </p>
+                  <p>
+                    He proposed that two chemicals reacting and diffusing could generate these patterns. One chemical (the "activator") promotes its own production, while the other (the "inhibitor") suppresses it. If the inhibitor diffuses faster, it creates zones where the activator is suppressed, leading to spatial patterns.
+                  </p>
+                  <p>
+                    The key is <strong>symmetry breaking</strong>: a uniform state becomes unstable under the right reaction–diffusion rules. Tiny fluctuations get amplified instead of erased. Different wave numbers grow at different rates, and the fastest-growing mode sets the characteristic spot or stripe size.
+                  </p>
+                  <p>
+                    The pattern isn't pre-programmed – it emerges from the interaction between local chemistry and global geometry. The same principles appear in real biological systems, from animal coats to the arrangement of leaves on a stem.
+                  </p>
+                </div>
+              </Accordion>
+
+              <Accordion title="The Math of Becoming">
+                <div className="space-y-4">
+                  <p>
+                    The Gray–Scott model demonstrates Turing's idea beautifully. Two fields (U and V) interact: U feeds V, V consumes U, and both diffuse across space.
+                  </p>
+                  <p>
+                    The magic happens through <strong>short-range activation</strong> and <strong>long-range inhibition</strong>. The activator (V) promotes its own production locally, while the inhibitor (U) diffuses faster and suppresses activation at a distance.
+                  </p>
+                  <p>
+                    This creates a feedback loop: where V is high, it stays high (activation). But V also consumes U, and U diffuses away faster, creating zones where V is suppressed (inhibition). The balance between these forces determines whether you get spots, stripes, labyrinths, or chaos.
+                  </p>
+                  <p>
+                    The pattern's scale emerges from the balance between reaction rates (F and K) and diffusion speeds (Du and Dv). Change these parameters slightly, and the entire pattern morphs – revealing how form emerges from the math of movement and hunger.
+                  </p>
+                </div>
+              </Accordion>
+            </motion.section>
+          </div>
+        </main>
+
+        {/* Instruction Drawer */}
+        <SimulationInstructionDrawer
+          isOpen={isInstructionDrawerOpen}
+          onClose={() => setIsInstructionDrawerOpen(false)}
+          title="Reaction–Diffusion Simulation"
+          instructions={[
+            'Explains biological textures: how zebra stripes, leopard spots, and seashell patterns emerge from simple chemical rules.',
+            'Demonstrates symmetry breaking – how uniform starting conditions plus small disturbances blossom into distinct patterns.',
+            'Shows Turing patterns – structure emerging purely from instability in a reaction–diffusion system.',
+            'Reveals how changing a few parameters (feed & kill rates, diffusion balance) completely rewires what kind of "skin" the system grows.',
+            'Connects the math of movement and hunger to the patterns of life itself.'
+          ]}
+          interactions={[
+            {
+              action: 'Paint Chemical B',
+              description: 'Click and drag on the canvas to inject Chemical B (V) into the field. This creates local disturbances that can trigger pattern formation.'
+            },
+            {
+              action: 'Play/Pause button',
+              description: 'Start or pause the simulation. When playing, the pattern evolves according to the Gray–Scott equations.'
+            },
+            {
+              action: 'Preset buttons',
+              description: 'Select from five presets: Coral, Fingerprints, Mitosis, Black Hole, or Chaotic. Each preset sets specific Du, Dv, F, and K parameters that produce characteristic patterns.'
+            },
+            {
+              action: 'View mode toggle',
+              description: 'Switch between four views: U (grayscale, shows the U field), V (blue–magenta, shows the V field), Pattern (combined view showing the emergent pattern), and Edges (highlights spatial gradients).'
+            },
+            {
+              action: 'Speed slider',
+              description: 'Controls how many simulation steps run per frame (1–10x). Higher speeds show pattern evolution faster, but slower speeds help you see the details of how patterns form.'
+            },
+            {
+              action: 'Perturb button',
+              description: 'Injects small random patches of V into the field without resetting. Watch how local disturbances ripple outward and interact with existing patterns.'
+            },
+            {
+              action: 'Reset button',
+              description: 'Resets the grid to the current preset\'s initial conditions (U=1, V=0 with a center disturbance).'
+            },
+            {
+              action: 'Advanced Parameters (F and K)',
+              description: 'Fine-tune the feed rate (F) and kill rate (K) around a preset\'s values. Small changes can dramatically alter the pattern type. F controls how quickly U feeds into the system, while K controls how quickly V is removed.'
+            }
+          ]}
+        />
+      </>
+    );
+  }
+
   // Standard module page layout
   return (
     <>
@@ -1548,13 +2593,7 @@ const LearnModulePage: React.FC = () => {
               Simulation
             </h2>
             <div className="text-ink-secondary dark:text-ink-muted">
-              {isGameOfLife ? (
-                <p className="mb-4">
-                  The interactive Game of Life simulation is available. This module demonstrates how simple rules generate complex patterns.
-                </p>
-              ) : (
-                <p>Interactive simulation will be implemented here.</p>
-              )}
+              <p>Interactive simulation will be implemented here.</p>
             </div>
           </motion.section>
 

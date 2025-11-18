@@ -114,53 +114,53 @@ const allModules: Omit<LearnModule, 'moduleNumber' | 'totalModules'>[] = [
   {
     id: 'conservation-of-energy-transformation-not-loss',
     title: 'Conservation of Energy – Transformation, Not Loss',
-    content: 'Placeholder content for Conservation of Energy module. Energy is never destroyed, only transformed.',
+    content: 'Play with a rolling particle and watch energy move between kinetic, potential, and "lost" forms. The total energy stays fixed – only its shape changes.',
     section: 'Conservation Laws',
-    tags: ['physics', 'energy', 'conservation', 'transformation']
+    tags: ['physics', 'mechanics', 'energy', 'intuition', 'learn']
   },
   {
     id: 'conservation-of-momentum-behavioural-continuation',
     title: 'Conservation of Momentum – Behavioural Continuation',
-    content: 'Placeholder content for Conservation of Momentum module. How momentum persists through interactions.',
+    content: 'Smash two orbs together on a frictionless table and watch how the system\'s overall motion never breaks stride, even as each body changes direction.',
     section: 'Conservation Laws',
-    tags: ['physics', 'momentum', 'conservation', 'motion']
+    tags: ['physics', 'mechanics', 'momentum', 'collisions', 'intuition']
   },
   {
     id: 'conservation-of-information-nothing-truly-vanishes',
     title: 'Conservation of Information – Nothing Truly Vanishes',
-    content: 'Placeholder content for Conservation of Information module. Information is preserved even in black holes.',
+    content: 'Watch a clean shape dissolve into chaos, then rewind time to pull it back together. Only when you add noise does the past truly disappear.',
     section: 'Conservation Laws',
-    tags: ['physics', 'information', 'conservation', 'quantum']
+    tags: ['physics', 'information', 'entropy', 'chaos', 'intuition']
   },
 
   // Section 4: Dynamical Systems & Complexity
   {
-    id: 'game-of-life',
+    id: 'conways-game-of-life-emergence-from-simplicity',
     title: 'Conway\'s Game of Life – Emergence From Simplicity',
-    content: 'Simple rules. Surprising patterns. See how tiny choices grow into complex worlds.',
+    content: 'Discover how four simple rules generate endless complexity. Paint your own creatures and watch order emerge from chaos in a universe of pure logic.',
     section: 'Dynamical Systems & Complexity',
-    tags: ['consequence', 'patterns', 'emergence', 'simulation']
+    tags: ['computation', 'emergence', 'complexity', 'cellular-automata', 'intuition']
   },
   {
     id: 'chaos-theory-sensitive-dependence',
     title: 'Chaos Theory – Sensitive Dependence',
-    content: 'Placeholder content for Chaos Theory module. How small changes lead to dramatically different outcomes.',
+    content: 'Witness how microscopic differences spiral into macroscopic consequences. Trace the butterfly-shaped Lorenz attractor.',
     section: 'Dynamical Systems & Complexity',
-    tags: ['chaos', 'complexity', 'sensitivity', 'nonlinear']
+    tags: ['chaos', 'dynamics', 'nonlinear', 'sensitivity', 'attractor']
   },
   {
     id: 'self-organised-criticality-the-avalanche-principle',
     title: 'Self-Organised Criticality – The Avalanche Principle',
-    content: 'Placeholder content for Self-Organised Criticality module. Systems naturally organize at the edge of chaos.',
+    content: 'Discover why large catastrophes arise in stable-looking systems. Build a sandpile and watch tiny grains trigger avalanches of all sizes.',
     section: 'Dynamical Systems & Complexity',
-    tags: ['complexity', 'self-organization', 'criticality', 'emergence']
+    tags: ['complexity', 'criticality', 'avalanches', 'emergence', 'systems']
   },
   {
     id: 'reaction-diffusion-patterns-born-from-opposites',
     title: 'Reaction–Diffusion – Patterns Born From Opposites',
-    content: 'Placeholder content for Reaction-Diffusion module. How opposing forces create beautiful patterns.',
+    content: 'How do leopards get their spots? Watch distinct patterns emerge from the math of movement and hunger.',
     section: 'Dynamical Systems & Complexity',
-    tags: ['patterns', 'reaction-diffusion', 'morphogenesis', 'complexity']
+    tags: ['reaction-diffusion', 'turing', 'patterns', 'emergence', 'complexity']
   },
 
   // Section 5: Newtonian Mechanics

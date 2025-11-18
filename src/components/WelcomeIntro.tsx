@@ -121,7 +121,7 @@ const WelcomeIntro: React.FC<WelcomeIntroProps> = ({ isOpen, onClose }) => {
 
 It gives you daily guided reflections, short stories, breathwork tools, and interactive simulations that help you understand yourself from the inside out.
 
-It's not another wellness app it's a **centre of gravity**. A place to pause, reflect, and widen your perspective every time you open it.`;
+It's not another wellness app – it's a **centre of gravity**. A place to pause, reflect, and widen your perspective every time you open it.`;
 
   const expandedText = `This is a **self-understanding engine**.
 
