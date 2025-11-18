@@ -97,7 +97,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         <div className="relative z-[10002]">
           {/* Back Arrow / Search Icon - Animated Transition */}
           <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center justify-center z-30">
-            <AnimatePresence mode="wait" initial={false}>
+            <AnimatePresence mode="wait">
               {showBackArrow ? (
                 <motion.button
                   key="back-arrow"
@@ -121,7 +121,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
               ) : (
                 <motion.button
                   key="search-icon"
-                  initial={{ opacity: 1, scale: 1, rotate: 0 }}
+                  initial={{ opacity: 0, scale: 0.8, rotate: 90 }}
                   animate={{ opacity: 1, scale: 1, rotate: 0 }}
                   exit={{ opacity: 0, scale: 0.8, rotate: -90 }}
                   transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}

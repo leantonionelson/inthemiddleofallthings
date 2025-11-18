@@ -50,7 +50,7 @@ function SearchOverlay<T extends { id: string }>({
     <>
       {/* Backdrop with Video Background */}
       <div 
-        className="fixed inset-0 z-[9999]"
+        className="fixed inset-0 z-[10001] pointer-events-auto"
         onClick={onClose}
       >
         {/* Background Video */}
@@ -69,8 +69,8 @@ function SearchOverlay<T extends { id: string }>({
         </div>
       </div>
       
-      {/* Search Results Full Screen */}
-      <div data-search-overlay className="fixed top-20 left-0 right-0 bottom-0 z-[9999] overflow-hidden">
+      {/* Search Results Full Screen - Start below SearchBar (SearchBar is ~72px tall) */}
+      <div data-search-overlay className="fixed top-20 left-0 right-0 bottom-0 z-[10002] overflow-hidden">
         <div className="max-w-2xl mx-auto h-full flex flex-col">
           {/* Tag Cloud - Horizontal Scrollable, Two Rows */}
           <div className="px-6 py-4 border-b border-ink-muted/10 dark:border-paper-light/10">

@@ -12,7 +12,7 @@ The **is**.
 The **all**.
 A single, complete awareness folded into itself like a perfect mirror.
 
-And if you listen closely, you might feel the faint echo of this in yourself —
+And if you listen closely, you might feel the faint echo of this in yourself –
 that quiet knowing that precedes every word you've ever spoken.
 
 But even a perfect mirror, to know itself, must reflect something.
@@ -20,7 +20,7 @@ It must see its own face from another angle.
 It must create a vantage point from which to behold its own vastness.
 
 So the Whole did something both simple and impossible.
-It turned outward — and in doing so, fractured.
+It turned outward – and in doing so, fractured.
 
 Not violently.
 Not tragically.
@@ -37,7 +37,7 @@ The first breath of **I**.
 A boundary forming where no boundary had ever been.
 
 You know this feeling.
-You've lived it many times —
+You've lived it many times –
 in birth,
 in heartbreak,
 in moments when life pulled something from you
@@ -57,7 +57,7 @@ It declared, *"I am this."*
 This was the first survival.
 The first identity.
 The first "truth."
-And with it, inevitably —
+And with it, inevitably –
 *I am not that.*
 
 You know this move too.
@@ -71,7 +71,7 @@ Here, the ancient story becomes your story.
 Cultures formed.
 Beliefs hardened.
 Patterns of survival became inherited wisdom.
-These patterns did what they were meant to do —
+These patterns did what they were meant to do –
 they kept you alive,
 kept you oriented,
 gave you a place to stand.
@@ -94,13 +94,13 @@ Where love is misread as intrusion,
 beauty as noise,
 and every other person becomes a distortion in the glass.
 
-You have felt this too —
+You have felt this too –
 those moments where nothing good can reach you,
 even when it tries.
 Not because it is absent,
 but because the lens cannot take it in.
 
-But the universe — your universe — does not leave you here.
+But the universe – your universe – does not leave you here.
 
 It moves in spirals.
 It repeats, yes,
@@ -123,7 +123,7 @@ It feels like loss.
 Like betrayal.
 Like the floor falling away.
 
-But look back, and you will see —
+But look back, and you will see –
 every rupture returned you to possibility.
 Every antithesis drew you closer to your own centre.
 
@@ -140,7 +140,7 @@ but to recognise the whole fractal pattern in yourself.
 The same symmetry the Whole once held as its only truth.
 
 And then to look out
-and see that symmetry mirrored in every face you meet —
+and see that symmetry mirrored in every face you meet –
 even the ones that challenge you the most.
 
 Especially those.
@@ -154,7 +154,7 @@ Not transcendence as escape.
 Just clearing the lens.
 
 Letting it become balanced enough
-that love is no longer something you must manufacture or perform —
+that love is no longer something you must manufacture or perform –
 but something that simply flows when perception is unobstructed.
 
 In this state, "love" is not an emotion.

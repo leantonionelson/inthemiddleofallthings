@@ -3,6 +3,10 @@
   publish = "dist"
   functions = "netlify/functions"
 
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_VERSION = "10"
+
 # Firebase client-side API keys are MEANT to be public (they're protected by Firebase security rules)
 # Netlify's secrets scanner detects them in the build output, causing deployment failures
 # 

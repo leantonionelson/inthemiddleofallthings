@@ -349,7 +349,7 @@ const DesktopLandingPage: React.FC = () => {
                 In the Middle of All Things
               </h1>
               <p className="text-xl text-ink-secondary dark:text-ink-muted">
-                A philosophical companion for the living axis.
+                Not a wellness app. A centre of gravity.
               </p>
             </motion.div>
 
@@ -445,36 +445,49 @@ const DesktopLandingPage: React.FC = () => {
               </h2>
               <div className="space-y-4 text-lg text-ink-secondary dark:text-ink-muted leading-relaxed">
                 <p>
-                  Your mind is the lens through which you receive and interpret the universe. This lens is shaped by your "hardcoding" – your beliefs, your experiences, and the patterns passed down to you.
+                  <strong className="text-ink-primary dark:text-paper-light">Middle of All Things</strong> is a living book, a meditation studio, and a learning lab in one place.
                 </p>
                 <p>
-                  When we get stuck in rigid dogma or fear, our lens can "atrophy." We "weight the universe" in one direction for too long, and we lose our connection to the whole pattern. We might live a life of hate, and in that state, not even be able to recognize love when it is given.
+                  It gives you daily guided reflections, short stories, breathwork tools, and interactive simulations that help you understand yourself from the inside out.
                 </p>
                 <p>
-                  This app is a tool for practice. It is not a set of answers, but a way to help you rebalance your lens.
+                  It's not another wellness app – it's a <strong className="text-ink-primary dark:text-paper-light">centre of gravity</strong>. A place to pause, reflect, and widen your perspective every time you open it.
+                </p>
+                <p className="pt-4 border-t border-ink-muted/20 dark:border-paper-light/20">
+                  This is a <strong className="text-ink-primary dark:text-paper-light">self-understanding engine</strong>.
                 </p>
                 <p>
-                  The writings and meditations here are designed to guide you back to the "middle." The middle is not a passive compromise; it is the strongest, most balanced vantage point. It is the active, "flow" state from which you can "receive and interpret all that is."
+                  Not "content." A personal philosophy platform that teaches you to live with more awareness, more presence, and more internal coherence.
                 </p>
                 <p>
-                  This is the path of <strong>synthesis</strong>. It is a journey of re-evaluating your old beliefs and integrating them with new perspectives to create a "balance of both sides of the coin."
+                  <strong className="text-ink-primary dark:text-paper-light">A multi-modal introspection environment.</strong>
                 </p>
                 <p>
-                  This practice will show you two ways to see the divine pattern of existence:
-                </p>
-                <ol className="list-decimal list-inside space-y-2 ml-4">
-                  <li>
-                    <strong>Looking In:</strong> To do the work to see your <em>own</em> consciousness as a "complete and fully shaped" piece of the fractal.
-                  </li>
-                  <li>
-                    <strong>Looking Out:</strong> To look at others and see that same divine pattern in "the many faces of God" all around you.
-                  </li>
-                </ol>
-                <p>
-                  The purpose is not to "fix" you, but to help you see the pattern. The goal is to live a life "lead with love." Because to have your lens fully balanced, whole, and capable of seeing all of reality is to have God, or Existence itself, fully and completely within you.
+                  The book gives direction. The meditations give embodiment. The stories give meaning. The simulations give lived understanding. The tools (breathwork, visual practices, cognitive reframes) give real-time regulation.
                 </p>
                 <p>
-                  This text is a mirror. Don't just read it. Commune with it. Use it to build the consciousness you wish to inhabit.
+                  Everything funnels back into one aim: helping you return to centre, then expand from it.
+                </p>
+                <p>
+                  <strong className="text-ink-primary dark:text-paper-light">A new category: a dynamic, inner-world OS.</strong>
+                </p>
+                <p>
+                  Not wellness. Not productivity. Not spirituality. Not self-help.
+                </p>
+                <p>
+                  This is a nervous-system-aware reading experience layered with micro-meditations, AI-supported learning, embodied tools, and philosophical guidance.
+                </p>
+                <p>
+                  It's the first app where the content and the consciousness tools live in the same space – where reading something and integrating something happen in the same breath.
+                </p>
+                <p className="pt-4 border-t border-ink-muted/20 dark:border-paper-light/20">
+                  <strong className="text-ink-primary dark:text-paper-light">A whole-person operating system disguised as a beautifully minimal app.</strong>
+                </p>
+                <p>
+                  This app is for people who want more than calm. They want clarity. They want perspective. They want a relationship with themselves that actually holds under pressure.
+                </p>
+                <p>
+                  Middle of All Things gives you a single place to build that – through words, breath, stillness, and practice.
                 </p>
               </div>
             </motion.div>

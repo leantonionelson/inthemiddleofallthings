@@ -117,24 +117,43 @@ const WelcomeIntro: React.FC<WelcomeIntroProps> = ({ isOpen, onClose }) => {
 
   const initialText = `### Welcome
 
-Your mind is the lens through which you receive and interpret the universe. This lens is shaped by your "hardcoding" – your beliefs, your experiences, and the patterns passed down to you.
+**Middle of All Things** is a living book, a meditation studio, and a learning lab in one place.
 
-When we get stuck in rigid dogma or fear, our lens can "atrophy." We "weight the universe" in one direction for too long, and we lose our connection to the whole pattern. We might live a life of hate, and in that state, not even be able to recognize love when it is given.
+It gives you daily guided reflections, short stories, breathwork tools, and interactive simulations that help you understand yourself from the inside out.
 
-This app is a tool for practice. It is not a set of answers, but a way to help you rebalance your lens.`;
+It's not another wellness app it's a **centre of gravity**. A place to pause, reflect, and widen your perspective every time you open it.`;
 
-  const expandedText = `The writings and meditations here are designed to guide you back to the "middle." The middle is not a passive compromise; it is the strongest, most balanced vantage point. It is the active, "flow" state from which you can "receive and interpret all that is."
+  const expandedText = `This is a **self-understanding engine**.
 
-This is the path of **synthesis**. It is a journey of re-evaluating your old beliefs and integrating them with new perspectives to create a "balance of both sides of the coin."
+Not "content." A personal philosophy platform that teaches you to live with more awareness, more presence, and more internal coherence.
 
-This practice will show you two ways to see the divine pattern of existence:
+**A multi-modal introspection environment.**
 
-1.  **Looking In:** To do the work to see your *own* consciousness as a "complete and fully shaped" piece of the fractal.
-2.  **Looking Out:** To look at others and see that same divine pattern in "the many faces of God" all around you.
+The book gives direction.
 
-The purpose is not to "fix" you, but to help you see the pattern. The goal is to live a life "lead with love." Because to have your lens fully balanced, whole, and capable of seeing all of reality is to have God, or Existence itself, fully and completely within you.
+The meditations give embodiment.
 
-This text is a mirror. Don't just read it. Commune with it. Use it to build the consciousness you wish to inhabit.`;
+The stories give meaning.
+
+The simulations give lived understanding.
+
+The tools (breathwork, visual practices, cognitive reframes) give real-time regulation.
+
+Everything funnels back into one aim: helping you return to centre, then expand from it.
+
+**A new category: a dynamic, inner-world OS.**
+
+Not wellness. Not productivity. Not spirituality. Not self-help.
+
+This is a nervous-system-aware reading experience layered with micro-meditations, AI-supported learning, embodied tools, and philosophical guidance.
+
+It's the first app where the content and the consciousness tools live in the same space where reading something and integrating something happen in the same breath.
+
+**A whole-person operating system disguised as a beautifully minimal app.**
+
+This app is for people who want more than calm. They want clarity. They want perspective. They want a relationship with themselves that actually holds under pressure.
+
+Middle of All Things gives you a single place to build that – through words, breath, stillness, and practice.`;
 
   // Parse the initial text into sections
   const parseSections = (text: string) => {
