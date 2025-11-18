@@ -19,6 +19,10 @@ import GameOfLifeSimulation from '../../components/GameOfLifeSimulation';
 import ChaosTheorySimulation from '../../components/ChaosTheorySimulation';
 import SelfOrganisedCriticalitySimulation from '../../components/SelfOrganisedCriticalitySimulation';
 import ReactionDiffusionSimulation from '../../components/ReactionDiffusionSimulation';
+import InertiaSimulation from '../../components/InertiaSimulation';
+import ForceAccelerationSimulation from '../../components/ForceAccelerationSimulation';
+import ActionReactionSimulation from '../../components/ActionReactionSimulation';
+import NaturalSelectionSimulation from '../../components/NaturalSelectionSimulation';
 import Accordion from '../../components/Accordion';
 import SimulationInstructionDrawer from '../../components/SimulationInstructionDrawer';
 
@@ -95,6 +99,10 @@ const LearnModulePage: React.FC = () => {
   const isChaosTheory = module.id === 'chaos-theory-sensitive-dependence';
   const isSelfOrganisedCriticality = module.id === 'self-organised-criticality-the-avalanche-principle';
   const isReactionDiffusion = module.id === 'reaction-diffusion-patterns-born-from-opposites';
+  const isInertia = module.id === 'inertia-habit-as-motion';
+  const isForceAcceleration = module.id === 'force-and-acceleration-the-shape-of-change';
+  const isActionReaction = module.id === 'action-and-reaction-emotional-feedback';
+  const isNaturalSelection = module.id === 'natural-selection-identity-as-strategy';
 
   // Custom layout for Gauge Theory module
   if (isGaugeTheory) {
@@ -1763,6 +1771,666 @@ const LearnModulePage: React.FC = () => {
             {
               action: 'Reset buttons',
               description: 'Reset Shape: Resets to the current shape\'s initial state with t=0, keeping current noise and direction settings. Reset All: Resets everything to defaults (Square shape, Forward direction, 0% noise, 1x speed).'
+            }
+          ]}
+        />
+      </>
+    );
+  }
+
+  // Custom layout for Inertia module
+  if (isInertia) {
+    return (
+      <>
+        {/* Content */}
+        <main className="min-h-screen pt-6 pb-10 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Header with back arrow on left */}
+            <motion.header
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8"
+            >
+              <div className="flex items-start gap-4">
+                <motion.button
+                  onClick={handleBack}
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/70 transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 flex-shrink-0 mt-1"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </motion.button>
+                <div className="flex-1">
+                  {(() => {
+                    const parts = module.title.split(' – ');
+                    const mainTitle = parts[0];
+                    const subtitle = parts[1] || '';
+                    return (
+                      <>
+                        <h1 className="text-xl sm:text-2xl font-serif text-ink-primary dark:text-paper-light text-left">
+                          {mainTitle}
+                        </h1>
+                        {subtitle && (
+                          <p className="text-sm sm:text-base text-ink-secondary dark:text-ink-muted text-left">
+                            {subtitle}
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </motion.header>
+
+            {/* Tags */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.05 }}
+              className="mb-6 flex flex-wrap gap-2"
+            >
+              {module.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2 py-1 text-xs font-medium rounded-full bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted border border-ink-muted/20 dark:border-paper-light/20"
+                >
+                  {tag}
+                </span>
+              ))}
+            </motion.div>
+
+            {/* How to play chip - above simulation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-4"
+            >
+              <motion.button
+                onClick={() => setIsInstructionDrawerOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-ink-muted/10 dark:bg-paper-light/10 hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 text-sm text-ink-secondary dark:text-ink-muted transition-colors border border-ink-muted/20 dark:border-paper-light/20"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Info className="w-4 h-4" />
+                <span>How to play</span>
+              </motion.button>
+            </motion.div>
+
+            {/* Simulation Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
+            >
+              <InertiaSimulation />
+            </motion.section>
+
+            {/* Accordions Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="space-y-4"
+            >
+              <Accordion title="Newton's First Law">
+                <div className="space-y-4">
+                  <p>
+                    Newton's First Law states that an object at rest stays at rest, and an object in motion stays in motion at constant velocity, unless acted upon by an unbalanced force.
+                  </p>
+                  <p>
+                    This simulation demonstrates this principle in its purest form: a spacecraft drifting in a near-frictionless void. Once you give it a push, it continues moving forever unless you apply a force to change its motion.
+                  </p>
+                  <p>
+                    The key insight is that <strong>force is only needed to change motion</strong>, not to maintain it. This contradicts our everyday experience on Earth, where friction constantly slows things down, making it seem like constant force is needed to keep moving.
+                  </p>
+                </div>
+              </Accordion>
+
+              <Accordion title="Mass as resistance to change">
+                <div className="space-y-4">
+                  <p>
+                    Mass represents an object's resistance to acceleration. The relationship is captured by Newton's Second Law: <strong>F = ma</strong>, or acceleration = force / mass.
+                  </p>
+                  <p>
+                    In the simulation, you can feel this directly: a low-mass ship responds quickly to thrust, accelerating and turning with ease. A high-mass ship is sluggish and stubborn – it takes much more force to get it moving, and even more to stop it.
+                  </p>
+                  <p>
+                    This is why heavy objects are harder to push, and why stopping a moving train requires much more effort than stopping a bicycle. Mass isn't just "stuff" – it's a measure of how much an object resists changes to its motion.
+                  </p>
+                </div>
+              </Accordion>
+            </motion.section>
+          </div>
+        </main>
+
+        {/* Instruction Drawer */}
+        <SimulationInstructionDrawer
+          isOpen={isInstructionDrawerOpen}
+          onClose={() => setIsInstructionDrawerOpen(false)}
+          title="Inertia – Habit as Motion"
+          instructions={[
+            'Space is as close as we get to pure Newtonian motion. Once the ship is moving, it does not need constant force to keep going.',
+            'Force only changes its motion: starts it moving, speeds it up, turns it, or brings it to a stop.',
+            'Mass is resistance to change: low mass responds quickly, high mass is stubborn and slow to turn or stop.',
+            'The velocity vector (green) shows your current motion direction and speed. It persists even when you stop thrusting.',
+            'The thrust vector (orange) appears only when you are actively applying force. Notice how it disappears instantly when you let go, while velocity continues.',
+            'Friction in "Earth mode" simulates the drag we experience on Earth, where objects naturally slow down. In "Space mode", motion continues forever without intervention.',
+            'The docking challenge teaches you to anticipate motion: you must fire thrusters early in the opposite direction to cancel your velocity before reaching the target.',
+            '',
+            'Habit as motion:',
+            'The ship\'s motion is your current habit – the direction you\'re moving in, the speed at which your days are already flowing.',
+            'Mass is how deeply that habit is embedded: heavy habits are hard to start and hard to stop.',
+            'Friction is your environment: some worlds sap your momentum quickly, others let you drift for a long time in the same direction.',
+            'Every burst of thrust is a choice – a deliberate push, a decision to tilt the path.',
+            'The trail you leave behind doesn\'t change when you course-correct. You\'re not rewriting the past; you\'re steering the next part of the line.'
+          ]}
+          interactions={[
+            {
+              action: 'Virtual Joystick',
+              description: 'Drag in the circular pad to apply thrust. The direction you drag determines the force direction, and the distance from center determines the magnitude. Release to stop thrusting. Notice how the force arrow disappears instantly while the velocity arrow persists.'
+            },
+            {
+              action: 'Mass (Inertia) Slider',
+              description: 'Adjust the ship\'s mass from 0.5 to 3.0. Low mass makes the ship quick and responsive – easy to accelerate and easy to stop. High mass makes it sluggish and stubborn – requires more force to change direction or come to a halt. Try stopping a high-mass ship that\'s moving fast!'
+            },
+            {
+              action: 'Earth mode (friction) Toggle',
+              description: 'Toggle between Space mode (no friction) and Earth mode (with friction). In Space mode, the ship continues drifting forever once moving. In Earth mode, it naturally slows down over time, matching our everyday experience where objects eventually come to rest.'
+            },
+            {
+              action: 'Brake to stop Button',
+              description: 'Automatically applies reverse thrust to bring the ship to a complete stop. Watch how the computer fires thrusters in the exact opposite direction of your velocity until speed reaches zero. This demonstrates how much effort it takes to cancel inertia.'
+            },
+            {
+              action: 'Play/Pause Button',
+              description: 'Start or pause the physics simulation. When paused, you can still interact with controls, but the ship won\'t move.'
+            },
+            {
+              action: 'Reset Button',
+              description: 'Resets the simulation: ship returns to center with zero velocity, docking zone resets, and all particles clear. Useful for starting fresh experiments.'
+            },
+            {
+              action: 'Docking Challenge',
+              description: 'Try to fly into the cyan docking zone and come to a perfect stop inside it. You\'ll likely overshoot at first – this teaches you to fire reverse thrusters early to cancel your forward motion. The zone turns green when you successfully dock (inside zone with low speed).'
+            }
+          ]}
+        />
+      </>
+    );
+  }
+
+  // Custom layout for Force & Acceleration module
+  if (isForceAcceleration) {
+    return (
+      <>
+        {/* Content */}
+        <main className="min-h-screen pt-6 pb-10 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Header with back arrow on left */}
+            <motion.header
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8"
+            >
+              <div className="flex items-start gap-4">
+                <motion.button
+                  onClick={handleBack}
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/70 transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 flex-shrink-0 mt-1"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </motion.button>
+                <div className="flex-1">
+                  {(() => {
+                    const parts = module.title.split(' – ');
+                    const mainTitle = parts[0];
+                    const subtitle = parts[1] || '';
+                    return (
+                      <>
+                        <h1 className="text-xl sm:text-2xl font-serif text-ink-primary dark:text-paper-light text-left">
+                          {mainTitle}
+                        </h1>
+                        {subtitle && (
+                          <p className="text-sm sm:text-base text-ink-secondary dark:text-ink-muted text-left">
+                            {subtitle}
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </motion.header>
+
+            {/* Tags */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.05 }}
+              className="mb-6 flex flex-wrap gap-2"
+            >
+              {module.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2 py-1 text-xs font-medium rounded-full bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted border border-ink-muted/20 dark:border-paper-light/20"
+                >
+                  {tag}
+                </span>
+              ))}
+            </motion.div>
+
+            {/* How to play chip - above simulation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-4"
+            >
+              <motion.button
+                onClick={() => setIsInstructionDrawerOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-ink-muted/10 dark:bg-paper-light/10 hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 text-sm text-ink-secondary dark:text-ink-muted transition-colors border border-ink-muted/20 dark:border-paper-light/20"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Info className="w-4 h-4" />
+                <span>How to play</span>
+              </motion.button>
+            </motion.div>
+
+            {/* Simulation Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
+            >
+              <ForceAccelerationSimulation />
+            </motion.section>
+          </div>
+        </main>
+
+        {/* Instruction Drawer */}
+        <SimulationInstructionDrawer
+          isOpen={isInstructionDrawerOpen}
+          onClose={() => setIsInstructionDrawerOpen(false)}
+          title="Force & Acceleration – The Shape of Change"
+          instructions={[
+            'The sled sits on a track where you control the pushes.',
+            'Each arrow is a force; all forces combine into a single net force.',
+            'Acceleration comes from that net force: a = F_net / m',
+            'Mass doesn\'t change the force; it changes how much the motion responds.',
+            'Friction opposes motion or attempted motion: sometimes it holds the sled still, sometimes it just slows it down.',
+            '',
+            'How to play:',
+            '1. Build a net force: Use the Push Right and Push Left sliders. Watch each force arrow appear on the sled. Notice how the net force arrow reflects who\'s "winning".',
+            '2. Watch acceleration respond: With a clear net force to the right, look at the acceleration arrow. It points in the same direction as the net force. Increase the net force and see the acceleration arrow grow.',
+            '3. Separate acceleration from velocity: Start with rightward push until the sled is moving. Then set both pushes to zero. Acceleration arrow drops back to almost nothing. Velocity arrow stays — the sled keeps sliding. This is Newton\'s first and second laws working together.',
+            '4. Feel the mass: Set a certain net force (e.g. Push Right = 10 N, Push Left = 0). Increase Mass: the same net force now gives a smaller acceleration arrow. The sled takes longer to pick up speed. Lower the mass again and see how quickly it reacts.',
+            '5. Explore friction: Increase Friction. Notice how the friction arrow appears opposing motion. At high friction, the sled might not move at all until your push is strong enough to "break free". Decrease friction to near zero and feel how the sled glides much more freely.',
+            '6. Stopping and overshooting: Get the sled moving to the right. Then create a net force to the left. First it decelerates (velocity arrow shrinks). If you keep pushing, the sled reverses direction. This is the same mechanism as braking too late and then rolling back.',
+            '',
+            'Force & Acceleration – Intuition:',
+            'Force is a push or pull. When all pushes and pulls are added together, you get a net force.',
+            'The net force doesn\'t "cause motion"; it changes motion. If net force is zero, motion continues as-is. If net force is non-zero, motion curves, speeds up, or slows down.',
+            'Acceleration is the shape of that change: direction tells you where motion is being bent toward, magnitude tells you how sharply it\'s changing.',
+            'Mass measures how "stubborn" the sled is: for the same push, a heavier sled accelerates less. For the same acceleration, a heavier sled requires more force.',
+            '',
+            'Habit metaphor:',
+            'Think of net force as the sum of influences on your behaviour – supports, obstacles, desires, fears.',
+            'Acceleration is how quickly your path actually changes in response.',
+            'Mass is everything that makes you slow to change: identity, history, context.',
+            'Friction is the subtle resistance of routine and environment.'
+          ]}
+          interactions={[
+            {
+              action: 'Mass Slider',
+              description: 'Adjust the sled\'s mass from 1 to 10 kg. Higher mass = smaller acceleration for the same net force. Try the same push with different masses to feel the difference.'
+            },
+            {
+              action: 'Push Right Slider',
+              description: 'Control the magnitude of the rightward applied force (0-20 N). Watch the blue arrow appear and grow as you increase the force.'
+            },
+            {
+              action: 'Push Left Slider',
+              description: 'Control the magnitude of the leftward applied force (0-20 N). Watch the orange arrow appear. When both pushes are active, they combine into a net force.'
+            },
+            {
+              action: 'Friction (μ) Slider',
+              description: 'Adjust the friction coefficient from 0 (ice) to 1 (rough surface). At high friction, the sled might not move until your push overcomes static friction. At low friction, the sled glides freely.'
+            },
+            {
+              action: 'Preset Buttons',
+              description: 'Quick setups: Gentle Push (low mass, small force, low friction), Heavy Sled (high mass, same force), High Friction (large μ to show static friction holding sled until threshold).'
+            },
+            {
+              action: 'Play/Pause Button',
+              description: 'Start or pause the physics simulation. When paused, you can adjust controls, but the sled won\'t move.'
+            },
+            {
+              action: 'Reset Button',
+              description: 'Resets the simulation: sled returns to center with zero velocity. Useful for starting fresh experiments.'
+            }
+          ]}
+        />
+      </>
+    );
+  }
+
+  // Custom layout for Action & Reaction module
+  if (isActionReaction) {
+    return (
+      <>
+        {/* Content */}
+        <main className="min-h-screen pt-6 pb-10 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Header with back arrow on left */}
+            <motion.header
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8"
+            >
+              <div className="flex items-start gap-4">
+                <motion.button
+                  onClick={handleBack}
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/70 transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 flex-shrink-0 mt-1"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </motion.button>
+                <div className="flex-1">
+                  {(() => {
+                    const parts = module.title.split(' – ');
+                    const mainTitle = parts[0];
+                    const subtitle = parts[1] || '';
+                    return (
+                      <>
+                        <h1 className="text-xl sm:text-2xl font-serif text-ink-primary dark:text-paper-light text-left">
+                          {mainTitle}
+                        </h1>
+                        {subtitle && (
+                          <p className="text-sm sm:text-base text-ink-secondary dark:text-ink-muted text-left">
+                            {subtitle}
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </motion.header>
+
+            {/* Tags */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.05 }}
+              className="mb-6 flex flex-wrap gap-2"
+            >
+              {module.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2 py-1 text-xs font-medium rounded-full bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted border border-ink-muted/20 dark:border-paper-light/20"
+                >
+                  {tag}
+                </span>
+              ))}
+            </motion.div>
+
+            {/* How to play chip - above simulation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-4"
+            >
+              <motion.button
+                onClick={() => setIsInstructionDrawerOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-ink-muted/10 dark:bg-paper-light/10 hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 text-sm text-ink-secondary dark:text-ink-muted transition-colors border border-ink-muted/20 dark:border-paper-light/20"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Info className="w-4 h-4" />
+                <span>How to play</span>
+              </motion.button>
+            </motion.div>
+
+            {/* Simulation Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
+            >
+              <ActionReactionSimulation />
+            </motion.section>
+          </div>
+        </main>
+
+        {/* Instruction Drawer */}
+        <SimulationInstructionDrawer
+          isOpen={isInstructionDrawerOpen}
+          onClose={() => setIsInstructionDrawerOpen(false)}
+          title="Action & Reaction – Emotional Feedback"
+          instructions={[
+            'Two objects floating freely in space.',
+            'Whenever you push or pull, the force exists as a pair: force on A, equal and opposite force on B.',
+            'The forces are identical in size, but the responses (accelerations, speeds) differ with mass.',
+            'The centre of mass of the pair stays fixed when only internal forces act, showing that the system as a whole keeps its balance.',
+            '',
+            'How to interact:',
+            '1. The Mirror: Set Mass A and Mass B to be equal. Choose Push, hold the force button. Watch the force arrows: one left, one right, perfectly matched. See how both astronauts drift away at the same speed in opposite directions.',
+            '2. The Wall: Set Target type to Wall (or just max out Mass B). Hold Push. The force arrows are still equal and opposite. But the wall barely moves; its acceleration is almost zero. You fly backwards. This is "pushing off a wall" in space.',
+            '3. The Recoil: Set Mass A to very small, Mass B to large (but not infinite). Push again. The force pair hasn\'t changed. Yet you shoot backwards much faster than the target moves. This is why small bodies recoil more violently.',
+            '4. The Rope (Pull mode): Switch to Pull mode. Now when you pull, the same law applies: you try to pull them towards you, you also get pulled towards them. There is no one-sided tug.',
+            '5. Follow the centre of mass: Watch the centre-of-mass marker on the track. As long as only internal pushes/pulls happen, that marker stays in place. The system reshuffles itself around that shared point.',
+            '6. Reset and explore: Use Reset to bring both back to the starting positions. Experiment with different combinations of mass and force. Look for the pattern: the forces are always equal; the motion is not.',
+            '',
+            'Emotional Feedback:',
+            'Every interaction is mutual. You can\'t "push" on someone (verbally, emotionally, structurally) without some recoil in you.',
+            'Sometimes you are the "light astronaut" pushing a "heavy wall": you move a lot, they barely seem to shift. The force pair still exists; the difference is what can move.',
+            'Sometimes you are both similar mass: you push, they push back. Both trajectories change noticeably.',
+            'The centre of mass is like the shared emotional field: you don\'t leave it when you act. The system as a whole keeps a kind of balance, even if one side seems to move more.',
+            'To influence a system cleanly, you have to recognise: you are part of what you\'re pushing. The "reaction" might show up as guilt, tension, relief, resistance, or closeness in you, not just in them.'
+          ]}
+          interactions={[
+            {
+              action: 'Mass A (Player) Slider',
+              description: 'Adjust the player\'s mass from 1 to 10 kg. Lower mass means you\'ll move more when forces are applied. Higher mass means you\'ll move less.'
+            },
+            {
+              action: 'Mass B (Target) Slider',
+              description: 'Adjust the target\'s mass from 1 to 100 kg (or Wall for effectively infinite mass). When set to Wall, the target becomes immovable, demonstrating the extreme case of pushing off a massive object.'
+            },
+            {
+              action: 'Force Magnitude Slider',
+              description: 'Control the strength of the push or pull force (0-100 N). Higher forces create larger accelerations, but the force pair always remains equal and opposite.'
+            },
+            {
+              action: 'Interaction Mode Toggle',
+              description: 'Switch between Push (repulsion - entities push apart) and Pull (tension - entities pull together). Both modes demonstrate the same action-reaction principle.'
+            },
+            {
+              action: 'Target Type Selector',
+              description: 'Choose the target: Astronaut (similar to player), Crate (bulkier object), or Wall (effectively infinite mass). Each demonstrates different consequences of the same force pair.'
+            },
+            {
+              action: 'Push/Pull Button (Hold)',
+              description: 'Press and hold to apply the force. Release to stop. The force arrows appear only while holding, showing the action-reaction pair in real-time.'
+            },
+            {
+              action: 'Play/Pause Button',
+              description: 'Start or pause the physics simulation. When paused, you can adjust controls, but entities won\'t move.'
+            },
+            {
+              action: 'Reset Button',
+              description: 'Resets the simulation: both entities return to starting positions with zero velocity. Useful for starting fresh experiments.'
+            }
+          ]}
+        />
+      </>
+    );
+  }
+
+  // Custom layout for Natural Selection module
+  if (isNaturalSelection) {
+    return (
+      <>
+        {/* Content */}
+        <main className="min-h-screen pt-6 pb-10 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            {/* Header with back arrow on left */}
+            <motion.header
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="mb-8"
+            >
+              <div className="flex items-start gap-4">
+                <motion.button
+                  onClick={handleBack}
+                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50/50 dark:bg-gray-800/50 backdrop-blur-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/70 transition-all duration-300 border border-gray-200/50 dark:border-gray-700/50 flex-shrink-0 mt-1"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </motion.button>
+                <div className="flex-1">
+                  {(() => {
+                    const parts = module.title.split(' – ');
+                    const mainTitle = parts[0];
+                    const subtitle = parts[1] || '';
+                    return (
+                      <>
+                        <h1 className="text-xl sm:text-2xl font-serif text-ink-primary dark:text-paper-light text-left">
+                          {mainTitle}
+                        </h1>
+                        {subtitle && (
+                          <p className="text-sm sm:text-base text-ink-secondary dark:text-ink-muted text-left">
+                            {subtitle}
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </motion.header>
+
+            {/* Tags */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.05 }}
+              className="mb-6 flex flex-wrap gap-2"
+            >
+              {module.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2 py-1 text-xs font-medium rounded-full bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted border border-ink-muted/20 dark:border-paper-light/20"
+                >
+                  {tag}
+                </span>
+              ))}
+            </motion.div>
+
+            {/* How to play chip - above simulation */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-4"
+            >
+              <motion.button
+                onClick={() => setIsInstructionDrawerOpen(true)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-ink-muted/10 dark:bg-paper-light/10 hover:bg-ink-muted/20 dark:hover:bg-paper-light/20 text-sm text-ink-secondary dark:text-ink-muted transition-colors border border-ink-muted/20 dark:border-paper-light/20"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Info className="w-4 h-4" />
+                <span>How to play</span>
+              </motion.button>
+            </motion.div>
+
+            {/* Simulation Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
+            >
+              <NaturalSelectionSimulation />
+            </motion.section>
+          </div>
+        </main>
+
+        {/* Instruction Drawer */}
+        <SimulationInstructionDrawer
+          isOpen={isInstructionDrawerOpen}
+          onClose={() => setIsInstructionDrawerOpen(false)}
+          title="Natural Selection – Identity as Strategy"
+          instructions={[
+            'Each dot is an individual with a single strategy trait between 0 and 1.',
+            'The background curve is the environment\'s preference: high parts of the curve = strategies that gain more "success".',
+            'Each generation: strategies that fit the curve better leave more copies.',
+            'Each copy is slightly mutated, so new versions keep appearing.',
+            'Over time, the shape of the population bends to match the environment: peaks in the curve become clusters of traits.',
+            'When you change the environment, the cluster slowly moves.',
+            '',
+            'How to interact:',
+            '1. Start from chaos: Reset the simulation. At first, traits are spread roughly randomly along the line. The population has no strong "identity" yet.',
+            '2. Choose an environment: Pick a landscape - Single niche (one peak), Two niches (two peaks), Edge seekers (favours extremes), or Centre-avoiding (middling traits do worst). Watch the fitness curve behind the dots.',
+            '3. Let selection work: Press Play and watch a few generations pass. You\'ll see the cloud of dots start to clump around the high parts of the curve. The histogram bars reinforce this: they grow where the environment is kind.',
+            '4. Move the peak: In the single-niche environment, slide the Environment peak left and right. The landscape moves. The population can\'t jump instantly. Over many generations, the cluster of traits chases the moving peak.',
+            '5. Tune mutation: Increase Mutation rate - at very low values, the population locks into a tight cluster; it adapts slowly to change. At moderate values, it can track changes while staying coherent. At very high values, the cluster smears out: inheritance gets noisy, and selection has less to hold onto.',
+            '6. Adjust selection strength: Turn Selection strength down - the curve still exists, but it barely matters. The population drifts more randomly. Turn it up - the curve becomes a strong pull. Unfit traits vanish quickly; the population hugs the peaks.',
+            '7. Pause & inspect: Pause the sim and hover visually over the clusters. Ask: what sort of strategies are currently alive here? Which strategies disappeared? How does that match the environment they face?',
+            '',
+            'Identity as Strategy:',
+            'In this model, identity is not a fixed essence. It\'s a strategy profile: a way of meeting the world. A bias towards caution, boldness, conformity, exploration, etc. (collapsed into a single axis here).',
+            'The environment is not "good" or "bad"—it is selective: certain ways of being get rewarded. Others are quietly starved of opportunity.',
+            'Over time: strategies that "work" in that environment become more common. The system looks like it chooses an identity. In reality, it\'s just differential survival of strategies.',
+            'Change the environment and the "best" identity shifts: a trait that was once adaptive can become a liability. A fringe trait can become central when conditions flip.',
+            'For a person or culture, this offers a lens: some parts of what we call "who I am" are really tuned responses to our surroundings. Some parts are mutations that never scaled. Identity, seen this way, is less a noun and more a running strategy in negotiation with context.'
+          ]}
+          interactions={[
+            {
+              action: 'Environment Type buttons',
+              description: 'Choose from four landscape types: Single niche (one peak - there is one "sweet spot"), Two niches (two peaks - two strategies can thrive), Edge seekers (the environment favours extremes), or Centre-avoiding (middling traits do worst). Watch the fitness curve behind the dots change as you switch landscapes.'
+            },
+            {
+              action: 'Mutation rate slider',
+              description: 'Controls how much traits change when passed to offspring (0.005 - 0.08). At very low values, the population locks into a tight cluster and adapts slowly to change. At moderate values, it can track changes while staying coherent. At very high values, the cluster smears out: inheritance gets noisy, and selection has less to hold onto.'
+            },
+            {
+              action: 'Selection strength slider',
+              description: 'Controls how strongly fitness differences matter (0 - 2). At 0, the curve still exists but barely matters - the population drifts more randomly. At higher values, the curve becomes a strong pull - unfit traits vanish quickly and the population hugs the peaks.'
+            },
+            {
+              action: 'Environment peak slider',
+              description: 'Only visible for Single niche landscape. Controls the position of the fitness peak (0 - 1). When you move this slider, the landscape shifts. The population can\'t jump instantly - over many generations, the cluster of traits chases the moving peak.'
+            },
+            {
+              action: 'Population size slider',
+              description: 'Controls the number of individuals in the population (50 - 300). Larger populations show smoother distributions but may run slower. Smaller populations show more variation and drift.'
+            },
+            {
+              action: 'Play/Pause button',
+              description: 'Starts or pauses the simulation. When running, the population evolves generation by generation. When paused, you can adjust controls and use the Step button.'
+            },
+            {
+              action: 'Step button',
+              description: 'Only works when paused. Advances the simulation by exactly one generation. Useful for studying how the population evolves step by step.'
+            },
+            {
+              action: 'Reset button',
+              description: 'Resets the simulation: generation counter goes to 0, population is rebuilt with random traits, and histogram is recalculated. Useful for starting fresh experiments.'
             }
           ]}
         />

@@ -167,32 +167,32 @@ const allModules: Omit<LearnModule, 'moduleNumber' | 'totalModules'>[] = [
   {
     id: 'inertia-habit-as-motion',
     title: 'Inertia – Habit as Motion',
-    content: 'Placeholder content for Inertia module. Objects at rest stay at rest, objects in motion stay in motion.',
+    content: 'Why is it hard to start moving, and harder to stop? Explore mass as resistance to change in a frictionless void.',
     section: 'Newtonian Mechanics',
-    tags: ['physics', 'inertia', 'motion', 'mechanics']
+    tags: ['mechanics', 'inertia', 'habits', 'motion', 'newton']
   },
   {
-    id: 'force-acceleration-pressure-creates-change',
-    title: 'Force & Acceleration – Pressure Creates Change',
-    content: 'Placeholder content for Force & Acceleration module. How forces cause acceleration and change.',
+    id: 'force-and-acceleration-the-shape-of-change',
+    title: 'Force & Acceleration – The Shape of Change',
+    content: 'See how pushes combine into a single net force, and how that net force sculpts acceleration, not just motion.',
     section: 'Newtonian Mechanics',
-    tags: ['physics', 'force', 'acceleration', 'mechanics']
+    tags: ['mechanics', 'force', 'acceleration', 'newton']
   },
   {
-    id: 'action-reaction-emotional-feedback',
+    id: 'action-and-reaction-emotional-feedback',
     title: 'Action & Reaction – Emotional Feedback',
-    content: 'Placeholder content for Action & Reaction module. Every action has an equal and opposite reaction.',
+    content: 'You cannot touch the world without the world touching you back. Explore the symmetry of interaction.',
     section: 'Newtonian Mechanics',
-    tags: ['physics', 'action-reaction', 'mechanics', 'forces']
+    tags: ['mechanics', 'forces', 'action-reaction', 'systems', 'emotion']
   },
 
   // Section 6: Evolution & Adaptation
   {
     id: 'natural-selection-identity-as-strategy',
     title: 'Natural Selection – Identity as Strategy',
-    content: 'Placeholder content for Natural Selection module. How advantageous traits become more common.',
+    content: 'Watch strategies live, reproduce, and disappear as the environment quietly chooses which identities can stay.',
     section: 'Evolution & Adaptation',
-    tags: ['biology', 'evolution', 'selection', 'adaptation']
+    tags: ['evolution', 'natural-selection', 'strategy', 'identity', 'complexity']
   },
   {
     id: 'mutation-variation-small-differences-new-paths',
