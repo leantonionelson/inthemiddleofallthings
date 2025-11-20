@@ -81,7 +81,7 @@ const LearnPage: React.FC = () => {
       />
       {/* Scrollable Main Content Area - Stops short of navigation */}
       <div 
-        className="relative z-10 overflow-y-auto"
+        className="relative z-10 overflow-y-auto overflow-x-hidden"
         style={{
           height: 'calc(100vh - 86px)',
         }}

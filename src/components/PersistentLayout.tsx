@@ -92,7 +92,9 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
         className={`relative z-10`}
         style={isReading ? {
           height: 'calc(100vh - 84px)',
-          overflow: 'scroll',
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
+          overflowX: 'hidden',
           paddingBottom: 0
         } : {
           ...contentHeightStyle

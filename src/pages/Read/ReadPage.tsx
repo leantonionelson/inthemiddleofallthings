@@ -146,7 +146,7 @@ const ReadPage: React.FC = () => {
 
       {/* Scrollable Main Content Area - Between tabs and navigation */}
       <div 
-        className="relative z-10 overflow-y-auto"
+        className="relative z-10 overflow-y-auto overflow-x-hidden"
         style={{
           marginTop: '54px',
           height: 'calc(100vh - 140px)',

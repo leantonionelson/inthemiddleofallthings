@@ -173,7 +173,7 @@ const allModules: Omit<LearnModule, 'moduleNumber' | 'totalModules'>[] = [
   },
   {
     id: 'force-and-acceleration-the-shape-of-change',
-    title: 'Force & Acceleration – The Shape of Change',
+    title: 'Force & Acceleration – Pressure Creates Change',
     content: 'See how pushes combine into a single net force, and how that net force sculpts acceleration, not just motion.',
     section: 'Newtonian Mechanics',
     tags: ['mechanics', 'force', 'acceleration', 'newton']
@@ -197,32 +197,32 @@ const allModules: Omit<LearnModule, 'moduleNumber' | 'totalModules'>[] = [
   {
     id: 'mutation-variation-small-differences-new-paths',
     title: 'Mutation & Variation – Small Differences, New Paths',
-    content: 'Placeholder content for Mutation & Variation module. How genetic variation drives evolution.',
+    content: 'Discover how tiny changes in a simple genetic code can unfold into a wide range of possible forms.',
     section: 'Evolution & Adaptation',
-    tags: ['biology', 'evolution', 'mutation', 'variation']
+    tags: ['evolution', 'mutation', 'variation', 'genetics', 'complexity']
   },
   {
     id: 'fitness-landscapes-becoming-through-tension',
     title: 'Fitness Landscapes – Becoming Through Tension',
-    content: 'Placeholder content for Fitness Landscapes module. How organisms navigate adaptive landscapes.',
+    content: 'Evolution is a mountain climb in the dark. Watch populations find peaks, get trapped in valleys, and adapt as the ground shifts beneath them.',
     section: 'Evolution & Adaptation',
-    tags: ['biology', 'evolution', 'fitness', 'landscapes']
+    tags: ['evolution', 'fitness-landscape', 'complexity', 'identity', 'tension']
   },
 
   // Section 7: Thermodynamics & Entropy
   {
     id: 'entropy-drift-toward-disorder',
     title: 'Entropy – Drift Toward Disorder',
-    content: 'Placeholder content for Entropy module. Systems naturally tend toward greater disorder.',
+    content: 'Why does coffee cool down but never spontaneously heat up? Watch order dissolve as randomness takes over.',
     section: 'Thermodynamics & Entropy',
-    tags: ['physics', 'entropy', 'thermodynamics', 'disorder']
+    tags: ['thermodynamics', 'entropy', 'arrow-of-time', 'probability']
   },
   {
     id: 'free-energy-systems-choose-low-grounds',
     title: 'Free Energy – Systems Choose Low Grounds',
-    content: 'Placeholder content for Free Energy module. Systems minimize free energy to find stable states.',
+    content: 'Why does nature sometimes choose chaos over order? Explore the tension between resting low and spreading wide.',
     section: 'Thermodynamics & Entropy',
-    tags: ['physics', 'thermodynamics', 'energy', 'equilibrium']
+    tags: ['free-energy', 'thermodynamics', 'entropy', 'complexity']
   },
   {
     id: 'dissipative-structures-order-through-flow',
@@ -306,7 +306,7 @@ const allModules: Omit<LearnModule, 'moduleNumber' | 'totalModules'>[] = [
 export async function loadLearnModules(): Promise<LearnModule[]> {
   // Group modules by section to calculate moduleNumber and totalModules
   const modulesBySection: Record<string, LearnModule[]> = {};
-  
+
   allModules.forEach(module => {
     if (!modulesBySection[module.section]) {
       modulesBySection[module.section] = [];

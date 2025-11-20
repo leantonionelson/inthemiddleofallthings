@@ -9,6 +9,7 @@ interface SimulationInstructionDrawerProps {
   title: string;
   instructions: string[];
   interactions: Array<{ action: string; description: string }>;
+  conceptual?: string[];
 }
 
 const SimulationInstructionDrawer: React.FC<SimulationInstructionDrawerProps> = ({
@@ -16,13 +17,14 @@ const SimulationInstructionDrawer: React.FC<SimulationInstructionDrawerProps> = 
   onClose,
   title,
   instructions,
-  interactions
+  interactions,
+  conceptual
 }) => {
   const y = useMotionValue(0);
   const DRAG_THRESHOLD = 100;
-  
+
   const [backdropVisible, setBackdropVisible] = useState(false);
-  
+
   useEffect(() => {
     setBackdropVisible(isOpen);
   }, [isOpen]);
@@ -44,7 +46,7 @@ const SimulationInstructionDrawer: React.FC<SimulationInstructionDrawerProps> = 
             initial={{ opacity: 0 }}
             animate={{ opacity: backdropVisible ? 1 : 0 }}
             exit={{ opacity: 0 }}
-            transition={{ 
+            transition={{
               type: 'tween',
               ease: 'easeOut',
               duration: 0.25
@@ -58,7 +60,7 @@ const SimulationInstructionDrawer: React.FC<SimulationInstructionDrawerProps> = 
             initial={{ y: '100%' }}
             animate={{ y: isOpen ? 0 : '100%' }}
             exit={{ y: '100%' }}
-            transition={{ 
+            transition={{
               type: 'tween',
               ease: [0.25, 0.1, 0.25, 1],
               duration: 0.3
@@ -125,6 +127,23 @@ const SimulationInstructionDrawer: React.FC<SimulationInstructionDrawerProps> = 
                   ))}
                 </div>
               </div>
+
+              {/* Conceptual - Optional */}
+              {conceptual && conceptual.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="text-lg font-semibold text-ink-primary dark:text-paper-light mb-3">
+                    Conceptual
+                  </h3>
+                  <ul className="space-y-2 text-ink-secondary dark:text-ink-muted">
+                    {conceptual.map((concept, index) => (
+                      <li key={index} className="flex items-start">
+                        <span className="mr-2 text-ink-primary dark:text-paper-light">•</span>
+                        <span>{concept}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </motion.div>
         </>
