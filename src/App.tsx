@@ -31,6 +31,7 @@ import NativeFeatures from './components/NativeFeatures';
 import LoadingSpinner from './components/LoadingSpinner';
 import PersistentLayout from './components/PersistentLayout';
 import DesktopRedirect from './components/DesktopRedirect';
+import UpdateBanner from './components/UpdateBanner';
 import { useDesktopDetection } from './hooks/useDesktopDetection';
 import { videoPreloader } from './services/videoPreloader';
 
@@ -269,6 +270,9 @@ const App: React.FC = () => {
             onClose={() => setShowWelcomeIntro(false)}
           />
 
+          {/* Update Banner - shows when update is available */}
+          <UpdateBanner />
+          
           {/* PWA Install Prompt - uses browser default */}
           <PWAInstallPrompt />
           
