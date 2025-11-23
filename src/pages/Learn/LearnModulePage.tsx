@@ -27,6 +27,9 @@ import MutationVariationSimulation from '../../components/MutationVariationSimul
 import FitnessLandscapeSimulation from '../../components/FitnessLandscapeSimulation';
 import EntropySimulation from '../../components/EntropySimulation';
 import FreeEnergySimulation from '../../components/FreeEnergySimulation';
+import DissipativeStructuresSimulation from '../../components/DissipativeStructuresSimulation';
+import ShannonEntropySimulation from '../../components/ShannonEntropySimulation';
+import CompressionSimulation from '../../components/CompressionSimulation';
 import LearnModuleLayout from '../../components/LearnModuleLayout';
 import Accordion from '../../components/Accordion';
 import SimulationInstructionDrawer from '../../components/SimulationInstructionDrawer';
@@ -130,6 +133,9 @@ const LearnModulePage: React.FC = () => {
   const isMutationVariation = module.id === 'mutation-variation-small-differences-new-paths';
   const isEntropy = module.id === 'entropy-drift-toward-disorder';
   const isFreeEnergy = module.id === 'free-energy-systems-choose-low-grounds';
+  const isDissipativeStructures = module.id === 'dissipative-structures-order-through-flow';
+  const isShannonEntropy = module.id === 'shannon-entropy-signal-vs-noise';
+  const isCompression = module.id === 'compression-the-essence-of-meaning';
 
   // Custom layout for Gauge Theory module
   if (isGaugeTheory) {
@@ -2423,7 +2429,7 @@ const LearnModulePage: React.FC = () => {
       <LearnModuleLayout
         module={module}
         allModules={allModules}
-        instructionDrawerProps={{
+          instructionDrawerProps={{
           isOpen: isInstructionDrawerOpen,
           onClose: () => setIsInstructionDrawerOpen(false),
           title: "Free Energy Simulation",
@@ -2431,7 +2437,8 @@ const LearnModulePage: React.FC = () => {
             'The left well is deep and narrow: extremely low energy but with almost no room to move — low entropy.',
             'The right well is shallow but wide: higher energy but with far more possible microstates — high entropy.',
             'Free energy combines both: F = E - TS. At low temperature, the energy term dominates. At higher temperature, the entropy term becomes more important.',
-            'When particles jump from the deep well into the wide one at high temperature, they are not "choosing higher energy"; they are minimising free energy, which balances energy with freedom.'
+            'When particles jump from the deep well into the wide one at high temperature, they are not "choosing higher energy"; they are minimising free energy, which balances energy with freedom.',
+            'This is why nature sometimes prefers messy states over tidy ones — because they offer more room to move.'
           ],
           interactions: [
             {
@@ -2529,6 +2536,347 @@ const LearnModulePage: React.FC = () => {
               </p>
               <p>
                 Free energy explains both biological order and biological fragility.
+              </p>
+            </div>
+          </Accordion>
+        </motion.section>
+      </LearnModuleLayout>
+    );
+  }
+
+  // Custom layout for Dissipative Structures module
+  if (isDissipativeStructures) {
+    return (
+      <LearnModuleLayout
+        module={module}
+        allModules={allModules}
+        instructionDrawerProps={{
+          isOpen: isInstructionDrawerOpen,
+          onClose: () => setIsInstructionDrawerOpen(false),
+          title: "Dissipative Structures – Order Through Flow",
+          instructions: [
+            'The box starts near equilibrium. Heat drifts upward in a slow blur. Nothing dramatic forms.',
+            'Increase the Heat slider and you eventually cross a critical threshold.',
+            'Chaos snaps into structure: paired convection rolls — rising hot plumes and sinking cold currents.',
+            'This ordered pattern is not "frozen." It\'s a shape held in place by flow.',
+            'Turn the Heat back down. The rolls dissolve. The structure dies. Without flow, the system returns to featureless equilibrium.',
+            'This module shows that some forms only exist while energy passes through them. They are order sustained by movement — not opposed to it.'
+          ],
+          interactions: [
+            {
+              action: 'Start Cold',
+              description: 'Keep heat low. Press Play. Watch conduction: slow, structureless drift.'
+            },
+            {
+              action: 'Increase the Flow',
+              description: 'Raise the Heat slider. Look for the moment the field suddenly reorganises into rotating cells.'
+            },
+            {
+              action: 'Inject Dye',
+              description: 'Drop tracers into the flow. Watch them loop around the convection rolls, revealing the geometry.'
+            },
+            {
+              action: 'Push it Further',
+              description: 'Max out heat → convection becomes turbulent, unstable.'
+            },
+            {
+              action: 'Cut the Power',
+              description: 'Reduce the Heat back to zero. The structure dissolves back into stillness.'
+            },
+            {
+              action: 'Reset & Explore',
+              description: 'Adjust viscosity and noise to see broader or chaotic roll patterns.'
+            }
+          ]
+        }}
+        onOpenDrawer={() => setIsInstructionDrawerOpen(true)}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="mb-6 flex flex-wrap gap-2"
+        >
+          {module.tags.map((tag) => (
+            <span
+              key={tag}
+              className="px-2 py-1 text-xs font-medium rounded-full bg-ink-muted/10 dark:bg-paper-light/10 text-ink-secondary dark:text-ink-muted border border-ink-muted/20 dark:border-paper-light/20"
+            >
+              {tag}
+            </span>
+          ))}
+        </motion.div>
+
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
+        >
+          <DissipativeStructuresSimulation />
+        </motion.section>
+
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="space-y-4"
+        >
+          <Accordion title="Why Order Needs Flow">
+            <div className="space-y-4">
+              <p>
+                Even though entropy increases globally, flow through a system can create <strong>temporary local order</strong> — structures designed to dissipate energy more efficiently.
+              </p>
+              <p>
+                Convection cells appear because:
+              </p>
+              <ul className="list-disc pl-5 space-y-2">
+                <li>pure conduction is too slow</li>
+                <li>the system "discovers" a more effective way to transport heat</li>
+                <li>the resulting order accelerates entropy production</li>
+              </ul>
+              <p>
+                Order isn't defying the Second Law.
+              </p>
+              <p className="font-medium">
+                Order <strong>serves</strong> the Second Law.
+              </p>
+            </div>
+          </Accordion>
+
+          <Accordion title="Life as a Dissipative Structure">
+            <div className="space-y-4">
+              <p>
+                Living organisms are extreme examples of this principle.
+              </p>
+              <ul className="list-disc pl-5 space-y-2">
+                <li>They take in low-entropy energy (sugars, light).</li>
+                <li>They expel high-entropy waste (heat).</li>
+                <li>They maintain internal order only because energy flows through them.</li>
+              </ul>
+              <p>
+                Stop the flow → the structure collapses.
+              </p>
+              <p>
+                From this perspective, "life" is:
+              </p>
+              <p className="italic border-l-2 border-ink-muted/30 dark:border-paper-light/30 pl-4">
+                a stable configuration of matter temporarily held up by the constant fall of energy from high quality to low.
+              </p>
+            </div>
+          </Accordion>
+        </motion.section>
+      </LearnModuleLayout>
+    );
+  }
+
+  // Custom layout for Shannon Entropy module
+  if (isShannonEntropy) {
+    return (
+      <LearnModuleLayout
+        module={module}
+        allModules={allModules}
+        instructionDrawerProps={{
+          isOpen: isInstructionDrawerOpen,
+          onClose: () => setIsInstructionDrawerOpen(false),
+          title: "Shannon Entropy – Signal vs Noise",
+          instructions: [
+            'The left image is the signal — the original message you want to transmit.',
+            'The right image is the noisy transmission — what arrives after passing through a noisy channel.',
+            'Noise flips each pixel with probability p. As p increases, the image becomes harder to recognize.',
+            'The entropy graph shows the unpredictability of the channel:',
+            '  • p = 0 → perfect signal → low entropy',
+            '  • p = 0.5 → maximum unpredictability → high entropy (pure static)',
+            '  • p = 1 → perfectly inverted → low entropy again (perfectly predictable wrongness)',
+            'This demonstrates: Entropy isn\'t disorder — entropy is uncertainty. If you always lie, you are perfectly predictable.'
+          ],
+          interactions: [
+            {
+              action: 'Introduce Noise',
+              description: 'Drag the slider towards 0.5. Watch the transmitted image dissolve into static. The marker peaks on the entropy curve.'
+            },
+            {
+              action: 'Explore the Inversion Paradox',
+              description: 'Drag noise to 1.0. The image returns — perfectly inverted. Entropy collapses again because perfect wrongness is perfectly predictable.'
+            },
+            {
+              action: 'Try Redundancy',
+              description: 'Enable the "Error Correction" toggle. Raise noise to ~0.2–0.3. See the image remain crisp because of majority voting. This shows how coding reduces effective entropy.'
+            },
+            {
+              action: 'Switch Signals',
+              description: 'Try simple vs. complex images. Notice that structured images are easy to recognize at low noise, while random ones are not.'
+            }
+          ],
+          conceptual: [
+            'High entropy signals carry more raw bits, but less interpretable structure.',
+            'Low entropy signals can be compressed dramatically.',
+            'Shannon\'s insight: information is surprise.',
+            'Redundancy is how we communicate reliably through noise.'
+          ]
+        }}
+        onOpenDrawer={() => setIsInstructionDrawerOpen(true)}
+      >
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
+        >
+          <ShannonEntropySimulation />
+        </motion.section>
+
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="space-y-4"
+        >
+          <Accordion title="Surprise as Information">
+            <div className="space-y-4">
+              <p>
+                Claude Shannon defined information as the resolution of uncertainty.
+              </p>
+              <p>
+                A message you can predict carries almost none.
+              </p>
+              <p>
+                A message that shocks you carries the most.
+              </p>
+              <p>
+                Shannon entropy is the measure of that surprise.
+              </p>
+            </div>
+          </Accordion>
+
+          <Accordion title="Compression as a Window into Structure">
+            <div className="space-y-4">
+              <p>
+                Highly structured data compresses easily.
+              </p>
+              <p>
+                Pure noise refuses to shrink — it's already maximally random.
+              </p>
+              <p>
+                Compression is a practical probe of hidden order.
+              </p>
+              <p>
+                When noise destroys structure, it destroys the possibility of compression.
+              </p>
+            </div>
+          </Accordion>
+        </motion.section>
+      </LearnModuleLayout>
+    );
+  }
+
+  // Custom layout for Compression module
+  if (isCompression) {
+    return (
+      <LearnModuleLayout
+        module={module}
+        allModules={allModules}
+        instructionDrawerProps={{
+          isOpen: isInstructionDrawerOpen,
+          onClose: () => setIsInstructionDrawerOpen(false),
+          title: "Compression – The Essence of Meaning",
+          instructions: [
+            'The quadtree is the computer\'s way of asking: "Can I describe this whole region with one idea?"',
+            'If yes → one large square (high compression).',
+            'If no → it splits again into smaller blocks.',
+            'This creates a map of structure vs. complexity:',
+            '  • Smooth, predictable areas → huge blocks',
+            '  • Edges, faces, details → tiny blocks',
+            '  • Pure noise → every block becomes tiny (no pattern to compress)',
+            'By sliding the threshold, you are deciding: What counts as detail? What is noise? What is essential?'
+          ],
+          interactions: [
+            {
+              action: 'Start with the Default Image',
+              description: 'Move the threshold slowly from low → high. Watch the detailed areas fragment into many blocks while smooth areas collapse into huge squares.'
+            },
+            {
+              action: 'Find the "Essence"',
+              description: 'Push the slider to high threshold. The image becomes abstract. Notice how surprisingly little information is needed to preserve the impression.'
+            },
+            {
+              action: 'Switch to Noise',
+              description: 'Choose the "Noise" preset. Try compressing it. Nothing collapses. Every block stays tiny. This is the visual signature of maximum entropy — pure noise cannot be compressed.'
+            },
+            {
+              action: 'Compare Images',
+              description: 'Portraits → many tiny blocks around eyes, edges. Gradients → mostly large smooth blocks. Shapes → crisp boundaries, simple interior. Each image reveals its "complexity map."'
+            },
+            {
+              action: 'Toggle the Grid',
+              description: 'Use the wireframe to see how the quadtree chooses its boundaries.'
+            }
+          ],
+          conceptual: [
+            'Compression is a way of testing: Where is the structure? What patterns repeat? What can be safely forgotten?',
+            'Meaning often lives in the boundary between: too simple (everything compresses) and too chaotic (nothing compresses).',
+            'This module lets you see the shape of meaning in an image — literally.'
+          ]
+        }}
+        onOpenDrawer={() => setIsInstructionDrawerOpen(true)}
+      >
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mb-8 p-6 rounded-xl bg-ink-muted/5 dark:bg-paper-light/5 border border-ink-muted/20 dark:border-paper-light/20"
+        >
+          <CompressionSimulation />
+        </motion.section>
+
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="space-y-4"
+        >
+          <Accordion title="Understanding is Compression">
+            <div className="space-y-4">
+              <p>
+                Good explanations shrink the world:
+              </p>
+              <p>
+                Newton turned countless falling apples into a single equation.
+              </p>
+              <p>
+                Evolution compresses billions of mutations into a principle.
+              </p>
+              <p>
+                Your memories compress experiences into stories.
+              </p>
+              <p>
+                Compression is not loss. Compression is distillation.
+              </p>
+              <p>
+                It's the act of discovering which details matter enough to keep.
+              </p>
+            </div>
+          </Accordion>
+
+          <Accordion title="Kolmogorov Complexity">
+            <div className="space-y-4">
+              <p>
+                Kolmogorov proposed:
+              </p>
+              <p className="font-medium italic">
+                The complexity of a thing is the length of the shortest program that can generate it.
+              </p>
+              <p>
+                A perfect checkerboard → simple program → low complexity.
+              </p>
+              <p>
+                A photo of a city crowd → no short program → high complexity.
+              </p>
+              <p>
+                A fractal → looks complex but is generated by a tiny formula → surprisingly low complexity.
+              </p>
+              <p>
+                Quadtrees are a stepping stone toward this idea: they ask how short a description the image will allow.
               </p>
             </div>
           </Accordion>

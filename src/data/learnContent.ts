@@ -227,23 +227,23 @@ const allModules: Omit<LearnModule, 'moduleNumber' | 'totalModules'>[] = [
   {
     id: 'dissipative-structures-order-through-flow',
     title: 'Dissipative Structures – Order Through Flow',
-    content: 'Placeholder content for Dissipative Structures module. How order emerges from energy flow.',
+    content: 'Watch ordered convection cells appear only when energy flows from hot to cold — and collapse the moment the flow stops.',
     section: 'Thermodynamics & Entropy',
-    tags: ['physics', 'thermodynamics', 'complexity', 'self-organization']
+    tags: ['complexity', 'thermodynamics', 'self-organisation', 'non-equilibrium']
   },
 
   // Section 8: Information Theory
   {
     id: 'shannon-entropy-signal-vs-noise',
     title: 'Shannon Entropy – Signal vs Noise',
-    content: 'Placeholder content for Shannon Entropy module. Measuring information and uncertainty.',
+    content: 'Information is the reduction of uncertainty. Watch how noise destroys structure—and how redundancy saves it.',
     section: 'Information Theory',
     tags: ['information', 'entropy', 'signal', 'noise']
   },
   {
     id: 'compression-the-essence-of-meaning',
     title: 'Compression – The Essence of Meaning',
-    content: 'Placeholder content for Compression module. How compression reveals what matters most.',
+    content: 'See how reducing detail reveals structure, and how structure reveals meaning. Compression is the art of deciding what is essential.',
     section: 'Information Theory',
     tags: ['information', 'compression', 'meaning', 'efficiency']
   },
