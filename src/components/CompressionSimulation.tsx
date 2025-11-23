@@ -242,7 +242,7 @@ const CompressionSimulation: React.FC = () => {
     ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
     
     // Draw quadtree blocks
-    function drawNode(node: QuadtreeNode) {
+    function drawNode(node: QuadtreeNode, context: CanvasRenderingContext2D) {
       if (!node.children) {
         // Leaf node - draw block
         const x = node.x * scale;
@@ -255,22 +255,22 @@ const CompressionSimulation: React.FC = () => {
         const g = Math.round(gray * 255);
         const b = Math.round(gray * 255);
         
-        ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
-        ctx.fillRect(x, y, size, size);
+        context.fillStyle = `rgb(${r}, ${g}, ${b})`;
+        context.fillRect(x, y, size, size);
         
         // Draw grid if enabled
         if (showGrid) {
-          ctx.strokeStyle = isDark ? 'rgba(100, 200, 255, 0.3)' : 'rgba(0, 150, 200, 0.3)';
-          ctx.lineWidth = 0.5;
-          ctx.strokeRect(x, y, size, size);
+          context.strokeStyle = isDark ? 'rgba(100, 200, 255, 0.3)' : 'rgba(0, 150, 200, 0.3)';
+          context.lineWidth = 0.5;
+          context.strokeRect(x, y, size, size);
         }
       } else {
         // Internal node - recurse
-        node.children.forEach(drawNode);
+        node.children.forEach(child => drawNode(child, context));
       }
     }
     
-    drawNode(quadtree);
+    drawNode(quadtree, ctx);
   }, [quadtree, showGrid]);
   
   // Redraw when needed
