@@ -2,16 +2,18 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useFitText } from 'react-use-fittext';
-import { AppRoute, BookChapter, Meditation } from '../../types';
+import { AppRoute, BookChapter, Meditation, LearnModule } from '../../types';
 import { loadBookChapters } from '../../data/bookContent';
 import { loadMeditations } from '../../data/meditationContent';
+import { loadLearnModules } from '../../data/learnContent';
 import { generateQuoteCards, QuoteCard } from '../../utils/quoteExtractor';
+import { logQuoteTapped } from '../../utils/quoteAnalytics';
 import { downloadElementAsImage } from '../../utils/cardDownloader';
 import { quoteCardCache } from '../../services/quoteCardCache';
 import StandardHeader from '../../components/StandardHeader';
 import QuoteCardSkeleton from '../../components/QuoteCardSkeleton';
 import GlassButton from '../../components/GlassButton';
-import { Download, BookOpen, Scale } from 'lucide-react';
+import { Download, BookOpen, Scale, GraduationCap, Scroll } from 'lucide-react';
 import SEO from '../../components/SEO';
 import { generateWebsiteStructuredData, generateFAQStructuredData, getDefaultFAQs } from '../../utils/seoHelpers';
 
@@ -100,6 +102,8 @@ const QuoteCardComponent: React.FC<{
         return <BookOpen className="w-4 h-4" />;
       case 'meditation':
         return <Scale className="w-4 h-4" />;
+      case 'learn':
+        return <GraduationCap className="w-4 h-4" />;
       default:
         return <BookOpen className="w-4 h-4" />;
     }
@@ -110,7 +114,16 @@ const QuoteCardComponent: React.FC<{
     if (card.source.type === 'book') {
       return `${card.source.part} • ${card.source.chapter}`;
     }
-    return 'Meditation';
+    if (card.source.type === 'meditation') {
+      return 'Meditation';
+    }
+    if (card.source.type === 'learn') {
+      return 'Learn';
+    }
+    if (card.source.type === 'story') {
+      return 'Story';
+    }
+    return '';
   }, [card.source.type, card.source.part, card.source.chapter]);
 
   return (
@@ -204,11 +217,24 @@ const QuoteCardComponent: React.FC<{
 
           {/* Source Info - Fixed height with consistent spacing */}
           <div className="text-center text-ink-primary/90 dark:text-white/90 flex-shrink-0 flex flex-col justify-center pointer-events-none dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.3)]">
+            {/* Author line (if present) - human anchor */}
+            {card.source.author && (
+              <p className="text-sm sm:text-base md:text-lg text-ink-primary/80 dark:text-white/80 mb-2 italic font-serif">
+                — {card.source.author}
+              </p>
+            )}
+            {/* Source title - navigation anchor */}
             <h3 className="text-base sm:text-lg md:text-xl font-semibold mb-1 line-clamp-2">{card.source.title}</h3>
             {card.source.subtitle && (
               <p className="text-xs sm:text-sm md:text-base text-ink-primary/70 dark:text-white/70 mb-2 line-clamp-1">{card.source.subtitle}</p>
             )}
-            <p className="text-xs sm:text-xs md:text-sm text-ink-primary/60 dark:text-white/60">{sourceLabel}</p>
+            {/* Source pill: SOURCE • Title */}
+            <p className="text-xs sm:text-xs md:text-sm text-ink-primary/60 dark:text-white/60 uppercase tracking-wider">
+              {card.source.type === 'book' ? 'BOOK' : 
+               card.source.type === 'meditation' ? 'MEDITATION' :
+               card.source.type === 'learn' ? 'LEARN' :
+               card.source.type === 'story' ? 'STORY' : ''} {sourceLabel && `• ${sourceLabel}`}
+            </p>
           </div>
         </div>
 
@@ -229,6 +255,7 @@ const HomePage: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [chapters, setChapters] = useState<BookChapter[]>([]);
   const [meditations, setMeditations] = useState<Meditation[]>([]);
+  const [modules, setModules] = useState<LearnModule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const navigate = useNavigate();
@@ -244,6 +271,10 @@ const HomePage: React.FC = () => {
   const meditationIndexMap = useMemo(() => {
     return new Map(meditations.map((m, idx) => [m.id, idx]));
   }, [meditations]);
+
+  const moduleIndexMap = useMemo(() => {
+    return new Map(modules.map((m, idx) => [m.id, idx]));
+  }, [modules]);
 
   // Preload video once
   useEffect(() => {
@@ -268,9 +299,10 @@ const HomePage: React.FC = () => {
 
       try {
         // Load ALL content in background
-        const [allChapters, allMeditations] = await Promise.all([
+        const [allChapters, allMeditations, allModules] = await Promise.all([
           loadBookChapters(),
-          loadMeditations()
+          loadMeditations(),
+          loadLearnModules()
         ]);
 
         if (cancelled) return;
@@ -278,6 +310,7 @@ const HomePage: React.FC = () => {
         // Update stored content
         setChapters(allChapters);
         setMeditations(allMeditations);
+        setModules(allModules);
 
         // Use requestIdleCallback for non-critical work
         const generateAndMergeCards = () => {
@@ -285,18 +318,19 @@ const HomePage: React.FC = () => {
           const allCards = generateQuoteCards(
             allChapters,
             allMeditations,
-            []
+            [],
+            allModules
           );
 
           if (cancelled) return;
 
-          // Merge with cache and save
-          const merged = quoteCardCache.mergeCards(allCards);
+          // Save fresh quota-generated cards (replace old cache)
+          quoteCardCache.saveCards(allCards);
           
-          // Batch state update - add all new cards at once instead of progressively
+          // Batch state update - replace current cards with quota-generated ones
           setCards(current => {
             const currentIds = new Set(current.map(c => c.id));
-            const newCards = merged.filter(c => !currentIds.has(c.id));
+            const newCards = allCards.filter(c => !currentIds.has(c.id));
             
             if (newCards.length > 0) {
               // Shuffle new cards for variety
@@ -330,68 +364,10 @@ const HomePage: React.FC = () => {
 
     const loadContent = async () => {
       try {
-        // Step 1: Try to load pre-generated quotes.json first (fastest option)
-        try {
-          const response = await fetch('/quotes.json');
-          if (response.ok) {
-            const preGeneratedCards = await response.json() as QuoteCard[];
-            if (preGeneratedCards && preGeneratedCards.length > 0) {
-              // Shuffle and show random subset immediately
-              const shuffled = shuffleArray(preGeneratedCards);
-              const cardsToShow = shuffled.slice(0, INITIAL_CARDS_TO_SHOW);
-              setCards(cardsToShow);
-              setIsLoading(false);
-              
-              // Save to cache for future visits
-              quoteCardCache.saveCardsImmediate(preGeneratedCards);
-              
-              // Load full content for navigation (non-blocking)
-              Promise.all([
-                loadBookChapters(),
-                loadMeditations()
-              ]).then(([allChapters, allMeditations]) => {
-                if (!cancelled) {
-                  setChapters(allChapters);
-                  setMeditations(allMeditations);
-                }
-              });
-              
-              // Start background generation in parallel (to update cache with any new content)
-              generateCardsInBackground();
-              return;
-            }
-          }
-        } catch (error) {
-          console.warn('Could not load pre-generated quotes.json, falling back to cache:', error);
-        }
+        // Always generate fresh cards with quota system - don't use old cache/quotes.json
+        // This ensures correct 55/25/20 ratio every time
 
-        // Step 2: Check for cached cards in localStorage - show immediately if available
-        const cachedCards = quoteCardCache.getCachedCards();
-        if (cachedCards && cachedCards.length > 0) {
-          // Show random subset from cache immediately
-          const randomSubset = quoteCardCache.getRandomSubset(INITIAL_CARDS_TO_SHOW);
-          if (randomSubset.length > 0) {
-            setCards(randomSubset);
-            setIsLoading(false);
-            
-            // Load full content for navigation (non-blocking)
-            Promise.all([
-              loadBookChapters(),
-              loadMeditations()
-            ]).then(([allChapters, allMeditations]) => {
-              if (!cancelled) {
-                setChapters(allChapters);
-                setMeditations(allMeditations);
-              }
-            });
-            
-            // Start background generation in parallel
-            generateCardsInBackground();
-            return;
-          }
-        }
-
-        // Step 3: Load initial batch quickly (small subset for fast first render)
+        // Step 1: Load initial batch quickly (small subset for fast first render)
         const startTime = Date.now();
         const MIN_SKELETON_TIME = 600; // Reduced since we'll show cards faster
 
@@ -407,26 +383,23 @@ const HomePage: React.FC = () => {
         setChapters(initialChapters);
         setMeditations(initialMeditations);
 
-        // Step 4: Generate initial cards from small batch
+        // Step 2: Generate initial cards from small batch with quota system
+        // Load modules for philosopher quote matching (non-blocking)
+        const initialModules = await loadLearnModules().catch(() => []);
         const initialCards = generateQuoteCards(
           initialChapters,
           initialMeditations,
-          []
+          [],
+          initialModules
         );
 
-        // Merge with cache if exists
-        const allCached = quoteCardCache.getCachedCards() || [];
-        const mergedCards = [...allCached, ...initialCards];
-        const uniqueCards = Array.from(
-          new Map(mergedCards.map(card => [card.id, card])).values()
-        );
-
+        // Use only the quota-generated cards (don't merge with old cache)
         // Shuffle and show initial subset
-        const shuffled = shuffleArray(uniqueCards);
-        const cardsToShow = shuffled.slice(0, INITIAL_CARDS_TO_SHOW);
+        const shuffled = shuffleArray(initialCards);
+        const cardsToShow = shuffled.slice(0, Math.min(INITIAL_CARDS_TO_SHOW, initialCards.length));
 
-        // Save to cache
-        quoteCardCache.saveCards(uniqueCards);
+        // Save to cache (will replace old cache due to version increment)
+        quoteCardCache.saveCards(initialCards);
 
         // Calculate remaining skeleton time
         const elapsed = Date.now() - startTime;
@@ -438,7 +411,7 @@ const HomePage: React.FC = () => {
           setIsLoading(false);
         }, remainingTime);
 
-        // Step 5: Start background generation
+        // Step 3: Start background generation (will generate full set with quota)
         generateCardsInBackground();
 
       } catch (error) {
@@ -516,11 +489,29 @@ const HomePage: React.FC = () => {
         }
         break;
       }
+      case 'learn': {
+        // Navigate to learn module
+        navigate(`/learn/${card.source.id}`);
+        break;
+      }
+      case 'story': {
+        // Navigate to stories
+        navigate(AppRoute.STORIES);
+        break;
+      }
       default:
         navigate(AppRoute.READER);
         break;
     }
-  }, [cards, currentIndex, chapterIndexMap, meditationIndexMap, navigate]);
+
+    // Log quote tap via analytics
+    logQuoteTapped(
+      card.id,
+      card.source.author || '',
+      card.source.type,
+      card.source.id
+    );
+  }, [cards, currentIndex, chapterIndexMap, meditationIndexMap, moduleIndexMap, navigate]);
 
   const currentCard = cards[currentIndex];
   const nextCard = cards[currentIndex + 1];
@@ -648,10 +639,15 @@ const HomePage: React.FC = () => {
                   <>
                     {currentCard.source.type === 'book' && <BookOpen className="w-4 h-4" />}
                     {currentCard.source.type === 'meditation' && <Scale className="w-4 h-4" />}
+                    {currentCard.source.type === 'learn' && <GraduationCap className="w-4 h-4" />}
+                    {currentCard.source.type === 'story' && <Scroll className="w-4 h-4" />}
                   </>
                 }
               >
-                Read {currentCard.source.type === 'book' ? 'Book' : 'Meditation'}
+                {currentCard.source.type === 'book' ? 'Read Book' : 
+                 currentCard.source.type === 'meditation' ? 'Read Meditation' :
+                 currentCard.source.type === 'learn' ? 'Discover' :
+                 currentCard.source.type === 'story' ? 'Read Story' : 'Read'}
               </GlassButton>
 
               <GlassButton

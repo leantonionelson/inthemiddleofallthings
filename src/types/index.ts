@@ -87,6 +87,7 @@ export interface LearnModule {
   moduleNumber: number;
   totalModules: number;
   tags: string[];
+  quoteWeight?: number; // 0.0-1.0, controls quote density per module
   isRead?: boolean;
   lastPosition?: number;
 }

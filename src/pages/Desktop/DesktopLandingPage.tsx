@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFitText } from 'react-use-fittext';
-import { BookOpen, Scale, Scroll, ArrowLeft, ArrowRight, Headphones, Mail, Eye, Sparkles } from 'lucide-react';
+import { BookOpen, Scale, Scroll, ArrowLeft, ArrowRight, Headphones, Mail, Eye, Sparkles, GraduationCap } from 'lucide-react';
 import { generateQuoteCards, QuoteCard } from '../../utils/quoteExtractor';
 import { loadBookChapters } from '../../data/bookContent';
 import { loadMeditations } from '../../data/meditationContent';
+import { loadLearnModules } from '../../data/learnContent';
+import { logQuoteTapped } from '../../utils/quoteAnalytics';
 import QRCode from '../../components/QRCode';
 import EmailLinkButton from '../../components/EmailLinkButton';
 import GlassButton from '../../components/GlassButton';
@@ -45,6 +47,8 @@ const DesktopQuoteCard: React.FC<{
         return <Scale className="w-4 h-4" />;
       case 'story':
         return <Scroll className="w-4 h-4" />;
+      case 'learn':
+        return <GraduationCap className="w-4 h-4" />;
       default:
         return <BookOpen className="w-4 h-4" />;
     }
@@ -58,6 +62,8 @@ const DesktopQuoteCard: React.FC<{
         return 'MEDITATION';
       case 'story':
         return 'STORY';
+      case 'learn':
+        return 'LEARN';
       default:
         return 'CHAPTER';
     }
@@ -67,7 +73,16 @@ const DesktopQuoteCard: React.FC<{
     if (card.source.type === 'book') {
       return `${card.source.part} • ${card.source.chapter}`;
     }
-    return card.source.type === 'meditation' ? 'Meditation' : 'Story';
+    if (card.source.type === 'meditation') {
+      return 'Meditation';
+    }
+    if (card.source.type === 'learn') {
+      return 'Learn';
+    }
+    if (card.source.type === 'story') {
+      return 'Story';
+    }
+    return '';
   };
 
   // Check for reduce motion preference
@@ -161,11 +176,21 @@ const DesktopQuoteCard: React.FC<{
 
           {/* Source Info */}
           <div className="text-center text-ink-primary/90 dark:text-white/90 flex-shrink-0 flex flex-col justify-center dark:[text-shadow:0_1px_4px_rgba(0,0,0,0.3)]">
+            {/* Author line (if present) - human anchor */}
+            {card.source.author && (
+              <p className="text-sm text-ink-primary/80 dark:text-white/80 mb-2 italic font-serif">
+                — {card.source.author}
+              </p>
+            )}
+            {/* Source title - navigation anchor */}
             <h3 className="text-lg font-semibold mb-1 line-clamp-2">{card.source.title}</h3>
             {card.source.subtitle && (
               <p className="text-sm text-ink-primary/70 dark:text-white/70 mb-2 line-clamp-1">{card.source.subtitle}</p>
             )}
-            <p className="text-xs text-ink-primary/60 dark:text-white/60 mb-3">{getSourceLabel()}</p>
+            {/* Source pill: SOURCE • Label */}
+            <p className="text-xs text-ink-primary/60 dark:text-white/60 mb-3 uppercase tracking-wider">
+              {getSourceTypeLabel()} {getSourceLabel() && `• ${getSourceLabel()}`}
+            </p>
             
             {/* Ghost-style action buttons */}
             <div className="flex items-center justify-center gap-4 mt-2">
@@ -227,9 +252,10 @@ const DesktopLandingPage: React.FC = () => {
 
     const loadContent = async () => {
       try {
-        const [allChapters, allMeditations] = await Promise.all([
+        const [allChapters, allMeditations, allModules] = await Promise.all([
           loadBookChapters(),
-          loadMeditations()
+          loadMeditations(),
+          loadLearnModules()
         ]);
 
         if (cancelled) return;
@@ -237,7 +263,8 @@ const DesktopLandingPage: React.FC = () => {
         const allCards = generateQuoteCards(
           allChapters,
           allMeditations,
-          [] // Empty array for stories
+          [], // Empty array for stories
+          allModules
         );
         
         setCards(allCards);

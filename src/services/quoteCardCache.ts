@@ -1,7 +1,7 @@
 import { QuoteCard } from '../utils/quoteExtractor';
 
 const STORAGE_KEY = 'quoteCardsCache';
-const CACHE_VERSION = 1; // Increment when quote structure changes
+const CACHE_VERSION = 2; // Incremented to invalidate old cache without quota system
 const CACHE_VERSION_KEY = 'quoteCardsCacheVersion';
 
 /**
