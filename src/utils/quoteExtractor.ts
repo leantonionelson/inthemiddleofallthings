@@ -637,7 +637,17 @@ function extractAndCategorizeQuotes(
     }
     
     for (const meditation of meditations) {
+      // Skip meditations with religion or no-religion tags
       const meditationTags = meditation.tags || [];
+      const hasReligionTag = meditationTags.some(tag => 
+        tag.toLowerCase() === 'religion' || 
+        tag.toLowerCase() === 'no-religion' ||
+        tag.toLowerCase() === 'no religion'
+      );
+      if (hasReligionTag) {
+        continue;
+      }
+      
       const meditationTagSet = new Set(meditationTags);
       const matchedTags = expandedQuoteTags.filter(tag => meditationTagSet.has(tag));
       const score = calculateMatchScore(matchedTags, quote.tags.length);
