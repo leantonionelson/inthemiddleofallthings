@@ -314,12 +314,13 @@ const HomePage: React.FC = () => {
 
         // Use requestIdleCallback for non-critical work
         const generateAndMergeCards = () => {
-          // Generate all cards
+          // Generate all cards (not limited to 40)
           const allCards = generateQuoteCards(
             allChapters,
             allMeditations,
             [],
-            allModules
+            allModules,
+            { generateAll: true }
           );
 
           if (cancelled) return;
@@ -442,14 +443,19 @@ const HomePage: React.FC = () => {
   }, [currentIndex, cards.length]);
 
   const handleSwipe = useCallback(() => {
-    // Move to next card - allow going to the end even if loading
+    // Move to next card - allow swiping through all available cards
     const nextIndex = currentIndex + 1;
-    setCurrentIndex(nextIndex);
     
-    // If we're at or past the end and background generation is running, show skeleton
-    if (nextIndex >= cards.length && backgroundGenerationRef.current) {
+    // Allow swipe if there are more cards available
+    if (nextIndex < cards.length) {
+      setCurrentIndex(nextIndex);
+    } else if (backgroundGenerationRef.current) {
+      // If we're at the end but more cards are being generated, allow swipe and show loading
+      setCurrentIndex(nextIndex);
       setIsLoadingMore(true);
     }
+    // If nextIndex >= cards.length and background generation is complete, 
+    // we're at the end - don't allow further swipes (will show "all quotes seen" message)
   }, [currentIndex, cards.length]);
 
   const handleDownload = useCallback(async () => {

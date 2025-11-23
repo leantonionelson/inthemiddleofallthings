@@ -1,8 +1,9 @@
 import { BookChapter, Meditation, Story, LearnModule } from '../types';
 import { Tag } from '../data/tags';
 import { philosopherQuotes, PhilosopherQuote, QuoteCategory } from '../data/philosopherQuotes';
-import { findBestMatch, shouldShowQuote } from './quoteMatcher';
+import { findBestMatch, shouldShowQuote, MatchResult } from './quoteMatcher';
 import { logQuoteShown } from './quoteAnalytics';
+import { expandTags } from './synonymMap';
 
 // Fallback priority matrix for quota filling
 const FALLBACK_PRIORITY: Record<string, string[]> = {
@@ -404,7 +405,8 @@ export function generateQuoteCards(
   chapters: BookChapter[],
   meditations: Meditation[],
   stories: Story[],
-  modules: LearnModule[] = []
+  modules: LearnModule[] = [],
+  options: { generateAll?: boolean } = {}
 ): QuoteCard[] {
   // Check cache for categorized quotes (to avoid reprocessing)
   const cacheKey = generateCacheKey(chapters, meditations, stories);
@@ -433,6 +435,40 @@ export function generateQuoteCards(
       }
     }
     quoteCache.set(cacheKey, allCards);
+  }
+
+  // If generateAll is true, return all quotes shuffled
+  if (options.generateAll) {
+    const allCards: QuoteCard[] = [];
+    for (const cards of Object.values(categorizedQuotes)) {
+      allCards.push(...cards);
+    }
+    
+    // Update rotation tracking for philosopher quotes
+    let orderCounter = 0;
+    for (const card of allCards) {
+      if (card.source.author) {
+        const quote = philosopherQuotes.find(q => q.id === card.id);
+        if (quote) {
+          quote.lastSeenAt = new Date().toISOString();
+          quote.lastSeenOrder = orderCounter++;
+          quote.showCount = (quote.showCount || 0) + 1;
+          
+          // Log quote shown via analytics
+          logQuoteShown(
+            quote.id,
+            quote.author,
+            card.source.type,
+            card.source.id,
+            card.source.score,
+            card.matchedTags
+          );
+        }
+      }
+    }
+    
+    // Shuffle all cards for variety
+    return shuffleArray(allCards);
   }
 
   // Calculate quota targets based on fixed session size
@@ -559,6 +595,141 @@ function extractAndCategorizeQuotes(
     }
   }
   
+  // Track usage of each content item to promote diversity
+  const contentUsageCount: Record<string, number> = {};
+  
+  // Helper to get usage key
+  const getUsageKey = (type: string, id: string) => `${type}:${id}`;
+  
+  // Helper to find diverse match (prefers less-used content)
+  const findDiverseMatch = (
+    quote: PhilosopherQuote,
+    chapters: BookChapter[],
+    meditations: Meditation[],
+    stories: Story[],
+    modules: LearnModule[]
+  ): MatchResult | null => {
+    // Get all matches with scores >= 2
+    const allMatches: (MatchResult & { usageCount: number })[] = [];
+    
+    // Expand quote tags
+    const allQuoteTags = [...quote.tags, ...(quote.secondaryTags || [])];
+    const expandedQuoteTags = expandTags(allQuoteTags);
+    const quoteTagSet = new Set(expandedQuoteTags);
+    
+    // Collect matches from all content types
+    for (const chapter of chapters) {
+      const chapterTags = chapter.tags || [];
+      const chapterTagSet = new Set(chapterTags);
+      const matchedTags = expandedQuoteTags.filter(tag => chapterTagSet.has(tag));
+      const score = calculateMatchScore(matchedTags, quote.tags.length);
+      if (score >= 2) {
+        const key = getUsageKey('book', chapter.id);
+        allMatches.push({
+          type: 'book',
+          id: chapter.id,
+          title: chapter.title,
+          matchedTags,
+          score,
+          usageCount: contentUsageCount[key] || 0
+        });
+      }
+    }
+    
+    for (const meditation of meditations) {
+      const meditationTags = meditation.tags || [];
+      const meditationTagSet = new Set(meditationTags);
+      const matchedTags = expandedQuoteTags.filter(tag => meditationTagSet.has(tag));
+      const score = calculateMatchScore(matchedTags, quote.tags.length);
+      if (score >= 2) {
+        const key = getUsageKey('meditation', meditation.id);
+        allMatches.push({
+          type: 'meditation',
+          id: meditation.id,
+          title: meditation.title,
+          matchedTags,
+          score,
+          usageCount: contentUsageCount[key] || 0
+        });
+      }
+    }
+    
+    for (const story of stories) {
+      const storyTags = story.tags || [];
+      const storyTagSet = new Set(storyTags);
+      const matchedTags = expandedQuoteTags.filter(tag => storyTagSet.has(tag));
+      const score = calculateMatchScore(matchedTags, quote.tags.length);
+      if (score >= 2) {
+        const key = getUsageKey('story', story.id);
+        allMatches.push({
+          type: 'story',
+          id: story.id,
+          title: story.title,
+          matchedTags,
+          score,
+          usageCount: contentUsageCount[key] || 0
+        });
+      }
+    }
+    
+    for (const module of modules) {
+      const moduleTags = module.tags || [];
+      const moduleTagSet = new Set(moduleTags);
+      const matchedTags = expandedQuoteTags.filter(tag => moduleTagSet.has(tag));
+      const score = calculateMatchScore(matchedTags, quote.tags.length);
+      if (score >= 2) {
+        const key = getUsageKey('learn', module.id);
+        allMatches.push({
+          type: 'learn',
+          id: module.id,
+          title: module.title,
+          matchedTags,
+          score,
+          usageCount: contentUsageCount[key] || 0
+        });
+      }
+    }
+    
+    if (allMatches.length === 0) return null;
+    
+    // Sort by: lower usage first, then higher score
+    allMatches.sort((a, b) => {
+      if (a.usageCount !== b.usageCount) {
+        return a.usageCount - b.usageCount;
+      }
+      return b.score - a.score;
+    });
+    
+    // Select from top matches (within 0.5 score points of best, or top 3)
+    const bestScore = allMatches[0].score;
+    const threshold = bestScore - 0.5;
+    const candidates = allMatches.filter(m => m.score >= threshold).slice(0, 3);
+    
+    // Randomly select from candidates to add variety
+    const selected = candidates[Math.floor(Math.random() * candidates.length)];
+    
+    // Update usage count
+    const key = getUsageKey(selected.type, selected.id);
+    contentUsageCount[key] = (contentUsageCount[key] || 0) + 1;
+    
+    return {
+      type: selected.type,
+      id: selected.id,
+      title: selected.title,
+      matchedTags: selected.matchedTags,
+      score: selected.score
+    };
+  };
+  
+  // Helper function to calculate match score (same as in quoteMatcher)
+  const calculateMatchScore = (matchedTags: string[], totalQuoteTags: number): number => {
+    if (matchedTags.length === 0) return 0;
+    let score = matchedTags.length;
+    const matchRatio = matchedTags.length / Math.max(totalQuoteTags, 1);
+    score += matchRatio * 2;
+    return Math.round(score * 10) / 10;
+  };
+
   // Add philosopher quotes (categorized by their category field)
   for (const quote of philosopherQuotes) {
     // Check if quote should be shown (rotation, disabled)
@@ -566,8 +737,15 @@ function extractAndCategorizeQuotes(
       continue;
     }
 
-    // Find best matching content
-    const match = findBestMatch(quote, chapters, meditations, stories, modules);
+    // Check for manual override first
+    let match: MatchResult | null = null;
+    if (quote.preferredTargetId && quote.preferredSourceType) {
+      // Use findBestMatch for manual overrides
+      match = findBestMatch(quote, chapters, meditations, stories, modules);
+    } else {
+      // Use diverse matching for automatic matches
+      match = findDiverseMatch(quote, chapters, meditations, stories, modules);
+    }
     
     // Only include if relevance score meets threshold (score >= 2)
     if (!match || match.score < 2) {
