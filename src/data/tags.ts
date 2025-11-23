@@ -15,6 +15,11 @@ export type Tag =
   | 'mortality'
   | 'transcendence'
   | 'mystery'
+  | 'cosmic'
+  | 'causality'
+  | 'being'
+  | 'mind'
+  | 'experience'
   
   // Identity and becoming
   | 'identity'
@@ -125,6 +130,7 @@ export function isValidTag(tag: string): tag is Tag {
   const validTags: Tag[] = [
     'presence', 'awareness', 'consciousness', 'mindfulness', 'now',
     'time', 'temporality', 'impermanence', 'eternity', 'mortality', 'transcendence', 'mystery',
+    'cosmic', 'causality', 'being', 'mind', 'experience',
     'identity', 'self', 'ego', 'becoming', 'transformation',
     'complexity', 'chaos', 'disorder', 'randomness', 'entropy', 'order', 'emergence', 'systems', 'patterns',
     'physics', 'symmetry', 'fields', 'forces', 'energy', 'equilibrium', 'relativity', 'perspective',

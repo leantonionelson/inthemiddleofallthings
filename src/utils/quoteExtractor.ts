@@ -803,7 +803,12 @@ export async function diagnoseQuoteCounts(
       },
     },
     external: {
-      ...externalCounts,
+      classical: externalCounts.classical,
+      modern: externalCounts.modern,
+      'poet-mystic': externalCounts['poet-mystic'],
+      physics: externalCounts.physics,
+      complexity: externalCounts.complexity,
+      consciousness: externalCounts.consciousness,
       total: totalExternal,
     },
     totals: {

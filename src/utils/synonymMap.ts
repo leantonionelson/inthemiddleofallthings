@@ -27,6 +27,8 @@ const synonymMap: Record<Tag, Tag[]> = {
   'mindfulness': ['presence', 'awareness', 'now'],
   'now': ['presence', 'awareness', 'mindfulness', 'time'],
   'consciousness': ['awareness', 'mind', 'experience'],
+  'mind': ['consciousness', 'awareness', 'brain', 'cognition'],
+  'experience': ['consciousness', 'awareness', 'embodiment'],
   
   // Complexity and systems
   'complexity': ['systems', 'emergence', 'patterns'],
@@ -35,10 +37,12 @@ const synonymMap: Record<Tag, Tag[]> = {
   'patterns': ['complexity', 'emergence'],
   
   // Physics concepts
-  'energy': ['force', 'momentum', 'thermodynamics'],
+  'energy': ['forces', 'momentum', 'thermodynamics'],
   'forces': ['energy', 'fields', 'symmetry'],
   'fields': ['forces', 'symmetry', 'physics'],
   'symmetry': ['fields', 'forces', 'physics'],
+  'equilibrium': ['stability', 'energy'],
+  'momentum': ['energy', 'motion', 'mechanics'],
   'relativity': ['perspective', 'spacetime', 'gravity'],
   'perspective': ['relativity', 'reference-frames'],
   'spacetime': ['relativity', 'gravity', 'geometry', 'curvature'],
@@ -123,7 +127,10 @@ const synonymMap: Record<Tag, Tag[]> = {
   'collaboration': [],
   'value': [],
   'action-reaction': [],
-  'physics': []
+  'physics': [],
+  'cosmic': ['transcendence', 'mystery', 'eternity'],
+  'causality': ['time', 'temporality', 'change'],
+  'being': ['self', 'identity', 'consciousness']
 };
 
 /**
