@@ -175,7 +175,7 @@ const ContentFormatter: React.FC<ContentFormatterProps> = ({
         // Check for heading
         const heading = isHeading(trimmedParagraph);
         if (heading) {
-          const HeadingTag = `h${heading.level}` as keyof JSX.IntrinsicElements;
+          const HeadingTag = `h${heading.level}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
           const headingSizes = {
             1: 'text-3xl',
             2: 'text-2xl',
