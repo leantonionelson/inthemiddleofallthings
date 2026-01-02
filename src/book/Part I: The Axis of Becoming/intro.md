@@ -1,9 +1,21 @@
-# Part I: The Axis of Becoming
+# **Part I – The Internal Mechanics of Becoming**
 
-You are always in motion, even when still.
+This part explores the structure of change from the inside.
 
-This part is about seeing where you already are,  
-what you’re carrying,  
-what you’re choosing,  
-and what you’re becoming,  
-often without knowing it.
+Before a life shifts outward, it reorganises inward.  
+Desire generates direction.  
+Choice collapses possibility into action.  
+Discipline sustains motion against friction.  
+Resistance exposes the stability of existing patterns.  
+Integration determines what endures.
+
+These chapters describe the internal geometry that governs becoming – the forces that shape behaviour before the world applies its own pressure.  
+Here, the self is treated as a system: adaptive, conservative, and bound by constraints.
+
+Change follows mechanics.  
+Energy must be applied.  
+Friction must be overcome.  
+Old configurations resist reorganisation.  
+New ones stabilise only through repetition.
+
+This part traces those mechanics as they unfold within a person, long before circumstances, relationships, or time begin to bend the path.

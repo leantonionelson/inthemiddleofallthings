@@ -19,7 +19,8 @@ const partOrder = [
   'Part I: The Axis of Becoming',
   'Part II: The Spiral Path',
   'Part III: The Living Axis',
-  'Part IV: The Horizon Beyond'
+  'Part IV: The Horizon Beyond',
+  'Outro'
 ];
 
 // Helper function to render text with markdown-style italics

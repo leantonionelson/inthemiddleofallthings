@@ -41,17 +41,27 @@ function parseMarkdownContent(markdown: string): { title: string; subtitle?: str
   let title = '';
   let subtitle = '';
   let content = '';
-  let inContent = false;
+  let foundTitle = false;
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i].trim();
+    const line = lines[i];
+    const trimmedLine = line.trim();
     
-    if (line.startsWith('# ')) {
-      title = line.substring(2);
-      inContent = true;
-    } else if (line.startsWith('## ') && !subtitle) {
-      subtitle = line.substring(3);
-    } else if (inContent) {
+    // Extract the first # heading as the title
+    if (trimmedLine.startsWith('# ') && !foundTitle) {
+      title = trimmedLine.substring(2);
+      foundTitle = true;
+      continue; // Skip adding title to content
+    }
+    
+    // Extract the first ## heading as subtitle (only if it immediately follows the title)
+    if (trimmedLine.startsWith('## ') && !subtitle && foundTitle && content.trim() === '') {
+      subtitle = trimmedLine.substring(3);
+      continue; // Skip adding subtitle to content
+    }
+    
+    // Add everything else to content (including other ## headings)
+    if (foundTitle) {
       content += line + '\n';
     }
   }
@@ -70,7 +80,7 @@ const bookStructure = [
     path: 'introduction',
     description: 'An orientation to the journey ahead, setting the foundation for exploration.',
     chapters: [
-      { id: 'introduction', filename: '0. Introduction: A Centre That Moves.mdx', order: 0 }
+      { id: 'introduction', filename: '0. Introduction: A Centre That Moves.md', order: 0 }
     ]
   },
   {
@@ -82,9 +92,9 @@ const bookStructure = [
       { id: 'chapter-1', filename: '1. The Axis of Consequence.md', order: 2 },
       { id: 'chapter-2', filename: '2. The Shape of Desire.md', order: 3 },
       { id: 'chapter-3', filename: '3. The Weight of Choice.md', order: 4 },
-      { id: 'chapter-4', filename: '4. The Discipline of Becoming.md', order: 5 },
-      { id: 'chapter-5', filename: '5. The Voice of Resistance.md', order: 6 },
-      { id: 'chapter-6', filename: '6. Integration and Return.md', order: 7 }
+      { id: 'chapter-4', filename: '4. Discipline and the Physics of Motion.md', order: 5 },
+      { id: 'chapter-5', filename: '5. Resistance and the Counterforce of Self.md', order: 6 },
+      { id: 'chapter-6', filename: '6. Integration and the Returning Self.md', order: 7 }
     ]
   },
   {
@@ -94,9 +104,9 @@ const bookStructure = [
     chapters: [
       { id: 'part-2-intro', filename: 'intro.md', order: 8 },
       { id: 'chapter-7', filename: '7. The Spiral Path.md', order: 9 },
-      { id: 'chapter-8', filename: '8. The Return of the Old Self.md', order: 10 },
-      { id: 'chapter-9', filename: '9. Rest and the Sacred Pause.md', order: 11 },
-      { id: 'chapter-10', filename: '10. Other People, Other Mirrors.md', order: 12 },
+      { id: 'chapter-8', filename: '8. Rest, Oscillation, and the Zero Point.md', order: 10 },
+      { id: 'chapter-9', filename: '9. Other People, Other Gravities.md', order: 11 },
+      { id: 'chapter-10', filename: '10. Shedding Mass.md', order: 12 },
       { id: 'chapter-11', filename: '11. Time and the Myth of Readiness.md', order: 13 },
       { id: 'chapter-12', filename: '12. Falling and Rising Again.md', order: 14 }
     ]
@@ -107,11 +117,11 @@ const bookStructure = [
     description: 'Discovering how to live fully in the present moment, using the body and emotions as guides to authentic being.',
     chapters: [
       { id: 'part-3-intro', filename: 'intro.md', order: 15 },
-      { id: 'chapter-13', filename: '13. The Body as Compass.md', order: 16 },
-      { id: 'chapter-14', filename: '14. Emotion as Messenger, Not Master.md', order: 17 },
-      { id: 'chapter-15', filename: '15. Living in the Middle.md', order: 18 },
-      { id: 'chapter-16', filename: '16. The World as Field of Practice.md', order: 19 },
-      { id: 'chapter-17', filename: '17. The Unfolding Now.md', order: 20 }
+      { id: 'chapter-13', filename: '13. Acting Without Guarantees.md', order: 16 },
+      { id: 'chapter-14', filename: '14. Meaning Without Absolutes.md', order: 17 },
+      { id: 'chapter-15', filename: '15. Nihilism and the Weightless World.md', order: 18 },
+      { id: 'chapter-16', filename: '16. Love, Loss, and Finite Systems.md', order: 19 },
+      { id: 'chapter-17', filename: '17. Integrity Under Pressure.md', order: 20 }
     ]
   },
   {
@@ -120,12 +130,20 @@ const bookStructure = [
     description: 'Contemplating mortality, transcendence, and our place within something larger than ourselves.',
     chapters: [
       { id: 'part-4-intro', filename: 'intro.md', order: 21 },
-      { id: 'chapter-18', filename: '18. Echoes and Imprints.md', order: 22 },
-      { id: 'chapter-19', filename: '19. The Shape of Mortality.md', order: 23 },
-      { id: 'chapter-20', filename: '20. Transcendence Without Escape.md', order: 24 },
-      { id: 'chapter-21', filename: '21. Being Part of Something Larger.md', order: 25 },
-      { id: 'chapter-22', filename: '22. The Silence That Holds Us.md', order: 26 },
-      { id: 'chapter-23', filename: '23. The Spiral Never Ends.md', order: 27 }
+      { id: 'chapter-18', filename: '18. Decay, Adaptation, and the Will to Remain.md', order: 22 },
+      { id: 'chapter-19', filename: '19. Lightness and the Art of Shedding Mass.md', order: 23 },
+      { id: 'chapter-20', filename: '20. Coherence in Motion.md', order: 24 },
+      { id: 'chapter-21', filename: '21. Finitude and the Shape of Time.md', order: 25 },
+      { id: 'chapter-22', filename: '22. The Living Axis.md', order: 26 },
+      { id: 'chapter-23', filename: '23. Corollaries of the Middle.md', order: 27 }
+    ]
+  },
+  {
+    part: 'Outro',
+    path: 'outro.md',
+    description: 'A final reflection on the journey and returning to begin again.',
+    chapters: [
+      { id: 'outro', filename: 'Begin Again.md', order: 28 }
     ]
   }
 ];
@@ -136,7 +154,8 @@ export const partDescriptions: Record<string, string> = {
   'Part I: The Axis of Becoming': 'Exploring the fundamental forces that shape our existence and the choices that define who we become.',
   'Part II: The Spiral Path': 'Understanding the cyclical nature of growth, the return of old patterns, and the sacred pauses that allow integration.',
   'Part III: The Living Axis': 'Discovering how to live fully in the present moment, using the body and emotions as guides to authentic being.',
-  'Part IV: The Horizon Beyond': 'Contemplating mortality, transcendence, and our place within something larger than ourselves.'
+  'Part IV: The Horizon Beyond': 'Contemplating mortality, transcendence, and our place within something larger than ourselves.',
+  'Outro': 'A final reflection on the journey and returning to begin again.'
 };
 
 // Helper function to delay execution
@@ -182,7 +201,7 @@ async function loadBookChaptersInternal(limit?: number): Promise<BookChapter[]> 
             content: parsed.content,
             part: part.part,
             chapterNumber,
-            totalChapters: 27 // Total number of chapters including intros
+            totalChapters: 28 // Total number of chapters including intros and outro
           });
         }
       }
@@ -239,7 +258,7 @@ You do **not** read it. You **meet** it.
 The center moves.`,
     part: 'Introduction',
     chapterNumber: 1,
-    totalChapters: 27
+    totalChapters: 28
   }
 ];
 

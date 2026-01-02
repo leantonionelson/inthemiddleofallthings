@@ -120,8 +120,8 @@ class ProgressiveLoaderService {
       this.stories = initialStories;
       
       // Estimate totals (we'll update when full load completes)
-      // Use reasonable estimates: ~27 chapters, ~187 meditations, ~1 story
-      totalChapters = 27;
+      // Use reasonable estimates: ~28 chapters (including intro and outro), ~187 meditations, ~1 story
+      totalChapters = 28;
       totalMeditations = 187;
       totalStories = 1;
       

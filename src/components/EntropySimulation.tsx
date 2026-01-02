@@ -518,3 +518,5 @@ const EntropySimulation: React.FC = () => {
 
 export default EntropySimulation;
 
+
+

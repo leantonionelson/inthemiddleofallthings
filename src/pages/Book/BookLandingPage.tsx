@@ -7,12 +7,13 @@ import { readingProgressService } from '../../services/readingProgressService';
 import { contentCache } from '../../services/contentCache';
 import ContentCarousel from '../../components/ContentCarousel';
 import BookIntroDrawer from '../../components/BookIntroDrawer';
-import { BookOpen, Info } from 'lucide-react';
+import { BookOpen, Info, Download } from 'lucide-react';
 import SEO from '../../components/SEO';
 import { generateBookStructuredData, generateBreadcrumbStructuredData } from '../../utils/seoHelpers';
+import { generateBookPDF } from '../../utils/pdfGenerator';
 
 // Full part order (for index lookup)
-const FULL_PART_ORDER = ['Introduction', 'Part I: The Axis of Becoming', 'Part II: The Spiral Path', 'Part III: The Living Axis', 'Part IV: The Horizon Beyond'];
+const FULL_PART_ORDER = ['Introduction', 'Part I: The Axis of Becoming', 'Part II: The Spiral Path', 'Part III: The Living Axis', 'Part IV: The Horizon Beyond', 'Outro'];
 
 const BookLandingPage: React.FC = () => {
   const [chapters, setChapters] = useState<BookChapter[]>([]);
@@ -20,6 +21,7 @@ const BookLandingPage: React.FC = () => {
   const [progressUpdateTrigger, setProgressUpdateTrigger] = useState(0);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedPartIndex, setSelectedPartIndex] = useState(0);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const navigate = useNavigate();
 
   // Listen for storage changes to update completion percentage
@@ -117,6 +119,20 @@ const BookLandingPage: React.FC = () => {
     navigate(AppRoute.READER);
   }, [navigate]);
 
+  const handleDownloadPDF = useCallback(async () => {
+    if (chapters.length === 0 || isGeneratingPDF) return;
+    
+    setIsGeneratingPDF(true);
+    try {
+      await generateBookPDF(chapters);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  }, [chapters, isGeneratingPDF]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center relative z-10">
@@ -172,9 +188,22 @@ const BookLandingPage: React.FC = () => {
               In the Middle of All Things
             </h1>
           </div>
-          <p className="text-lg text-ink-secondary dark:text-ink-muted max-w-2xl leading-relaxed">
+          <p className="text-lg text-ink-secondary dark:text-ink-muted max-w-2xl leading-relaxed mb-4">
             {bookDescription}
           </p>
+          {/* Download PDF Button */}
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            onClick={handleDownloadPDF}
+            disabled={isGeneratingPDF || chapters.length === 0}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary rounded-lg hover:bg-ink-primary/90 dark:hover:bg-paper-light/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Download book as PDF"
+          >
+            <Download className="w-5 h-5" />
+            <span>{isGeneratingPDF ? 'Generating PDF...' : 'Download Book as PDF'}</span>
+          </motion.button>
         </motion.header>
 
         {/* Completion Progress */}
