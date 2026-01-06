@@ -22,15 +22,38 @@ export interface AudioInfo {
   voiceType?: 'male' | 'female';
 }
 
+export type AudioStatus = 'ok' | 'pending' | 'failed' | 'none';
+
+type AudioManifestItem = {
+  collection?: string;
+  contentId?: string;
+  slug?: string;
+  status?: string;
+};
+
+type AudioManifest = {
+  version?: number;
+  ttsVersion?: string;
+  generatedAt?: string;
+  items?: Record<string, AudioManifestItem>;
+};
+
 class UnifiedContentService {
+  // Legacy WAV index cache (kept for backward compatibility with meditations/stories if present)
   private audioIndexCache: Map<ContentType, any> = new Map();
   private audioIndexLoadPromise: Promise<void> | null = null;
   private userVoicePreference: 'male' | 'female' = 'female';
+
+  // New MP3 manifest (public/audio/audio-manifest.json)
+  private audioManifest: AudioManifest | null = null;
+  private audioManifestLoadPromise: Promise<void> | null = null;
 
   constructor() {
     this.loadUserVoicePreference();
     // Start loading indexes immediately
     this.ensureIndexesLoaded();
+    // Start loading MP3 manifest immediately (best effort)
+    this.ensureManifestLoaded();
   }
 
   /**
@@ -55,8 +78,38 @@ class UnifiedContentService {
     return this.audioIndexLoadPromise;
   }
 
+  private async ensureManifestLoaded(): Promise<void> {
+    if (this.audioManifestLoadPromise) {
+      return this.audioManifestLoadPromise;
+    }
+    this.audioManifestLoadPromise = this.loadAudioManifest();
+    return this.audioManifestLoadPromise;
+  }
+
+  private async loadAudioManifest(): Promise<void> {
+    try {
+      const res = await fetch('/audio/audio-manifest.json');
+      if (!res.ok) {
+        this.audioManifest = null;
+        return;
+      }
+      this.audioManifest = (await res.json()) as AudioManifest;
+    } catch {
+      this.audioManifest = null;
+    }
+  }
+
+  private getManifestKey(contentId: string, contentType: ContentType): string {
+    const collectionMap: Record<ContentType, 'book' | 'meditations' | 'stories'> = {
+      chapter: 'book',
+      meditation: 'meditations',
+      story: 'stories',
+    };
+    return `${collectionMap[contentType]}/${contentId}`;
+  }
+
   /**
-   * Load all audio indexes
+   * Load all legacy WAV audio indexes (best-effort).
    */
   private async loadAllAudioIndexes(): Promise<void> {
     console.log('📦 UnifiedContentService: Loading all audio indexes...');
@@ -93,92 +146,63 @@ class UnifiedContentService {
   }
 
   /**
+   * Audio status is used for UX messaging.
+   * - ok: playable now (MP3 ok OR WAV fallback available)
+   * - pending: not playable yet, but scheduled for generation (MP3 manifest says pending)
+   * - failed: generation failed (MP3 manifest says failed)
+   * - none: not in manifest and no WAV fallback found
+   */
+  async getAudioStatus(contentId: string, contentType: ContentType): Promise<AudioStatus> {
+    if (!contentId || contentId.trim() === '') {
+      return 'none';
+    }
+
+    await this.ensureManifestLoaded();
+
+    const key = this.getManifestKey(contentId, contentType);
+    const entry = this.audioManifest?.items?.[key];
+    const entryStatus = (entry?.status ?? '').toLowerCase();
+
+    if (entryStatus === 'ok') return 'ok';
+
+    // Fallback to legacy WAV if it exists (mainly for meditations/stories).
+    const wavOk = await this.hasWavAudio(contentId, contentType);
+    if (wavOk) return 'ok';
+
+    if (entryStatus === 'pending') return 'pending';
+    if (entryStatus === 'failed') return 'failed';
+
+    return 'none';
+  }
+
+  /**
    * Check if audio is available for a content item
    */
   async hasAudio(contentId: string, contentType: ContentType): Promise<boolean> {
-    // Ensure indexes are loaded
-    await this.ensureIndexesLoaded();
-
-    if (!contentId || contentId.trim() === '') {
-      console.log('⚠️  No content ID provided');
-      return false;
-    }
-
-    const index = this.audioIndexCache.get(contentType);
-    if (!index) {
-      console.log(`⚠️  No audio index for ${contentType}`);
-      return false;
-    }
-
-    const items = index.chapters || index.items || [];
-    
-    // Check for user's preferred voice first
-    let audioFile = `${contentId}_${this.userVoicePreference}.wav`;
-    let found = items.some((item: any) => item.audioFile === audioFile && item.hasAudio);
-    
-    if (!found) {
-      // Fallback to female voice
-      audioFile = `${contentId}_female.wav`;
-      found = items.some((item: any) => item.audioFile === audioFile && item.hasAudio);
-    }
-    
-    if (!found) {
-      // Fallback to male voice
-      audioFile = `${contentId}_male.wav`;
-      found = items.some((item: any) => item.audioFile === audioFile && item.hasAudio);
-    }
-
-    console.log(`🔍 Audio check for ${contentType}/${contentId}: ${found ? 'AVAILABLE' : 'NOT FOUND'}`);
-    return found;
+    const status = await this.getAudioStatus(contentId, contentType);
+    return status === 'ok';
   }
 
   /**
    * Get audio URL for a content item
    */
   async getAudioUrl(contentId: string, contentType: ContentType): Promise<string | null> {
-    // Ensure indexes are loaded
-    await this.ensureIndexesLoaded();
+    if (!contentId || contentId.trim() === '') return null;
 
-    if (!contentId || contentId.trim() === '') {
-      return null;
+    await this.ensureManifestLoaded();
+    const key = this.getManifestKey(contentId, contentType);
+    const entry = this.audioManifest?.items?.[key];
+    if ((entry?.status ?? '').toLowerCase() === 'ok') {
+      const collectionMap: Record<ContentType, 'book' | 'meditations' | 'stories'> = {
+        chapter: 'book',
+        meditation: 'meditations',
+        story: 'stories',
+      };
+      return `/audio/${collectionMap[contentType]}/${contentId}.mp3`;
     }
 
-    const index = this.audioIndexCache.get(contentType);
-    if (!index) {
-      return null;
-    }
-
-    const items = index.chapters || index.items || [];
-    const pluralMap = {
-      chapter: 'chapters',
-      meditation: 'meditations',
-      story: 'stories'
-    };
-    const pluralType = pluralMap[contentType];
-    
-    // Check for user's preferred voice first
-    let audioFile = `${contentId}_${this.userVoicePreference}.wav`;
-    let found = items.find((item: any) => item.audioFile === audioFile && item.hasAudio);
-    
-    if (!found) {
-      // Fallback to female voice
-      audioFile = `${contentId}_female.wav`;
-      found = items.find((item: any) => item.audioFile === audioFile && item.hasAudio);
-    }
-    
-    if (!found) {
-      // Fallback to male voice
-      audioFile = `${contentId}_male.wav`;
-      found = items.find((item: any) => item.audioFile === audioFile && item.hasAudio);
-    }
-
-    if (found) {
-      const url = `/media/audio/${pluralType}/${found.audioFile}`;
-      console.log(`🎵 Audio URL: ${url}`);
-      return url;
-    }
-
-    return null;
+    // Legacy fallback (if any WAVs exist for this content type).
+    return await this.getWavAudioUrl(contentId, contentType);
   }
 
   /**
@@ -186,16 +210,68 @@ class UnifiedContentService {
    */
   async getAudioInfo(contentId: string, contentType: ContentType): Promise<AudioInfo> {
     const hasAudio = await this.hasAudio(contentId, contentType);
-    if (!hasAudio) {
-      return { hasAudio: false };
-    }
+    if (!hasAudio) return { hasAudio: false };
 
     const audioUrl = await this.getAudioUrl(contentId, contentType);
     return {
       hasAudio: true,
       audioUrl: audioUrl || undefined,
-      voiceType: this.userVoicePreference
+      voiceType: this.userVoicePreference,
     };
+  }
+
+  /**
+   * Legacy WAV helpers (best-effort).
+   */
+  private async hasWavAudio(contentId: string, contentType: ContentType): Promise<boolean> {
+    await this.ensureIndexesLoaded();
+
+    const index = this.audioIndexCache.get(contentType);
+    if (!index) return false;
+
+    const items = index.chapters || index.items || [];
+
+    let audioFile = `${contentId}_${this.userVoicePreference}.wav`;
+    let found = items.some((item: any) => item.audioFile === audioFile && item.hasAudio);
+    if (!found) {
+      audioFile = `${contentId}_female.wav`;
+      found = items.some((item: any) => item.audioFile === audioFile && item.hasAudio);
+    }
+    if (!found) {
+      audioFile = `${contentId}_male.wav`;
+      found = items.some((item: any) => item.audioFile === audioFile && item.hasAudio);
+    }
+
+    return found;
+  }
+
+  private async getWavAudioUrl(contentId: string, contentType: ContentType): Promise<string | null> {
+    await this.ensureIndexesLoaded();
+
+    const index = this.audioIndexCache.get(contentType);
+    if (!index) return null;
+
+    const items = index.chapters || index.items || [];
+    const pluralMap = {
+      chapter: 'chapters',
+      meditation: 'meditations',
+      story: 'stories',
+    } as const;
+    const pluralType = pluralMap[contentType];
+
+    let audioFile = `${contentId}_${this.userVoicePreference}.wav`;
+    let found = items.find((item: any) => item.audioFile === audioFile && item.hasAudio);
+    if (!found) {
+      audioFile = `${contentId}_female.wav`;
+      found = items.find((item: any) => item.audioFile === audioFile && item.hasAudio);
+    }
+    if (!found) {
+      audioFile = `${contentId}_male.wav`;
+      found = items.find((item: any) => item.audioFile === audioFile && item.hasAudio);
+    }
+
+    if (!found) return null;
+    return `/media/audio/${pluralType}/${found.audioFile}`;
   }
 }
 

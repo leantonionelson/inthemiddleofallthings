@@ -459,6 +459,11 @@ async function main(): Promise<void> {
   manifest.tuning.requestsPerMinute = requestsPerMinute;
 
   const discoveredItems: ManifestItem[] = [];
+  const bookOrderIndex = new Map<string, number>();
+  for (let i = 0; i < bookAudioMap.length; i++) {
+    // Use slug since our manifest keys are `book/<slug>`
+    bookOrderIndex.set(bookAudioMap[i]!.slug, i);
+  }
 
   // Book: use the deterministic map (slug/contentId are chapter IDs).
   for (const item of bookAudioMap) {
@@ -590,7 +595,18 @@ async function main(): Promise<void> {
   }
 
   // Sort worklist for determinism (stable daily progress).
-  worklist.sort((a, b) => a.key.localeCompare(b.key));
+  worklist.sort((a, b) => {
+    // For book items, preserve the explicit reading order defined in `bookAudioMap`
+    // (so we generate intro first, then part intros, then chapters).
+    if (a.item.collection === 'book' && b.item.collection === 'book') {
+      const ai = bookOrderIndex.get(a.item.slug) ?? Number.MAX_SAFE_INTEGER;
+      const bi = bookOrderIndex.get(b.item.slug) ?? Number.MAX_SAFE_INTEGER;
+      if (ai !== bi) return ai - bi;
+    }
+
+    // Otherwise keep a stable lexical order.
+    return a.key.localeCompare(b.key);
+  });
 
   const toProcess = worklist.slice(0, maxFilesPerRun);
 
