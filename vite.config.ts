@@ -4,6 +4,10 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'framer-motion', 'firebase'],
+    exclude: [],
+  },
   plugins: [
     react(),
     // Only enable PWA plugin in production
@@ -35,6 +39,12 @@ export default defineConfig({
         prefer_related_applications: false
       },
       workbox: {
+        // Prevent users from getting stuck on an old cached build after deploys.
+        // This is especially important when chunking/output changes, since stale SW caches can
+        // keep serving old JS that no longer matches the new HTML/app code.
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
         globIgnores: ['**/media/audio/**/*.wav', '**/media/audio/**/*.mp3'],
         maximumFileSizeToCacheInBytes: 50 * 1024 * 1024, // 50MB limit to allow video caching
@@ -47,6 +57,18 @@ export default defineConfig({
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 365 // <== 365 days
+              }
+            }
+          },
+          {
+            // Explicitly cache generated audio assets under /audio/** (runtime-only, not precache)
+            urlPattern: /\/audio\//i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'audio-cache',
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // <== 30 days
               }
             }
           },
@@ -95,41 +117,12 @@ export default defineConfig({
         pure_funcs: ['console.log', 'console.info'],
       },
     },
-    rollupOptions: {
-      output: {
-        manualChunks: (id) => {
-          // Split large dependencies
-          if (id.includes('node_modules')) {
-            if (id.includes('framer-motion')) return 'framer-motion';
-            if (id.includes('lucide-react')) return 'icons';
-            if (id.includes('react') || id.includes('react-dom')) return 'react-vendor';
-            if (id.includes('react-router')) return 'react-vendor';
-            if (id.includes('firebase')) return 'firebase';
-            if (id.includes('html2canvas')) return 'html2canvas';
-            return 'vendor';
-          }
-          
-          // Split by feature/page
-          if (id.includes('/pages/')) {
-            const match = id.match(/\/pages\/([^/]+)/);
-            return match ? `page-${match[1]}` : 'pages';
-          }
-          
-          if (id.includes('/features/')) {
-            const match = id.match(/\/features\/([^/]+)/);
-            return match ? `feature-${match[1]}` : 'features';
-          }
-          
-          if (id.includes('/services/')) {
-            return 'services';
-          }
-          
-          if (id.includes('/components/')) {
-            return 'components';
-          }
-        }
-      }
-    },
+    // NOTE: We intentionally do NOT use aggressive manual chunking here.
+    // The previous approach (splitting by /components, /services, etc.) caused cyclic chunk graphs,
+    // leading to production/runtime errors like:
+    // - "Cannot read properties of undefined (reading 'Component')"
+    // - "Cannot access 'v' before initialization"
+    // Let Vite/Rollup handle chunking defaults for stable evaluation order.
     // Increase chunk size warning limit since we're splitting properly
     chunkSizeWarningLimit: 1000,
   },

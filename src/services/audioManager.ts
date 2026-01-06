@@ -13,6 +13,7 @@ import { BookChapter } from '../types';
 import { getPreGeneratedAudioService } from './preGeneratedAudio';
 import { mediaSessionService } from './mediaSession';
 import { audioPlaylistService, PlaylistItem, PlaylistCallbacks } from './audioPlaylist';
+import { getUnifiedContentService, ContentType } from './unifiedContentService';
 
 export interface AudioPlaybackState {
   isPlaying: boolean;
@@ -181,26 +182,44 @@ class AudioManagerService {
     this.updatePlaybackState({ isLoading: true, error: null });
 
     try {
-      // Try pre-generated audio
-      const preGeneratedAudio = await this.preGeneratedService.getPreGeneratedAudio(chapter);
-      if (preGeneratedAudio) {
-        console.log('🎵 Using pre-generated audio');
-        const audioUrl = preGeneratedAudio.blobUrl || preGeneratedAudio.audioUrl;
-        await this.setupPreGeneratedAudio(audioUrl, preGeneratedAudio.duration);
-        this.updatePlaybackState({ 
-          audioSource: 'pre-generated',
-          duration: preGeneratedAudio.duration,
-          isLoading: false 
-        });
-        
-        // Update media session
-        mediaSessionService.setMetadata(chapter);
-        
-        return;
+      const unified = getUnifiedContentService();
+
+      // Infer content type from `part` (this is how ContentReaderLayout passes meditation/story).
+      const partLower = (chapter.part || '').toLowerCase();
+      const inferredType: ContentType =
+        partLower.includes('meditation') ? 'meditation' : partLower.includes('story') ? 'story' : 'chapter';
+
+      const status = await unified.getAudioStatus(chapter.id, inferredType);
+      if (status === 'pending') {
+        // Avoid misleading UX. If audio isn't present yet, treat as unavailable.
+        throw new Error('No audio available.');
+      }
+      if (status === 'failed') {
+        throw new Error('Audio unavailable right now.');
+      }
+      if (status !== 'ok') {
+        throw new Error('No audio available.');
       }
 
-      // No pre-generated audio available
-      throw new Error('No audio file available for this content. Please upload audio via CMS.');
+      const audioUrl = await unified.getAudioUrl(chapter.id, inferredType);
+      if (!audioUrl) {
+        throw new Error('No audio available.');
+      }
+
+      console.log('🎵 Using static audio URL:', audioUrl);
+      // Estimate duration; audio element will correct this once metadata loads.
+      const estimatedDuration = this.estimateDuration(chapter.content);
+      await this.setupPreGeneratedAudio(audioUrl, estimatedDuration);
+      this.updatePlaybackState({
+        audioSource: 'pre-generated',
+        duration: estimatedDuration,
+        isLoading: false,
+      });
+
+      // Update media session
+      mediaSessionService.setMetadata(chapter);
+
+      return;
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'No audio available';
@@ -213,6 +232,16 @@ class AudioManagerService {
       });
       this.callbacks.onError?.(errorMessage);
     }
+  }
+
+  /**
+   * Estimate duration based on text length (fallback)
+   */
+  private estimateDuration(content: string): number {
+    // Average speaking pace: ~150 words per minute
+    const words = content.split(/\s+/).filter(Boolean).length;
+    const wordsPerMinute = 150;
+    return Math.max(1, (words / wordsPerMinute) * 60);
   }
 
   /**

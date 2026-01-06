@@ -32,7 +32,7 @@ const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
   content
 }) => {
   // Check if audio is available for this content
-  const { hasAudio, isChecking } = useAudioAvailability({
+  const { hasAudio, audioStatus, audioMessage, isChecking } = useAudioAvailability({
     contentId: contentId || '',
     contentType: contentType as 'story' | 'meditation' | 'chapter',
     contentTitle: contentTitle || '',
@@ -75,6 +75,15 @@ const ReaderNavigation: React.FC<ReaderNavigationProps> = ({
                 )}
               </div>
             </motion.button>
+          </div>
+        )}
+
+        {/* If audio isn't available yet, show a small status message (pending/failed) */}
+        {hasAudio !== true && audioStatus && audioStatus !== 'none' && audioMessage && (
+          <div className="mr-4">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              {audioMessage}
+            </span>
           </div>
         )}
 
