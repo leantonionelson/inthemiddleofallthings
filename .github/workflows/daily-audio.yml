@@ -56,6 +56,17 @@ jobs:
       - name: Install ffmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
+      - name: Check API key
+        run: |
+          if [ -z "$GEMINI_API_KEY" ]; then
+            echo "❌ ERROR: GEMINI_API_KEY secret is not set!"
+            echo "Please go to Settings → Secrets and variables → Actions"
+            echo "Add a repository secret named: GEMINI_API_KEY"
+            exit 1
+          else
+            echo "✅ GEMINI_API_KEY is set (length: ${#GEMINI_API_KEY})"
+          fi
+
       - name: Generate audio
         run: npm run generate:audio
 
