@@ -68,7 +68,27 @@ jobs:
           fi
 
       - name: Generate audio
-        run: npm run generate:audio
+        id: generate
+        run: |
+          set +e  # Don't exit on error
+          npm run generate:audio
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "⚠️ Audio generation exited with code $EXIT_CODE"
+            echo "This could be due to:"
+            echo "  - Missing API key (check GEMINI_API_KEY secret)"
+            echo "  - API authentication failure (401 - invalid API key)"
+            echo "  - API rate limits (429 - expected, will retry later)"
+            echo "  - Quota exceeded (403 - expected, will retry later)"
+            echo "  - Unexpected errors (check logs above)"
+            echo ""
+            echo "Checking if manifest was updated..."
+            if [ -f "public/audio/audio-manifest.json" ]; then
+              echo "✅ Manifest exists, partial progress may have been saved"
+            fi
+            # Exit with the script's exit code so we can see it in the workflow
+            exit $EXIT_CODE
+          fi
 
       - name: Show git status
         run: git status --porcelain
