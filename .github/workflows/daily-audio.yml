@@ -1,0 +1,76 @@
+name: Daily TTS Audio Generation
+
+on:
+  schedule:
+    # Daily at 02:30 UTC
+    - cron: "30 2 * * *"
+  workflow_dispatch: {}  # Allow manual triggering
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-tts-audio
+  cancel-in-progress: false
+
+jobs:
+  generate-audio:
+    runs-on: ubuntu-latest
+
+    env:
+      # Gemini key stored in GitHub Secrets
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      # Gemini TTS model + voice
+      GEMINI_TTS_MODEL: "gemini-2.5-flash-preview-tts"
+      GEMINI_TTS_VOICE_NAME: "Schedar"
+
+      # Batch controls (tune these)
+      MAX_FILES_PER_RUN: "10"
+      REQUESTS_PER_MINUTE: "6"
+      BACKOFF_BASE_MS: "1500"
+      BACKOFF_MAX_MS: "45000"
+
+      # Optional: stop early if we detect quota conditions
+      STOP_ON_QUOTA: "true"
+
+      # Optional: bump this to intentionally trigger regeneration (also stored in manifest)
+      TTS_VERSION: "2026-01-06-v1"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # We need full history so we can commit back
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Generate audio
+        run: npm run generate:audio
+
+      - name: Show git status
+        run: git status --porcelain
+
+      - name: Commit & push if changed
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            git add public/audio
+            git commit -m "chore(audio): update generated tts assets"
+            git push
+          else
+            echo "No changes to commit."
+          fi
