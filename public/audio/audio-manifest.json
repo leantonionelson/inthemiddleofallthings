@@ -1,16 +1,16 @@
 {
   "version": 1,
   "ttsVersion": "2026-01-06-v1",
-  "generatedAt": "2026-01-06T21:11:47.942Z",
+  "generatedAt": "2026-01-07T03:08:52.822Z",
   "tuning": {
     "maxFilesPerRun": 10,
     "requestsPerMinute": 6
   },
   "lastRun": {
-    "generatedAt": "2026-01-06T21:11:47.942Z",
+    "generatedAt": "2026-01-07T03:08:52.822Z",
     "processed": 3,
     "generated": 1,
-    "skipped": 0,
+    "skipped": 1,
     "failed": 2,
     "rateLimited": 2,
     "quotaStopped": false
@@ -37,7 +37,7 @@
       "sourceSha256": "555408f0f21fb267ee147f87c1a869bd9bb36cf8b8b27d2db29538e5370563f1",
       "audioSha256": null,
       "updatedAt": "2026-01-06T21:11:34.936Z",
-      "status": "failed",
+      "status": "pending",
       "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/usage?tab=rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 25.084594548s.\",\n    \"status\": \"RESOURCE_EXH"
     },
     "book/chapter-11": {
@@ -49,7 +49,7 @@
       "sourceSha256": "eda12b1efc8b827d339f00f226eb62ed3d582d2e08ed7237dd91d0d99273937f",
       "audioSha256": null,
       "updatedAt": "2026-01-06T21:11:44.939Z",
-      "status": "failed",
+      "status": "pending",
       "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/usage?tab=rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 15.076986711s.\",\n    \"status\": \"RESOURCE_EXH"
     },
     "book/chapter-12": {
@@ -154,11 +154,11 @@
       "slug": "chapter-2",
       "sourcePath": "src/book/Part I: The Axis of Becoming/2. The Shape of Desire.md",
       "audioPath": "public/audio/book/chapter-2.mp3",
-      "sourceSha256": "",
+      "sourceSha256": "b300bb345cb202abf6a5fc2673fd563c7537589f54cb21b8d5e65a2f78bc66d1",
       "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
-      "lastError": null
+      "updatedAt": "2026-01-07T03:08:49.820Z",
+      "status": "failed",
+      "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/usage?tab=rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 10.191663307s.\",\n    \"status\": \"RESOURCE_EXH"
     },
     "book/chapter-20": {
       "collection": "book",
@@ -298,10 +298,10 @@
       "slug": "introduction",
       "sourcePath": "src/book/introduction/0. Introduction: A Centre That Moves.md",
       "audioPath": "public/audio/book/introduction.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "9dc4013e562a5deecbddf974e0ed65e9b7b31adc41d07e77d31b2c703b697647",
+      "audioSha256": "e5a19b1bf94924417de53c4e0ca99efcf2a3a558322d1b493a4595d3eb3923e3",
+      "updatedAt": "2026-01-07T03:08:39.730Z",
+      "status": "ok",
       "lastError": null
     },
     "book/outro": {
@@ -322,11 +322,11 @@
       "slug": "part-1-intro",
       "sourcePath": "src/book/Part I: The Axis of Becoming/intro.md",
       "audioPath": "public/audio/book/part-1-intro.mp3",
-      "sourceSha256": "",
+      "sourceSha256": "10ee3b1830e05c729f8eb6a48902e40b6c5a253069188d2934929d5d4401aedf",
       "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
-      "lastError": null
+      "updatedAt": "2026-01-07T03:08:39.830Z",
+      "status": "failed",
+      "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/usage?tab=rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 20.182537789s.\",\n    \"status\": \"RESOURCE_EXH"
     },
     "book/part-2-intro": {
       "collection": "book",
