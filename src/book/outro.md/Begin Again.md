@@ -11,8 +11,8 @@ Only to align what you already sensed
 but could not yet name.
 
 You are not separate from the forces you experience.  
-You are not failing when pressure arrives.  
-You are not lost when things destabilise.
+Pressure arriving is part of the system.  
+Destabilisation is part of the system.
 
 You are inside a system that moves.
 
@@ -36,8 +36,6 @@ You will continue to adjust.
 
 There is no final equilibrium waiting for you.  
 No configuration that holds without maintenance.
-
-And that is not a burden.
 
 It is permission.
 

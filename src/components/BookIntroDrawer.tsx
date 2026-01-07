@@ -42,49 +42,41 @@ interface PartDescription {
 
 const extendedPartDescriptions: Record<string, PartDescription> = {
   'Introduction': {
-    title: 'Prelude – When Stillness Begins to Move',
-    content: `You are not searching for answers.
-You're circling the right questions.
-You've started noticing that silence has a texture –
-that awareness itself feels like motion.
-You don't want escape, only clarity enough to stay.
-This is where you begin: not by doing, but by noticing what already stirs.`
+    title: 'Book Introduction',
+    content: `You are entering a system, not a story.
+This book does not offer answers, instructions, or guarantees. It offers orientation. It describes how force moves through a life, how pressure accumulates, and how coherence determines whether that pressure strengthens or fractures what it touches.
+
+The centre named here is not stillness or neutrality. It is a living axis – a point you return to while everything moves. The chapters that follow do not tell you what to do. They describe what happens, so you can recognise the mechanics at work as you move through them.`
   },
   'Part I: The Axis of Becoming': {
-    title: 'Part I – The Weight of Becoming',
-    content: `You are somewhere between what was and what wants to be.
-Change is no longer a choice – it's happening through you.
-Discipline is whispering your name,
-and you're beginning to see that resistance is not the enemy but the edge of growth.
-You are learning to let friction polish rather than punish.
-You are being shaped by your own becoming.`
+    title: 'PART I – THE INTERNAL MECHANICS (The Axis of Becoming)',
+    content: `Every movement begins inside a structure, whether it is recognised or not. Before effort, before discipline, before change, there is an internal arrangement that determines how force will pass through you.
+
+This section names that arrangement. It describes desire as signal, choice as collapse, discipline as friction reduction, and resistance as contact with structure. Nothing here is urgent. Nothing here is dramatic. The task is understanding. Without it, energy leaks before it ever becomes motion.`
   },
   'Part II: The Spiral Path': {
-    title: 'Part II – The Shape of Return',
-    content: `You've realised that progress sometimes looks like circling back.
-You no longer chase transformation; you trace its rhythm.
-You're beginning to see patterns not as prisons but as teachers.
-You are softer with yourself, but sharper in awareness.
-Your pace slows; your depth widens.
-Here, you begin to trust what repeats.`
+    title: 'PART II – THE FIELD OF FORCES',
+    content: `Once motion begins, it enters a field already in motion. Other people, other demands, other rhythms exert their pull. Energy is no longer spent only on direction, but on maintenance. Fatigue appears not because something is wrong, but because nothing moves in isolation.
+
+This section explores oscillation, rest, friction, and relational gravity. It is about sustaining movement without collapse, and recognising when accumulated weight quietly determines the shape of your orbit.`
   },
   'Part III: The Living Axis': {
-    title: 'Part III – The Practice of Presence',
-    content: `You want to live inside your body again – not as a cage, but as a compass.
-You're noticing how breath anchors thought,
-how stillness can hold a storm.
-You don't seek balance as symmetry,
-but as responsiveness – a poised readiness for change.
-Here, you learn to meet life where it happens: in motion, in matter, in now.`
+    title: 'PART III – THE COLLAPSE OF CERTAINTY',
+    content: `There comes a point where effort continues, structure remains intact, and yet something essential drops out. The world no longer pushes back. Direction blurs. Motivation fades without drama. This is not failure. It is a loss of gradient.
+
+This section does not resolve that condition. It names it. It traces how action persists without guarantees, how meaning can exist without absolutes, and how attachment restores consequence by making loss possible. The flatness is not repaired here. It is mapped.`
   },
   'Part IV: The Horizon Beyond': {
-    title: 'Part IV – The Edge That Opens',
-    content: `You feel the horizon drawing near –
-not as distance, but as invitation.
-You're ready to live with open hands.
-Mortality no longer frightens you; it clarifies you.
-Meaning doesn't need to be found – it unfolds when you stop chasing.
-You are no longer seeking the centre. You are living from it.`
+    title: 'PART IV – THE HORIZON BEYOND',
+    content: `Eventually, the work shifts. The question is no longer how to build, but how to remain. Decay appears not as an enemy, but as information. What no longer fits makes itself felt. Lightness returns only when unnecessary mass is released.
+
+This section is quieter. It concerns coherence in motion, finitude as an anchor rather than a threat, and the living axis as something returned to again and again. Nothing is completed here. The system simply continues, aligned under force.`
+  },
+  'Outro': {
+    title: 'Outro',
+    content: `The book ends where it began – not with resolution, but with position. There is no final balance to reach, no stable state to secure. There is only the ongoing task of alignment as conditions change.
+
+The middle described here is not a place you arrive at. It is the relationship between force and structure as it unfolds in real time. What remains is the capacity to stay oriented as pressure passes through you, shaping without breaking what it touches.`
   }
 };
 
