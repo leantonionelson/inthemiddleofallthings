@@ -22,10 +22,10 @@
       "slug": "chapter-1",
       "sourcePath": "src/book/Part I: The Axis of Becoming/1. The Axis of Consequence.md",
       "audioPath": "public/audio/book/chapter-1.mp3",
-      "sourceSha256": "65a87d5a34beb7769d699265c70cb1a45ec9f2e33ea724841b9c50e0de7eb23b",
-      "audioSha256": "b40d654afa5a4fdd404b3c56e2455b7f6defe7bff9a0257d28281b5c8787ee33",
-      "updatedAt": "2026-01-06T21:11:34.841Z",
-      "status": "ok",
+      "sourceSha256": "",
+      "audioSha256": null,
+      "updatedAt": null,
+      "status": "pending",
       "lastError": null
     },
     "book/chapter-10": {

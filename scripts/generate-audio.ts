@@ -44,13 +44,18 @@ type Manifest = {
 };
 
 const DEFAULT_TTS_VERSION = '2026-01-06-v1';
-const VOICE_STYLE_INSTRUCTION =
-  'Use a calm, grounded, low-variation voice with slow–moderate pacing, minimal emotional colouring, and clear pauses; speak as someone describing mechanics, not offering guidance or reassurance.';
+// Replace your existing constant with this:
+const VOICE_STYLE_INSTRUCTION = 
+  'Speak with a deep, rich, and resonant Black British accent (London). ' +
+  'The voice should sound earthy, soulful, and textured (gravelly). ' +
+  'Adopt a philosophical and meditative delivery style: use the slow, rhythmic pacing of a wise lecturer. ' +
+  'Allow for significant, thoughtful pauses between ideas to let them land. ' +
+  'Avoid a "newsreader" or "assistant" tone; instead, aim for the grounded, storytelling gravitas of a late-night radio host describing the nature of reality.';
 
 // Keep stable across runs unless you intentionally want to regenerate everything.
 // Ref: https://ai.google.dev/gemini-api/docs/speech-generation#supported-models
 const DEFAULT_MODEL_ID = 'gemini-2.5-flash-preview-tts';
-const DEFAULT_VOICE_NAME = 'Schedar'; // "Even" (good baseline for calm/low-variation)
+const DEFAULT_VOICE_NAME = 'Charon'; // "Even" (good baseline for calm/low-variation)
 const PCM_SAMPLE_RATE_HZ = 24000;
 const PCM_CHANNELS = 1;
 
@@ -591,16 +596,30 @@ async function main(): Promise<void> {
   }
 
   // Sort worklist for determinism (stable daily progress).
+  // Priority order: book → stories → meditations
   worklist.sort((a, b) => {
+    // Collection priority: book (0) > stories (1) > meditations (2)
+    const collectionPriority: Record<string, number> = {
+      'book': 0,
+      'stories': 1,
+      'meditations': 2,
+    };
+    const aPriority = collectionPriority[a.item.collection] ?? 999;
+    const bPriority = collectionPriority[b.item.collection] ?? 999;
+    
+    if (aPriority !== bPriority) {
+      return aPriority - bPriority;
+    }
+
     // For book items, preserve the explicit reading order defined in `bookAudioMap`
-    // (so we generate intro first, then part intros, then chapters).
+    // Order: introduction → part-1-intro → chapters 1-6 → part-2-intro → chapters 7-10 → etc. → outro
     if (a.item.collection === 'book' && b.item.collection === 'book') {
       const ai = bookOrderIndex.get(a.item.slug) ?? Number.MAX_SAFE_INTEGER;
       const bi = bookOrderIndex.get(b.item.slug) ?? Number.MAX_SAFE_INTEGER;
       if (ai !== bi) return ai - bi;
     }
 
-    // Otherwise keep a stable lexical order.
+    // For stories and meditations, keep a stable lexical order.
     return a.key.localeCompare(b.key);
   });
 
