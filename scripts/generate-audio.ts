@@ -430,14 +430,10 @@ function computeSourceHash(params: {
 async function main(): Promise<void> {
   const apiKey = await getGeminiApiKey();
   if (!apiKey) {
-    console.error('❌ Missing GEMINI_API_KEY (or VITE_GEMINI_API_KEY in .env).');
-    console.error('   For GitHub Actions: Set GEMINI_API_KEY as a repository secret.');
-    console.error('   For local testing: Add VITE_GEMINI_API_KEY to your .env file.');
+    console.error('Missing GEMINI_API_KEY (or VITE_GEMINI_API_KEY in .env).');
     process.exitCode = 1;
     return;
   }
-  
-  console.log('✅ API key found, starting audio generation...');
 
   const ttsVersion = process.env[ENV_TTS_VERSION] ?? DEFAULT_TTS_VERSION;
   const modelId = process.env[ENV_GEMINI_MODEL_ID] ?? DEFAULT_MODEL_ID;
@@ -684,8 +680,6 @@ async function main(): Promise<void> {
 
       // Auth issues are unexpected; fail the run so it's visible in CI.
       if (httpStatus === 401 || kind === 'auth') {
-        console.error('❌ Authentication failed (401). Check your GEMINI_API_KEY secret in GitHub.');
-        console.error('   Make sure the API key is valid and has TTS permissions.');
         authFailed = true;
         break;
       }
@@ -733,14 +727,9 @@ async function main(): Promise<void> {
 
   // Exit behavior: quota/rate stops should be a clean success.
   if (authFailed) {
-    console.error('\n❌ Workflow failed due to authentication error.');
-    console.error('   Please check your GEMINI_API_KEY secret in GitHub repository settings.');
     process.exitCode = 1;
   } else if (quotaStopped || seen429 >= 2) {
-    console.log('\n✅ Workflow completed successfully (rate limited - will continue on next run).');
     process.exitCode = 0;
-  } else {
-    console.log('\n✅ Workflow completed successfully.');
   }
 }
 

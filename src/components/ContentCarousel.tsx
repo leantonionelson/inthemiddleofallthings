@@ -144,7 +144,9 @@ const ContentCarousel: React.FC<ContentCarouselProps> = ({
               let subtitle: string | undefined;
               if (contentType === 'chapter') {
                 const chapter = item as BookChapter;
-                subtitle = chapter.part || `Chapter ${chapter.chapterNumber}`;
+                // Prefer the chapter's subtitle (used for intro/one-line descriptions),
+                // fall back to part label or chapter number.
+                subtitle = chapter.subtitle || chapter.part || `Chapter ${chapter.chapterNumber}`;
               } else if (contentType === 'meditation' || contentType === 'story') {
                 const content = item as Meditation | Story;
                 subtitle = content.tags?.slice(0, 2).join(', ') || undefined;

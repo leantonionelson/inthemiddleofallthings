@@ -43,20 +43,38 @@ function parseMarkdownContent(markdown: string): { title: string; subtitle?: str
   let content = '';
   let foundTitle = false;
 
+  // Strip simple inline markdown from titles/subtitles so UI headers don't show raw markers (e.g. "**Title**")
+  const stripInlineMarkdown = (text: string): string => {
+    return text
+      // Bold / italic wrappers
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/__(.*?)__/g, '$1')
+      .replace(/_(.*?)_/g, '$1')
+      // Inline code
+      .replace(/`([^`]+)`/g, '$1')
+      // Any remaining stray markdown markers
+      .replace(/[*_`]+/g, '')
+      .trim();
+  };
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmedLine = line.trim();
     
-    // Extract the first # heading as the title
-    if (trimmedLine.startsWith('# ') && !foundTitle) {
-      title = trimmedLine.substring(2);
-      foundTitle = true;
-      continue; // Skip adding title to content
+    // Extract the first markdown heading (any level) as the title
+    // (Some intros start with ##, and we still want them to load + display correctly.)
+    if (!foundTitle) {
+      const titleMatch = trimmedLine.match(/^(#{1,6})\s+(.+)$/);
+      if (titleMatch) {
+        title = stripInlineMarkdown(titleMatch[2]);
+        foundTitle = true;
+        continue; // Skip adding title to content
+      }
     }
-    
     // Extract the first ## heading as subtitle (only if it immediately follows the title)
     if (trimmedLine.startsWith('## ') && !subtitle && foundTitle && content.trim() === '') {
-      subtitle = trimmedLine.substring(3);
+      subtitle = stripInlineMarkdown(trimmedLine.substring(3));
       continue; // Skip adding subtitle to content
     }
     
@@ -67,8 +85,8 @@ function parseMarkdownContent(markdown: string): { title: string; subtitle?: str
   }
 
   return {
-    title: title.trim(),
-    subtitle: subtitle.trim() || undefined,
+    title: stripInlineMarkdown(title.trim()),
+    subtitle: stripInlineMarkdown(subtitle.trim()) || undefined,
     content: content.trim()
   };
 }
@@ -106,9 +124,7 @@ const bookStructure = [
       { id: 'chapter-7', filename: '7. The Spiral Path.md', order: 9 },
       { id: 'chapter-8', filename: '8. Rest, Oscillation, and the Zero Point.md', order: 10 },
       { id: 'chapter-9', filename: '9. Other People, Other Gravities.md', order: 11 },
-      { id: 'chapter-10', filename: '10. Shedding Mass.md', order: 12 },
-      { id: 'chapter-11', filename: '11. Time and the Myth of Readiness.md', order: 13 },
-      { id: 'chapter-12', filename: '12. Falling and Rising Again.md', order: 14 }
+      { id: 'chapter-10', filename: '10. Shedding Mass.md', order: 12 }
     ]
   },
   {
@@ -116,7 +132,9 @@ const bookStructure = [
     path: 'Part III: The Living Axis',
     description: 'Discovering how to live fully in the present moment, using the body and emotions as guides to authentic being.',
     chapters: [
-      { id: 'part-3-intro', filename: 'intro.md', order: 15 },
+      { id: 'part-3-intro', filename: 'intro.md', order: 13 },
+      { id: 'chapter-11', filename: '11. Time and the Myth of Readiness.md', order: 14 },
+      { id: 'chapter-12', filename: '12. Falling and Rising Again.md', order: 15 },
       { id: 'chapter-13', filename: '13. Acting Without Guarantees.md', order: 16 },
       { id: 'chapter-14', filename: '14. Meaning Without Absolutes.md', order: 17 },
       { id: 'chapter-15', filename: '15. Nihilism and the Weightless World.md', order: 18 },
@@ -148,14 +166,64 @@ const bookStructure = [
   }
 ];
 
+export { bookAudioMap } from './bookAudioMap';
+
 // Export part descriptions for use in components
 export const partDescriptions: Record<string, string> = {
   'Introduction': 'An orientation to the journey ahead, setting the foundation for exploration.',
-  'Part I: The Axis of Becoming': 'Exploring the fundamental forces that shape our existence and the choices that define who we become.',
-  'Part II: The Spiral Path': 'Understanding the cyclical nature of growth, the return of old patterns, and the sacred pauses that allow integration.',
-  'Part III: The Living Axis': 'Discovering how to live fully in the present moment, using the body and emotions as guides to authentic being.',
-  'Part IV: The Horizon Beyond': 'Contemplating mortality, transcendence, and our place within something larger than ourselves.',
-  'Outro': 'A final reflection on the journey and returning to begin again.'
+  'Part I: The Axis of Becoming': 'Before motion is possible, the system must be understood.',
+  'Part II: The Spiral Path': 'Understanding the system does not prevent contact with the world.',
+  'Part III: The Living Axis': 'When structure holds but meaning thins, the system enters flatness.',
+  'Part IV: The Horizon Beyond': 'What lasts is not built once, but maintained continuously.',
+  'Outro': 'What remains is not certainty, but orientation under force.'
+};
+
+// Carousel/reader subtitle overrides (used to show one-line intros on cards and under titles)
+const chapterSubtitleOverrides: Record<string, string> = {
+  // Part I
+  'part-1-intro': 'Before motion is possible, the system must be understood.',
+  'chapter-1': 'Everything that follows turns on where force is allowed to pass.',
+  'chapter-2': 'Desire becomes signal only when it coheres into direction.',
+  'chapter-3': 'Choice collapses possibility into consequence.',
+  'chapter-4': 'Discipline reduces friction so energy can accumulate.',
+  'chapter-5': 'Resistance marks the point where force meets structure.',
+  'chapter-6': 'What was once fragmented can be carried again.',
+
+  // Part II
+  'part-2-intro': 'Understanding the system does not prevent contact with the world.',
+  'chapter-7': 'Progress refines itself through repetition, not escape.',
+  'chapter-8': 'Sustainable systems move because they release.',
+  'chapter-9': 'Every relationship introduces a pull that must be oriented.',
+  'chapter-10': 'What is not released eventually determines the orbit.',
+
+  // Part III
+  'part-3-intro': 'When structure holds but meaning thins, the system enters flatness.',
+  'chapter-13': 'Movement continues even when outcomes cannot be known.',
+  'chapter-14': 'Orientation replaces certainty when truth no longer stabilises.',
+  'chapter-15': 'Fatigue emerges when gradient disappears.',
+  'chapter-16': 'Attachment restores consequence by making loss possible.',
+  'chapter-17': 'Alignment determines whether force strengthens or fractures.',
+
+  // Part IV
+  'part-4-intro': 'What lasts is not built once, but maintained continuously.',
+  'chapter-18': 'Intelligence sheds what no longer fits.',
+  'chapter-19': 'Mobility returns when unnecessary weight is released.',
+  'chapter-20': 'Stability is maintained through adjustment, not stillness.',
+  'chapter-21': 'Time concentrates meaning by forcing choice.',
+  'chapter-22': 'The centre is something you return to, not something you reach.',
+  'chapter-23': 'All systems obey the same mechanics once alignment is named.',
+
+  // Outro
+  'outro': 'What remains is not certainty, but orientation under force.'
+};
+
+// Title overrides for part intro chapters (so carousel cards match the part headers you provided)
+const chapterTitleOverrides: Record<string, string> = {
+  'part-1-intro': 'PART I – THE INTERNAL MECHANICS',
+  'part-2-intro': 'PART II – THE FIELD OF FORCES',
+  'part-3-intro': 'PART III – THE COLLAPSE OF CERTAINTY',
+  'part-4-intro': 'PART IV – THE HORIZON BEYOND',
+  'outro': 'Outro'
 };
 
 // Helper function to delay execution
@@ -193,11 +261,14 @@ async function loadBookChaptersInternal(limit?: number): Promise<BookChapter[]> 
         if (markdown) {
           const parsed = parseMarkdownContent(markdown);
           chapterNumber++;
+
+          const title = chapterTitleOverrides[chapterDef.id] ?? parsed.title;
+          const subtitle = chapterSubtitleOverrides[chapterDef.id] ?? parsed.subtitle;
           
           chapters.push({
             id: chapterDef.id,
-            title: parsed.title,
-            subtitle: parsed.subtitle,
+            title,
+            subtitle,
             content: parsed.content,
             part: part.part,
             chapterNumber,
