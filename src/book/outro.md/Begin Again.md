@@ -1,10 +1,6 @@
 # **Outro – Remaining**
 
-At some point, the need to add more falls away.
-
-Not because there is nothing left to say,  
-but because the pattern has revealed itself clearly enough  
-to stand without reinforcement.
+At some point, the need to add more falls away because the pattern has revealed itself clearly enough to stand without reinforcement.
 
 Nothing in this book was meant to persuade you.  
 Only to align what you already sensed  
@@ -23,12 +19,7 @@ with the same consistency.
 You do not escape this system.  
 You learn to orient within it.
 
-That orientation is the middle.
-
-Not a place of comfort.  
-Not a position of control.  
-But the point from which force can be borne  
-without erasing what you are.
+That orientation is the middle – the point from which force can be borne without erasing what you are.
 
 You will continue to be pulled.  
 You will continue to shed.  
