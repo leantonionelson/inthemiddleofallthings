@@ -91,17 +91,35 @@ export const usePWAInstall = (): PWAInstallState & {
   }, [isInstalled]);
 
   const install = async (): Promise<void> => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      
-      if (outcome === 'accepted') {
-        console.log('PWA installation accepted');
-        setIsInstalled(true);
-        setShowInstallPrompt(false);
+    // Try to use the stored deferred prompt first
+    let promptToUse = deferredPrompt;
+    
+    // Fallback to window.deferredPrompt (set by PWAInstallPrompt component)
+    if (!promptToUse && (window as any).deferredPrompt) {
+      promptToUse = (window as any).deferredPrompt as BeforeInstallPromptEvent;
+    }
+    
+    if (promptToUse) {
+      try {
+        await promptToUse.prompt();
+        const { outcome } = await promptToUse.userChoice;
+        
+        if (outcome === 'accepted') {
+          console.log('PWA installation accepted');
+          setIsInstalled(true);
+          setShowInstallPrompt(false);
+        }
+        
+        setDeferredPrompt(null);
+        (window as any).deferredPrompt = null;
+      } catch (error) {
+        console.error('Error showing install prompt:', error);
+        // If prompt fails, clear the deferred prompt
+        setDeferredPrompt(null);
+        (window as any).deferredPrompt = null;
       }
-      
-      setDeferredPrompt(null);
+    } else {
+      console.warn('Install prompt not available. Make sure you are on HTTPS or localhost with a valid manifest.');
     }
   };
 

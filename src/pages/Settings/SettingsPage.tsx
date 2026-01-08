@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { audioManagerService } from '../../services/audioManager';
 import InstallButton from '../../components/InstallButton';
 import { useAuth } from '../../hooks/useAuth';
 import WelcomeDrawer from '../../components/WelcomeDrawer';
@@ -9,6 +8,10 @@ import { useAppUpdate } from '../../hooks/useAppUpdate';
 import { useDesktopDetection } from '../../hooks/useDesktopDetection';
 import { useSwipeNavigation } from '../../hooks/useSwipeNavigation';
 import { RefreshCw, Download, CheckCircle, AlertCircle, Sun, Moon, ArrowLeft } from 'lucide-react';
+
+// Version injected at build time by Vite
+declare const __APP_VERSION__: string;
+const APP_VERSION = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '1.0.0';
 
 interface SettingsPageProps {
   isDarkMode: boolean;
@@ -21,7 +24,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'profile' | 'settings'>('profile');
-  const [voicePreference, setVoicePreference] = useState<'male' | 'female'>('male');
   const [showLoginDrawer, setShowLoginDrawer] = useState(false);
   const { user, signOut } = useAuth();
   const isDesktop = useDesktopDetection();
@@ -48,12 +50,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
     threshold: 50
   });
 
-  useEffect(() => {
-    // Load voice preference setting
-    const savedVoicePreference = localStorage.getItem('audioVoicePreference') as 'male' | 'female' || 'male';
-    setVoicePreference(savedVoicePreference);
-  }, []);
-
   // Listen for drawer close event
   useEffect(() => {
     const handleDrawerClose = () => {
@@ -62,14 +58,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
     window.addEventListener('welcomeDrawerClosed', handleDrawerClose);
     return () => window.removeEventListener('welcomeDrawerClosed', handleDrawerClose);
   }, []);
-
-  const handleVoicePreferenceChange = (newVoice: 'male' | 'female') => {
-    setVoicePreference(newVoice);
-    localStorage.setItem('audioVoicePreference', newVoice);
-    
-    // Update the audio manager with new voice preference
-    audioManagerService.setVoicePreference(newVoice);
-  };
 
   return (
     <div className="h-full bg-paper-light dark:bg-slate-950/75 relative flex flex-col">
@@ -236,71 +224,12 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
         {/* Settings Tab Content */}
         {activeTab === 'settings' && (
           <>
-
-            {/* Audio */}
-        <motion.div
-          className="relative glass-subtle rounded-2xl p-6 shadow-sm"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.35 }}
-        >
-          <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-6">
-            Audio
-          </h2>
-          <div className="space-y-4">
-            <div>
-              <span className="text-sm font-medium text-ink-secondary dark:text-ink-muted block mb-3">
-                Voice Preference
-              </span>
-            </div>
-            <div className="flex gap-3">
-              {[
-                { value: 'male', label: 'Male Voice', description: 'Deeper, resonant tone' },
-                { value: 'female', label: 'Female Voice', description: 'Smooth, natural tone' }
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => handleVoicePreferenceChange(option.value as 'male' | 'female')}
-                  className={`relative flex-1 py-4 px-4 rounded-xl border transition-all text-left overflow-hidden group ${
-                    voicePreference === option.value
-                      ? 'border-ink-primary dark:border-paper-light shadow-md'
-                      : 'border-ink-muted/30 dark:border-paper-light/20 hover:border-ink-muted/50 dark:hover:border-paper-light/40'
-                  }`}
-                >
-                  {voicePreference === option.value && (
-                    <>
-                      <div className="absolute inset-0 bg-ink-primary dark:bg-paper-light opacity-10" />
-                      <div className="absolute inset-0 gradient-overlay-subtle opacity-50" />
-                    </>
-                  )}
-                  <div className="relative z-10">
-                    <div className={`font-medium mb-1 ${
-                      voicePreference === option.value
-                        ? 'text-ink-primary dark:text-paper-light'
-                        : 'text-ink-secondary dark:text-ink-muted'
-                    }`}>
-                      {option.label}
-                    </div>
-                    <div className={`text-xs ${
-                      voicePreference === option.value
-                        ? 'text-ink-primary/80 dark:text-paper-light/80'
-                        : 'text-ink-muted dark:text-ink-muted'
-                    }`}>
-                      {option.description}
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
-        </motion.div>
-
             {/* App */}
         <motion.div
           className="relative glass-subtle rounded-2xl p-6 shadow-sm"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.45 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
         >
           <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-6">
             App
@@ -394,14 +323,14 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           className="relative glass-subtle rounded-2xl p-6 shadow-sm"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.55 }}
+          transition={{ duration: 0.5, delay: 0.45 }}
         >
           <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-6">
             About
           </h2>
           <div className="space-y-3 text-ink-secondary dark:text-ink-muted text-sm leading-relaxed">
             <p>
-              <strong className="text-ink-primary dark:text-paper-light">Version:</strong> 1.0.0
+              <strong className="text-ink-primary dark:text-paper-light">Version:</strong> {APP_VERSION}
             </p>
             <p>
               <strong className="text-ink-primary dark:text-paper-light">Author:</strong>{' '}

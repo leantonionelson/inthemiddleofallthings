@@ -75,6 +75,25 @@ export function useAppUpdate() {
   }, []);
 
   const checkForUpdates = useCallback(async () => {
+    // Skip in development mode
+    if (import.meta.env.DEV) {
+      setState(prev => ({ 
+        ...prev, 
+        updateError: 'Update checking is not available in development mode. Service workers are disabled.',
+        isUpdating: false 
+      }));
+      return;
+    }
+
+    if (!('serviceWorker' in navigator)) {
+      setState(prev => ({ 
+        ...prev, 
+        updateError: 'Service workers are not supported in this browser',
+        isUpdating: false 
+      }));
+      return;
+    }
+
     setState(prev => ({ ...prev, isUpdating: true, updateError: null }));
 
     try {
@@ -83,7 +102,7 @@ export function useAppUpdate() {
       if (!registration) {
         setState(prev => ({ 
           ...prev, 
-          updateError: 'No service worker registration found',
+          updateError: 'No service worker registration found. The app may not be installed or service workers are not enabled.',
           isUpdating: false 
         }));
         return;

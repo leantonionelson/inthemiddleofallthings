@@ -1,12 +1,26 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { readFileSync } from 'fs'
+import { fileURLToPath } from 'url'
+import { dirname, join } from 'path'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+
+// Read version from package.json
+const packageJson = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf-8'))
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(packageJson.version),
+  },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'framer-motion', 'firebase'],
-    exclude: [],
+    // Avoid forcing pre-bundling of packages that don't expose a root "." export (e.g. firebase).
+    // Vite will handle the actual subpath imports we use (firebase/app, firebase/auth, etc.).
+    include: ['react', 'react-dom', 'framer-motion'],
+    exclude: ['firebase'],
   },
   plugins: [
     react(),
