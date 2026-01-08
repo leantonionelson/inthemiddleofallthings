@@ -1,18 +1,18 @@
 {
   "version": 1,
   "ttsVersion": "2026-01-06-v1",
-  "generatedAt": "2026-01-07T21:35:16.984Z",
+  "generatedAt": "2026-01-08T03:10:07.781Z",
   "tuning": {
     "maxFilesPerRun": 10,
     "requestsPerMinute": 6
   },
   "lastRun": {
-    "generatedAt": "2026-01-07T21:35:16.984Z",
-    "processed": 10,
-    "generated": 10,
-    "skipped": 0,
-    "failed": 0,
-    "rateLimited": 0,
+    "generatedAt": "2026-01-08T03:10:07.781Z",
+    "processed": 4,
+    "generated": 2,
+    "skipped": 10,
+    "failed": 2,
+    "rateLimited": 2,
     "quotaStopped": false
   },
   "items": {
@@ -34,11 +34,11 @@
       "slug": "chapter-10",
       "sourcePath": "src/book/Part II: The Spiral Path/10. Shedding Mass.md",
       "audioPath": "public/audio/book/chapter-10.mp3",
-      "sourceSha256": "555408f0f21fb267ee147f87c1a869bd9bb36cf8b8b27d2db29538e5370563f1",
+      "sourceSha256": "6c1cb5b66ebde141b8e186e68adb4da462b285a2d999dcce3e7aaa8967142aeb",
       "audioSha256": null,
-      "updatedAt": "2026-01-06T21:11:34.936Z",
-      "status": "pending",
-      "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/usage?tab=rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 25.084594548s.\",\n    \"status\": \"RESOURCE_EXH"
+      "updatedAt": "2026-01-08T03:09:54.776Z",
+      "status": "failed",
+      "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 5.249104802s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n  "
     },
     "book/chapter-11": {
       "collection": "book",
@@ -274,10 +274,10 @@
       "slug": "chapter-8",
       "sourcePath": "src/book/Part II: The Spiral Path/8. Rest, Oscillation, and the Zero Point.md",
       "audioPath": "public/audio/book/chapter-8.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "39cdcc23f78c30593618b7a968c1641099e25ab1db64276145228c7a7757d13d",
+      "audioSha256": "87e2edb12240602d9f29c78d0cde146f795611d1d67a265eee2ceb691cb017f1",
+      "updatedAt": "2026-01-08T03:08:53.974Z",
+      "status": "ok",
       "lastError": null
     },
     "book/chapter-9": {
@@ -286,10 +286,10 @@
       "slug": "chapter-9",
       "sourcePath": "src/book/Part II: The Spiral Path/9. Other People, Other Gravities.md",
       "audioPath": "public/audio/book/chapter-9.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "aed924f946b16f4979866c2aa80f79dcba4d18bcb3538de2605c93189b55757d",
+      "audioSha256": "60fce45c7b8ee0d635f20c06c0078771740a8448fc41b78161c7637f62e1932d",
+      "updatedAt": "2026-01-08T03:09:54.639Z",
+      "status": "ok",
       "lastError": null
     },
     "book/introduction": {
@@ -346,11 +346,11 @@
       "slug": "part-3-intro",
       "sourcePath": "src/book/Part III: The Living Axis/intro.md",
       "audioPath": "public/audio/book/part-3-intro.mp3",
-      "sourceSha256": "",
+      "sourceSha256": "70206cc57e4359dc415b470eb43c02c117306ea3fb7418408ea0a63ab87bd685",
       "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
-      "lastError": null
+      "updatedAt": "2026-01-08T03:10:04.778Z",
+      "status": "failed",
+      "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 55.244719923s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n "
     },
     "book/part-4-intro": {
       "collection": "book",
