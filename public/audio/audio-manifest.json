@@ -1,16 +1,16 @@
 {
   "version": 1,
   "ttsVersion": "2026-01-06-v1",
-  "generatedAt": "2026-01-06T21:11:47.942Z",
+  "generatedAt": "2026-01-08T03:10:07.781Z",
   "tuning": {
     "maxFilesPerRun": 10,
     "requestsPerMinute": 6
   },
   "lastRun": {
-    "generatedAt": "2026-01-06T21:11:47.942Z",
-    "processed": 3,
-    "generated": 1,
-    "skipped": 0,
+    "generatedAt": "2026-01-08T03:10:07.781Z",
+    "processed": 4,
+    "generated": 2,
+    "skipped": 10,
     "failed": 2,
     "rateLimited": 2,
     "quotaStopped": false
@@ -22,10 +22,10 @@
       "slug": "chapter-1",
       "sourcePath": "src/book/Part I: The Axis of Becoming/1. The Axis of Consequence.md",
       "audioPath": "public/audio/book/chapter-1.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "5f426f9745d5ab841920b3a447b2c10b5004e17ecc1abb26901174bf8f33dd8b",
+      "audioSha256": "9a39b86e9bef39fef1c8ca2a0d178b15733bd6984529075272588f43367224d7",
+      "updatedAt": "2026-01-07T21:21:30.710Z",
+      "status": "ok",
       "lastError": null
     },
     "book/chapter-10": {
@@ -34,11 +34,11 @@
       "slug": "chapter-10",
       "sourcePath": "src/book/Part II: The Spiral Path/10. Shedding Mass.md",
       "audioPath": "public/audio/book/chapter-10.mp3",
-      "sourceSha256": "555408f0f21fb267ee147f87c1a869bd9bb36cf8b8b27d2db29538e5370563f1",
+      "sourceSha256": "6c1cb5b66ebde141b8e186e68adb4da462b285a2d999dcce3e7aaa8967142aeb",
       "audioSha256": null,
-      "updatedAt": "2026-01-06T21:11:34.936Z",
+      "updatedAt": "2026-01-08T03:09:54.776Z",
       "status": "failed",
-      "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/usage?tab=rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 25.084594548s.\",\n    \"status\": \"RESOURCE_EXH"
+      "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 5.249104802s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n  "
     },
     "book/chapter-11": {
       "collection": "book",
@@ -49,7 +49,7 @@
       "sourceSha256": "eda12b1efc8b827d339f00f226eb62ed3d582d2e08ed7237dd91d0d99273937f",
       "audioSha256": null,
       "updatedAt": "2026-01-06T21:11:44.939Z",
-      "status": "failed",
+      "status": "pending",
       "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/usage?tab=rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 15.076986711s.\",\n    \"status\": \"RESOURCE_EXH"
     },
     "book/chapter-12": {
@@ -154,10 +154,10 @@
       "slug": "chapter-2",
       "sourcePath": "src/book/Part I: The Axis of Becoming/2. The Shape of Desire.md",
       "audioPath": "public/audio/book/chapter-2.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "051a08e5deceeb6066b2c3c18c180d35561bd88c1e77ad0c996336889575d350",
+      "audioSha256": "5ca7853de98d519f0471df9de12d75fff7805f7428223f8d1c1b8a30d3dcc4fa",
+      "updatedAt": "2026-01-07T21:24:26.609Z",
+      "status": "ok",
       "lastError": null
     },
     "book/chapter-20": {
@@ -214,10 +214,10 @@
       "slug": "chapter-3",
       "sourcePath": "src/book/Part I: The Axis of Becoming/3. The Weight of Choice.md",
       "audioPath": "public/audio/book/chapter-3.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "058ad56bec9ee355e0a8c02f6265c958c575ef0d3455764c6b61fe3916936cf4",
+      "audioSha256": "aeeec7838b79d1d3d4f61f16960302d5fc6174e2a1c38a8f13437016c531f64c",
+      "updatedAt": "2026-01-07T21:26:50.851Z",
+      "status": "ok",
       "lastError": null
     },
     "book/chapter-4": {
@@ -226,10 +226,10 @@
       "slug": "chapter-4",
       "sourcePath": "src/book/Part I: The Axis of Becoming/4. Discipline and the Physics of Motion.md",
       "audioPath": "public/audio/book/chapter-4.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "23e391cf146f00b7d387c618f970f8bd5a6b5250a971c4575ee225933ef1762e",
+      "audioSha256": "78103e83b6a0f592f4b4f3eac38e8fa883f741a6d6f0a9caa8dff02333e3c76e",
+      "updatedAt": "2026-01-07T21:28:11.946Z",
+      "status": "ok",
       "lastError": null
     },
     "book/chapter-5": {
@@ -238,10 +238,10 @@
       "slug": "chapter-5",
       "sourcePath": "src/book/Part I: The Axis of Becoming/5. Resistance and the Counterforce of Self.md",
       "audioPath": "public/audio/book/chapter-5.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "1d3550aa26977f0226f38a20d625a616230e12cc329bb2c11d893be340f17fbb",
+      "audioSha256": "163262cef2eb106a805dadd2b06a81aa4f1e715db424dbcd9953a5c0762670dc",
+      "updatedAt": "2026-01-07T21:29:52.205Z",
+      "status": "ok",
       "lastError": null
     },
     "book/chapter-6": {
@@ -250,10 +250,10 @@
       "slug": "chapter-6",
       "sourcePath": "src/book/Part I: The Axis of Becoming/6. Integration and the Returning Self.md",
       "audioPath": "public/audio/book/chapter-6.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "1042b0692e3e9ea12c055d74c7b86bdc3acb520830a8d385d2c365542153cfbf",
+      "audioSha256": "de2d5bdff2fd8b30725d0084f5338ebea9e58b9e161a896309f8940a48b51438",
+      "updatedAt": "2026-01-07T21:32:02.250Z",
+      "status": "ok",
       "lastError": null
     },
     "book/chapter-7": {
@@ -262,10 +262,10 @@
       "slug": "chapter-7",
       "sourcePath": "src/book/Part II: The Spiral Path/7. The Spiral Path.md",
       "audioPath": "public/audio/book/chapter-7.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "49d35e5072857031b79ed332ad607d2cb984ae7d9582375b0864500653635297",
+      "audioSha256": "85224365ada64a50ceb07c693b2c1049e621e04eb687cdb9362cbaad7050c75f",
+      "updatedAt": "2026-01-07T21:35:16.984Z",
+      "status": "ok",
       "lastError": null
     },
     "book/chapter-8": {
@@ -274,10 +274,10 @@
       "slug": "chapter-8",
       "sourcePath": "src/book/Part II: The Spiral Path/8. Rest, Oscillation, and the Zero Point.md",
       "audioPath": "public/audio/book/chapter-8.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "39cdcc23f78c30593618b7a968c1641099e25ab1db64276145228c7a7757d13d",
+      "audioSha256": "87e2edb12240602d9f29c78d0cde146f795611d1d67a265eee2ceb691cb017f1",
+      "updatedAt": "2026-01-08T03:08:53.974Z",
+      "status": "ok",
       "lastError": null
     },
     "book/chapter-9": {
@@ -286,10 +286,10 @@
       "slug": "chapter-9",
       "sourcePath": "src/book/Part II: The Spiral Path/9. Other People, Other Gravities.md",
       "audioPath": "public/audio/book/chapter-9.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "aed924f946b16f4979866c2aa80f79dcba4d18bcb3538de2605c93189b55757d",
+      "audioSha256": "60fce45c7b8ee0d635f20c06c0078771740a8448fc41b78161c7637f62e1932d",
+      "updatedAt": "2026-01-08T03:09:54.639Z",
+      "status": "ok",
       "lastError": null
     },
     "book/introduction": {
@@ -298,10 +298,10 @@
       "slug": "introduction",
       "sourcePath": "src/book/introduction/0. Introduction: A Centre That Moves.md",
       "audioPath": "public/audio/book/introduction.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "3fbe2f0c02ed7e5013b2166fbaef2cefbdaef9c73ec87707b3e7decb3cdc9922",
+      "audioSha256": "667a5d87618a2af89f21a611bf0b11581d5b42b760059426de2e7c8556f6e548",
+      "updatedAt": "2026-01-07T21:18:53.565Z",
+      "status": "ok",
       "lastError": null
     },
     "book/outro": {
@@ -322,10 +322,10 @@
       "slug": "part-1-intro",
       "sourcePath": "src/book/Part I: The Axis of Becoming/intro.md",
       "audioPath": "public/audio/book/part-1-intro.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "10ee3b1830e05c729f8eb6a48902e40b6c5a253069188d2934929d5d4401aedf",
+      "audioSha256": "cd3b6efdc8657f7aae57230f16d79a477cb2ff1fee7aa54426aef07a169d7f13",
+      "updatedAt": "2026-01-07T21:19:31.764Z",
+      "status": "ok",
       "lastError": null
     },
     "book/part-2-intro": {
@@ -334,10 +334,10 @@
       "slug": "part-2-intro",
       "sourcePath": "src/book/Part II: The Spiral Path/intro.md",
       "audioPath": "public/audio/book/part-2-intro.mp3",
-      "sourceSha256": "",
-      "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
+      "sourceSha256": "2de391f47baf2aa4b49fe8c0bf3bcd98d6635f93c1e671e2ee5e33c6e9f8d16b",
+      "audioSha256": "e572d38c3fe876d037a3b9d38653a75d6c9c6ef0c2c803f83f0a243db3a9ad3a",
+      "updatedAt": "2026-01-07T21:32:35.089Z",
+      "status": "ok",
       "lastError": null
     },
     "book/part-3-intro": {
@@ -346,11 +346,11 @@
       "slug": "part-3-intro",
       "sourcePath": "src/book/Part III: The Living Axis/intro.md",
       "audioPath": "public/audio/book/part-3-intro.mp3",
-      "sourceSha256": "",
+      "sourceSha256": "70206cc57e4359dc415b470eb43c02c117306ea3fb7418408ea0a63ab87bd685",
       "audioSha256": null,
-      "updatedAt": null,
-      "status": "pending",
-      "lastError": null
+      "updatedAt": "2026-01-08T03:10:04.778Z",
+      "status": "failed",
+      "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 55.244719923s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n "
     },
     "book/part-4-intro": {
       "collection": "book",
