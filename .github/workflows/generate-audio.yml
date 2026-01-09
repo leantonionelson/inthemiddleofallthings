@@ -1,0 +1,75 @@
+name: Generate Audio
+
+on:
+  push:
+    paths:
+      - 'src/book/**/*.md'
+      - 'src/meditations/**/*.md'
+      - 'src/stories/**/*.md'
+      - 'scripts/generate-audio.ts'
+      - 'scripts/markdownToTtsText.ts'
+      - 'src/data/bookAudioMap.ts'
+  workflow_dispatch:
+    inputs:
+      force_regenerate:
+        description: 'Force regenerate all audio (delete manifest)'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  generate-audio:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Delete manifest if force regenerate
+        if: github.event.inputs.force_regenerate == 'true'
+        run: |
+          rm -f public/audio/audio-manifest.json
+          find public/audio -name "*.mp3" -type f -delete || true
+
+      - name: Generate audio files
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          MAX_FILES_PER_RUN: ${{ vars.MAX_FILES_PER_RUN || '10' }}
+          REQUESTS_PER_MINUTE: ${{ vars.REQUESTS_PER_MINUTE || '6' }}
+        run: npm run generate:audio
+
+      - name: Check for changes
+        id: check-changes
+        run: |
+          if [ -n "$(git status --porcelain public/audio)" ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push audio files
+        if: steps.check-changes.outputs.has_changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add public/audio/
+          git commit -m "chore: regenerate audio files [skip ci]" || exit 0
+          git push
+

@@ -46,11 +46,24 @@ type Manifest = {
 const DEFAULT_TTS_VERSION = '2026-01-06-v1';
 // Replace your existing constant with this:
 const VOICE_STYLE_INSTRUCTION = 
-  'Speak with a deep, rich, and resonant Black British accent (London). ' +
-  'The voice should sound earthy, soulful, and textured (gravelly). ' +
-  'Adopt a philosophical and meditative delivery style: use the slow, rhythmic pacing of a wise lecturer. ' +
-  'Allow for significant, thoughtful pauses between ideas to let them land. ' +
-  'Avoid a "newsreader" or "assistant" tone; instead, aim for the grounded, storytelling gravitas of a late-night radio host describing the nature of reality.';
+'Speak as a calm, grounded Black British male voice, neutral London accent. ' +
+'Delivery should be steady, unhurried, and structurally precise – not performative, not dramatic.' +
+'This is not storytelling; it is orientation. ' +
+
+'Pace is calm but not languid. Allow clean pauses at paragraph breaks and conceptual shifts but not long spaces. ' +
+'Avoid theatrical emphasis. Let meaning emerge through clarity rather than tone. ' +
+
+'The voice should feel like a stable reference point – as if the listener is being guided back to centre. ' +
+'Low reactivity, low urgency. Calm without softness. Authority without dominance. ' +
+
+'Inflection should be minimal and intentional. Do not rise at the end of sentences unless asking a genuine question. ' +
+'Statements should land downward, grounding the nervous system rather than stimulating it. ' +
+
+'Imagine the voice as a physicist who meditates, or a late-night thinker speaking to one attentive listener, not an audience. ' +
+'Presence over performance. Precision over poetry. ' +
+
+'Silence is part of the meaning. Respect it but do not over pause, respect also the users time and inteligence' +
+'Let the listener feel oriented, not convinced.';
 
 // Keep stable across runs unless you intentionally want to regenerate everything.
 // Ref: https://ai.google.dev/gemini-api/docs/speech-generation#supported-models

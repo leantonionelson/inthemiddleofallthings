@@ -9,13 +9,13 @@ Discipline sustains motion against friction.
 Resistance exposes the stability of existing patterns.  
 Integration determines what endures.
 
-These chapters describe the internal geometry that governs becoming – the forces that shape behaviour before the world applies its own pressure.  
-Here, the self is treated as a system: adaptive, conservative, and bound by constraints.
+These chapters describe the internal geometry that governs becoming – the forces shaping behaviour before the world applies its own pressure.  
+Here, the self is treated as a system: adaptive, conservative, and constrained.
 
 Change follows mechanics.  
 Energy must be applied.  
 Friction must be overcome.  
-Old configurations resist reorganisation.  
+Existing configurations resist reorganisation.  
 New ones stabilise only through repetition.
 
 This part traces those mechanics as they unfold within a person, long before circumstances, relationships, or time begin to bend the path.

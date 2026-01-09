@@ -1,21 +1,25 @@
 # **Part II – The External Forces of Becoming**
 
-This part explores the structure of change as it meets the world.
+This part examines change as it meets the world.
 
 No self moves in isolation.  
 Other people exert gravity.  
-Circumstances introduce pressure.  
+Circumstances apply pressure.  
 Time curves trajectories.  
 Attachment creates orbit.  
 Interaction reshapes direction.
 
-These chapters examine what happens when an internal axis enters a field of forces – how lives bend, loop, collide, stabilise, or destabilise in relation to what surrounds them.  
-Here, becoming is no longer private. It is relational, temporal, and dynamic.
+Here, an internal axis enters a field of forces.  
+Lives bend, loop, collide, stabilise, or destabilise in relation to what surrounds them.  
+Becoming is no longer private.  
+It unfolds through proximity, duration, and exposure.
 
 Movement follows interaction.  
 Paths curve under influence.  
 Systems entrain or resist one another.  
 Patterns repeat through feedback.  
-Stability emerges through balance, not control.
+Stability emerges through balance rather than control.
 
-This part traces the geometry that forms when an inner structure moves through a world already in motion.
+This part traces the geometry that forms  
+when an inner structure moves  
+through a world already in motion.

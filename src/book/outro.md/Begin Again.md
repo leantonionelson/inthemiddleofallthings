@@ -16,8 +16,8 @@ The same laws that govern motion, balance, decay, and renewal
 operate through your inner life  
 with the same consistency.
 
-You do not escape this system.  
-You learn to orient within it.
+There is no exit from this system.  
+There is only orientation within it.
 
 That orientation is the middle – the point from which force can be borne without erasing what you are.
 
@@ -25,13 +25,13 @@ You will continue to be pulled.
 You will continue to shed.  
 You will continue to adjust.
 
-There is no final equilibrium waiting for you.  
-No configuration that holds without maintenance.
+No final equilibrium waits ahead.  
+No configuration holds without maintenance.
 
-It is permission.
+This is permission.
 
-Permission to remain engaged without needing certainty.  
-Permission to carry weight without demanding permanence.  
+Permission to remain engaged without certainty.  
+Permission to carry weight without permanence.  
 Permission to live inside motion without mistaking instability for failure.
 
 The middle does not ask you to resolve your life.  
@@ -41,7 +41,7 @@ If something here stays with you,
 let it be this:
 
 Meaning is not something you reach.  
-It is something that emerges  
+It emerges  
 when you remain coherent  
 long enough  
 inside the forces that shape you.

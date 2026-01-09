@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Workbox } from 'workbox-window';
+import { isCapacitor, shouldEnableServiceWorker } from '../utils/capacitor';
 
 interface UpdateState {
   isUpdateAvailable: boolean;
@@ -17,6 +18,11 @@ export function useAppUpdate() {
   const [wb, setWb] = useState<Workbox | null>(null);
 
   useEffect(() => {
+    // Skip in Capacitor native apps (they use app store updates instead)
+    if (isCapacitor() || !shouldEnableServiceWorker()) {
+      return;
+    }
+
     if (import.meta.env.DEV || !('serviceWorker' in navigator)) {
       return;
     }
@@ -75,6 +81,16 @@ export function useAppUpdate() {
   }, []);
 
   const checkForUpdates = useCallback(async () => {
+    // Skip in Capacitor native apps
+    if (isCapacitor() || !shouldEnableServiceWorker()) {
+      setState(prev => ({ 
+        ...prev, 
+        updateError: 'Update checking is not available in native apps. Updates are handled through app stores.',
+        isUpdating: false 
+      }));
+      return;
+    }
+
     // Skip in development mode
     if (import.meta.env.DEV) {
       setState(prev => ({ 

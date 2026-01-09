@@ -11,10 +11,14 @@ const __dirname = dirname(__filename)
 // Read version from package.json
 const packageJson = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf-8'))
 
+// Check if running in Capacitor (native app)
+const isCapacitor = process.env.CAPACITOR === 'true' || process.env.CAPACITOR_PLATFORM
+
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(packageJson.version),
+    __IS_CAPACITOR__: JSON.stringify(!!isCapacitor),
   },
   optimizeDeps: {
     // Avoid forcing pre-bundling of packages that don't expose a root "." export (e.g. firebase).
@@ -24,8 +28,8 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    // Only enable PWA plugin in production
-    ...(process.env.NODE_ENV === 'production' ? [VitePWA({
+    // Only enable PWA plugin in production and NOT in Capacitor (native apps don't use service workers)
+    ...(process.env.NODE_ENV === 'production' && !isCapacitor ? [VitePWA({
       registerType: 'prompt', // Manual control via Settings button
       includeAssets: ['favicon.ico', 'favicon-16x16.png', 'favicon-32x32.png', 'apple-touch-icon.png', 'logo.png'],
       manifest: {

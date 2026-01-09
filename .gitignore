@@ -38,3 +38,14 @@ lerna-debug.log*
 
 # Debug files
 debug-*.html
+
+# Capacitor
+android/
+ios/
+.capacitor/
+
+# Android signing keys (NEVER commit these!)
+*.jks
+*.keystore
+keystore/
+android/keystore.properties

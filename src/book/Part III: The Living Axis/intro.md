@@ -2,58 +2,63 @@
 
 No orbit is clean.
 
-We draw them as circles because it helps us think, but reality is messier than diagrams allow.  
+We draw them as circles because diagrams simplify thought, but lived motion is less exact.  
 The Earth does not move in a perfect loop.  
 Its path is elliptical.  
 It wobbles.  
 Its axis tilts.  
 It spins, precesses, bobs, and drifts.
 
-Even that is not the whole story.
+And even this is incomplete.
 
-The Earth does not simply orbit the sun – it spirals with it, carried through space by forces far larger than either body alone.  
-Stability is not achieved through precision, but through continuous adjustment.
+The Earth does not simply orbit the sun.  
+It spirals with it, carried through space by forces larger than either body alone.  
+Stability arises through adjustment rather than precision.
 
-This is what an orbit actually looks like.
+This is what orbit actually looks like.
 
 This is also what a life looks like.
 
-Balance is not symmetry.  
-It is responsiveness.
+Balance is responsiveness.
 
-There is no fixed position you can reach where movement becomes unnecessary.  
-No perfect alignment that holds without correction.
+There is no position where movement becomes unnecessary.  
+No alignment that holds without correction.
 
-Understanding does not end movement.  
-It makes it unavoidable.
+Understanding does not end motion.  
+It sharpens awareness of it.
 
 Once you see how systems bind and release, you do not step outside them.  
-You step into them differently.
+You step into them with orientation.
 
-The middle is not something you achieve and keep.  
-It is something you continually negotiate –  
-a living calibration between force and intention, momentum and rest, weight and direction.
+The middle is not something you reach and preserve.  
+It is a condition you continually negotiate –  
+a living calibration between force and intention,  
+momentum and rest,  
+weight and direction.
 
-This part of the book is not about mastery.  
-It is about practice.
+This part of the book shifts emphasis.
+
+It is no longer concerned with mastery.  
+It concerns practice.
 
 Time will still stretch and compress.  
-You will still hesitate.  
-You will still fall out of rhythm and find your way back again.
+Hesitation will still appear.  
+Rhythm will be lost and found again.
 
-The difference now is orientation.
+What changes is orientation.
 
-You are no longer searching for certainty or escape.  
-You are learning how to move without guarantees,  
-how to act without armour,  
-how to remain coherent inside uncertainty.
+The search for certainty fades.  
+So does the impulse to escape.
 
-The middle is not a safe place.  
-It is a responsive one.
+In their place comes the capacity to move without guarantees,  
+to act without armour,  
+to remain coherent inside uncertainty.
 
-From here on, the work is quieter.  
+The middle is responsive.
+
+From here on, the work quietens.  
 Less about understanding the world.  
-More about living inside it without losing your centre.
+More about inhabiting it without losing your centre.
 
-This is what it means to move forward  
-without leaving the middle behind.
+This is how movement continues  
+without abandoning the middle that holds it.
