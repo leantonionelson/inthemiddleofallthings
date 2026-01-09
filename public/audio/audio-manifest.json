@@ -1,18 +1,18 @@
 {
   "version": 1,
   "ttsVersion": "2026-01-06-v1",
-  "generatedAt": "2026-01-08T03:10:07.781Z",
+  "generatedAt": "2026-01-09T03:22:53.198Z",
   "tuning": {
     "maxFilesPerRun": 10,
     "requestsPerMinute": 6
   },
   "lastRun": {
-    "generatedAt": "2026-01-08T03:10:07.781Z",
-    "processed": 4,
-    "generated": 2,
-    "skipped": 10,
-    "failed": 2,
-    "rateLimited": 2,
+    "generatedAt": "2026-01-09T03:22:53.198Z",
+    "processed": 10,
+    "generated": 4,
+    "skipped": 0,
+    "failed": 6,
+    "rateLimited": 0,
     "quotaStopped": false
   },
   "items": {
@@ -22,11 +22,11 @@
       "slug": "chapter-1",
       "sourcePath": "src/book/Part I: The Axis of Becoming/1. The Axis of Consequence.md",
       "audioPath": "public/audio/book/chapter-1.mp3",
-      "sourceSha256": "5f426f9745d5ab841920b3a447b2c10b5004e17ecc1abb26901174bf8f33dd8b",
+      "sourceSha256": "4590a3ca6c856a9c4eb8af0a8d1614c93eb2fab32138fb1f5bab97d4adc8394e",
       "audioSha256": "9a39b86e9bef39fef1c8ca2a0d178b15733bd6984529075272588f43367224d7",
-      "updatedAt": "2026-01-07T21:21:30.710Z",
-      "status": "ok",
-      "lastError": null
+      "updatedAt": "2026-01-09T03:13:22.197Z",
+      "status": "failed",
+      "lastError": "Gemini TTS request failed (500): {\n  \"error\": {\n    \"code\": 500,\n    \"message\": \"An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting\",\n    \"status\": \"INTERNAL\"\n  }\n}\n"
     },
     "book/chapter-10": {
       "collection": "book",
@@ -154,11 +154,11 @@
       "slug": "chapter-2",
       "sourcePath": "src/book/Part I: The Axis of Becoming/2. The Shape of Desire.md",
       "audioPath": "public/audio/book/chapter-2.mp3",
-      "sourceSha256": "051a08e5deceeb6066b2c3c18c180d35561bd88c1e77ad0c996336889575d350",
+      "sourceSha256": "da030fe604ba69c396b1b6173843a9b1ed27759a79a48fe16110e43fbb970a40",
       "audioSha256": "5ca7853de98d519f0471df9de12d75fff7805f7428223f8d1c1b8a30d3dcc4fa",
-      "updatedAt": "2026-01-07T21:24:26.609Z",
-      "status": "ok",
-      "lastError": null
+      "updatedAt": "2026-01-09T03:14:45.073Z",
+      "status": "failed",
+      "lastError": "Gemini TTS request failed (503): {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"The model is overloaded. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
     },
     "book/chapter-20": {
       "collection": "book",
@@ -214,11 +214,11 @@
       "slug": "chapter-3",
       "sourcePath": "src/book/Part I: The Axis of Becoming/3. The Weight of Choice.md",
       "audioPath": "public/audio/book/chapter-3.mp3",
-      "sourceSha256": "058ad56bec9ee355e0a8c02f6265c958c575ef0d3455764c6b61fe3916936cf4",
+      "sourceSha256": "446f90d07af47d182e1216070f3dc4146c7d571c13df3539fd2c5160d772cf8f",
       "audioSha256": "aeeec7838b79d1d3d4f61f16960302d5fc6174e2a1c38a8f13437016c531f64c",
-      "updatedAt": "2026-01-07T21:26:50.851Z",
-      "status": "ok",
-      "lastError": null
+      "updatedAt": "2026-01-09T03:16:35.185Z",
+      "status": "failed",
+      "lastError": "Gemini TTS request failed (500): {\n  \"error\": {\n    \"code\": 500,\n    \"message\": \"An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting\",\n    \"status\": \"INTERNAL\"\n  }\n}\n"
     },
     "book/chapter-4": {
       "collection": "book",
@@ -226,9 +226,9 @@
       "slug": "chapter-4",
       "sourcePath": "src/book/Part I: The Axis of Becoming/4. Discipline and the Physics of Motion.md",
       "audioPath": "public/audio/book/chapter-4.mp3",
-      "sourceSha256": "23e391cf146f00b7d387c618f970f8bd5a6b5250a971c4575ee225933ef1762e",
-      "audioSha256": "78103e83b6a0f592f4b4f3eac38e8fa883f741a6d6f0a9caa8dff02333e3c76e",
-      "updatedAt": "2026-01-07T21:28:11.946Z",
+      "sourceSha256": "24b9cf6813af2fbc3977d58729eb96738e9b9f55ec52a66e9f3d48e739c9747f",
+      "audioSha256": "a4fac360d0ac29090a8819eecf40f90afcc308cd65a9344766b408ef770da6d4",
+      "updatedAt": "2026-01-09T03:18:27.828Z",
       "status": "ok",
       "lastError": null
     },
@@ -238,11 +238,11 @@
       "slug": "chapter-5",
       "sourcePath": "src/book/Part I: The Axis of Becoming/5. Resistance and the Counterforce of Self.md",
       "audioPath": "public/audio/book/chapter-5.mp3",
-      "sourceSha256": "1d3550aa26977f0226f38a20d625a616230e12cc329bb2c11d893be340f17fbb",
+      "sourceSha256": "cd90f446e1c1fb06036c4345a99b7fdf81bceb62789b32b77c7f897adbb4f360",
       "audioSha256": "163262cef2eb106a805dadd2b06a81aa4f1e715db424dbcd9953a5c0762670dc",
-      "updatedAt": "2026-01-07T21:29:52.205Z",
-      "status": "ok",
-      "lastError": null
+      "updatedAt": "2026-01-09T03:19:32.411Z",
+      "status": "failed",
+      "lastError": "Gemini TTS request failed (500): {\n  \"error\": {\n    \"code\": 500,\n    \"message\": \"An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting\",\n    \"status\": \"INTERNAL\"\n  }\n}\n"
     },
     "book/chapter-6": {
       "collection": "book",
@@ -250,9 +250,9 @@
       "slug": "chapter-6",
       "sourcePath": "src/book/Part I: The Axis of Becoming/6. Integration and the Returning Self.md",
       "audioPath": "public/audio/book/chapter-6.mp3",
-      "sourceSha256": "1042b0692e3e9ea12c055d74c7b86bdc3acb520830a8d385d2c365542153cfbf",
-      "audioSha256": "de2d5bdff2fd8b30725d0084f5338ebea9e58b9e161a896309f8940a48b51438",
-      "updatedAt": "2026-01-07T21:32:02.250Z",
+      "sourceSha256": "0ddfd932cfc85bcb28403e060c52f94b43a55ae481120ed5c3087507d83974fb",
+      "audioSha256": "f76799cbf267902ab7b502a11823842430b1c99d0a5bb52ff838eb296deb3c52",
+      "updatedAt": "2026-01-09T03:20:56.345Z",
       "status": "ok",
       "lastError": null
     },
@@ -262,9 +262,9 @@
       "slug": "chapter-7",
       "sourcePath": "src/book/Part II: The Spiral Path/7. The Spiral Path.md",
       "audioPath": "public/audio/book/chapter-7.mp3",
-      "sourceSha256": "49d35e5072857031b79ed332ad607d2cb984ae7d9582375b0864500653635297",
-      "audioSha256": "85224365ada64a50ceb07c693b2c1049e621e04eb687cdb9362cbaad7050c75f",
-      "updatedAt": "2026-01-07T21:35:16.984Z",
+      "sourceSha256": "e3ef1518c16becb1c19e35a58431176a0afd9af0c1c6ebb341a0a04277b4259b",
+      "audioSha256": "2dc8e378fc1637e20704ec344ba5c9917310611582857888a2a3831fb6f95220",
+      "updatedAt": "2026-01-09T03:22:53.198Z",
       "status": "ok",
       "lastError": null
     },
@@ -298,11 +298,11 @@
       "slug": "introduction",
       "sourcePath": "src/book/introduction/0. Introduction: A Centre That Moves.md",
       "audioPath": "public/audio/book/introduction.mp3",
-      "sourceSha256": "3fbe2f0c02ed7e5013b2166fbaef2cefbdaef9c73ec87707b3e7decb3cdc9922",
+      "sourceSha256": "544b11265fdd6752a0a04db02116e57aa14c17129439f54338ff5ad4eaa3d41b",
       "audioSha256": "667a5d87618a2af89f21a611bf0b11581d5b42b760059426de2e7c8556f6e548",
-      "updatedAt": "2026-01-07T21:18:53.565Z",
-      "status": "ok",
-      "lastError": null
+      "updatedAt": "2026-01-09T03:09:19.993Z",
+      "status": "failed",
+      "lastError": "Gemini TTS request failed (500): {\n  \"error\": {\n    \"code\": 500,\n    \"message\": \"An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting\",\n    \"status\": \"INTERNAL\"\n  }\n}\n"
     },
     "book/outro": {
       "collection": "book",
@@ -322,11 +322,11 @@
       "slug": "part-1-intro",
       "sourcePath": "src/book/Part I: The Axis of Becoming/intro.md",
       "audioPath": "public/audio/book/part-1-intro.mp3",
-      "sourceSha256": "10ee3b1830e05c729f8eb6a48902e40b6c5a253069188d2934929d5d4401aedf",
+      "sourceSha256": "34fef27a52dd3bcb1bc152cd4478bb171707fad0112418d6fb593388ca9f9eba",
       "audioSha256": "cd3b6efdc8657f7aae57230f16d79a477cb2ff1fee7aa54426aef07a169d7f13",
-      "updatedAt": "2026-01-07T21:19:31.764Z",
-      "status": "ok",
-      "lastError": null
+      "updatedAt": "2026-01-09T03:11:37.026Z",
+      "status": "failed",
+      "lastError": "Gemini TTS request failed (500): {\n  \"error\": {\n    \"code\": 500,\n    \"message\": \"An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting\",\n    \"status\": \"INTERNAL\"\n  }\n}\n"
     },
     "book/part-2-intro": {
       "collection": "book",
@@ -334,9 +334,9 @@
       "slug": "part-2-intro",
       "sourcePath": "src/book/Part II: The Spiral Path/intro.md",
       "audioPath": "public/audio/book/part-2-intro.mp3",
-      "sourceSha256": "2de391f47baf2aa4b49fe8c0bf3bcd98d6635f93c1e671e2ee5e33c6e9f8d16b",
-      "audioSha256": "e572d38c3fe876d037a3b9d38653a75d6c9c6ef0c2c803f83f0a243db3a9ad3a",
-      "updatedAt": "2026-01-07T21:32:35.089Z",
+      "sourceSha256": "b951c7a4a20ef56749ecbee825b4740dd4ff8aaedb560e09254eaedb58da4286",
+      "audioSha256": "929e2c1101ee95acf3b6fed5e1f5e7ed7a855406c1384f33e3e239ec12ffc7d1",
+      "updatedAt": "2026-01-09T03:21:30.203Z",
       "status": "ok",
       "lastError": null
     },
