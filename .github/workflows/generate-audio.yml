@@ -20,12 +20,14 @@ on:
 jobs:
   generate-audio:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       - name: Setup Node.js
@@ -71,5 +73,5 @@ jobs:
           git config --local user.name "GitHub Action"
           git add public/audio/
           git commit -m "chore: regenerate audio files [skip ci]" || exit 0
-          git push
+          git push origin HEAD:main
 
