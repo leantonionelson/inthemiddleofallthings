@@ -44,11 +44,23 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
-      - name: Delete manifest if force regenerate
-        if: github.event.inputs.force_regenerate == 'true'
+      - name: Check if voice style changed
+        id: voice-style-changed
+        run: |
+          if [ "${{ github.event.inputs.force_regenerate }}" == "true" ]; then
+            echo "force_regenerate=true" >> $GITHUB_OUTPUT
+          elif git diff HEAD~1 HEAD -- scripts/generate-audio.ts | grep -q "VOICE_STYLE_INSTRUCTION"; then
+            echo "force_regenerate=true" >> $GITHUB_OUTPUT
+          else
+            echo "force_regenerate=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Delete manifest and audio if voice style changed
+        if: steps.voice-style-changed.outputs.force_regenerate == 'true'
         run: |
           rm -f public/audio/audio-manifest.json
           find public/audio -name "*.mp3" -type f -delete || true
+          echo "Deleted manifest and audio files for fresh regeneration"
 
       - name: Generate audio files
         env:

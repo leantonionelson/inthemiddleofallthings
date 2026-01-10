@@ -46,7 +46,7 @@ type Manifest = {
 const DEFAULT_TTS_VERSION = '2026-01-06-v1';
 // Replace your existing constant with this:
 const VOICE_STYLE_INSTRUCTION = 
-'Speak as a calm, grounded Black British male voice, neutral London accent. ' +
+'Speak as a calm, grounded Black British male voice, neutral London accent, with slight Jamaican roots' +
 'Delivery should be steady, unhurried, and structurally precise – not performative, not dramatic.' +
 'This is not storytelling; it is orientation. ' +
 
