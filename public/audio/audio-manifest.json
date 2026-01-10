@@ -1,18 +1,18 @@
 {
   "version": 1,
   "ttsVersion": "2026-01-06-v1",
-  "generatedAt": "2026-01-09T03:22:53.198Z",
+  "generatedAt": "2026-01-10T03:04:27.395Z",
   "tuning": {
     "maxFilesPerRun": 10,
     "requestsPerMinute": 6
   },
   "lastRun": {
-    "generatedAt": "2026-01-09T03:22:53.198Z",
-    "processed": 10,
-    "generated": 4,
+    "generatedAt": "2026-01-10T03:04:27.395Z",
+    "processed": 3,
+    "generated": 1,
     "skipped": 0,
-    "failed": 6,
-    "rateLimited": 0,
+    "failed": 2,
+    "rateLimited": 2,
     "quotaStopped": false
   },
   "items": {
@@ -22,11 +22,11 @@
       "slug": "chapter-1",
       "sourcePath": "src/book/Part I: The Axis of Becoming/1. The Axis of Consequence.md",
       "audioPath": "public/audio/book/chapter-1.mp3",
-      "sourceSha256": "4590a3ca6c856a9c4eb8af0a8d1614c93eb2fab32138fb1f5bab97d4adc8394e",
+      "sourceSha256": "7dbf8882fe8825450ed7a6f321b6e8f1c9583a0fefe823567353db3567c32cd5",
       "audioSha256": "9a39b86e9bef39fef1c8ca2a0d178b15733bd6984529075272588f43367224d7",
-      "updatedAt": "2026-01-09T03:13:22.197Z",
+      "updatedAt": "2026-01-10T03:04:24.392Z",
       "status": "failed",
-      "lastError": "Gemini TTS request failed (500): {\n  \"error\": {\n    \"code\": 500,\n    \"message\": \"An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting\",\n    \"status\": \"INTERNAL\"\n  }\n}\n"
+      "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 35.632353677s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n "
     },
     "book/chapter-10": {
       "collection": "book",
@@ -37,7 +37,7 @@
       "sourceSha256": "6c1cb5b66ebde141b8e186e68adb4da462b285a2d999dcce3e7aaa8967142aeb",
       "audioSha256": null,
       "updatedAt": "2026-01-08T03:09:54.776Z",
-      "status": "failed",
+      "status": "pending",
       "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 5.249104802s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n  "
     },
     "book/chapter-11": {
@@ -157,7 +157,7 @@
       "sourceSha256": "da030fe604ba69c396b1b6173843a9b1ed27759a79a48fe16110e43fbb970a40",
       "audioSha256": "5ca7853de98d519f0471df9de12d75fff7805f7428223f8d1c1b8a30d3dcc4fa",
       "updatedAt": "2026-01-09T03:14:45.073Z",
-      "status": "failed",
+      "status": "pending",
       "lastError": "Gemini TTS request failed (503): {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"The model is overloaded. Please try again later.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
     },
     "book/chapter-20": {
@@ -217,7 +217,7 @@
       "sourceSha256": "446f90d07af47d182e1216070f3dc4146c7d571c13df3539fd2c5160d772cf8f",
       "audioSha256": "aeeec7838b79d1d3d4f61f16960302d5fc6174e2a1c38a8f13437016c531f64c",
       "updatedAt": "2026-01-09T03:16:35.185Z",
-      "status": "failed",
+      "status": "pending",
       "lastError": "Gemini TTS request failed (500): {\n  \"error\": {\n    \"code\": 500,\n    \"message\": \"An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting\",\n    \"status\": \"INTERNAL\"\n  }\n}\n"
     },
     "book/chapter-4": {
@@ -229,7 +229,7 @@
       "sourceSha256": "24b9cf6813af2fbc3977d58729eb96738e9b9f55ec52a66e9f3d48e739c9747f",
       "audioSha256": "a4fac360d0ac29090a8819eecf40f90afcc308cd65a9344766b408ef770da6d4",
       "updatedAt": "2026-01-09T03:18:27.828Z",
-      "status": "ok",
+      "status": "pending",
       "lastError": null
     },
     "book/chapter-5": {
@@ -241,7 +241,7 @@
       "sourceSha256": "cd90f446e1c1fb06036c4345a99b7fdf81bceb62789b32b77c7f897adbb4f360",
       "audioSha256": "163262cef2eb106a805dadd2b06a81aa4f1e715db424dbcd9953a5c0762670dc",
       "updatedAt": "2026-01-09T03:19:32.411Z",
-      "status": "failed",
+      "status": "pending",
       "lastError": "Gemini TTS request failed (500): {\n  \"error\": {\n    \"code\": 500,\n    \"message\": \"An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting\",\n    \"status\": \"INTERNAL\"\n  }\n}\n"
     },
     "book/chapter-6": {
@@ -253,7 +253,7 @@
       "sourceSha256": "0ddfd932cfc85bcb28403e060c52f94b43a55ae481120ed5c3087507d83974fb",
       "audioSha256": "f76799cbf267902ab7b502a11823842430b1c99d0a5bb52ff838eb296deb3c52",
       "updatedAt": "2026-01-09T03:20:56.345Z",
-      "status": "ok",
+      "status": "pending",
       "lastError": null
     },
     "book/chapter-7": {
@@ -265,7 +265,7 @@
       "sourceSha256": "e3ef1518c16becb1c19e35a58431176a0afd9af0c1c6ebb341a0a04277b4259b",
       "audioSha256": "2dc8e378fc1637e20704ec344ba5c9917310611582857888a2a3831fb6f95220",
       "updatedAt": "2026-01-09T03:22:53.198Z",
-      "status": "ok",
+      "status": "pending",
       "lastError": null
     },
     "book/chapter-8": {
@@ -277,7 +277,7 @@
       "sourceSha256": "39cdcc23f78c30593618b7a968c1641099e25ab1db64276145228c7a7757d13d",
       "audioSha256": "87e2edb12240602d9f29c78d0cde146f795611d1d67a265eee2ceb691cb017f1",
       "updatedAt": "2026-01-08T03:08:53.974Z",
-      "status": "ok",
+      "status": "pending",
       "lastError": null
     },
     "book/chapter-9": {
@@ -289,7 +289,7 @@
       "sourceSha256": "aed924f946b16f4979866c2aa80f79dcba4d18bcb3538de2605c93189b55757d",
       "audioSha256": "60fce45c7b8ee0d635f20c06c0078771740a8448fc41b78161c7637f62e1932d",
       "updatedAt": "2026-01-08T03:09:54.639Z",
-      "status": "ok",
+      "status": "pending",
       "lastError": null
     },
     "book/introduction": {
@@ -298,11 +298,11 @@
       "slug": "introduction",
       "sourcePath": "src/book/introduction/0. Introduction: A Centre That Moves.md",
       "audioPath": "public/audio/book/introduction.mp3",
-      "sourceSha256": "544b11265fdd6752a0a04db02116e57aa14c17129439f54338ff5ad4eaa3d41b",
-      "audioSha256": "667a5d87618a2af89f21a611bf0b11581d5b42b760059426de2e7c8556f6e548",
-      "updatedAt": "2026-01-09T03:09:19.993Z",
-      "status": "failed",
-      "lastError": "Gemini TTS request failed (500): {\n  \"error\": {\n    \"code\": 500,\n    \"message\": \"An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting\",\n    \"status\": \"INTERNAL\"\n  }\n}\n"
+      "sourceSha256": "7f481461c860d5ecab21ecb8efe9f969cf723958aa2150065c196d3aa46239e7",
+      "audioSha256": "418dd1ee53b3ebb02c514147a8a28eb7e39e55b45c8e0be10ef0e6eecc6feacf",
+      "updatedAt": "2026-01-10T03:04:14.272Z",
+      "status": "ok",
+      "lastError": null
     },
     "book/outro": {
       "collection": "book",
@@ -322,11 +322,11 @@
       "slug": "part-1-intro",
       "sourcePath": "src/book/Part I: The Axis of Becoming/intro.md",
       "audioPath": "public/audio/book/part-1-intro.mp3",
-      "sourceSha256": "34fef27a52dd3bcb1bc152cd4478bb171707fad0112418d6fb593388ca9f9eba",
+      "sourceSha256": "5ef410c383b9a2315e339209211e820ac8abb8582a80cdf4e06d40b4899e71c6",
       "audioSha256": "cd3b6efdc8657f7aae57230f16d79a477cb2ff1fee7aa54426aef07a169d7f13",
-      "updatedAt": "2026-01-09T03:11:37.026Z",
+      "updatedAt": "2026-01-10T03:04:14.369Z",
       "status": "failed",
-      "lastError": "Gemini TTS request failed (500): {\n  \"error\": {\n    \"code\": 500,\n    \"message\": \"An internal error has occurred. Please retry or report in https://developers.generativeai.google/guide/troubleshooting\",\n    \"status\": \"INTERNAL\"\n  }\n}\n"
+      "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 45.659257047s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n "
     },
     "book/part-2-intro": {
       "collection": "book",
@@ -337,7 +337,7 @@
       "sourceSha256": "b951c7a4a20ef56749ecbee825b4740dd4ff8aaedb560e09254eaedb58da4286",
       "audioSha256": "929e2c1101ee95acf3b6fed5e1f5e7ed7a855406c1384f33e3e239ec12ffc7d1",
       "updatedAt": "2026-01-09T03:21:30.203Z",
-      "status": "ok",
+      "status": "pending",
       "lastError": null
     },
     "book/part-3-intro": {
@@ -349,7 +349,7 @@
       "sourceSha256": "70206cc57e4359dc415b470eb43c02c117306ea3fb7418408ea0a63ab87bd685",
       "audioSha256": null,
       "updatedAt": "2026-01-08T03:10:04.778Z",
-      "status": "failed",
+      "status": "pending",
       "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 55.244719923s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n "
     },
     "book/part-4-intro": {
