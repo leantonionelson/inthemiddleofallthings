@@ -1,18 +1,18 @@
 {
   "version": 1,
   "ttsVersion": "2026-01-06-v1",
-  "generatedAt": "2026-01-10T10:42:37.831Z",
+  "generatedAt": "2026-01-11T03:14:57.469Z",
   "tuning": {
     "maxFilesPerRun": 10,
     "requestsPerMinute": 6
   },
   "lastRun": {
-    "generatedAt": "2026-01-10T10:42:37.831Z",
-    "processed": 10,
-    "generated": 9,
+    "generatedAt": "2026-01-11T03:14:57.469Z",
+    "processed": 3,
+    "generated": 1,
     "skipped": 0,
-    "failed": 1,
-    "rateLimited": 0,
+    "failed": 2,
+    "rateLimited": 2,
     "quotaStopped": false
   },
   "items": {
@@ -22,11 +22,11 @@
       "slug": "chapter-1",
       "sourcePath": "src/book/Part I: The Axis of Becoming/1. The Axis of Consequence.md",
       "audioPath": "public/audio/book/chapter-1.mp3",
-      "sourceSha256": "60f1e4d0811a64d8e255e022d73a8eaf7c9a23ee6eb8da636410a894bd9f2e8e",
+      "sourceSha256": "1fb1e6461ea8f92b58881fe0f7ce20a8a4d5706868eba48174958f675d256e2a",
       "audioSha256": "0fd0cb47f92bd67231b32fbd8bf93f5bc04513b51c56a6575dfb31bb735a19fd",
-      "updatedAt": "2026-01-10T10:29:47.305Z",
-      "status": "ok",
-      "lastError": null
+      "updatedAt": "2026-01-11T03:14:54.467Z",
+      "status": "failed",
+      "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 5.550015227s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n  "
     },
     "book/chapter-10": {
       "collection": "book",
@@ -157,7 +157,7 @@
       "sourceSha256": "446dc78aac58b004965cfe5b9bd821fcf20d850eb63a6efb75fe14b8e556351d",
       "audioSha256": "544046103203b0b8d34585548fa2acedbcaf564f822ead96c4a3c32e5585c21e",
       "updatedAt": "2026-01-10T10:32:10.475Z",
-      "status": "ok",
+      "status": "pending",
       "lastError": null
     },
     "book/chapter-20": {
@@ -217,7 +217,7 @@
       "sourceSha256": "76f0ede301543829bde946d7d3693cf5afbf5b774bec17951cfea70ba2125245",
       "audioSha256": "8ff513040bd0b82a44523691b3b57b7636e03ed41b536817b256e617b5c88a8c",
       "updatedAt": "2026-01-10T10:34:27.923Z",
-      "status": "ok",
+      "status": "pending",
       "lastError": null
     },
     "book/chapter-4": {
@@ -229,7 +229,7 @@
       "sourceSha256": "b2ac7d169f7f14634870def4f0a6446c37aaf7d03140aa27a0e9b2f1ee8b6bee",
       "audioSha256": "3a6d1d26d11d01059df5881339ea5ec791f8f8d16289a009b91b5a620e2ca48d",
       "updatedAt": "2026-01-10T10:35:31.117Z",
-      "status": "ok",
+      "status": "pending",
       "lastError": null
     },
     "book/chapter-5": {
@@ -241,7 +241,7 @@
       "sourceSha256": "de97332cf858c60cd126e3eb89847a263c08dbb9d584f17108927414006f4e3e",
       "audioSha256": "9eea3ce3c9c0befa204982969dcdd77bc92dab9cbb33e0effa5f7430ad2429bf",
       "updatedAt": "2026-01-10T10:37:01.846Z",
-      "status": "ok",
+      "status": "pending",
       "lastError": null
     },
     "book/chapter-6": {
@@ -253,7 +253,7 @@
       "sourceSha256": "2d4358df1380746fa124f36c6170fe39fa7f1a3d581f5dd5a366cc61738cda92",
       "audioSha256": null,
       "updatedAt": "2026-01-10T10:39:18.440Z",
-      "status": "failed",
+      "status": "pending",
       "lastError": "Gemini response did not include inline audio PCM data at candidates[0].content.parts[0].inlineData.data"
     },
     "book/chapter-7": {
@@ -265,7 +265,7 @@
       "sourceSha256": "55bf027ed784591b55777e96706f777f495b201dc182f0ddad57963cb90a0fba",
       "audioSha256": "83571596a00da216b0cb6c906d9ae3a4cff18d2a24726639616883d966d39c74",
       "updatedAt": "2026-01-10T10:42:37.831Z",
-      "status": "ok",
+      "status": "pending",
       "lastError": null
     },
     "book/chapter-8": {
@@ -298,9 +298,9 @@
       "slug": "introduction",
       "sourcePath": "src/book/introduction/0. Introduction: A Centre That Moves.md",
       "audioPath": "public/audio/book/introduction.mp3",
-      "sourceSha256": "a0e458f8a8229d54a1adacfd3a2fa6427ff48461ce3a3b6cbb5650ae815c90c0",
-      "audioSha256": "2208927f8d288d3a8120b0e9c0c41ba1bd7283533ef6e03a61cc3873bd8a5ba9",
-      "updatedAt": "2026-01-10T10:26:50.754Z",
+      "sourceSha256": "20095181a321781b6359b319817ad0c2e0bf722f9c69eba84078888c85ea72e5",
+      "audioSha256": "2268f383f0a32f82ef9ad37f5383841eb2fa22459af68cdc326600c763c9075d",
+      "updatedAt": "2026-01-11T03:14:44.354Z",
       "status": "ok",
       "lastError": null
     },
@@ -322,11 +322,11 @@
       "slug": "part-1-intro",
       "sourcePath": "src/book/Part I: The Axis of Becoming/intro.md",
       "audioPath": "public/audio/book/part-1-intro.mp3",
-      "sourceSha256": "73c1992efb9497225bbe40c49b730d8bb7cc287a0e8541e7ae01a5efd5d23952",
+      "sourceSha256": "22af11c17de371b13fd0794223680d1c5b5c24924e9f56382ae08239793dab88",
       "audioSha256": "916f595b48d4a7c9fc7787163aa2738b0ffe8495769fdc369fd4d524ff22ad64",
-      "updatedAt": "2026-01-10T10:27:12.558Z",
-      "status": "ok",
-      "lastError": null
+      "updatedAt": "2026-01-11T03:14:44.425Z",
+      "status": "failed",
+      "lastError": "Gemini TTS request failed (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 10, model: gemini-2.5-flash-tts\\nPlease retry in 15.595224654s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n "
     },
     "book/part-2-intro": {
       "collection": "book",
@@ -337,7 +337,7 @@
       "sourceSha256": "a8c077b40db0b192024bf0e02c26ffa7f85ea431a42dddc788fd9eb931e6d6c4",
       "audioSha256": "aeba2c95afefa24e5c91d2a410a115b95e08784ea26879ece438bc05b7a84ce2",
       "updatedAt": "2026-01-10T10:40:09.674Z",
-      "status": "ok",
+      "status": "pending",
       "lastError": null
     },
     "book/part-3-intro": {
