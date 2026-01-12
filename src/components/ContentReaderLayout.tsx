@@ -9,6 +9,7 @@ import ContentFormatter from './ContentFormatter';
 import ChapterInfo from './ChapterInfo';
 import { BookChapter } from '../types';
 import { audioManagerService, AudioPlaybackState } from '../services/audioManager';
+import OverlayPortal from './OverlayPortal';
 
 interface ContentReaderLayoutProps {
   content: string;
@@ -124,21 +125,21 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
   const headerScrollTransition = useScrollTransition({
     threshold: 5,
     sensitivity: 0.8,
-    maxOffset: 120,
+    maxOffset: 130,
     direction: 'up'
   }, mainScrollRef);
 
   const readerNavScrollTransition = useScrollTransition({
     threshold: 5,
     sensitivity: 0.8,
-    maxOffset: 80,
+    maxOffset: 85,
     direction: 'down'
   }, mainScrollRef);
 
   const combinedTransitionStyle = {
     ...readerNavScrollTransition.style,
     transform: isAudioPlaying 
-      ? 'translateY(80px)'
+      ? 'translateY(85px)'
       : readerNavScrollTransition.style.transform
   };
 
@@ -233,77 +234,84 @@ const ContentReaderLayout: React.FC<ContentReaderLayoutProps> = ({
 
   return (
     <>
-      {/* Mobile Header - ChapterInfo only for chapters */}
-      {showMobileHeader && contentType === 'chapter' && (
-        <div 
-          className="fixed top-0 left-0 right-0 z-40"
-          style={{
-            ...headerScrollTransition.style,
-            transform: isAudioPlaying 
-              ? 'translateY(-120px)'
-              : headerScrollTransition.style.transform
-          }}
-        >
-          <div className="flex items-center gap-3 px-4 py-2">
-            {onBack && (
-              <motion.button
-                onClick={onBack}
-                className="flex items-center justify-center w-10 h-10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300 flex-shrink-0"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </motion.button>
-            )}
-            <div className="flex-1">
-              <ChapterInfo
-                currentChapterIndex={currentIndex}
-                totalChapters={totalItems}
-              />
+      {/* Fixed UI rendered OUTSIDE the masked scroll container */}
+      <OverlayPortal>
+        {/* Mobile Header - ChapterInfo only for chapters */}
+        {showMobileHeader && contentType === 'chapter' && (
+          <div
+            className="pointer-events-auto fixed left-0 right-0 z-[80]"
+            style={{
+              top: 'var(--app-header-h, 0px)',
+              ...headerScrollTransition.style,
+              transform: isAudioPlaying ? 'translateY(-130px)' : headerScrollTransition.style.transform,
+            }}
+          >
+            <div className="flex items-center gap-3 px-4 py-2">
+              {onBack && (
+                <motion.button
+                  onClick={onBack}
+                  className="flex items-center justify-center w-10 h-10 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-300 flex-shrink-0"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </motion.button>
+              )}
+              <div className="flex-1">
+                <ChapterInfo currentChapterIndex={currentIndex} totalChapters={totalItems} />
+              </div>
             </div>
           </div>
+        )}
+
+        {/* Unified Audio Player - Fixed position, not affected by scroll */}
+        <div className="pointer-events-auto">
+          <UnifiedAudioPlayer
+            chapter={
+              chapter || {
+                id: contentId,
+                title: contentTitle,
+                content: content,
+                part: contentType === 'chapter' ? 'Book' : contentType === 'meditation' ? 'Meditation' : 'Story',
+                chapterNumber: currentIndex + 1,
+                totalChapters: totalItems,
+              }
+            }
+            isOpen={isAudioPlayerOpen}
+            onClose={onAudioPlayerClose}
+            onScrollToPosition={onScrollToPosition}
+            onNextChapter={onNext}
+            onPreviousChapter={onPrevious}
+            hasNextChapter={currentIndex < totalItems - 1}
+            hasPreviousChapter={currentIndex > 0}
+            autoPlay={localStorage.getItem('autoPlayAudio') === 'true'}
+          />
         </div>
-      )}
 
-      {/* Unified Audio Player - Fixed position, not affected by scroll */}
-      <UnifiedAudioPlayer
-        chapter={chapter || {
-          id: contentId,
-          title: contentTitle,
-          content: content,
-          part: contentType === 'chapter' ? 'Book' : contentType === 'meditation' ? 'Meditation' : 'Story',
-          chapterNumber: currentIndex + 1,
-          totalChapters: totalItems
-        }}
-        isOpen={isAudioPlayerOpen}
-        onClose={onAudioPlayerClose}
-        onScrollToPosition={onScrollToPosition}
-        onNextChapter={onNext}
-        onPreviousChapter={onPrevious}
-        hasNextChapter={currentIndex < totalItems - 1}
-        hasPreviousChapter={currentIndex > 0}
-        autoPlay={localStorage.getItem('autoPlayAudio') === 'true'}
-      />
-
-      {/* Reader Navigation - Can move with scroll */}
-      <div 
-        className="fixed bottom-[85px] left-0 right-0 z-40"
-        style={combinedTransitionStyle}
-      >
-        <ReaderNavigation
-          currentChapterIndex={currentIndex}
-          totalChapters={totalItems}
-          isListening={isListening}
-          onPreviousChapter={onPrevious}
-          onNextChapter={onNext}
-          onToggleListen={onListen}
-          showShadow={!isAudioPlayerOpen}
-          contentType={contentType}
-          contentId={contentId}
-          contentTitle={contentTitle}
-          content={content}
-        />
-      </div>
+        {/* Reader Navigation */}
+        <div
+          className="pointer-events-auto fixed left-0 right-0 z-[80]"
+          style={{
+            // Lift above bottom nav + give extra breathing room so it sits clearly above the masked fade region.
+            bottom: 'calc(var(--bottom-nav-h, 0px) + env(safe-area-inset-bottom) + 5rem)',
+            ...combinedTransitionStyle,
+          }}
+        >
+          <ReaderNavigation
+            currentChapterIndex={currentIndex}
+            totalChapters={totalItems}
+            isListening={isListening}
+            onPreviousChapter={onPrevious}
+            onNextChapter={onNext}
+            onToggleListen={onListen}
+            showShadow={!isAudioPlayerOpen}
+            contentType={contentType}
+            contentId={contentId}
+            contentTitle={contentTitle}
+            content={content}
+          />
+        </div>
+      </OverlayPortal>
 
       {/* Main Content Area */}
       <article

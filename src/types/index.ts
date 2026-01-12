@@ -172,7 +172,8 @@ export interface TextHighlight {
 
 // Routes
 export enum AppRoute {
-  HOME = '/',
+  CHAT = '/',
+  HOME = '/quotes',
   AUTH = '/auth',
   READ = '/read',
   READER = '/reader',

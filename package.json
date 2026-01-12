@@ -20,6 +20,7 @@
     "cap:run:ios": "npm run cap:sync && npx cap run ios"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.0",
     "@capacitor/android": "^8.0.0",
     "@capacitor/cli": "^8.0.0",
     "@capacitor/core": "^8.0.0",

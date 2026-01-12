@@ -86,7 +86,7 @@ const ENV_BACKOFF_BASE_MS = 'BACKOFF_BASE_MS';
 const ENV_BACKOFF_MAX_MS = 'BACKOFF_MAX_MS';
 const ENV_STOP_ON_QUOTA = 'STOP_ON_QUOTA';
 const ENV_GEMINI_API_KEY = 'GEMINI_API_KEY';
-const ENV_VITE_GEMINI_API_KEY = 'VITE_GEMINI_API_KEY';
+const ENV_GEMINI_API_KEY = 'GEMINI_API_KEY';
 const ENV_GEMINI_MODEL_ID = 'GEMINI_TTS_MODEL';
 const ENV_GEMINI_VOICE_NAME = 'GEMINI_TTS_VOICE_NAME';
 const ENV_TTS_VERSION = 'TTS_VERSION';
@@ -150,13 +150,13 @@ function parseDotEnv(contents: string): Record<string, string> {
 
 async function getGeminiApiKey(): Promise<string | null> {
   if (process.env[ENV_GEMINI_API_KEY]) return process.env[ENV_GEMINI_API_KEY]!;
-  if (process.env[ENV_VITE_GEMINI_API_KEY]) return process.env[ENV_VITE_GEMINI_API_KEY]!;
+  if (process.env[ENV_GEMINI_API_KEY]) return process.env[ENV_GEMINI_API_KEY]!;
 
   const envPath = path.join(PROJECT_ROOT, '.env');
   const contents = await readTextIfExists(envPath);
   if (!contents) return null;
   const parsed = parseDotEnv(contents);
-  return parsed[ENV_GEMINI_API_KEY] ?? parsed[ENV_VITE_GEMINI_API_KEY] ?? null;
+  return parsed[ENV_GEMINI_API_KEY] ?? parsed[ENV_GEMINI_API_KEY] ?? null;
 }
 
 function stableStringifyManifest(manifest: Manifest): string {
@@ -448,7 +448,7 @@ function computeSourceHash(params: {
 async function main(): Promise<void> {
   const apiKey = await getGeminiApiKey();
   if (!apiKey) {
-    console.error('Missing GEMINI_API_KEY (or VITE_GEMINI_API_KEY in .env).');
+    console.error('Missing GEMINI_API_KEY (or GEMINI_API_KEY in .env).');
     process.exitCode = 1;
     return;
   }

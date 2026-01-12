@@ -67,6 +67,18 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
     } as React.CSSProperties;
   }, [isReading, bottomNavHeight]);
 
+  const bottomFadeStyle = useMemo<React.CSSProperties>(() => {
+    const start = bottomNavHeight + 190;
+    const mid = bottomNavHeight + 140;
+    const mask = `linear-gradient(black calc(90% - ${start}px), rgb(0, 0, 0) calc(100% - ${start}px), rgba(0, 0, 0, 0.7) calc(90% - ${mid}px), transparent 93%)`;
+
+    return {
+      paddingBottom: `calc(${bottomNavHeight}px + 10rem + env(safe-area-inset-bottom))`,
+      WebkitMaskImage: mask,
+      maskImage: mask,
+    } as React.CSSProperties;
+  }, [bottomNavHeight]);
+
   return (
     <div className="min-h-screen bg-paper-light dark:bg-slate-950/75 relative">
       {/* Background Video */}
@@ -90,11 +102,11 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
       <main className={`relative z-10`}>
         {isReading ? (
           // Keep original flow/scroll for reading pages, but offset for mobile bottom nav height
-          <div style={{ paddingBottom: bottomNavHeight }}>
+          <div style={{ paddingBottom: bottomNavHeight, ...bottomFadeStyle }}>
             {children}
           </div>
         ) : (
-          <div style={contentHeightStyle}>
+          <div style={{ ...contentHeightStyle, ...bottomFadeStyle }}>
             {children}
           </div>
         )}
@@ -109,7 +121,7 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
           style={isReading ? {
             ...scrollTransition.style,
             transform: isAudioPlaying 
-              ? 'translateY(80px)' // Move bottom menu down when audio is playing
+              ? 'translateY(85px)' // Move bottom menu down when audio is playing
               : scrollTransition.style.transform
           } : {
             // No scroll transition on other pages

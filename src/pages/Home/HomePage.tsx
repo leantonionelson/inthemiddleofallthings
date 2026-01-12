@@ -10,7 +10,6 @@ import { generateQuoteCards, QuoteCard } from '../../utils/quoteExtractor';
 import { logQuoteTapped } from '../../utils/quoteAnalytics';
 import { downloadElementAsImage } from '../../utils/cardDownloader';
 import { quoteCardCache } from '../../services/quoteCardCache';
-import StandardHeader from '../../components/StandardHeader';
 import QuoteCardSkeleton from '../../components/QuoteCardSkeleton';
 import GlassButton from '../../components/GlassButton';
 import { Download, BookOpen, Scale, GraduationCap, Scroll } from 'lucide-react';
@@ -250,7 +249,7 @@ const QuoteCardComponent: React.FC<{
   return prevProps.card.id === nextProps.card.id;
 });
 
-const HomePage: React.FC = () => {
+const HomePage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const [cards, setCards] = useState<QuoteCard[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [chapters, setChapters] = useState<BookChapter[]>([]);
@@ -535,11 +534,18 @@ const HomePage: React.FC = () => {
         }}
       />
       {/* Fixed viewport layout - accounts for mobile nav and desktop nav */}
-      <div className="fixed inset-0 pb-24 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="flex-shrink-0">
-          <StandardHeader title="In the Middle of All Things" showSettingsButton={true} />
-        </header>
+      <div
+        className={
+          embedded
+            ? 'relative h-full min-h-0 flex flex-col overflow-hidden'
+            : 'fixed inset-0 pb-24 flex flex-col overflow-hidden'
+        }
+      >
+        {/* Header (hidden when embedded inside Read tab UI) */}
+        {!embedded ? (
+          <header className="flex-shrink-0">
+          </header>
+        ) : null}
 
         {/* Main content area - takes remaining space */}
         <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 min-h-0">

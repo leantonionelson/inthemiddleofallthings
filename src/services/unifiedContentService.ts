@@ -127,9 +127,17 @@ class UnifiedContentService {
         const url = `/media/audio/${pluralType}/index.json`;
         console.log(`📦 Fetching: ${url}`);
         
-        const response = await fetch(url);
-        if (response.ok) {
-          const index = await response.json();
+        const response = await fetch(url, { headers: { accept: 'application/json' } });
+        const contentTypeHeader = response.headers.get('content-type') || '';
+
+        // Guard against SPA fallback returning HTML with 200.
+        if (response.ok && contentTypeHeader.includes('application/json')) {
+          const raw = await response.text();
+          if (raw.trim().startsWith('<')) {
+            console.log(`⚠️  Audio index for ${contentType} resolved to HTML (SPA fallback)`);
+            continue;
+          }
+          const index = JSON.parse(raw);
           this.audioIndexCache.set(contentType, index);
           
           const items = index.chapters || index.items || [];

@@ -60,29 +60,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
   }, []);
 
   return (
-    <div className="h-full bg-paper-light dark:bg-slate-950/75 relative flex flex-col">
-      {/* Background Video */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover opacity-70 dark:opacity-100"
-        >
-          <source src="/media/bg.mp4" type="video/mp4" />
-        </video>
-        {/* Dark overlay for better content readability */}
-        <div className="absolute inset-0 bg-paper-light/50 dark:bg-slate-950/75"></div>
-      </div>
-
-      <div className="relative z-10">
+    <div className="relative z-10">
         {/* Custom Header with Back Button, Tabs, and Theme Toggle */}
         <motion.header
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="sticky top-0 z-20"
+          className="relative z-20"
         >
           <div className="max-w-4xl mx-auto px-4 py-3">
             <div className="flex items-center gap-3">
@@ -144,11 +128,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
       {/* Content */}
       <div 
         className="p-6 max-w-2xl mx-auto w-full"
-        style={{
-          height: 'calc(100vh - 160px)',
-          overflowY: 'auto',
-          WebkitOverflowScrolling: 'touch'
-        }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -375,7 +354,6 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
           </p>
         </motion.div>
         </div>
-      </div>
       </div>
 
       {/* Login Drawer - trigger via event */}

@@ -66,7 +66,7 @@ The workflow is configured in `.github/workflows/daily-audio.yml`:
 3. Make sure you're on the **Secrets** tab (not Environments)
 4. Click **New repository secret**
 5. Name: `GEMINI_API_KEY`
-6. Value: Your Gemini API key (from `.env` file: `VITE_GEMINI_API_KEY`)
+6. Value: Your Gemini API key (from `.env` file: `GEMINI_API_KEY`)
 7. Click **Add secret**
 
 **Note**: Repository secrets are available to all workflows in the repository. Environment secrets are only needed if you have multiple environments (dev/staging/prod) or need protection rules.

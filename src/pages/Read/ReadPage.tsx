@@ -4,16 +4,17 @@ import { motion } from 'framer-motion';
 import BookLandingPage from '../Book/BookLandingPage';
 import MeditationsLandingPage from '../Meditations/MeditationsLandingPage';
 import StoriesLandingPage from '../Stories/StoriesLandingPage';
+import QuotesPage from '../Quotes/QuotesPage';
 import SearchBar from '../../components/SearchBar';
 import { useSwipeNavigation } from '../../hooks/useSwipeNavigation';
 
-type TabType = 'book' | 'meditations' | 'stories';
+type TabType = 'book' | 'meditations' | 'stories' | 'quotes';
 
 const ReadPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState<TabType>(() => {
     const tabParam = searchParams.get('tab') as TabType;
-    return tabParam && ['book', 'meditations', 'stories'].includes(tabParam) 
+    return tabParam && ['book', 'meditations', 'stories', 'quotes'].includes(tabParam) 
       ? tabParam 
       : 'book';
   });
@@ -34,7 +35,7 @@ const ReadPage: React.FC = () => {
   // Sync activeTab with URL param changes
   useEffect(() => {
     const tabParam = searchParams.get('tab') as TabType;
-    if (tabParam && ['book', 'meditations', 'stories'].includes(tabParam)) {
+    if (tabParam && ['book', 'meditations', 'stories', 'quotes'].includes(tabParam)) {
       setActiveTab(tabParam);
     }
   }, [searchParams]);
@@ -60,7 +61,7 @@ const ReadPage: React.FC = () => {
   };
 
   // Swipe navigation for tabs
-  const tabs: TabType[] = ['book', 'meditations', 'stories'];
+  const tabs: TabType[] = ['book', 'meditations', 'stories', 'quotes'];
   const currentTabIndex = tabs.indexOf(activeTab);
   
   const { handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeNavigation({
@@ -79,33 +80,16 @@ const ReadPage: React.FC = () => {
 
 
   return (
-    <div className="h-full bg-paper-light dark:bg-slate-950/75 relative flex flex-col">
-      {/* Background Video */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover opacity-70 dark:opacity-100"
-        >
-          <source src="/media/bg.mp4" type="video/mp4" />
-        </video>
-        {/* Dark overlay for better content readability */}
-        <div className="absolute inset-0 bg-paper-light/50 dark:bg-slate-950/75"></div>
-      </div>
-
-      {/* Tabs Header - Fixed at top */}
+    <div className="relative z-10" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
+      {/* Tabs Header */}
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="fixed top-0 left-0 right-0 z-[10000]"
+        className="relative z-[60]"
       >
-        <div className="w-full mx-auto">
-          <div className="border-b border-gray-200 dark:border-white/10">
-            <nav aria-label="Tabs" className="-mb-px flex px-4">
+        <div className="border-b border-gray-200 dark:border-white/10">
+          <nav aria-label="Tabs" className="-mb-px flex px-4">
               <button
                 onClick={() => setActiveTab('book')}
                 aria-current={activeTab === 'book' ? 'page' : undefined}
@@ -139,22 +123,23 @@ const ReadPage: React.FC = () => {
               >
                 Stories
               </button>
-            </nav>
-          </div>
+              <button
+                onClick={() => setActiveTab('quotes')}
+                aria-current={activeTab === 'quotes' ? 'page' : undefined}
+                className={`flex-1 border-b-2 px-1 py-4 text-center text-sm font-medium transition-colors ${
+                  activeTab === 'quotes'
+                    ? 'border-blue-500 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:text-gray-400 dark:hover:border-white/20 dark:hover:text-gray-300'
+                }`}
+              >
+                Quotes
+              </button>
+          </nav>
         </div>
       </motion.header>
 
-      {/* Scrollable Main Content Area - Between tabs and navigation */}
-      <div 
-        className="relative z-10 overflow-y-auto overflow-x-hidden"
-        style={{
-          marginTop: '54px',
-          height: 'calc(100vh - 140px)',
-        }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
+      {/* Content (uses global layout scroll; avoid nested scroll containers) */}
+      <div className="relative z-10 overflow-x-hidden">
           {activeTab === 'book' && (
             <motion.div
               key="book"
@@ -172,8 +157,8 @@ const ReadPage: React.FC = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
             >
-              {/* Search Bar - Sticky at top of scrollable area */}
-              <div className="sticky top-0 z-[9999] px-4 py-3">
+              {/* Search Bar */}
+              <div className="px-4 py-3">
                 <SearchBar
                   placeholder="Search meditations..."
                   value={meditationsSearchQuery}
@@ -207,6 +192,17 @@ const ReadPage: React.FC = () => {
                 onExternalSearchClear={handleStoriesSearchClear}
                 hideSearchBar={true}
               />
+            </motion.div>
+          )}
+          {activeTab === 'quotes' && (
+            <motion.div
+              key="quotes"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="min-h-[60vh]"
+            >
+              <QuotesPage embedded={true} />
             </motion.div>
           )}
       </div>

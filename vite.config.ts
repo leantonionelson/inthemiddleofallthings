@@ -124,7 +124,18 @@ export default defineConfig({
       'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
       'Pragma': 'no-cache',
       'Expires': '0'
-    }
+    },
+    // Local dev convenience:
+    // If you run Netlify Functions locally on http://localhost:8888,
+    // Vite can proxy /.netlify/functions/* so the browser never does a cross-origin request (no CORS issues).
+    proxy: {
+      '/.netlify/functions': {
+        // Default to 8889 because 8888 is commonly taken (and Vite proxy errors surface as 500s).
+        target: `http://localhost:${process.env.NETLIFY_FUNCTIONS_PORT || '8889'}`,
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   build: {
     minify: 'terser',

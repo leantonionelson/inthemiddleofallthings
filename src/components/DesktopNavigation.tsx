@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { BookOpen, Home, GraduationCap, Activity, Settings, User } from 'lucide-react';
+import { BookOpen, GraduationCap, Activity, Settings, User, MessageCircle } from 'lucide-react';
 import { AppRoute } from '../types';
 
-interface DesktopNavigationProps {}
-
-const DesktopNavigation: React.FC<DesktopNavigationProps> = () => {
+const DesktopNavigation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   const getActivePage = () => {
     const path = location.pathname;
-    if (path === AppRoute.HOME) return 'home';
+    if (path === AppRoute.CHAT) return 'chat';
     if (path === AppRoute.LEARN || path.startsWith(AppRoute.LEARN)) return 'learn';
     if (path === AppRoute.DO || path.startsWith(AppRoute.DO)) return 'do';
     if (path === AppRoute.READ || path.startsWith(AppRoute.READ) || path === AppRoute.READER || path.startsWith(AppRoute.READER) || path === '/book' || path === '/meditations-landing' || path === '/stories-landing' || path === AppRoute.MEDITATIONS || path === AppRoute.STORIES) return 'read';
     if (path === AppRoute.SETTINGS) return 'settings';
+    // `/quotes` is accessed from inside Read now.
+    if (path === AppRoute.HOME) return 'read';
     return '';
   };
 
@@ -25,7 +25,7 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = () => {
 
   // All navigation items available to all users - route to new pages
   const navigationItems = [
-    { id: 'home', label: 'Home', icon: Home, route: AppRoute.HOME },
+    { id: 'chat', label: 'Chat', icon: MessageCircle, route: AppRoute.CHAT },
     { id: 'learn', label: 'Learn', icon: GraduationCap, route: AppRoute.LEARN },
     { id: 'do', label: 'Do', icon: Activity, route: AppRoute.DO },
     { id: 'read', label: 'Read', icon: BookOpen, route: AppRoute.READ },
@@ -38,7 +38,7 @@ const DesktopNavigation: React.FC<DesktopNavigationProps> = () => {
           {/* Logo */}
           <motion.div
             className="flex items-center gap-3 cursor-pointer"
-            onClick={() => navigate(AppRoute.HOME)}
+            onClick={() => navigate(AppRoute.CHAT)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >

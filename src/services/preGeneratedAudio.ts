@@ -88,13 +88,25 @@ class PreGeneratedAudioService {
   private async loadAudioIndex(): Promise<void> {
     try {
       // Try to load chapters index first (most common)
-      const response = await fetch(this.INDEX_PATHS.chapters);
-      if (response.ok) {
-        this.audioIndex = await response.json();
-        console.log(`📄 Loaded chapters audio index with ${this.audioIndex?.chapters.length || 0} entries`);
-      } else {
+      const response = await fetch(this.INDEX_PATHS.chapters, {
+        headers: { accept: 'application/json' }
+      });
+
+      // Vite (and some CDNs) can return index.html with 200 for unknown paths; guard against that.
+      const contentType = response.headers.get('content-type') || '';
+      if (!response.ok || !contentType.includes('application/json')) {
         console.log('📄 No chapters audio index found - will use real-time TTS');
+        return;
       }
+
+      const raw = await response.text();
+      if (raw.trim().startsWith('<')) {
+        console.log('📄 Chapters audio index resolved to HTML (likely SPA fallback) - will use real-time TTS');
+        return;
+      }
+
+      this.audioIndex = JSON.parse(raw) as AudioIndex;
+      console.log(`📄 Loaded chapters audio index with ${this.audioIndex?.chapters.length || 0} entries`);
     } catch (error) {
       console.log('📄 Could not load audio index - will use real-time TTS');
     }

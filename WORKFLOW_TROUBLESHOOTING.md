@@ -6,7 +6,7 @@
 
 **Error Message:**
 ```
-Missing GEMINI_API_KEY (or VITE_GEMINI_API_KEY in .env).
+Missing GEMINI_API_KEY (or GEMINI_API_KEY in .env).
 ```
 
 **Solution:**

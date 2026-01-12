@@ -7,7 +7,8 @@ import { loadProgressFromFirebase, setupProgressSyncListener } from './services/
 import { readingProgressService } from './services/readingProgressService';
 
 // Lazy load pages for code splitting - only load when needed
-const HomePage = lazy(() => import('./pages/Home/HomePage'));
+const ChatPage = lazy(() => import('./pages/Chat/ChatPage'));
+const QuotesPage = lazy(() => import('./pages/Quotes/QuotesPage'));
 const DesktopLandingPage = lazy(() => import('./pages/Desktop/DesktopLandingPage'));
 const BookLandingPage = lazy(() => import('./pages/Book/BookLandingPage'));
 const MeditationsLandingPage = lazy(() => import('./pages/Meditations/MeditationsLandingPage'));
@@ -148,12 +149,18 @@ const App: React.FC = () => {
 
               {/* Persistent Layout wraps all mobile routes */}
               <Route element={<PersistentLayout />}>
-                {/* Home route - redirects desktop users to /desktop */}
+                {/* Chat homepage */}
+                <Route
+                  path={AppRoute.CHAT}
+                  element={<ChatPage />}
+                />
+
+                {/* Quotes route (previous homepage) - redirects desktop users to /desktop */}
                 <Route
                   path={AppRoute.HOME}
                   element={
                     <DesktopRedirect>
-                      <HomePage />
+                      <QuotesPage />
                     </DesktopRedirect>
                   }
                 />
@@ -224,16 +231,10 @@ const App: React.FC = () => {
                   }
                 />
 
-                {/* Default redirect - redirect root to home (which will redirect desktop to /desktop) */}
-                <Route
-                  path="/"
-                  element={<Navigate to={AppRoute.HOME} replace />}
-                />
-
-                {/* Catch all - redirect to home */}
+                {/* Catch all - redirect to chat */}
                 <Route
                   path="*"
-                  element={<Navigate to={AppRoute.HOME} replace />}
+                  element={<Navigate to={AppRoute.CHAT} replace />}
                 />
               </Route>
             </Routes>

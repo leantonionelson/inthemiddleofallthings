@@ -60,7 +60,7 @@ const LearnPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center relative z-10">
+      <div className="h-full flex items-center justify-center relative z-10">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ink-primary dark:border-paper-light mx-auto mb-4"></div>
           <p className="text-ink-secondary dark:text-ink-muted">Loading learn content...</p>
@@ -79,16 +79,8 @@ const LearnPage: React.FC = () => {
         keywords="science, physics, mathematics, complexity, learning, education, interactive modules"
         type="website"
       />
-      {/* Scrollable Main Content Area - Stops short of navigation */}
-      <div 
-        className="relative z-10 overflow-y-auto overflow-x-hidden"
-        style={{
-          height: 'calc(100vh - 86px)',
-        }}
-      >
-        <main 
-          className="flex-1 flex flex-col p-6 pt-6 pb-10 max-w-7xl mx-auto w-full"
-        >
+      <div className="relative z-10">
+        <main className="flex-1 flex flex-col p-6 pt-6 pb-10 max-w-7xl mx-auto w-full">
           {/* Description */}
           <motion.header
             initial={{ opacity: 0, y: 20 }}

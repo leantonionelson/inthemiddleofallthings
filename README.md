@@ -61,7 +61,7 @@ An interactive book reader application with AI-powered audio synthesis, featurin
    
    Add your Gemini API key to `.env`:
    ```
-   VITE_GEMINI_API_KEY=your_api_key_here
+   GEMINI_API_KEY=your_api_key_here
    ```
 
 4. **Start the development server**
@@ -138,7 +138,7 @@ Real-time text highlighting synchronized with audio:
 ## 🔧 Configuration
 
 ### Environment Variables
-- `VITE_GEMINI_API_KEY`: Google Gemini API key
+- `GEMINI_API_KEY`: Google Gemini API key
 - `VITE_FIREBASE_CONFIG`: Firebase configuration (optional)
 
 ### Customization
