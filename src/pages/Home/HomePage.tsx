@@ -2,17 +2,16 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useFitText } from 'react-use-fittext';
-import { AppRoute, BookChapter, Meditation, LearnModule } from '../../types';
+import { AppRoute, BookChapter, Meditation } from '../../types';
 import { loadBookChapters } from '../../data/bookContent';
 import { loadMeditations } from '../../data/meditationContent';
-import { loadLearnModules } from '../../data/learnContent';
 import { generateQuoteCards, QuoteCard } from '../../utils/quoteExtractor';
 import { logQuoteTapped } from '../../utils/quoteAnalytics';
 import { downloadElementAsImage } from '../../utils/cardDownloader';
 import { quoteCardCache } from '../../services/quoteCardCache';
 import QuoteCardSkeleton from '../../components/QuoteCardSkeleton';
 import GlassButton from '../../components/GlassButton';
-import { Download, BookOpen, Scale, GraduationCap, Scroll } from 'lucide-react';
+import { Download, BookOpen, Scale } from 'lucide-react';
 import SEO from '../../components/SEO';
 import { generateWebsiteStructuredData, generateFAQStructuredData, getDefaultFAQs } from '../../utils/seoHelpers';
 
@@ -101,8 +100,6 @@ const QuoteCardComponent: React.FC<{
         return <BookOpen className="w-4 h-4" />;
       case 'meditation':
         return <Scale className="w-4 h-4" />;
-      case 'learn':
-        return <GraduationCap className="w-4 h-4" />;
       default:
         return <BookOpen className="w-4 h-4" />;
     }
@@ -115,12 +112,6 @@ const QuoteCardComponent: React.FC<{
     }
     if (card.source.type === 'meditation') {
       return 'Meditation';
-    }
-    if (card.source.type === 'learn') {
-      return 'Learn';
-    }
-    if (card.source.type === 'story') {
-      return 'Story';
     }
     return '';
   }, [card.source.type, card.source.part, card.source.chapter]);
@@ -254,7 +245,6 @@ const HomePage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [chapters, setChapters] = useState<BookChapter[]>([]);
   const [meditations, setMeditations] = useState<Meditation[]>([]);
-  const [modules, setModules] = useState<LearnModule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const navigate = useNavigate();
@@ -270,10 +260,6 @@ const HomePage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const meditationIndexMap = useMemo(() => {
     return new Map(meditations.map((m, idx) => [m.id, idx]));
   }, [meditations]);
-
-  const moduleIndexMap = useMemo(() => {
-    return new Map(modules.map((m, idx) => [m.id, idx]));
-  }, [modules]);
 
   // Preload video once
   useEffect(() => {
@@ -298,10 +284,9 @@ const HomePage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
 
       try {
         // Load ALL content in background
-        const [allChapters, allMeditations, allModules] = await Promise.all([
+        const [allChapters, allMeditations] = await Promise.all([
           loadBookChapters(),
           loadMeditations(),
-          loadLearnModules()
         ]);
 
         if (cancelled) return;
@@ -309,7 +294,6 @@ const HomePage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
         // Update stored content
         setChapters(allChapters);
         setMeditations(allMeditations);
-        setModules(allModules);
 
         // Use requestIdleCallback for non-critical work
         const generateAndMergeCards = () => {
@@ -318,8 +302,8 @@ const HomePage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
             allChapters,
             allMeditations,
             [],
-            allModules,
-            { generateAll: true }
+            [],
+            { generateAll: true, includeExternal: false, includeStories: false, includeLearn: false }
           );
 
           if (cancelled) return;
@@ -383,14 +367,13 @@ const HomePage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
         setChapters(initialChapters);
         setMeditations(initialMeditations);
 
-        // Step 2: Generate initial cards from small batch with quota system
-        // Load modules for philosopher quote matching (non-blocking)
-        const initialModules = await loadLearnModules().catch(() => []);
+        // Step 2: Generate initial cards (book + meditations only)
         const initialCards = generateQuoteCards(
           initialChapters,
           initialMeditations,
           [],
-          initialModules
+          [],
+          { includeExternal: false, includeStories: false, includeLearn: false }
         );
 
         // Use only the quota-generated cards (don't merge with old cache)
@@ -494,16 +477,6 @@ const HomePage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
         }
         break;
       }
-      case 'learn': {
-        // Navigate to learn module
-        navigate(`/learn/${card.source.id}`);
-        break;
-      }
-      case 'story': {
-        // Navigate to stories
-        navigate(AppRoute.STORIES);
-        break;
-      }
       default:
         navigate(AppRoute.READER);
         break;
@@ -516,7 +489,7 @@ const HomePage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
       card.source.type,
       card.source.id
     );
-  }, [cards, currentIndex, chapterIndexMap, meditationIndexMap, moduleIndexMap, navigate]);
+  }, [cards, currentIndex, chapterIndexMap, meditationIndexMap, navigate]);
 
   const currentCard = cards[currentIndex];
   const nextCard = cards[currentIndex + 1];
@@ -651,15 +624,12 @@ const HomePage: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
                   <>
                     {currentCard.source.type === 'book' && <BookOpen className="w-4 h-4" />}
                     {currentCard.source.type === 'meditation' && <Scale className="w-4 h-4" />}
-                    {currentCard.source.type === 'learn' && <GraduationCap className="w-4 h-4" />}
-                    {currentCard.source.type === 'story' && <Scroll className="w-4 h-4" />}
                   </>
                 }
               >
                 {currentCard.source.type === 'book' ? 'Read Book' : 
                  currentCard.source.type === 'meditation' ? 'Read Meditation' :
-                 currentCard.source.type === 'learn' ? 'Discover' :
-                 currentCard.source.type === 'story' ? 'Read Story' : 'Read'}
+                 'Read'}
               </GlassButton>
 
               <GlassButton

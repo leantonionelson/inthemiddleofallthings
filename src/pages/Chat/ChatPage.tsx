@@ -24,9 +24,9 @@ export interface ChatMessageModel {
 
 const SUGGESTIONS: string[] = [
   'Bring me back to the centre',
-  'Help me orient',
-  'Give me a short meditation',
-  'Explain the middle simply',
+  'Help me find my footing',
+  'Offer a short meditation',
+  'Explain the middle, simply',
 ];
 
 const makeId = (): string => {
@@ -179,13 +179,27 @@ const ChatPage: React.FC = () => {
           aria-label="Conversation"
         >
           {messages.length === 0 ? (
-            <div className="mt-10 glass-subtle rounded-3xl p-6 sm:p-8">
-              <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-2">Start here</h2>
-              <p className="text-sm text-ink-secondary dark:text-ink-muted leading-relaxed">
-                Ask for orientation. Ask for a short practice. Ask for a clear reframing. Keep it simple.
+            <div className="mt-10 glass-subtle rounded-3xl p-6 sm:p-8 text-left">
+              <h2 className="text-xl font-serif text-ink-primary dark:text-paper-light mb-4 text-left">Start here</h2>
+              <p className="text-sm text-ink-primary/90 dark:text-ink-muted leading-relaxed mb-4 text-left">
+                This space carries the voice and perspective of the book.
+                <br />
+                It responds to where you are, not to what you think you should ask.
+              </p>
+              <p className="text-sm text-ink-primary/90 dark:text-ink-muted leading-relaxed mb-4 text-left">
+                Start with what feels unclear.
+                <br />
+                You can ask for orientation, a short practice, or a simple reframing.
               </p>
               <div className="mt-4">
-                <SuggestionChips suggestions={SUGGESTIONS} onSelect={(s) => sendUserText(s)} />
+                <SuggestionChips 
+                  suggestions={SUGGESTIONS} 
+                  onSelect={(s) => {
+                    // Strip brackets when sending
+                    const cleanText = s.replace(/^\[ | \]$/g, '').trim();
+                    sendUserText(cleanText);
+                  }} 
+                />
               </div>
             </div>
           ) : (

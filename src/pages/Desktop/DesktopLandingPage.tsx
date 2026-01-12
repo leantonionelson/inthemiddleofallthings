@@ -5,7 +5,6 @@ import { BookOpen, Scale, Scroll, ArrowLeft, ArrowRight, Headphones, Mail, Eye, 
 import { generateQuoteCards, QuoteCard } from '../../utils/quoteExtractor';
 import { loadBookChapters } from '../../data/bookContent';
 import { loadMeditations } from '../../data/meditationContent';
-import { loadLearnModules } from '../../data/learnContent';
 import { logQuoteTapped } from '../../utils/quoteAnalytics';
 import QRCode from '../../components/QRCode';
 import EmailLinkButton from '../../components/EmailLinkButton';
@@ -252,10 +251,9 @@ const DesktopLandingPage: React.FC = () => {
 
     const loadContent = async () => {
       try {
-        const [allChapters, allMeditations, allModules] = await Promise.all([
+        const [allChapters, allMeditations] = await Promise.all([
           loadBookChapters(),
           loadMeditations(),
-          loadLearnModules()
         ]);
 
         if (cancelled) return;
@@ -264,7 +262,8 @@ const DesktopLandingPage: React.FC = () => {
           allChapters,
           allMeditations,
           [], // Empty array for stories
-          allModules
+          [],
+          { includeExternal: false, includeStories: false, includeLearn: false }
         );
         
         setCards(allCards);

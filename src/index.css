@@ -380,10 +380,10 @@
 
   /* Subtle glassmorphism - very light, meditative */
   .glass-subtle {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    border: 1px solid rgba(0, 0, 0, 0.04);
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.08);
   }
 
   .dark .glass-subtle {

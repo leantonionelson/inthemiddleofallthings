@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import BookLandingPage from '../Book/BookLandingPage';
 import MeditationsLandingPage from '../Meditations/MeditationsLandingPage';
 import StoriesLandingPage from '../Stories/StoriesLandingPage';
-import QuotesPage from '../Quotes/QuotesPage';
+import HomePage from '../Home/HomePage';
+import OverlayPortal from '../../components/OverlayPortal';
 import SearchBar from '../../components/SearchBar';
 import { useSwipeNavigation } from '../../hooks/useSwipeNavigation';
 
@@ -78,15 +79,52 @@ const ReadPage: React.FC = () => {
     threshold: 50
   });
 
+  // Measure the tabs header height so the Quotes overlay can sit beneath it.
+  const tabsHeaderRef = React.useRef<HTMLElement | null>(null);
+  const [tabsHeaderHeight, setTabsHeaderHeight] = useState(0);
+
+  useEffect(() => {
+    const measure = () => {
+      const h = tabsHeaderRef.current ? tabsHeaderRef.current.getBoundingClientRect().height : 0;
+      setTabsHeaderHeight(h);
+    };
+
+    measure();
+
+    const handleResize = () => measure();
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+
+    const { ResizeObserver: ResizeObserverCtor } = (window as unknown as {
+      ResizeObserver?: new (callback: ResizeObserverCallback) => ResizeObserver;
+    });
+    const ro = ResizeObserverCtor ? new ResizeObserverCtor(() => measure()) : undefined;
+    const el = tabsHeaderRef.current;
+    if (el && ro) ro.observe(el);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+      if (el && ro) ro.unobserve(el);
+      if (ro) ro.disconnect?.();
+    };
+  }, []);
+
 
   return (
-    <div className="relative z-10" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
+    <div
+      className="relative z-10 flex flex-col h-full min-h-0"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Tabs Header */}
       <motion.header
+        ref={tabsHeaderRef}
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="relative z-[60]"
+        className="relative z-[60] flex-shrink-0"
       >
         <div className="border-b border-gray-200 dark:border-white/10">
           <nav aria-label="Tabs" className="-mb-px flex px-4">
@@ -139,7 +177,7 @@ const ReadPage: React.FC = () => {
       </motion.header>
 
       {/* Content (uses global layout scroll; avoid nested scroll containers) */}
-      <div className="relative z-10 overflow-x-hidden">
+      <div className="relative z-10 overflow-x-hidden flex-1 min-h-0">
           {activeTab === 'book' && (
             <motion.div
               key="book"
@@ -200,9 +238,23 @@ const ReadPage: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.3 }}
-              className="min-h-[60vh]"
+              className="h-full min-h-0"
             >
-              <QuotesPage embedded={true} />
+              {/* Quotes are rendered above the masked scroll region via the overlay layer. */}
+              <OverlayPortal>
+                <div
+                  className="fixed inset-x-0 z-[75] pointer-events-none"
+                  style={{
+                    top: `calc(var(--app-header-h, 0px) + ${tabsHeaderHeight}px)`,
+                    // Leave extra room above the bottom nav so the quote action buttons never overlap it.
+                    bottom: 'calc(var(--bottom-nav-h, 0px) + env(safe-area-inset-bottom) + 5rem)',
+                  }}
+                >
+                  <div className="pointer-events-auto h-full">
+                    <HomePage embedded={true} />
+                  </div>
+                </div>
+              </OverlayPortal>
             </motion.div>
           )}
       </div>

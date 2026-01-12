@@ -127,13 +127,14 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
 
       {/* Content */}
       <div 
-        className="p-6 max-w-2xl mx-auto w-full"
+        className="max-w-4xl mx-auto w-full px-4 sm:px-6 pt-6 pb-10"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
 
-        <div className="space-y-6 pb-6">
+        {/* Add a little extra bottom space so the last card stays above the bottom fade mask */}
+        <div className="space-y-6 pb-12">
         {/* Profile Tab Content */}
         {activeTab === 'profile' && (
           <motion.div

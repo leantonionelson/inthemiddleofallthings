@@ -1,13 +1,16 @@
-import React, { ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import StandardHeader from './StandardHeader';
 import StandardNavigation from './StandardNavigation';
 import { useScrollTransition } from '../hooks/useScrollTransition';
 import { AppRoute } from '../types';
 
-interface PersistentLayoutProps {}
+type PersistentLayoutCssVars = React.CSSProperties & {
+  ['--bottom-nav-h']?: string;
+  ['--app-header-h']?: string;
+};
 
-const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
+const PersistentLayout: React.FC = () => {
   const location = useLocation();
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
@@ -83,7 +86,8 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
 
     return {
       // Prevent content from feeling like it scrolls “behind” the bottom nav.
-      paddingBottom: `calc(${bottomNavHeight}px + 10rem + env(safe-area-inset-bottom))`,
+      // Keep this modest so pages can control their own bottom spacing (e.g. Learn uses pb-10).
+      paddingBottom: `calc(${bottomNavHeight}px + 2.5rem + env(safe-area-inset-bottom))`,
       // Subtle fade at the bottom edge for a nicer transition near the nav.
       WebkitMaskImage: mask,
       maskImage: mask,
@@ -97,9 +101,9 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
         {
           // Expose measured fixed UI heights to descendants (and overlay portals) via CSS variables.
           // These are used to position fixed UI above the bottom nav and below the header.
-          ['--bottom-nav-h' as any]: `${bottomNavHeight}px`,
-          ['--app-header-h' as any]: `${topHeaderHeight}px`,
-        } as React.CSSProperties
+          '--bottom-nav-h': `${bottomNavHeight}px`,
+          '--app-header-h': `${topHeaderHeight}px`,
+        } as PersistentLayoutCssVars
       }
     >
       {/* Persistent Background Video */}
@@ -121,8 +125,8 @@ const PersistentLayout: React.FC<PersistentLayoutProps> = () => {
       {/* Persistent Header (top) */}
       <div ref={headerRef} className="relative z-20 flex-shrink-0">
         <StandardHeader
-          title="The Middle"
-          subtitle="A conversational interface for orientation"
+          title="The Middle of all things"
+          subtitle="A system for orientation"
           showSettingsButton={true}
         />
       </div>

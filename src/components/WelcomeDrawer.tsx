@@ -215,7 +215,7 @@ const WelcomeDrawer: React.FC = () => {
               duration: 0.25
             }}
             onClick={handleDismiss}
-            className="fixed inset-0 bg-black/50 backdrop-blur-md z-40"
+            className="fixed inset-0 bg-black/50 backdrop-blur-md z-[85]"
           />
 
           {/* Drawer */}
@@ -234,7 +234,7 @@ const WelcomeDrawer: React.FC = () => {
             dragDirectionLock={true}
             onDragEnd={handleDragEnd}
             style={{ y }}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-paper-light dark:bg-paper-dark rounded-t-3xl shadow-2xl border-t border-gray-200 dark:border-gray-700 max-h-[90vh] flex flex-col"
+            className="fixed bottom-0 left-0 right-0 z-[90] bg-paper-light dark:bg-paper-dark rounded-t-3xl shadow-2xl border-t border-gray-200 dark:border-gray-700 max-h-[90vh] flex flex-col"
           >
             {/* Top Bar with Drag Handle and Close Button */}
             <div className="flex items-center justify-between pt-3 pb-2 px-4">

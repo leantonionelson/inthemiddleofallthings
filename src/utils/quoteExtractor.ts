@@ -67,15 +67,35 @@ export interface QuoteCard {
   matchedTags?: string[]; // For analytics/debugging
 }
 
+export type QuoteGenerationOptions = {
+  generateAll?: boolean;
+  includeBook?: boolean;
+  includeMeditations?: boolean;
+  includeStories?: boolean;
+  includeExternal?: boolean; // philosopherQuotes
+  includeLearn?: boolean; // Learn modules (only relevant for external quote matching)
+};
+
 // Cache for extracted quotes to avoid reprocessing
 const quoteCache = new Map<string, QuoteCard[]>();
 
-// Generate cache key from content IDs
-function generateCacheKey(chapters: BookChapter[], meditations: Meditation[], stories: Story[]): string {
+// Generate cache key from content IDs (and relevant options)
+function generateCacheKey(
+  chapters: BookChapter[],
+  meditations: Meditation[],
+  stories: Story[],
+  modules: LearnModule[],
+  options: Required<Pick<
+    QuoteGenerationOptions,
+    'includeBook' | 'includeMeditations' | 'includeStories' | 'includeExternal' | 'includeLearn'
+  >>
+): string {
   const chapterIds = chapters.map(c => c.id).join(',');
   const meditationIds = meditations.map(m => m.id).join(',');
   const storyIds = stories.map(s => s.id).join(',');
-  return `${chapters.length}-${meditations.length}-${stories.length}-${chapterIds.slice(0, 50)}-${meditationIds.slice(0, 50)}-${storyIds.slice(0, 50)}`;
+  const moduleIds = modules.map(m => m.id).join(',');
+  const flags = `b${options.includeBook ? 1 : 0}m${options.includeMeditations ? 1 : 0}s${options.includeStories ? 1 : 0}e${options.includeExternal ? 1 : 0}l${options.includeLearn ? 1 : 0}`;
+  return `${flags}-${chapters.length}-${meditations.length}-${stories.length}-${modules.length}-${chapterIds.slice(0, 50)}-${meditationIds.slice(0, 50)}-${storyIds.slice(0, 50)}-${moduleIds.slice(0, 50)}`;
 }
 
 // Remove markdown formatting from text (optimized single-pass regex)
@@ -406,10 +426,25 @@ export function generateQuoteCards(
   meditations: Meditation[],
   stories: Story[],
   modules: LearnModule[] = [],
-  options: { generateAll?: boolean } = {}
+  options: QuoteGenerationOptions = {}
 ): QuoteCard[] {
+  const effectiveOptions: Required<QuoteGenerationOptions> = {
+    generateAll: options.generateAll ?? false,
+    includeBook: options.includeBook ?? true,
+    includeMeditations: options.includeMeditations ?? true,
+    includeStories: options.includeStories ?? true,
+    includeExternal: options.includeExternal ?? true,
+    includeLearn: options.includeLearn ?? true,
+  };
+
   // Check cache for categorized quotes (to avoid reprocessing)
-  const cacheKey = generateCacheKey(chapters, meditations, stories);
+  const cacheKey = generateCacheKey(chapters, meditations, stories, modules, {
+    includeBook: effectiveOptions.includeBook,
+    includeMeditations: effectiveOptions.includeMeditations,
+    includeStories: effectiveOptions.includeStories,
+    includeExternal: effectiveOptions.includeExternal,
+    includeLearn: effectiveOptions.includeLearn,
+  });
   let categorizedQuotes: Record<string, QuoteCard[]> = {};
   
   if (quoteCache.has(cacheKey)) {
@@ -418,7 +453,7 @@ export function generateQuoteCards(
     categorizedQuotes = categorizeQuotes(cachedCards, chapters, meditations, stories, modules);
   } else {
     // Extract and categorize all quotes
-    categorizedQuotes = extractAndCategorizeQuotes(chapters, meditations, stories, modules);
+    categorizedQuotes = extractAndCategorizeQuotes(chapters, meditations, stories, modules, effectiveOptions);
     
     // Flatten for caching
     const allCards: QuoteCard[] = [];
@@ -437,8 +472,18 @@ export function generateQuoteCards(
     quoteCache.set(cacheKey, allCards);
   }
 
+  // If external quotes are disabled, skip quota logic and return only the requested internal cards shuffled.
+  // (Quota targets assume external categories exist and will under-fill otherwise.)
+  if (!effectiveOptions.includeExternal) {
+    const internalCards: QuoteCard[] = [];
+    if (effectiveOptions.includeBook) internalCards.push(...(categorizedQuotes.book || []));
+    if (effectiveOptions.includeMeditations) internalCards.push(...(categorizedQuotes.meditation || []));
+    if (effectiveOptions.includeStories) internalCards.push(...(categorizedQuotes.story || []));
+    return shuffleArray(internalCards);
+  }
+
   // If generateAll is true, return all quotes shuffled
-  if (options.generateAll) {
+  if (effectiveOptions.generateAll) {
     const allCards: QuoteCard[] = [];
     for (const cards of Object.values(categorizedQuotes)) {
       allCards.push(...cards);
@@ -511,7 +556,8 @@ function extractAndCategorizeQuotes(
   chapters: BookChapter[],
   meditations: Meditation[],
   stories: Story[],
-  modules: LearnModule[]
+  modules: LearnModule[],
+  options: Required<QuoteGenerationOptions>
 ): Record<string, QuoteCard[]> {
   const categorized: Record<string, QuoteCard[]> = {
     book: [],
@@ -526,72 +572,78 @@ function extractAndCategorizeQuotes(
   };
   
   // Extract from chapters (apply density multiplier)
-  for (const chapter of chapters) {
-    const quotes = extractFromChapter(chapter);
-    // Apply density multiplier by sampling
-    const multiplier = DENSITY_MULTIPLIERS.book;
-    const sampledQuotes = multiplier < 1.0 
-      ? shuffleArray(quotes).slice(0, Math.ceil(quotes.length * multiplier))
-      : quotes;
-    
-    for (const quote of sampledQuotes) {
-      categorized.book.push({
-        id: `${chapter.id}-${categorized.book.length}`,
-        quote,
-        source: {
-          type: 'book',
-          id: chapter.id,
-          title: chapter.title,
-          subtitle: chapter.subtitle,
-          part: chapter.part,
-          chapter: `Chapter ${chapter.chapterNumber}`
-        },
-        gradient: generateGradient()
-      });
+  if (options.includeBook) {
+    for (const chapter of chapters) {
+      const quotes = extractFromChapter(chapter);
+      // Apply density multiplier by sampling
+      const multiplier = DENSITY_MULTIPLIERS.book;
+      const sampledQuotes = multiplier < 1.0 
+        ? shuffleArray(quotes).slice(0, Math.ceil(quotes.length * multiplier))
+        : quotes;
+      
+      for (const quote of sampledQuotes) {
+        categorized.book.push({
+          id: `${chapter.id}-${categorized.book.length}`,
+          quote,
+          source: {
+            type: 'book',
+            id: chapter.id,
+            title: chapter.title,
+            subtitle: chapter.subtitle,
+            part: chapter.part,
+            chapter: `Chapter ${chapter.chapterNumber}`
+          },
+          gradient: generateGradient()
+        });
+      }
     }
   }
   
   // Extract from meditations (apply density multiplier)
-  for (const meditation of meditations) {
-    const quotes = extractFromMeditation(meditation);
-    const multiplier = DENSITY_MULTIPLIERS.meditation;
-    const sampledQuotes = multiplier < 1.0 
-      ? shuffleArray(quotes).slice(0, Math.ceil(quotes.length * multiplier))
-      : quotes;
-    
-    for (const quote of sampledQuotes) {
-      categorized.meditation.push({
-        id: `${meditation.id}-${categorized.meditation.length}`,
-        quote,
-        source: {
-          type: 'meditation',
-          id: meditation.id,
-          title: meditation.title,
-        },
-        gradient: generateGradient()
-      });
+  if (options.includeMeditations) {
+    for (const meditation of meditations) {
+      const quotes = extractFromMeditation(meditation);
+      const multiplier = DENSITY_MULTIPLIERS.meditation;
+      const sampledQuotes = multiplier < 1.0 
+        ? shuffleArray(quotes).slice(0, Math.ceil(quotes.length * multiplier))
+        : quotes;
+      
+      for (const quote of sampledQuotes) {
+        categorized.meditation.push({
+          id: `${meditation.id}-${categorized.meditation.length}`,
+          quote,
+          source: {
+            type: 'meditation',
+            id: meditation.id,
+            title: meditation.title,
+          },
+          gradient: generateGradient()
+        });
+      }
     }
   }
   
   // Extract from stories (apply density multiplier)
-  for (const story of stories) {
-    const quotes = extractFromStory(story);
-    const multiplier = DENSITY_MULTIPLIERS.story;
-    const sampledQuotes = multiplier < 1.0 
-      ? shuffleArray(quotes).slice(0, Math.ceil(quotes.length * multiplier))
-      : quotes;
-    
-    for (const quote of sampledQuotes) {
-      categorized.story.push({
-        id: `${story.id}-${categorized.story.length}`,
-        quote,
-        source: {
-          type: 'story',
-          id: story.id,
-          title: story.title,
-        },
-        gradient: generateGradient()
-      });
+  if (options.includeStories) {
+    for (const story of stories) {
+      const quotes = extractFromStory(story);
+      const multiplier = DENSITY_MULTIPLIERS.story;
+      const sampledQuotes = multiplier < 1.0 
+        ? shuffleArray(quotes).slice(0, Math.ceil(quotes.length * multiplier))
+        : quotes;
+      
+      for (const quote of sampledQuotes) {
+        categorized.story.push({
+          id: `${story.id}-${categorized.story.length}`,
+          quote,
+          source: {
+            type: 'story',
+            id: story.id,
+            title: story.title,
+          },
+          gradient: generateGradient()
+        });
+      }
     }
   }
   
@@ -740,8 +792,9 @@ function extractAndCategorizeQuotes(
     return Math.round(score * 10) / 10;
   };
 
-  // Add philosopher quotes (categorized by their category field)
-  for (const quote of philosopherQuotes) {
+  // Add philosopher/scientist quotes (categorized by their category field)
+  if (options.includeExternal) {
+    for (const quote of philosopherQuotes) {
     // Check if quote should be shown (rotation, disabled)
     if (!shouldShowQuote(quote)) {
       continue;
@@ -781,6 +834,7 @@ function extractAndCategorizeQuotes(
     const category = quote.category;
     if (categorized[category]) {
       categorized[category].push(card);
+    }
     }
   }
   

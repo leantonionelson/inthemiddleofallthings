@@ -73,7 +73,8 @@ const ResponsiveLayout: React.FC<ResponsiveLayoutProps> = ({
     const mask = `linear-gradient(black calc(90% - ${start}px), rgb(0, 0, 0) calc(100% - ${start}px), rgba(0, 0, 0, 0.7) calc(90% - ${mid}px), transparent 93%)`;
 
     return {
-      paddingBottom: `calc(${bottomNavHeight}px + 10rem + env(safe-area-inset-bottom))`,
+      // Keep this modest so pages can control their own bottom spacing.
+      paddingBottom: `calc(${bottomNavHeight}px + 2.5rem + env(safe-area-inset-bottom))`,
       WebkitMaskImage: mask,
       maskImage: mask,
     } as React.CSSProperties;
