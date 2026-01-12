@@ -26,9 +26,9 @@ const DesktopNavigation: React.FC = () => {
   // All navigation items available to all users - route to new pages
   const navigationItems = [
     { id: 'chat', label: 'Chat', icon: MessageCircle, route: AppRoute.CHAT },
+    { id: 'read', label: 'Read', icon: BookOpen, route: AppRoute.READ },
     { id: 'learn', label: 'Learn', icon: GraduationCap, route: AppRoute.LEARN },
     { id: 'do', label: 'Do', icon: Activity, route: AppRoute.DO },
-    { id: 'read', label: 'Read', icon: BookOpen, route: AppRoute.READ },
   ];
 
   return (

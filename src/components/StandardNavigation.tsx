@@ -44,6 +44,21 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
           <span className="text-xs font-medium">Chat</span>
         </motion.button>
 
+        {/* Read Navigation */}
+        <motion.button
+          onClick={() => navigate(AppRoute.READ)}
+          className={`flex flex-col items-center justify-center py-2 px-1 transition-all ${
+            activePage === 'read'
+              ? 'text-blue-600 dark:text-blue-400'
+              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+          }`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <BookOpen className="w-6 h-6 mb-1" />
+          <span className="text-xs font-medium">Read</span>
+        </motion.button>
+
         {/* Learn Navigation */}
         <motion.button
           onClick={() => navigate(AppRoute.LEARN)}
@@ -72,21 +87,6 @@ const StandardNavigation: React.FC<StandardNavigationProps> = ({
         >
           <Activity className="w-6 h-6 mb-1" />
           <span className="text-xs font-medium">Do</span>
-        </motion.button>
-
-        {/* Read Navigation */}
-        <motion.button
-          onClick={() => navigate(AppRoute.READ)}
-          className={`flex flex-col items-center justify-center py-2 px-1 transition-all ${
-            activePage === 'read'
-              ? 'text-blue-600 dark:text-blue-400'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-          }`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <BookOpen className="w-6 h-6 mb-1" />
-          <span className="text-xs font-medium">Read</span>
         </motion.button>
       </div>
     </div>
