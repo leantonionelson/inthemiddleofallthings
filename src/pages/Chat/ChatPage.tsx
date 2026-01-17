@@ -92,6 +92,26 @@ const ChatPage: React.FC = () => {
     el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
   };
 
+  // Auto-scroll when messages change (including when assistant content updates)
+  useEffect(() => {
+    if (messages.length === 0) return;
+    
+    // Use requestAnimationFrame + setTimeout to ensure DOM has fully updated and layout is complete
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    const rafId = requestAnimationFrame(() => {
+      timeoutId = setTimeout(() => {
+        scrollToBottom();
+      }, 50);
+    });
+    
+    return () => {
+      cancelAnimationFrame(rafId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [messages]);
+
   const sendUserText = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed) return;
@@ -113,7 +133,6 @@ const ChatPage: React.FC = () => {
     };
 
     setMessages((prev) => [...prev, userMsg, assistantPending]);
-    queueMicrotask(scrollToBottom);
 
     try {
       const historyForRequest = [...latestMessagesRef.current, userMsg];
@@ -150,7 +169,6 @@ const ChatPage: React.FC = () => {
       );
     } finally {
       setIsSending(false);
-      queueMicrotask(scrollToBottom);
     }
   };
 
@@ -166,7 +184,6 @@ const ChatPage: React.FC = () => {
         // ignore
       }
     }
-    queueMicrotask(scrollToBottom);
   };
 
   return (

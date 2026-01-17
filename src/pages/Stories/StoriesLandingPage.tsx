@@ -10,7 +10,8 @@ import ContentCarousel from '../../components/ContentCarousel';
 import SearchBar from '../../components/SearchBar';
 import SearchOverlay from '../../components/SearchOverlay';
 import ContentListItem from '../../components/ContentListItem';
-import { BookOpen, Scroll, Feather, Eye, Brain, Globe, Clock, Sparkles, Zap } from 'lucide-react';
+import { BookOpen, Scroll, Feather, Eye, Brain, Globe, Clock, Sparkles, Zap, Download } from 'lucide-react';
+import { generateStoriesPDF } from '../../utils/pdfGenerator';
 
 interface StoriesLandingPageProps {
   externalSearchQuery?: string;
@@ -33,6 +34,7 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [visibleCount, setVisibleCount] = useState(20);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const navigate = useNavigate();
   
   // Use external search query if provided, otherwise use internal state
@@ -212,6 +214,20 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({
     setVisibleCount(prev => prev + 20);
   }, []);
 
+  const handleDownloadPDF = useCallback(async () => {
+    if (stories.length === 0 || isGeneratingPDF) return;
+    
+    setIsGeneratingPDF(true);
+    try {
+      await generateStoriesPDF(stories);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  }, [stories, isGeneratingPDF]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center relative z-10">
@@ -298,11 +314,24 @@ const StoriesLandingPage: React.FC<StoriesLandingPageProps> = ({
               Stories
             </h1>
           </div>
-          <p className="text-lg text-ink-secondary dark:text-ink-muted max-w-2xl leading-relaxed">
+          <p className="text-lg text-ink-secondary dark:text-ink-muted max-w-2xl leading-relaxed mb-4">
             Narrative explorations of consciousness, existence, and the mysteries of being. 
             These stories weave together philosophy, imagination, and insight to illuminate 
             the deeper questions of what it means to exist and to know.
           </p>
+          {/* Download PDF Button */}
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            onClick={handleDownloadPDF}
+            disabled={isGeneratingPDF || stories.length === 0}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary rounded-lg hover:bg-ink-primary/90 dark:hover:bg-paper-light/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Download stories as PDF"
+          >
+            <Download className="w-5 h-5" />
+            <span>{isGeneratingPDF ? 'Generating PDF...' : 'Download Stories as PDF'}</span>
+          </motion.button>
         </motion.div>
 
         {/* Completion Progress */}

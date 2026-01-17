@@ -10,7 +10,8 @@ import SynchronizedCarousel from '../../components/SynchronizedCarousel';
 import SearchBar from '../../components/SearchBar';
 import SearchOverlay from '../../components/SearchOverlay';
 import ContentListItem from '../../components/ContentListItem';
-import { Heart, Leaf, Star, Moon, Sun, Waves, Mountain, Compass, Flower2, Scale } from 'lucide-react';
+import { Heart, Leaf, Star, Moon, Sun, Waves, Mountain, Compass, Flower2, Scale, Download } from 'lucide-react';
+import { generateMeditationsPDF } from '../../utils/pdfGenerator';
 
 interface MeditationsLandingPageProps {
   externalSearchQuery?: string;
@@ -33,6 +34,7 @@ const MeditationsLandingPage: React.FC<MeditationsLandingPageProps> = ({
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [visibleCount, setVisibleCount] = useState(20);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const navigate = useNavigate();
   
   // Use external search query if provided, otherwise use internal state
@@ -210,6 +212,20 @@ const MeditationsLandingPage: React.FC<MeditationsLandingPageProps> = ({
     setVisibleCount(prev => prev + 20);
   }, []);
 
+  const handleDownloadPDF = useCallback(async () => {
+    if (meditations.length === 0 || isGeneratingPDF) return;
+    
+    setIsGeneratingPDF(true);
+    try {
+      await generateMeditationsPDF(meditations);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  }, [meditations, isGeneratingPDF]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center relative z-10">
@@ -292,11 +308,24 @@ const MeditationsLandingPage: React.FC<MeditationsLandingPageProps> = ({
               Meditations
             </h1>
           </div>
-          <p className="text-lg text-ink-secondary dark:text-ink-muted max-w-2xl leading-relaxed">
+          <p className="text-lg text-ink-secondary dark:text-ink-muted max-w-2xl leading-relaxed mb-4">
             Guided reflections and contemplative practices designed to deepen awareness, 
             cultivate mindfulness, and explore the inner landscape of consciousness. 
             Each meditation offers a unique perspective on presence, compassion, and understanding.
           </p>
+          {/* Download PDF Button */}
+          <motion.button
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            onClick={handleDownloadPDF}
+            disabled={isGeneratingPDF || meditations.length === 0}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-ink-primary dark:bg-paper-light text-paper-light dark:text-ink-primary rounded-lg hover:bg-ink-primary/90 dark:hover:bg-paper-light/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Download meditations as PDF"
+          >
+            <Download className="w-5 h-5" />
+            <span>{isGeneratingPDF ? 'Generating PDF...' : 'Download Meditations as PDF'}</span>
+          </motion.button>
         </motion.div>
 
         {/* Completion Progress */}
